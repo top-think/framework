@@ -14,13 +14,55 @@ namespace think;
 
 use Opis\Closure\SerializableClosure;
 use think\exception\ClassNotFoundException;
+use think\exception\HttpException;
 
 /**
  * App 基础类
+ * @property Route                 $route
+ * @property Config                $config
+ * @property Cache                 $cache
+ * @property Request               $request
+ * @property Env                   $env
+ * @property Debug                 $debug
+ * @property Event                 $event
+ * @property Middleware            $middleware
+ * @property Log                   $log
+ * @property Lang                  $lang
+ * @property Db                    $db
+ * @property Cookie                $cookie
+ * @property Session               $session
+ * @property Url                   $url
+ * @property Validate              $validate
+ * @property Build                 $build
+ * @property \think\route\RuleName $rule_name
  */
-abstract class App extends Container
+class App extends Container
 {
     const VERSION = '5.2.0RC1';
+
+    /**
+     * URL
+     * @var string
+     */
+    protected $urlPath = '';
+
+    /**
+     * 是否多应用模式
+     * @var bool
+     */
+    protected $multi = false;
+
+    /**
+     * 是否自动多应用
+     * @var bool
+     */
+    protected $auto = false;
+
+    /**
+     * 默认应用名（多应用模式）
+     * @var string
+     */
+    protected $defaultApp = 'index';
 
     /**
      * 应用名称
@@ -77,30 +119,6 @@ abstract class App extends Container
     protected $thinkPath = '';
 
     /**
-     * 应用基础目录
-     * @var string
-     */
-    protected $basePath = '';
-
-    /**
-     * 应用类库目录
-     * @var string
-     */
-    protected $appPath = '';
-
-    /**
-     * 运行时目录
-     * @var string
-     */
-    protected $runtimePath = '';
-
-    /**
-     * 配置目录
-     * @var string
-     */
-    protected $configPath = '';
-
-    /**
      * 配置后缀
      * @var string
      */
@@ -129,7 +147,7 @@ abstract class App extends Container
     {
         $this->thinkPath = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->rootPath  = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
-        $this->basePath  = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
+        $this->multi     = is_dir($this->getBasePath() . 'controller') ? false : true;
 
         static::setInstance($this);
 
@@ -139,6 +157,65 @@ abstract class App extends Container
         foreach (self::$servicer as $servicer) {
             $this->make($servicer)->register($this);
         }
+    }
+
+    /**
+     * 自动多应用访问
+     * @access public
+     * @param  array $map 应用路由映射
+     * @return $this
+     */
+    public function autoMulti(array $map = [])
+    {
+        $this->multi = true;
+        $this->auto  = true;
+        $this->map   = $map;
+
+        return $this;
+    }
+
+    /**
+     * 是否为自动多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isAutoMulti(): bool
+    {
+        return $this->auto;
+    }
+
+    /**
+     * 设置应用模式
+     * @access public
+     * @param  bool $multi
+     * @return $this
+     */
+    public function multi(bool $multi)
+    {
+        $this->multi = $multi;
+        return $this;
+    }
+
+    /**
+     * 是否为多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isMulti(): bool
+    {
+        return $this->multi;
+    }
+
+    /**
+     * 设置默认应用（对多应用有效）
+     * @access public
+     * @param  string $name 应用名
+     * @return $this
+     */
+    public function defaultApp(string $name)
+    {
+        $this->defaultApp = $name;
+        return $this;
     }
 
     /**
@@ -161,18 +238,6 @@ abstract class App extends Container
     public function withEvent(bool $event)
     {
         $this->withEvent = $event;
-        return $this;
-    }
-
-    /**
-     * 设置应用路径
-     * @access public
-     * @param  string $path 应用目录
-     * @return $this
-     */
-    public function path(string $path)
-    {
-        $this->appPath = $path;
         return $this;
     }
 
@@ -271,7 +336,7 @@ abstract class App extends Container
      */
     public function getBasePath(): string
     {
-        return $this->basePath;
+        return $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -281,7 +346,10 @@ abstract class App extends Container
      */
     public function getAppPath(): string
     {
-        return $this->appPath;
+        if ($this->multi) {
+            return $this->getBasePath() . $this->name . DIRECTORY_SEPARATOR;
+        }
+        return $this->getBasePath();
     }
 
     /**
@@ -291,7 +359,10 @@ abstract class App extends Container
      */
     public function getRuntimePath(): string
     {
-        return $this->runtimePath;
+        if ($this->multi) {
+            return $this->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
+        }
+        return $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -311,7 +382,7 @@ abstract class App extends Container
      */
     public function getConfigPath(): string
     {
-        return $this->configPath;
+        return $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -374,30 +445,35 @@ abstract class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        $this->parse();
+        //加载环境变量
+        if (is_file($this->rootPath . '.env')) {
+            $this->env->load($this->rootPath . '.env');
+        }
+
+        $this->configExt = $this->env->get('config_ext', '.php');
 
         $this->init();
 
         return $this;
     }
 
-    /**
-     * 分析应用（参数）
-     * @access protected
-     * @return void
-     */
-    abstract protected function parse(): void;
 
     /**
      * 初始化应用
-     * @access public
+     * @access protected
      * @return void
      */
-    public function init(): void
+    protected function init(): void
     {
+        $this->parseAppName();
+
+        if (!$this->namespace) {
+            $this->namespace = $this->multi ? $this->rootNamespace . '\\' . $this->name : $this->rootNamespace;
+        }
+
         // 加载初始化文件
-        if (is_file($this->runtimePath . 'init.php')) {
-            include $this->runtimePath . 'init.php';
+        if (is_file($this->getRuntimePath() . 'init.php')) {
+            include $this->getRuntimePath() . 'init.php';
         } else {
             $this->load();
         }
@@ -420,28 +496,52 @@ abstract class App extends Container
      */
     protected function load(): void
     {
-        if (is_file($this->appPath . 'event.php')) {
-            $this->loadEvent(include $this->appPath . 'event.php');
+        if ($this->multi && is_file($this->getBasePath() . 'event.php')) {
+            $this->loadEvent(include $this->getBasePath() . 'event.php');
         }
 
-        if (is_file($this->appPath . 'common.php')) {
-            include_once $this->appPath . 'common.php';
+        if (is_file($this->getAppPath() . 'event.php')) {
+            $this->loadEvent(include $this->getAppPath() . 'event.php');
         }
 
-        include $this->thinkPath . 'helper.php';
-
-        if (is_file($this->appPath . 'middleware.php')) {
-            $this->middleware->import(include $this->appPath . 'middleware.php');
+        if ($this->multi && is_file($this->getBasePath() . 'common.php')) {
+            include_once $this->getBasePath() . 'common.php';
         }
 
-        if (is_file($this->appPath . 'provider.php')) {
-            $this->bind(include $this->appPath . 'provider.php');
+        if (is_file($this->getAppPath() . 'common.php')) {
+            include_once $this->getAppPath() . 'common.php';
+        }
+
+        include $this->getThinkPath() . 'helper.php';
+
+        if ($this->multi && is_file($this->getBasePath() . 'middleware.php')) {
+            $this->middleware->import(include $this->getBasePath() . 'middleware.php');
+        }
+
+        if (is_file($this->getAppPath() . 'middleware.php')) {
+            $this->middleware->import(include $this->getAppPath() . 'middleware.php');
+        }
+
+        if ($this->multi && is_file($this->getBasePath() . 'provider.php')) {
+            $this->bind(include $this->getBasePath() . 'provider.php');
+        }
+
+        if (is_file($this->getAppPath() . 'provider.php')) {
+            $this->bind(include $this->getAppPath() . 'provider.php');
         }
 
         $files = [];
 
-        if (is_dir($this->configPath)) {
-            $files = glob($this->configPath . '*' . $this->configExt);
+        if (is_dir($this->getConfigPath())) {
+            $files = glob($this->getConfigPath() . '*' . $this->getConfigExt());
+        }
+
+        if ($this->multi) {
+            if (is_dir($this->getAppPath() . 'config')) {
+                $files = array_merge($files, glob($this->getAppPath() . 'config' . DIRECTORY_SEPARATOR . '*' . $this->getConfigExt()));
+            } elseif (is_dir($this->getConfigPath() . $this->name)) {
+                $files = array_merge($files, glob($this->getConfigPath() . $this->name . DIRECTORY_SEPARATOR . '*' . $this->getConfigExt()));
+            }
         }
 
         foreach ($files as $file) {
@@ -463,7 +563,7 @@ abstract class App extends Container
 
         if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
-        } elseif (PHP_SAPI != 'cli') {
+        } elseif (!$this->runningInConsole()) {
             //重新申请一块比较大的buffer
             if (ob_get_level() > 0) {
                 $output = ob_get_clean();
@@ -496,8 +596,6 @@ abstract class App extends Container
         }
     }
 
-    abstract public function run();
-
     /**
      * 解析应用类的类名
      * @access public
@@ -513,6 +611,64 @@ abstract class App extends Container
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
+    }
+
+    /**
+     * 是否运行在命令行下
+     * @return bool
+     */
+    public function runningInConsole()
+    {
+        return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
+    }
+
+    /**
+     * 分析当前请求的应用名
+     * @access protected
+     * @return void
+     */
+    protected function parseAppName(): void
+    {
+        if (!$this->runningInConsole()) {
+            $path = $this->request->path();
+
+            if ($this->auto && $path) {
+                // 自动多应用识别
+                $name = current(explode('/', $path));
+
+                if (isset($this->map[$name])) {
+                    if ($this->map[$name] instanceof \Closure) {
+                        call_user_func_array($this->map[$name], [$this]);
+                    } else {
+                        $this->name = $this->map[$name];
+                    }
+                } elseif ($name && false !== array_search($name, $this->map)) {
+                    throw new HttpException(404, 'app not exists:' . $name);
+                } else {
+                    $this->name = $name ?: $this->defaultApp;
+                }
+            } elseif ($this->multi) {
+                $this->name = $this->name ?: $this->getScriptName();
+            }
+
+            $this->request->setApp($this->name ?: '');
+        }
+    }
+
+    /**
+     * 获取当前运行入口名称
+     * @access protected
+     * @return string
+     */
+    protected function getScriptName(): string
+    {
+        if (isset($_SERVER['SCRIPT_FILENAME'])) {
+            $file = $_SERVER['SCRIPT_FILENAME'];
+        } elseif (isset($_SERVER['argv'][0])) {
+            $file = realpath($_SERVER['argv'][0]);
+        }
+
+        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : $this->defaultApp;
     }
 
     /**
