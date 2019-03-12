@@ -65,7 +65,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'validate'                => Validate::class,
         'rule_name'               => route\RuleName::class,
         'error_handle'            => Handle::class,
-
+        'web'                     => Web::class,
+        'console'                 => Console::class,
         // 接口依赖注入
         'Psr\Log\LoggerInterface' => Log::class,
     ];
