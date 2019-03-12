@@ -18,6 +18,7 @@ use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Request;
 use think\route\Dispatch;
+use think\Web;
 
 class Controller extends Dispatch
 {
@@ -56,7 +57,7 @@ class Controller extends Dispatch
     {
         try {
             // 实例化控制器
-            $instance = $this->app->controller($this->controller);
+            $instance = $this->app->make(Web::class)->controller($this->controller);
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
