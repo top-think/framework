@@ -78,7 +78,6 @@ class Console
     {
         $this->app = $app;
 
-
         $user = $this->app->config->get('console.user');
 
         if ($user) {
@@ -188,7 +187,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int)$exitCode;
+                $exitCode = (int) $exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -295,7 +294,6 @@ class Console
     {
         $this->autoExit = $boolean;
     }
-
 
     /**
      * 获取完整的版本号

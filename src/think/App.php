@@ -457,7 +457,6 @@ class App extends Container
         return $this;
     }
 
-
     /**
      * 初始化应用
      * @access protected
