@@ -27,7 +27,6 @@ class Web
      */
     protected $app;
 
-
     /**
      * 是否需要使用路由
      * @var bool
@@ -266,7 +265,6 @@ class Web
         return $routeKey;
     }
 
-
     /**
      * 获取自动多应用模式下的实际URL Path
      * @access public
@@ -283,7 +281,6 @@ class Web
         return $path;
     }
 
-
     /**
      * 获取路由目录
      * @access public
@@ -294,8 +291,8 @@ class Web
         if ($this->app->isMulti()) {
             return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $this->app->getName() . DIRECTORY_SEPARATOR;
         }
+
         return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
     }
-
 
 }

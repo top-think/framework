@@ -346,10 +346,7 @@ class App extends Container
      */
     public function getAppPath(): string
     {
-        if ($this->multi) {
-            return $this->getBasePath() . $this->name . DIRECTORY_SEPARATOR;
-        }
-        return $this->getBasePath();
+        return $this->getBasePath() . ($this->multi ? $this->name . DIRECTORY_SEPARATOR : '');
     }
 
     /**
@@ -359,10 +356,7 @@ class App extends Container
      */
     public function getRuntimePath(): string
     {
-        if ($this->multi) {
-            return $this->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $this->name . DIRECTORY_SEPARATOR;
-        }
-        return $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        return $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR . ($this->multi ? $this->name . DIRECTORY_SEPARATOR : '');
     }
 
     /**
@@ -457,7 +451,6 @@ class App extends Container
         return $this;
     }
 
-
     /**
      * 初始化应用
      * @access protected
@@ -496,51 +489,56 @@ class App extends Container
      */
     protected function load(): void
     {
-        if ($this->multi && is_file($this->getBasePath() . 'event.php')) {
-            $this->loadEvent(include $this->getBasePath() . 'event.php');
+        $basePath = $this->getBasePath();
+        $appPath  = $this->getAppPath();
+
+        if ($this->multi && is_file($basePath . 'event.php')) {
+            $this->loadEvent(include $basePath . 'event.php');
         }
 
-        if (is_file($this->getAppPath() . 'event.php')) {
-            $this->loadEvent(include $this->getAppPath() . 'event.php');
+        if (is_file($appPath . 'event.php')) {
+            $this->loadEvent(include $appPath . 'event.php');
         }
 
-        if ($this->multi && is_file($this->getBasePath() . 'common.php')) {
-            include_once $this->getBasePath() . 'common.php';
+        if ($this->multi && is_file($basePath . 'common.php')) {
+            include_once $basePath . 'common.php';
         }
 
-        if (is_file($this->getAppPath() . 'common.php')) {
-            include_once $this->getAppPath() . 'common.php';
+        if (is_file($appPath . 'common.php')) {
+            include_once $appPath . 'common.php';
         }
 
-        include $this->getThinkPath() . 'helper.php';
+        include $this->thinkPath . 'helper.php';
 
-        if ($this->multi && is_file($this->getBasePath() . 'middleware.php')) {
-            $this->middleware->import(include $this->getBasePath() . 'middleware.php');
+        if ($this->multi && is_file($basePath . 'middleware.php')) {
+            $this->middleware->import(include $basePath . 'middleware.php');
         }
 
-        if (is_file($this->getAppPath() . 'middleware.php')) {
-            $this->middleware->import(include $this->getAppPath() . 'middleware.php');
+        if (is_file($appPath . 'middleware.php')) {
+            $this->middleware->import(include $appPath . 'middleware.php');
         }
 
-        if ($this->multi && is_file($this->getBasePath() . 'provider.php')) {
-            $this->bind(include $this->getBasePath() . 'provider.php');
+        if ($this->multi && is_file($basePath . 'provider.php')) {
+            $this->bind(include $basePath . 'provider.php');
         }
 
-        if (is_file($this->getAppPath() . 'provider.php')) {
-            $this->bind(include $this->getAppPath() . 'provider.php');
+        if (is_file($appPath . 'provider.php')) {
+            $this->bind(include $appPath . 'provider.php');
         }
+
+        $configPath = $this->getConfigPath();
 
         $files = [];
 
-        if (is_dir($this->getConfigPath())) {
-            $files = glob($this->getConfigPath() . '*' . $this->getConfigExt());
+        if (is_dir($configPath)) {
+            $files = glob($configPath . '*' . $this->configExt);
         }
 
         if ($this->multi) {
-            if (is_dir($this->getAppPath() . 'config')) {
-                $files = array_merge($files, glob($this->getAppPath() . 'config' . DIRECTORY_SEPARATOR . '*' . $this->getConfigExt()));
-            } elseif (is_dir($this->getConfigPath() . $this->name)) {
-                $files = array_merge($files, glob($this->getConfigPath() . $this->name . DIRECTORY_SEPARATOR . '*' . $this->getConfigExt()));
+            if (is_dir($appPath . 'config')) {
+                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->configExt));
+            } elseif (is_dir($configPath . $this->name)) {
+                $files = array_merge($files, glob($configPath . $this->name . DIRECTORY_SEPARATOR . '*' . $this->configExt));
             }
         }
 
@@ -578,7 +576,7 @@ class App extends Container
     /**
      * 注册应用事件
      * @access protected
-     * @param array $event
+     * @param  array $event 事件数据
      * @return void
      */
     protected function loadEvent(array $event): void
