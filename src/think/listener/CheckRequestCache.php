@@ -13,6 +13,8 @@ declare (strict_types = 1);
 namespace think\listener;
 
 use think\App;
+use think\exception\HttpResponseException;
+use think\Response;
 
 class CheckRequestCache
 {
@@ -23,6 +25,21 @@ class CheckRequestCache
      */
     public function handle($event, App $app): void
     {
-        $app->request->cache();
+        $cache = $app->request->cache();
+
+        if ($cache) {
+            list($key, $expire, $tag) = $cache;
+
+            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
+                // 读取缓存
+                $response = Response::create()->code(304);
+                throw new HttpResponseException($response);
+            } elseif ($app['cache']->has($key)) {
+                list($content, $header) = $app['cache']->get($key);
+
+                $response = Response::create($content)->header($header);
+                throw new HttpResponseException($response);
+            }
+        }
     }
 }

@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\exception\HttpResponseException;
 use think\facade\Cookie;
 use think\facade\Session;
 use think\route\Dispatch;
@@ -2125,17 +2124,6 @@ class Request
 
         if (isset($fun)) {
             $key = $fun($key);
-        }
-
-        if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
-            // 读取缓存
-            $response = Response::create()->code(304);
-            throw new HttpResponseException($response);
-        } elseif ($this->app['cache']->has($key)) {
-            list($content, $header) = $this->app['cache']->get($key);
-
-            $response = Response::create($content)->header($header);
-            throw new HttpResponseException($response);
         }
 
         $this->cache = [$key, $expire, $tag];
