@@ -48,7 +48,7 @@ class Error
 
         $handler->report($e);
 
-        if (PHP_SAPI == 'cli') {
+        if ($this->app->runningInConsole()) {
             $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
             $handler->render($e)->send();

@@ -44,7 +44,6 @@ use think\Facade;
  * @method string getRoutePath() static 获取路由目录
  * @method string getConfigPath() static 获取应用配置目录
  * @method string getConfigExt() static 获取配置后缀
- * @method string setNamespace(string $namespace) static 设置应用类库命名空间
  * @method string getNamespace() static 获取应用类库命名空间
  * @method string getRootNamespace() static 获取应用类库根命名空间
  * @method string hasControllerSuffix() static 是否启用类库后缀
