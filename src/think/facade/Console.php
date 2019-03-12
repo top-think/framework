@@ -17,7 +17,7 @@ use think\Facade;
 /**
  * Class Console
  * @package think\facade
- * @method call(string $command, array $parameters = [], string $driver = 'buffer') static
+ * @mixin \think\Console
  */
 class Console extends Facade
 {
