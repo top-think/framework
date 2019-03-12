@@ -18,7 +18,7 @@ use think\exception\HttpResponseException;
 use think\route\Dispatch;
 
 /**
- * App 应用管理
+ * Web应用管理类
  * @property Route                 $route
  * @property Config                $config
  * @property Cache                 $cache
@@ -445,7 +445,6 @@ class Web extends App
         return $routeKey;
     }
 
-
     /**
      * 获取自动多应用模式下的实际URL Path
      * @access public
@@ -461,7 +460,6 @@ class Web extends App
 
         return $path;
     }
-
 
     /**
      * 分析应用路径
@@ -525,7 +523,6 @@ class Web extends App
         $this->request->setApp($this->name ?: '');
     }
 
-
     /**
      * 获取当前运行入口名称
      * @access protected
@@ -542,7 +539,6 @@ class Web extends App
         return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : $this->defaultApp;
     }
 
-
     /**
      * 获取路由目录
      * @access public
@@ -552,6 +548,5 @@ class Web extends App
     {
         return $this->routePath;
     }
-
 
 }

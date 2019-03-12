@@ -34,7 +34,6 @@ abstract class App extends Container
      */
     protected $appDebug = true;
 
-
     /**
      * 应用映射
      * @var array
@@ -113,6 +112,13 @@ abstract class App extends Container
      */
     protected $withEvent = true;
 
+    /**
+     * 注册的系统服务
+     * @var array
+     */
+    protected static $servicer = [
+        Error::class,
+    ];
 
     /**
      * 架构方法
@@ -129,8 +135,21 @@ abstract class App extends Container
 
         $this->instance('app', $this);
 
-        // 注册错误和异常处理机制
-        $this->make(Error::class)->register($this);
+        // 注册系统服务
+        foreach (self::$servicer as $servicer) {
+            $this->make($servicer)->register($this);
+        }
+    }
+
+    /**
+     * 注册一个系统服务
+     * @access public
+     * @param  string $servicer
+     * @return void
+     */
+    public static function service(string $servicer): void
+    {
+        self::$servicer[] = $servicer;
     }
 
     /**
@@ -369,7 +388,6 @@ abstract class App extends Container
      */
     abstract protected function parse(): void;
 
-
     /**
      * 初始化应用
      * @access public
@@ -478,7 +496,6 @@ abstract class App extends Container
         }
     }
 
-
     abstract public function run();
 
     /**
@@ -509,7 +526,6 @@ abstract class App extends Container
 
         return $path . DIRECTORY_SEPARATOR;
     }
-
 
     /**
      * 字符串命名风格转换
