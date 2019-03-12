@@ -319,7 +319,7 @@ class Console
      */
     public function register(string $name)
     {
-        return $this->add(new Command($name));
+        return $this->addCommand(new Command($name));
     }
 
     /**
@@ -332,7 +332,7 @@ class Console
         foreach ($commands as $key => $command) {
             if (is_subclass_of($command, "\\think\\console\\Command")) {
                 // 注册指令
-                $this->add($command, is_numeric($key) ? '' : $key);
+                $this->addCommand($command, is_numeric($key) ? '' : $key);
             }
         }
     }
@@ -344,7 +344,7 @@ class Console
      * @param  string $name    指令名 留空则自动获取
      * @return Command
      */
-    public function add($command, string $name = '')
+    public function addCommand($command, string $name = '')
     {
         if ($name) {
             $this->commands[$name] = $command;
@@ -525,7 +525,7 @@ class Console
             throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
         }
 
-        return $this->getCommand($exact ? $name : reset($commands));
+        return $this->get($exact ? $name : reset($commands));
     }
 
     /**
