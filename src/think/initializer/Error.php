@@ -10,8 +10,9 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think;
+namespace think\initializer;
 
+use think\App;
 use think\console\Output as ConsoleOutput;
 use think\exception\ErrorException;
 use think\exception\Handle;
@@ -28,7 +29,7 @@ class Error
      * @param App $app
      * @return void
      */
-    public function register(App $app)
+    public function init(App $app)
     {
         $this->app = $app;
         error_reporting(E_ALL);
@@ -88,7 +89,7 @@ class Error
         }
 
         // 写入日志
-        $this->app->make(Log::class)->save();
+        $this->app->log->save();
     }
 
     /**

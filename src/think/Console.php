@@ -10,6 +10,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
 use think\console\Command;
 use think\console\command\Clear;
 use think\console\command\Help;
@@ -29,6 +30,7 @@ use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
 use think\console\command\RouteList;
 use think\console\command\RunServer;
+use think\console\command\ServiceDiscover;
 use think\console\command\Version;
 use think\console\Input;
 use think\console\input\Argument as InputArgument;
@@ -53,26 +55,33 @@ class Console
     protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
-        'help'            => Help::class,
-        'list'            => Lists::class,
-        'build'           => Build::class,
-        'clear'           => Clear::class,
-        'make:command'    => MakeCommand::class,
-        'make:controller' => Controller::class,
-        'make:model'      => Model::class,
-        'make:middleware' => Middleware::class,
-        'make:validate'   => Validate::class,
-        'make:event'      => Event::class,
-        'make:listener'   => Listener::class,
-        'make:subscribe'  => Subscribe::class,
-        'optimize:config' => Config::class,
-        'optimize:schema' => Schema::class,
-        'optimize:route'  => Route::class,
-        'optimize:facade' => Facade::class,
-        'run'             => RunServer::class,
-        'version'         => Version::class,
-        'route:list'      => RouteList::class,
+        'help'             => Help::class,
+        'list'             => Lists::class,
+        'build'            => Build::class,
+        'clear'            => Clear::class,
+        'make:command'     => MakeCommand::class,
+        'make:controller'  => Controller::class,
+        'make:model'       => Model::class,
+        'make:middleware'  => Middleware::class,
+        'make:validate'    => Validate::class,
+        'make:event'       => Event::class,
+        'make:listener'    => Listener::class,
+        'make:subscribe'   => Subscribe::class,
+        'optimize:config'  => Config::class,
+        'optimize:schema'  => Schema::class,
+        'optimize:route'   => Route::class,
+        'optimize:facade'  => Facade::class,
+        'run'              => RunServer::class,
+        'version'          => Version::class,
+        'route:list'       => RouteList::class,
+        'service:discover' => ServiceDiscover::class
     ];
+
+    /**
+     * 初始化器
+     * @var array
+     */
+    static protected $initializers = [];
 
     public function __construct(App $app)
     {
@@ -89,23 +98,50 @@ class Console
 
         //加载指令
         $this->loadCommands();
+
+        $this->initialize();
+    }
+
+    /**
+     * 添加初始化器
+     * @param Closure $callback
+     */
+    public static function init(Closure $callback)
+    {
+        static::$initializers[] = $callback;
+    }
+
+    /**
+     * 清空初始化器
+     */
+    public static function flushInit()
+    {
+        static::$initializers = [];
+    }
+
+    /**
+     * 初始化
+     */
+    protected function initialize(): void
+    {
+        foreach (static::$initializers as $initialize) {
+            $initialize($this);
+        }
     }
 
     /**
      * 设置执行用户
      * @param $user
      */
-    protected function setUser(string $user)
+    protected function setUser(string $user): void
     {
-        if (DIRECTORY_SEPARATOR == '\\') {
-            return;
-        }
+        if (function_exists('posix_getpwnam')) {
+            $user = posix_getpwnam($user);
 
-        $user = posix_getpwnam($user);
-
-        if (!empty($user)) {
-            posix_setuid($user['uid']);
-            posix_setgid($user['gid']);
+            if (!empty($user)) {
+                posix_setuid($user['uid']);
+                posix_setgid($user['gid']);
+            }
         }
     }
 
@@ -113,30 +149,10 @@ class Console
      * 加载指令
      * @access protected
      */
-    protected function loadCommands()
+    protected function loadCommands(): void
     {
         //加载默认指令
         $this->addCommands($this->defaultCommands);
-
-        $path = $this->app->getAppPath();
-
-        if (is_dir($path . 'command')) {
-            // 自动加载指令类
-            $files = glob($path . 'command' . DIRECTORY_SEPARATOR . '*.php');
-
-            if (!empty($files)) {
-                $beforeClass = get_declared_classes();
-
-                foreach ($files as $file) {
-                    include $file;
-                }
-
-                $afterClass = get_declared_classes();
-                $commands   = array_diff($afterClass, $beforeClass);
-
-                $this->addCommands($commands);
-            }
-        }
 
         $commands = $this->app->config->get('console.commands', []);
 
@@ -342,13 +358,13 @@ class Console
      * @access public
      * @param  mixed  $command 指令对象或者指令类名
      * @param  string $name    指令名 留空则自动获取
-     * @return Command
+     * @return Command|null
      */
     public function addCommand($command, string $name = '')
     {
         if ($name) {
             $this->commands[$name] = $command;
-            return;
+            return null;
         }
 
         if (is_string($command)) {
@@ -359,7 +375,18 @@ class Console
 
         if (!$command->isEnabled()) {
             $command->setConsole(null);
-            return;
+            return null;
+        }
+
+        if (is_string($command)) {
+            $command = new $command();
+        }
+
+        $command->setConsole($this);
+
+        if (!$command->isEnabled()) {
+            $command->setConsole(null);
+            return null;
         }
 
         if (null === $command->getDefinition()) {

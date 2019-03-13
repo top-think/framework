@@ -18,7 +18,7 @@ use think\console\Output;
 use think\console\Table;
 use think\Container;
 use think\facade\App;
-use think\Web;
+use think\Http;
 
 class RouteList extends Command
 {
@@ -66,7 +66,7 @@ class RouteList extends Command
         if (App::isMulti() && $app) {
             $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
-            $path = App::make(Web::class)->getRoutePath();
+            $path = App::make(Http::class)->getRoutePath();
         }
 
         $files = is_dir($path) ? scandir($path) : [];

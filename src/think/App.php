@@ -15,6 +15,9 @@ namespace think;
 use Opis\Closure\SerializableClosure;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
+use think\initializer\BootService;
+use think\initializer\Error;
+use think\initializer\RegisterService;
 
 /**
  * App 基础类
@@ -130,13 +133,17 @@ class App extends Container
      */
     protected $withEvent = true;
 
+    protected static $initializers = [
+        Error::class,
+        RegisterService::class,
+        BootService::class
+    ];
+
     /**
      * 注册的系统服务
      * @var array
      */
-    protected static $servicer = [
-        Error::class,
-    ];
+    protected $services = [];
 
     /**
      * 架构方法
@@ -152,11 +159,52 @@ class App extends Container
         static::setInstance($this);
 
         $this->instance('app', $this);
+    }
 
-        // 注册系统服务
-        foreach (self::$servicer as $servicer) {
-            $this->make($servicer)->register($this);
+    /**
+     * 注册服务
+     * @param Service|string $service
+     * @param bool           $force
+     * @return Service|null
+     */
+    public function register($service, $force = false)
+    {
+        if (($registered = $this->getService($service)) && !$force) {
+            return $registered;
         }
+
+        if (is_string($service)) {
+            $service = new $service($this);
+        }
+
+        if (method_exists($service, 'register')) {
+            $service->register();
+        }
+    }
+
+    /**
+     * 执行服务
+     * @param Service $service
+     * @return mixed
+     */
+    public function bootService($service)
+    {
+        if (method_exists($service, 'boot')) {
+            return $this->invoke([$service, 'boot']);
+        }
+    }
+
+    /**
+     * 获取服务
+     * @param $service
+     * @return Service|null
+     */
+    public function getService($service)
+    {
+        $name = is_string($service) ? $service : get_class($service);
+        return array_values(array_filter($this->services, function ($value) use ($name) {
+                return $value instanceof $name;
+            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
@@ -216,17 +264,6 @@ class App extends Container
     {
         $this->defaultApp = $name;
         return $this;
-    }
-
-    /**
-     * 注册一个系统服务
-     * @access public
-     * @param  string $servicer
-     * @return void
-     */
-    public static function service(string $servicer): void
-    {
-        self::$servicer[] = $servicer;
     }
 
     /**
@@ -446,7 +483,10 @@ class App extends Container
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
-        $this->init();
+        // 初始化
+        foreach (self::$initializers as $initializer) {
+            $this->make($initializer)->init($this);
+        }
 
         return $this;
     }
@@ -456,7 +496,7 @@ class App extends Container
      * @access protected
      * @return void
      */
-    protected function init(): void
+    public function init(): void
     {
         $this->parseAppName();
 
@@ -466,6 +506,7 @@ class App extends Container
 
         // 加载初始化文件
         if (is_file($this->getRuntimePath() . 'init.php')) {
+            //直接加载缓存
             include $this->getRuntimePath() . 'init.php';
         } else {
             $this->load();
@@ -480,6 +521,10 @@ class App extends Container
         $this->debugModeInit();
 
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
+
+        array_walk($this->services, function ($service) {
+            $this->bootService($service);
+        });
     }
 
     /**

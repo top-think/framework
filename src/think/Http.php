@@ -19,7 +19,7 @@ use think\route\Dispatch;
 /**
  * Web应用管理类
  */
-class Web
+class Http
 {
 
     /**
