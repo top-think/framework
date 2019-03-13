@@ -81,12 +81,11 @@ class Console
      * 初始化器
      * @var array
      */
-    static protected $initializers = [];
+    protected static $initializers = [];
 
     public function __construct(App $app)
     {
         $this->app = $app;
-
 
         $user = $this->app->config->get('console.user');
 
@@ -204,7 +203,7 @@ class Console
 
             $exitCode = $e->getCode();
             if (is_numeric($exitCode)) {
-                $exitCode = (int)$exitCode;
+                $exitCode = (int) $exitCode;
                 if (0 === $exitCode) {
                     $exitCode = 1;
                 }
@@ -312,7 +311,6 @@ class Console
         $this->autoExit = $boolean;
     }
 
-
     /**
      * 获取完整的版本号
      * @access public
@@ -364,7 +362,7 @@ class Console
     {
         if ($name) {
             $this->commands[$name] = $command;
-            return null;
+            return;
         }
 
         if (is_string($command)) {
@@ -375,7 +373,7 @@ class Console
 
         if (!$command->isEnabled()) {
             $command->setConsole(null);
-            return null;
+            return;
         }
 
         if (is_string($command)) {
@@ -386,7 +384,7 @@ class Console
 
         if (!$command->isEnabled()) {
             $command->setConsole(null);
-            return null;
+            return;
         }
 
         if (null === $command->getDefinition()) {
