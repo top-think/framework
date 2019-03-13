@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think\console\command;
 
-
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
@@ -34,7 +33,7 @@ class ServiceDiscover extends Command
             $services = [];
             foreach ($packages as $package) {
                 if (!empty($package['extra']['think']['services'])) {
-                    $services += (array)$package['extra']['think']['services'];
+                    $services += (array) $package['extra']['think']['services'];
                 }
             }
 
