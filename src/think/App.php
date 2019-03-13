@@ -180,6 +180,8 @@ class App extends Container
         if (method_exists($service, 'register')) {
             $service->register();
         }
+
+        $this->services[] = $service;
     }
 
     /**

@@ -34,13 +34,13 @@ class ServiceDiscover extends Command
             $services = [];
             foreach ($packages as $package) {
                 if (!empty($package['extra']['think']['services'])) {
-                    $services += (array)$package['extra']['think']['services'];
+                    $services = array_merge($services, (array)$package['extra']['think']['services']);
                 }
             }
 
             $header = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL . 'declare (strict_types = 1);' . PHP_EOL;
 
-            $content = '<?php ' . PHP_EOL . $header . "return " . var_export($services, true);
+            $content = '<?php ' . PHP_EOL . $header . "return " . var_export($services, true) . ';';
 
             if (!is_dir($runtimePath = App::getRuntimePath())) {
                 mkdir($runtimePath, 0755, true);
