@@ -26,7 +26,7 @@ class ServiceDiscover extends Command
             ->setDescription('Discover Services for ThinkPHP');
     }
 
-    public function run(Input $input, Output $output): int
+    public function execute(Input $input, Output $output)
     {
         if (is_file($path = App::getRootPath() . 'vendor/composer/installed.json')) {
             $packages = json_decode(@file_get_contents($path), true);
