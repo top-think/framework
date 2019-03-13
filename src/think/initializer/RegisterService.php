@@ -12,15 +12,16 @@ declare (strict_types = 1);
 
 namespace think\initializer;
 
-
 use think\App;
 
 class RegisterService
 {
     public function init(App $app)
     {
-        if (is_file($app->getRuntimePath() . 'services.php')) {
-            $services = include $app->getRuntimePath() . 'services.php';
+        $file = $app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'services.php';
+
+        if (is_file($file)) {
+            $services = include $file;
 
             foreach ($services as $service) {
                 $app->register($service);
