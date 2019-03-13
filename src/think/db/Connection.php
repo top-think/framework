@@ -789,15 +789,20 @@ abstract class Connection
      * @param  Query  $query 查询对象
      * @param  string $sql sql指令
      * @param  array  $bind 参数绑定
+     * @param  bool   $origin 是否原生查询
      * @return int
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function execute(Query $query, string $sql, array $bind = []): int
+    public function execute(Query $query, string $sql, array $bind = [], bool $origin = false): int
     {
         $this->queryPDOStatement($query->master(true), $sql, $bind);
+
+        if (!$origin && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
+            Db::readMaster($query->getTable());
+        }
 
         $this->numRows = $this->PDOStatement->rowCount();
 

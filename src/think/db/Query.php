@@ -24,6 +24,7 @@ use think\db\exception\ModelNotFoundException;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
+use think\facade\Db;
 use think\Model;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
@@ -368,7 +369,7 @@ class Query
      */
     public function execute(string $sql, array $bind = []): int
     {
-        return $this->connection->execute($this, $sql, $bind);
+        return $this->connection->execute($this, $sql, $bind, true);
     }
 
     /**
@@ -1867,6 +1868,21 @@ class Query
     public function master(bool $readMaster = true)
     {
         $this->options['master'] = $readMaster;
+        return $this;
+    }
+
+    /**
+     * 设置后续从主库读取数据
+     * @access public
+     * @param  bool $all 是否所有表有效
+     * @return $this
+     */
+    public function readMaster(bool $all = false)
+    {
+        $table = $all ? '*' : $this->getTable();
+
+        Db::readMaster($table);
+
         return $this;
     }
 
@@ -3437,6 +3453,10 @@ class Query
             if (!isset($options[$name])) {
                 $options[$name] = false;
             }
+        }
+
+        if (is_string($options['table']) && Db::isReadMaster($options['table'])) {
+            $options['master'] = true;
         }
 
         foreach (['group', 'having', 'limit', 'force', 'comment', 'partition', 'duplicate', 'extra'] as $name) {
