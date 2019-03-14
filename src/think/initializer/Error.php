@@ -112,6 +112,6 @@ class Error
      */
     protected function getExceptionHandler()
     {
-        return $this->app->make(Handle::class);
+        return $this->app->make('error_handle');
     }
 }
