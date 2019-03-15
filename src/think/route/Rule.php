@@ -168,9 +168,9 @@ abstract class Rule
     /**
      * 获取当前路由规则
      * @access public
-     * @return string
+     * @return mixed
      */
-    public function getRule(): string
+    public function getRule()
     {
         return $this->rule;
     }
@@ -992,5 +992,18 @@ abstract class Rule
     public function __wakeup()
     {
         $this->router = Container::pull('route');
+    }
+
+    public function __debugInfo()
+    {
+        return [
+            'name'    => $this->name,
+            'rule'    => $this->rule,
+            'route'   => $this->route,
+            'method'  => $this->method,
+            'vars'    => $this->vars,
+            'option'  => $this->option,
+            'pattern' => $this->pattern,
+        ];
     }
 }
