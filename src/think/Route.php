@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
 use think\exception\RouteNotFoundException;
 use think\facade\RuleName;
 use think\route\Dispatch;
@@ -652,11 +653,11 @@ class Route
     /**
      * 注册未匹配路由规则后的处理
      * @access public
-     * @param  string    $route 路由地址
-     * @param  string    $method 请求类型
+     * @param  string|Closure $route  路由地址
+     * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss(string $route, string $method = '*'): RuleItem
+    public function miss($route, string $method = '*'): RuleItem
     {
         return $this->group->miss($route, $method);
     }
