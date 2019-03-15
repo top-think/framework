@@ -335,7 +335,7 @@ class Url
             }
         }
 
-        return (empty($suffix) || 0 === strpos($suffix, '.')) ? $suffix : '.' . $suffix;
+        return (empty($suffix) || 0 === strpos($suffix, '.')) ? (string) $suffix : '.' . $suffix;
     }
 
     /**

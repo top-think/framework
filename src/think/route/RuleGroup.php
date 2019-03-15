@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use Closure;
 use think\Container;
 use think\Exception;
 use think\Request;
@@ -385,11 +386,11 @@ class RuleGroup extends Rule
     /**
      * 注册MISS路由
      * @access public
-     * @param  string $route  路由地址
-     * @param  string $method 请求类型
+     * @param  string|Closure $route  路由地址
+     * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss(string $route, string $method = '*'): RuleItem
+    public function miss($route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
