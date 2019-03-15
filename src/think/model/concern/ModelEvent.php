@@ -62,13 +62,15 @@ trait ModelEvent
      */
     protected static function observe(string $class): void
     {
-        foreach (static::$observe as $event) {
-            $call = 'on' . App::parseName($event, 1, false);
+        if (class_exists($class)) {
+            $instance = Container::getInstance()->invokeClass($class);
 
-            if (method_exists($class, $call)) {
-                $class = Container::getInstance()->invokeClass($class);
+            foreach (static::$observe as $event) {
+                $call = 'on' . App::parseName($event, 1, false);
 
-                self::$event[static::class][$event][] = [$class, $call];
+                if (method_exists($instance, $call)) {
+                    self::$event[static::class][$event][] = [$instance, $call];
+                }
             }
         }
     }
