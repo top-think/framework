@@ -354,8 +354,8 @@ class Console
     /**
      * 添加一个指令
      * @access public
-     * @param  mixed  $command 指令对象或者指令类名
-     * @param  string $name    指令名 留空则自动获取
+     * @param  string|Command $command 指令对象或者指令类名
+     * @param  string         $name    指令名 留空则自动获取
      * @return Command|null
      */
     public function addCommand($command, string $name = '')
@@ -376,16 +376,7 @@ class Console
             return;
         }
 
-        if (is_string($command)) {
-            $command = new $command();
-        }
-
-        $command->setConsole($this);
-
-        if (!$command->isEnabled()) {
-            $command->setConsole(null);
-            return;
-        }
+        $command->setApp($this->app);
 
         if (null === $command->getDefinition()) {
             throw new \LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));

@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\console;
 
+use think\App;
 use think\Console;
 use think\console\input\Argument;
 use think\console\input\Definition;
@@ -23,7 +24,7 @@ class Command
     /** @var  Console */
     private $console;
     private $name;
-    private $aliases = [];
+    private $aliases                         = [];
     private $definition;
     private $help;
     private $description;
@@ -31,14 +32,17 @@ class Command
     private $consoleDefinitionMerged         = false;
     private $consoleDefinitionMergedWithArgs = false;
     private $code;
-    private $synopsis = [];
-    private $usages   = [];
+    private $synopsis                        = [];
+    private $usages                          = [];
 
     /** @var  Input */
     protected $input;
 
     /** @var  Output */
     protected $output;
+
+    /** @var App */
+    protected $app;
 
     /**
      * 构造方法
@@ -89,6 +93,24 @@ class Command
     }
 
     /**
+     * 设置app
+     * @param App $app
+     */
+    public function setApp(App $app)
+    {
+        $this->app = $app;
+    }
+
+    /**
+     * 获取app
+     * @return App
+     */
+    public function getApp()
+    {
+        return $this->app;
+    }
+
+    /**
      * 是否有效
      * @return bool
      */
@@ -101,7 +123,8 @@ class Command
      * 配置指令
      */
     protected function configure()
-    {}
+    {
+    }
 
     /**
      * 执行指令
@@ -113,7 +136,7 @@ class Command
      */
     protected function execute(Input $input, Output $output)
     {
-        throw new \LogicException('You must override the execute() method in the concrete command class.');
+        return $this->app->invoke([$this, 'handle']);
     }
 
     /**
@@ -122,7 +145,8 @@ class Command
      * @param Output $output
      */
     protected function interact(Input $input, Output $output)
-    {}
+    {
+    }
 
     /**
      * 初始化
@@ -130,7 +154,8 @@ class Command
      * @param Output $output An OutputInterface instance
      */
     protected function initialize(Input $input, Output $output)
-    {}
+    {
+    }
 
     /**
      * 执行
