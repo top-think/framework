@@ -485,21 +485,6 @@ class App extends Container
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
-        // 初始化
-        foreach (self::$initializers as $initializer) {
-            $this->make($initializer)->init($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * 初始化应用
-     * @access protected
-     * @return void
-     */
-    public function init(): void
-    {
         $this->parseAppName();
 
         if (!$this->namespace) {
@@ -524,6 +509,21 @@ class App extends Container
 
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
 
+        // 初始化
+        foreach (self::$initializers as $initializer) {
+            $this->make($initializer)->init($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * 引导应用
+     * @access protected
+     * @return void
+     */
+    public function boot(): void
+    {
         array_walk($this->services, function ($service) {
             $this->bootService($service);
         });
@@ -539,14 +539,6 @@ class App extends Container
         $basePath = $this->getBasePath();
         $appPath  = $this->getAppPath();
 
-        if ($this->multi && is_file($basePath . 'event.php')) {
-            $this->loadEvent(include $basePath . 'event.php');
-        }
-
-        if (is_file($appPath . 'event.php')) {
-            $this->loadEvent(include $appPath . 'event.php');
-        }
-
         if ($this->multi && is_file($basePath . 'common.php')) {
             include_once $basePath . 'common.php';
         }
@@ -556,22 +548,6 @@ class App extends Container
         }
 
         include $this->thinkPath . 'helper.php';
-
-        if ($this->multi && is_file($basePath . 'middleware.php')) {
-            $this->middleware->import(include $basePath . 'middleware.php');
-        }
-
-        if (is_file($appPath . 'middleware.php')) {
-            $this->middleware->import(include $appPath . 'middleware.php');
-        }
-
-        if ($this->multi && is_file($basePath . 'provider.php')) {
-            $this->bind(include $basePath . 'provider.php');
-        }
-
-        if (is_file($appPath . 'provider.php')) {
-            $this->bind(include $appPath . 'provider.php');
-        }
 
         $configPath = $this->getConfigPath();
 
@@ -591,6 +567,30 @@ class App extends Container
 
         foreach ($files as $file) {
             $this->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+        }
+
+        if ($this->multi && is_file($basePath . 'event.php')) {
+            $this->loadEvent(include $basePath . 'event.php');
+        }
+
+        if (is_file($appPath . 'event.php')) {
+            $this->loadEvent(include $appPath . 'event.php');
+        }
+
+        if ($this->multi && is_file($basePath . 'middleware.php')) {
+            $this->middleware->import(include $basePath . 'middleware.php');
+        }
+
+        if (is_file($appPath . 'middleware.php')) {
+            $this->middleware->import(include $appPath . 'middleware.php');
+        }
+
+        if ($this->multi && is_file($basePath . 'provider.php')) {
+            $this->bind(include $basePath . 'provider.php');
+        }
+
+        if (is_file($appPath . 'provider.php')) {
+            $this->bind(include $appPath . 'provider.php');
         }
     }
 

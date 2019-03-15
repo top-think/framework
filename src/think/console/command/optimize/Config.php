@@ -58,7 +58,25 @@ class Config extends Command
 
         $configPath = App::getConfigPath();
         $configExt  = App::getConfigExt();
-        $config     = Container::pull('config');
+
+        // 加载公共文件
+        if ($app && is_file(App::getBasePath() . 'common.php')) {
+            $common = substr(php_strip_whitespace(App::getBasePath() . 'common.php'), 6);
+            if ($common) {
+                $content .= PHP_EOL . $common . PHP_EOL;
+            }
+        }
+
+        if (is_file($path . 'common.php')) {
+            $common = substr(php_strip_whitespace($path . 'common.php'), 6);
+            if ($common) {
+                $content .= PHP_EOL . $common . PHP_EOL;
+            }
+        }
+
+        $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
+
+        $config = Container::pull('config');
 
         // 加载应用配置文件
         $files = [];
@@ -78,6 +96,8 @@ class Config extends Command
         foreach ($files as $file) {
             $config->load($file, pathinfo($file, PATHINFO_FILENAME));
         }
+
+        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . \think\facade\App::serialize($config->get()) . '\'));' . PHP_EOL;
 
         // 加载事件定义文件
         if (is_file($path . 'event.php')) {
@@ -100,23 +120,6 @@ class Config extends Command
             }
         }
 
-        // 加载公共文件
-        if ($app && is_file(App::getBasePath() . 'common.php')) {
-            $common = substr(php_strip_whitespace(App::getBasePath() . 'common.php'), 6);
-            if ($common) {
-                $content .= PHP_EOL . $common . PHP_EOL;
-            }
-        }
-
-        if (is_file($path . 'common.php')) {
-            $common = substr(php_strip_whitespace($path . 'common.php'), 6);
-            if ($common) {
-                $content .= PHP_EOL . $common . PHP_EOL;
-            }
-        }
-
-        $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
-
         if (is_file($path . 'middleware.php')) {
             $middleware = include $path . 'middleware.php';
             if (is_array($middleware)) {
@@ -130,8 +133,6 @@ class Config extends Command
                 $content .= PHP_EOL . '\think\Container::getInstance()->bind(' . var_export($provider, true) . ');' . PHP_EOL;
             }
         }
-
-        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . \think\facade\App::serialize($config->get()) . '\'));' . PHP_EOL;
 
         return $header . preg_replace('/declare\s?\(\s?strict_types\s?=\s?1\s?\)\s?\;/i', '', $content);
     }

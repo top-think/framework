@@ -18,6 +18,6 @@ class BootService
 {
     public function init(App $app)
     {
-        $app->init();
+        $app->boot();
     }
 }
