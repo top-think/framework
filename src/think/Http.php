@@ -54,6 +54,7 @@ class Http
     public function __construct(App $app)
     {
         $this->app = $app;
+        $this->app->initialize();
     }
 
     /**
@@ -283,16 +284,12 @@ class Http
 
     /**
      * 获取路由目录
-     * @access public
+     * @access protected
      * @return string
      */
-    public function getRoutePath(): string
+    protected function getRoutePath(): string
     {
-        if ($this->app->isMulti()) {
-            return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $this->app->getName() . DIRECTORY_SEPARATOR;
-        }
-
-        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
+        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->app->isMulti() ? $this->app->getName() . DIRECTORY_SEPARATOR : '');
     }
 
 }

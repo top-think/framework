@@ -29,6 +29,7 @@ class Route extends Command
     protected function execute(Input $input, Output $output)
     {
         $app = $input->getArgument('app');
+
         if ($app) {
             $path = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
@@ -39,21 +40,19 @@ class Route extends Command
         if (is_file($filename)) {
             unlink($filename);
         }
+
         file_put_contents($filename, $this->buildRouteCache($app));
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildRouteCache(string $app): string
+    protected function buildRouteCache(string $app = null): string
     {
-        Container::pull('route')->setName([]);
-        Container::pull('route')->lazy(false);
+        $route = Container::pull('route');
+        $route->setName([]);
+        $route->lazy(false);
 
         // 路由检测
-        if ($app) {
-            $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
-        } else {
-            $path = App::getRoutePath();
-        }
+        $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
 
         $files = is_dir($path) ? scandir($path) : [];
 
@@ -68,7 +67,7 @@ class Route extends Command
         }
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= '\think\facade\App::unserialize(\'' . \think\facade\App::serialize(Container::pull('route')->getName()) . '\');';
+        $content .= '\think\facade\App::unserialize(\'' . App::serialize($route->getName()) . '\');';
         return $content;
     }
 

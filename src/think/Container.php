@@ -49,11 +49,13 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'build'                   => Build::class,
         'cache'                   => Cache::class,
         'config'                  => Config::class,
+        'console'                 => Console::class,
         'cookie'                  => Cookie::class,
         'db'                      => Db::class,
         'debug'                   => Debug::class,
         'env'                     => Env::class,
         'event'                   => Event::class,
+        'http'                    => Http::class,
         'lang'                    => Lang::class,
         'log'                     => Log::class,
         'middleware'              => Middleware::class,
@@ -65,6 +67,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'validate'                => Validate::class,
         'rule_name'               => route\RuleName::class,
         'error_handle'            => Handle::class,
+
         // 接口依赖注入
         'Psr\Log\LoggerInterface' => Log::class,
     ];

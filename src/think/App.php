@@ -25,6 +25,8 @@ use think\initializer\RegisterService;
  * @property Config                $config
  * @property Cache                 $cache
  * @property Request               $request
+ * @property Http                  $http
+ * @property Console               $console
  * @property Env                   $env
  * @property Debug                 $debug
  * @property Event                 $event
@@ -128,7 +130,7 @@ class App extends Container
     protected $withEvent = true;
 
     /**
-     * 应用启动器
+     * 应用初始化器
      * @var array
      */
     protected static $initializers = [

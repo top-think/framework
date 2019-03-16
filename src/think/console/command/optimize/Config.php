@@ -34,7 +34,7 @@ class Config extends Command
             $runtimePath = App::getRuntimePath();
         }
 
-        $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app'));
+        $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app') ?: '');
 
         if (!is_dir($runtimePath)) {
             mkdir($runtimePath, 0755, true);
@@ -97,7 +97,7 @@ class Config extends Command
             $config->load($file, pathinfo($file, PATHINFO_FILENAME));
         }
 
-        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . \think\facade\App::serialize($config->get()) . '\'));' . PHP_EOL;
+        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . addslashes(\think\facade\App::serialize($config->get())) . '\'));' . PHP_EOL;
 
         // 加载事件定义文件
         if (is_file($path . 'event.php')) {

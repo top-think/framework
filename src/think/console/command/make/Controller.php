@@ -46,7 +46,7 @@ class Controller extends Make
 
     protected function getClassName(string $name): string
     {
-        return parent::getClassName($name) . (App::hasControllerSuffix() ? 'Controller' : '');
+        return parent::getClassName($name) . (App::make('http')->hasControllerSuffix() ? 'Controller' : '');
     }
 
     protected function getNamespace(string $app): string

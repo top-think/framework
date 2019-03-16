@@ -18,7 +18,7 @@ use think\console\Output;
 use think\console\Table;
 use think\Container;
 use think\facade\App;
-use think\Http;
+use think\facade\Route;
 
 class RouteList extends Command
 {
@@ -42,7 +42,7 @@ class RouteList extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $app = $input->getArgument('app') ?: '';
+        $app = $input->getArgument('app');
 
         if (App::isMulti() && $app) {
             $filename = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';
@@ -58,15 +58,15 @@ class RouteList extends Command
         file_put_contents($filename, 'Route List' . PHP_EOL . $content);
     }
 
-    protected function getRouteList(string $app): string
+    protected function getRouteList(string $app = null): string
     {
-        Container::pull('route')->setTestMode(true);
-        Container::pull('route')->clear();
+        Route::setTestMode(true);
+        Route::clear();
 
         if (App::isMulti() && $app) {
             $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
-            $path = App::make(Http::class)->getRoutePath();
+            $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR;
         }
 
         $files = is_dir($path) ? scandir($path) : [];
@@ -91,7 +91,7 @@ class RouteList extends Command
 
         $table->setHeader($header);
 
-        $routeList = Container::pull('route')->getRuleList();
+        $routeList = Route::getRuleList();
         $rows      = [];
 
         foreach ($routeList as $domain => $items) {
