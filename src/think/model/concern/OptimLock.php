@@ -65,7 +65,7 @@ trait OptimLock
 
     public function getWhere()
     {
-        $where     = parent::geWhere();
+        $where     = parent::getWhere();
         $optimLock = $this->getOptimLockField();
 
         if ($optimLock && $lockVer = $this->getOrigin($optimLock)) {

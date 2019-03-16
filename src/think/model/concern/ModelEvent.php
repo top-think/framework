@@ -66,9 +66,9 @@ trait ModelEvent
             $call = 'on' . App::parseName($event, 1, false);
 
             if (method_exists($class, $call)) {
-                $class = Container::getInstance()->invokeClass($class);
+                $instance = Container::getInstance()->invokeClass($class);
 
-                self::$event[static::class][$event][] = [$class, $call];
+                self::$event[static::class][$event][] = [$instance, $call];
             }
         }
     }
