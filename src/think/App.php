@@ -44,12 +44,6 @@ class App extends Container
     const VERSION = '5.2.0RC1';
 
     /**
-     * URL
-     * @var string
-     */
-    protected $urlPath = '';
-
-    /**
      * 是否多应用模式
      * @var bool
      */
@@ -133,10 +127,14 @@ class App extends Container
      */
     protected $withEvent = true;
 
+    /**
+     * 应用启动器
+     * @var array
+     */
     protected static $initializers = [
         Error::class,
         RegisterService::class,
-        BootService::class
+        BootService::class,
     ];
 
     /**
@@ -163,11 +161,12 @@ class App extends Container
 
     /**
      * 注册服务
-     * @param Service|string $service
-     * @param bool           $force
+     * @access public
+     * @param  Service|string $service 服务
+     * @param  bool           $force 强制重新注册
      * @return Service|null
      */
-    public function register($service, $force = false)
+    public function register($service, bool $force = false)
     {
         if (($registered = $this->getService($service)) && !$force) {
             return $registered;
@@ -186,10 +185,11 @@ class App extends Container
 
     /**
      * 执行服务
-     * @param Service $service
+     * @access public
+     * @param  Service $service 服务
      * @return mixed
      */
-    public function bootService($service)
+    public function bootService(Service $service)
     {
         if (method_exists($service, 'boot')) {
             return $this->invoke([$service, 'boot']);
@@ -198,15 +198,15 @@ class App extends Container
 
     /**
      * 获取服务
-     * @param $service
+     * @param  string|Service $service
      * @return Service|null
      */
     public function getService($service)
     {
         $name = is_string($service) ? $service : get_class($service);
         return array_values(array_filter($this->services, function ($value) use ($name) {
-                return $value instanceof $name;
-            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
+            return $value instanceof $name;
+        }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
@@ -519,7 +519,7 @@ class App extends Container
 
     /**
      * 引导应用
-     * @access protected
+     * @access public
      * @return void
      */
     public function boot(): void
