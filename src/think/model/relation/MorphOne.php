@@ -219,13 +219,14 @@ class MorphOne extends Relation
     /**
      * 保存（新增）当前关联数据对象
      * @access public
-     * @param  mixed $data 数据 可以使用数组 关联模型对象 和 关联对象的主键
+     * @param  mixed   $data 数据 可以使用数组 关联模型对象
+     * @param  boolean $replace 是否自动识别更新和写入
      * @return Model|false
      */
-    public function save($data)
+    public function save($data, bool $replace = true)
     {
         $model = $this->make();
-        return $model->save($data) ? $model : false;
+        return $model->replace($replace)->save($data) ? $model : false;
     }
 
     /**

@@ -502,12 +502,12 @@ class BelongsToMany extends Relation
     /**
      * 批量保存当前关联数据对象
      * @access public
-     * @param  array $dataSet   数据集
-     * @param  array $pivot     中间表额外数据
-     * @param  bool  $samePivot 额外数据是否相同
+     * @param  iterable $dataSet   数据集
+     * @param  array    $pivot     中间表额外数据
+     * @param  bool     $samePivot 额外数据是否相同
      * @return array|false
      */
-    public function saveAll(array $dataSet, array $pivot = [], bool $samePivot = false)
+    public function saveAll(iterable $dataSet, array $pivot = [], bool $samePivot = false)
     {
         $result = [];
 

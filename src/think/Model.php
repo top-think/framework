@@ -709,12 +709,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 保存多个数据到当前数据对象
      * @access public
-     * @param  array   $dataSet 数据
-     * @param  boolean $replace 是否自动识别更新和写入
+     * @param  iterable $dataSet 数据
+     * @param  boolean  $replace 是否自动识别更新和写入
      * @return Collection
      * @throws \Exception
      */
-    public function saveAll(array $dataSet, bool $replace = true): Collection
+    public function saveAll(iterable $dataSet, bool $replace = true): Collection
     {
         $db = $this->db();
         $db->startTrans();
