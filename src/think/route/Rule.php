@@ -477,6 +477,17 @@ abstract class Rule
     }
 
     /**
+     * 检查是否为JSON请求
+     * @access public
+     * @param  bool $json 是否为JSON
+     * @return $this
+     */
+    public function json(bool $json = true)
+    {
+        return $this->setOption('json', $json);
+    }
+
+    /**
      * 检查是否为AJAX请求
      * @access public
      * @param  bool $ajax 是否为AJAX
@@ -771,7 +782,7 @@ abstract class Rule
         }
 
         // AJAX PJAX 请求检查
-        foreach (['ajax', 'pjax'] as $item) {
+        foreach (['ajax', 'pjax', 'json'] as $item) {
             if (isset($option[$item])) {
                 $call = 'is' . $item;
                 if ($option[$item] && !$request->$call() || !$option[$item] && $request->$call()) {

@@ -1610,6 +1610,18 @@ class Request
     }
 
     /**
+     * 当前是否JSON请求
+     * @access public
+     * @return bool
+     */
+    public function isJson(): bool
+    {
+        $contentType = $this->contentType();
+
+        return false !== strpos($contentType, 'json');
+    }
+
+    /**
      * 当前是否Ajax请求
      * @access public
      * @param  bool $ajax  true 获取原始ajax请求
