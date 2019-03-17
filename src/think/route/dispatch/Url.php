@@ -100,9 +100,10 @@ class Url extends Dispatch
         // 检查地址是否被定义过路由
         $name = strtolower(App::parseName($controller, 1) . '/' . $action);
 
-        $host = $this->request->host(true);
+        $host   = $this->request->host(true);
+        $method = $this->request->method();
 
-        if ($this->rule->getRouter()->getName($name, $host)) {
+        if ($this->rule->getRouter()->getName($name, $host, $method)) {
             return true;
         }
 

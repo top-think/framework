@@ -170,7 +170,9 @@ class App extends Container
      */
     public function register($service, bool $force = false)
     {
-        if (($registered = $this->getService($service)) && !$force) {
+        $registered = $this->getService($service);
+
+        if ($registered && !$force) {
             return $registered;
         }
 

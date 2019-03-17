@@ -136,7 +136,7 @@ class RuleName
                 $result = $this->item[$name];
             } else {
                 foreach ($this->item[$name] as $item) {
-                    if ($item[2] == $domain && ('*' == $item[4] || $method == $item[4])) {
+                    if ($item[2] == $domain && ('*' == $item[4] || '*' == $method || $method == $item[4])) {
                         $result[] = $item;
                     }
                 }
