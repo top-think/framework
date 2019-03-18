@@ -679,10 +679,9 @@ class App extends Container
     protected function parseAppName(): void
     {
         if (!$this->runningInConsole()) {
-            $path = $this->request->path();
-
-            if ($this->auto && $path) {
+            if ($this->auto) {
                 // 自动多应用识别
+                $path = $this->request->path();
                 $name = current(explode('/', $path));
 
                 if (isset($this->map[$name])) {
