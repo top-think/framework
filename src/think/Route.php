@@ -59,7 +59,7 @@ class Route
         // 是否自动转换URL中的控制器和操作名
         'url_convert'           => true,
         // 默认的路由变量规则
-        'default_route_pattern' => '\w+',
+        'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
         'url_html_suffix'       => 'html',
         // 默认输出类型

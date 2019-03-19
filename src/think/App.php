@@ -701,7 +701,6 @@ class App extends Container
             } elseif ($this->multi) {
                 $this->name = $this->name ?: $this->getScriptName();
             }
-
         }
     }
 
