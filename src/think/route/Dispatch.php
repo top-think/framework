@@ -121,9 +121,7 @@ abstract class Dispatch
             $response = $data;
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
-            $isAjax = $this->request->isAjax();
-            $type   = $isAjax ? $this->rule->config('default_ajax_return') : $this->rule->config('default_return_type');
-
+            $type     = $this->request->isJson() ? 'json' : 'html';
             $response = Response::create($data, $type);
         } else {
             $data = ob_get_clean();

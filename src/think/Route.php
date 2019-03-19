@@ -62,10 +62,6 @@ class Route
         'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
         'url_html_suffix'       => 'html',
-        // 默认输出类型
-        'default_return_type'   => 'html',
-        // 默认AJAX 数据返回格式,可选json xml ...
-        'default_ajax_return'   => 'json',
         // 默认控制器名
         'default_controller'    => 'Index',
         // 默认操作名

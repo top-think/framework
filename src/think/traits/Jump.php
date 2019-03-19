@@ -148,9 +148,6 @@ trait Jump
      */
     protected function getResponseType()
     {
-        $isAjax = Container::pull('request')->isAjax();
-        $route  = Container::pull('route');
-
-        return $isAjax ? $route->config('default_ajax_return') : $route->config('default_return_type');
+        return Container::pull('request')->isJson() ? 'json' : 'html';
     }
 }
