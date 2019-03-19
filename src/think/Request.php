@@ -336,7 +336,7 @@ class Request
 
     public static function __make(App $app, Config $config)
     {
-        $request = new static($config->get('route', []));
+        $request = new static($config->get('route'));
 
         $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;
@@ -798,8 +798,8 @@ class Request
     /**
      * 设置资源类型
      * @access public
-     * @param  string|array  $type 资源类型名
-     * @param  string        $val 资源类型
+     * @param  string|array $type 资源类型名
+     * @param  string       $val 资源类型
      * @return void
      */
     public function mimeType($type, $val = ''): void
@@ -814,7 +814,7 @@ class Request
     /**
      * 当前的请求类型
      * @access public
-     * @param  bool $origin  是否获取原始请求类型
+     * @param  bool $origin 是否获取原始请求类型
      * @return string
      */
     public function method(bool $origin = false): string
@@ -935,9 +935,9 @@ class Request
     /**
      * 获取当前请求的参数
      * @access public
-     * @param  string|array  $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  string|array $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function param($name = '', $default = null, $filter = '')
@@ -975,7 +975,7 @@ class Request
     /**
      * 设置路由变量
      * @access public
-     * @param  array         $route 路由变量
+     * @param  array $route 路由变量
      * @return $this
      */
     public function setRoute(array $route)
@@ -987,9 +987,9 @@ class Request
     /**
      * 获取路由参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function route($name = '', $default = null, $filter = '')
@@ -1004,9 +1004,9 @@ class Request
     /**
      * 获取GET参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function get($name = '', $default = null, $filter = '')
@@ -1025,8 +1025,8 @@ class Request
     /**
      * 获取中间件传递的参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
+     * @param  mixed $name 变量名
+     * @param  mixed $default 默认值
      * @return mixed
      */
     public function middleware($name, $default = null)
@@ -1037,9 +1037,9 @@ class Request
     /**
      * 获取POST参数
      * @access public
-     * @param  mixed         $name 变量名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function post($name = '', $default = null, $filter = '')
@@ -1058,9 +1058,9 @@ class Request
     /**
      * 获取PUT参数
      * @access public
-     * @param  mixed             $name 变量名
-     * @param  mixed             $default 默认值
-     * @param  string|array      $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function put($name = '', $default = null, $filter = '')
@@ -1091,9 +1091,9 @@ class Request
     /**
      * 设置获取DELETE参数
      * @access public
-     * @param  mixed             $name 变量名
-     * @param  mixed             $default 默认值
-     * @param  string|array      $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function delete($name = '', $default = null, $filter = '')
@@ -1104,9 +1104,9 @@ class Request
     /**
      * 设置获取PATCH参数
      * @access public
-     * @param  mixed             $name 变量名
-     * @param  mixed             $default 默认值
-     * @param  string|array      $filter 过滤方法
+     * @param  mixed        $name 变量名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function patch($name = '', $default = null, $filter = '')
@@ -1117,9 +1117,9 @@ class Request
     /**
      * 获取request变量
      * @access public
-     * @param  mixed         $name 数据名称
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  mixed        $name 数据名称
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function request($name = '', $default = null, $filter = '')
@@ -1138,8 +1138,8 @@ class Request
     /**
      * 获取session数据
      * @access public
-     * @param  string        $name 数据名称
-     * @param  string        $default 默认值
+     * @param  string $name 数据名称
+     * @param  string $default 默认值
      * @return mixed
      */
     public function session(string $name = '', $default = null)
@@ -1160,9 +1160,9 @@ class Request
     /**
      * 获取cookie参数
      * @access public
-     * @param  mixed         $name 数据名称
-     * @param  string        $default 默认值
-     * @param  string|array  $filter 过滤方法
+     * @param  mixed        $name 数据名称
+     * @param  string       $default 默认值
+     * @param  string|array $filter 过滤方法
      * @return mixed
      */
     public function cookie(string $name = '', $default = null, $filter = '')
@@ -1193,8 +1193,8 @@ class Request
     /**
      * 获取server参数
      * @access public
-     * @param  string        $name 数据名称
-     * @param  string        $default 默认值
+     * @param  string $name 数据名称
+     * @param  string $default 默认值
      * @return mixed
      */
     public function server(string $name = '', string $default = null)
@@ -1211,8 +1211,8 @@ class Request
     /**
      * 获取环境变量
      * @access public
-     * @param  string        $name 数据名称
-     * @param  string        $default 默认值
+     * @param  string $name 数据名称
+     * @param  string $default 默认值
      * @return mixed
      */
     public function env(string $name = '', string $default = null)
@@ -1327,8 +1327,8 @@ class Request
     /**
      * 设置或者获取当前的Header
      * @access public
-     * @param  string   $name header名称
-     * @param  string   $default 默认值
+     * @param  string $name header名称
+     * @param  string $default 默认值
      * @return string|array
      */
     public function header(string $name = '', string $default = null)
@@ -1369,10 +1369,10 @@ class Request
     /**
      * 获取变量 支持过滤和默认值
      * @access public
-     * @param  array         $data 数据源
-     * @param  string|false  $name 字段名
-     * @param  mixed         $default 默认值
-     * @param  string|array  $filter 过滤函数
+     * @param  array        $data 数据源
+     * @param  string|false $name 字段名
+     * @param  mixed        $default 默认值
+     * @param  string|array $filter 过滤函数
      * @return mixed
      */
     public function input(array $data = [], $name = '', $default = null, $filter = '')
@@ -1421,8 +1421,8 @@ class Request
     /**
      * 获取数据
      * @access public
-     * @param  array         $data 数据源
-     * @param  string        $name 字段名
+     * @param  array  $data 数据源
+     * @param  string $name 字段名
      * @return mixed
      */
     protected function getData(array $data, string $name)
@@ -1476,9 +1476,9 @@ class Request
     /**
      * 递归过滤给定的值
      * @access public
-     * @param  mixed     $value 键值
-     * @param  mixed     $key 键名
-     * @param  array     $filters 过滤方法+默认值
+     * @param  mixed $value 键值
+     * @param  mixed $key 键名
+     * @param  array $filters 过滤方法+默认值
      * @return mixed
      */
     private function filterValue(&$value, $key, $filters)
@@ -1515,9 +1515,9 @@ class Request
     /**
      * 是否存在某个请求参数
      * @access public
-     * @param  string    $name 变量名
-     * @param  string    $type 变量类型
-     * @param  bool      $checkEmpty 是否检测空值
+     * @param  string $name 变量名
+     * @param  string $type 变量类型
+     * @param  bool   $checkEmpty 是否检测空值
      * @return bool
      */
     public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
@@ -1539,9 +1539,9 @@ class Request
     /**
      * 获取指定的参数
      * @access public
-     * @param  array            $name 变量名
-     * @param  mixed            $data 数据或者变量类型
-     * @param  string|array     $filter 过滤方法
+     * @param  array        $name 变量名
+     * @param  mixed        $data 数据或者变量类型
+     * @param  string|array $filter 过滤方法
      * @return array
      */
     public function only(array $name, $data = 'param', $filter = ''): array
@@ -1624,7 +1624,7 @@ class Request
     /**
      * 当前是否Ajax请求
      * @access public
-     * @param  bool $ajax  true 获取原始ajax请求
+     * @param  bool $ajax true 获取原始ajax请求
      * @return bool
      */
     public function isAjax(bool $ajax = false): bool
@@ -1642,7 +1642,7 @@ class Request
     /**
      * 当前是否Pjax请求
      * @access public
-     * @param  bool $pjax  true 获取原始pjax请求
+     * @param  bool $pjax true 获取原始pjax请求
      * @return bool
      */
     public function isPjax(bool $pjax = false): bool
@@ -1729,8 +1729,8 @@ class Request
     /**
      * 检测是否是合法的IP地址
      *
-     * @param string $ip    IP地址
-     * @param string $type  IP地址类型 (ipv4, ipv6)
+     * @param string $ip   IP地址
+     * @param string $type IP地址类型 (ipv4, ipv6)
      *
      * @return boolean
      */

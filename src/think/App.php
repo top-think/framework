@@ -503,6 +503,8 @@ class App extends Container
             $this->load();
         }
 
+        $this->request->setApp($this->name ?: '');
+
         // 设置开启事件机制
         $this->event->withEvent($this->withEvent);
 
@@ -681,7 +683,8 @@ class App extends Container
         if (!$this->runningInConsole()) {
             if ($this->auto) {
                 // 自动多应用识别
-                $path = $this->request->path();
+                $path = $this->request->pathinfo();
+                unset($this->request);
                 $name = current(explode('/', $path));
 
                 if (isset($this->map[$name])) {
@@ -699,7 +702,6 @@ class App extends Container
                 $this->name = $this->name ?: $this->getScriptName();
             }
 
-            $this->request->setApp($this->name ?: '');
         }
     }
 
