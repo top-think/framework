@@ -15,37 +15,10 @@ namespace think;
 class Facade
 {
     /**
-     * 绑定对象
-     * @var array
-     */
-    protected static $bind = [];
-
-    /**
      * 始终创建新的对象实例
      * @var bool
      */
     protected static $alwaysNewInstance;
-
-    /**
-     * 绑定类的静态代理
-     * @static
-     * @access public
-     * @param  string|array  $name    类标识
-     * @param  string        $class   类名
-     * @return object
-     */
-    public static function bind($name, $class = null)
-    {
-        if (__CLASS__ != static::class) {
-            return self::__callStatic('bind', func_get_args());
-        }
-
-        if (is_array($name)) {
-            self::$bind = array_merge(self::$bind, $name);
-        } else {
-            self::$bind[$name] = $class;
-        }
-    }
 
     /**
      * 创建Facade实例
@@ -64,8 +37,6 @@ class Facade
 
         if ($facadeClass) {
             $class = $facadeClass;
-        } elseif (isset(self::$bind[$class])) {
-            $class = self::$bind[$class];
         }
 
         if (static::$alwaysNewInstance) {
