@@ -690,35 +690,34 @@ class Request
      */
     public function pathinfo(): string
     {
-        if ($this->pathinfo) {
-            return $this->pathinfo;
-        }
+        if (!$this->pathinfo) {
+            if (isset($_GET[$this->config['var_pathinfo']])) {
+                // 判断URL里面是否有兼容模式参数
+                $pathinfo = $_GET[$this->config['var_pathinfo']];
+                unset($_GET[$this->config['var_pathinfo']]);
+            } elseif ($this->server('PATH_INFO')) {
+                $pathinfo = $this->server('PATH_INFO');
+            } elseif ($this->server('REQUEST_URI')) {
+                $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
+            } elseif (isset($_SERVER['argv'][1])) {
+                // CLI模式下 index.php controller/action/params/...
+                $pathinfo = $_SERVER['argv'][1];
+            }
 
-        if (isset($_GET[$this->config['var_pathinfo']])) {
-            // 判断URL里面是否有兼容模式参数
-            $pathinfo = $_GET[$this->config['var_pathinfo']];
-            unset($_GET[$this->config['var_pathinfo']]);
-        } elseif ($this->server('PATH_INFO')) {
-            $pathinfo = $this->server('PATH_INFO');
-        } elseif ($this->server('REQUEST_URI')) {
-            $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
-        } elseif (isset($_SERVER['argv'][1])) {
-            // CLI模式下 index.php controller/action/params/...
-            $pathinfo = $_SERVER['argv'][1];
-        }
-
-        // 分析PATHINFO信息
-        if (!isset($pathinfo)) {
-            foreach ($this->config['pathinfo_fetch'] as $type) {
-                if ($this->server($type)) {
-                    $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
-                    substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
-                    break;
+            // 分析PATHINFO信息
+            if (!isset($pathinfo)) {
+                foreach ($this->config['pathinfo_fetch'] as $type) {
+                    if ($this->server($type)) {
+                        $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
+                        substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
+                        break;
+                    }
                 }
             }
+            $this->pathinfo = empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
         }
 
-        return empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
+        return $this->pathinfo;
     }
 
     /**
@@ -745,6 +744,8 @@ class Request
             // 允许任何后缀访问
             $path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
         }
+
+        $this->path = $path;
 
         return $path;
     }
