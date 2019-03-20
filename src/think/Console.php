@@ -321,8 +321,8 @@ class Console
      */
     public function getLongVersion(): string
     {
-        if ('UNKNOWN' !== $this->app->getName() && 'UNKNOWN' !== $this->app->version()) {
-            return sprintf('<info>%s</info> version <comment>%s</comment>', $this->app->getName(), $this->app->version());
+        if ($this->app->version()) {
+            return sprintf('version <comment>%s</comment>', $this->app->version());
         }
 
         return '<info>Console Tool</info>';

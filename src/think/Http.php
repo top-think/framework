@@ -293,7 +293,7 @@ class Http
     {
         if ($this->auto) {
             // 自动多应用识别
-            $path = $this->app->request->path();
+            $path = $this->app->request->pathinfo();
             $name = current(explode('/', $path));
 
             if (isset($this->map[$name])) {
@@ -309,8 +309,8 @@ class Http
             }
 
             if ($name) {
-                $this->app->request->setPathinfo(preg_replace('/^' . $name . '\//', '', $this->app->request->pathinfo()));
                 $this->app->request->setRoot($name);
+                $this->app->request->setPathinfo(strpos($path, '/') ? strstr($path, '/') : '');
             }
         } else {
             $appName = $this->name ?: $this->getScriptName();

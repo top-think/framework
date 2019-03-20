@@ -101,7 +101,7 @@ class Build
                     $class    = $val;
                     switch ($path) {
                         case 'controller': // 控制器
-                            if ($this->app->hasControllerSuffix()) {
+                            if ($this->app->config->get('app.controller_suffix')) {
                                 $filename = $appPath . $path . DIRECTORY_SEPARATOR . $val . 'Controller.php';
                                 $class    = $val . 'Controller';
                             }
@@ -138,8 +138,8 @@ class Build
         $namespace = $this->app->getNameSpace();
         $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
-        $layer  = $this->app->getControllerLayer();
-        $suffix = $this->app->hasControllerSuffix();
+        $layer  = $this->app->config->get('app.controller_layer');
+        $suffix = $this->app->config->get('app.controller_suffix');
 
         $path = $this->appPath . $layer . DIRECTORY_SEPARATOR;
         $content .= $this->buildDirRoute($path, $namespace, $suffix, $layer);
@@ -290,7 +290,7 @@ class Build
      */
     protected function buildHello(string $appName, string $namespace): void
     {
-        $suffix   = $this->app->hasControllerSuffix() ? 'Controller' : '';
+        $suffix   = $this->app->config->get('app.controller_suffix') ? 'Controller' : '';
         $filename = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . $suffix . '.php';
         if (!is_file($filename)) {
             $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
