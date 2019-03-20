@@ -163,13 +163,14 @@ class Http
     /**
      * 执行应用程序
      * @access public
-     * @param Request|null $request
+     * @param  Request|null $request
      * @return Response
      */
     public function run(Request $request = null): Response
     {
         //自动创建request对象
         $request = $request ?? $this->app->make('request', [], true);
+        $this->app->instance('request', $request);
 
         try {
             $response = $this->runWithRequest($request);
@@ -184,12 +185,11 @@ class Http
 
     /**
      * 执行应用程序
-     * @param Request $request
+     * @param  Request $request
      * @return mixed
      */
     protected function runWithRequest(Request $request)
     {
-        $this->app->instance('request', $request);
         $this->app->initialize();
 
         if ($this->multi) {
@@ -205,9 +205,7 @@ class Http
             return $this->app->route->dispatch($request, $withRoute);
         });
 
-        $response = $this->app->middleware->dispatch($request);
-
-        return $response;
+        return $this->app->middleware->dispatch($request);
     }
 
     /**
