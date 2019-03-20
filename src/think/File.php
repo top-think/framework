@@ -158,7 +158,14 @@ class File extends SplFileObject
             return true;
         }
 
-        if (mkdir($path, 0755, true)) {
+        try {
+            $result = mkdir($path, 0755, true);
+        } catch (\Exception $e) {
+            // 创建失败
+            $result = false;
+        }
+
+        if ($result) {
             return true;
         }
 
