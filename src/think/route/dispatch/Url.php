@@ -22,6 +22,8 @@ class Url extends Controller
 
     public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
     {
+        $this->request = $request;
+        $this->rule    = $rule;
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
