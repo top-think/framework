@@ -708,14 +708,19 @@ class Route
 
         try {
             if ($withRoute) {
-                $dispatch = $this->cache
-                    ->tag('route_cache')
-                    ->remember($this->getRouteCacheKey($request), function () use ($request, $withRoute) {
-                        //加载路由
-                        $withRoute();
+                $checkCallback = function () use ($request, $withRoute) {
+                    //加载路由
+                    $withRoute();
+                    return $this->check();
+                };
 
-                        return $this->check();
-                    });
+                if ($this->config['route_check_cache']) {
+                    $dispatch = $this->cache
+                        ->tag('route_cache')
+                        ->remember($this->getRouteCacheKey($request), $checkCallback);
+                } else {
+                    $dispatch = $checkCallback();
+                }
             } else {
                 $dispatch = $this->url($request->path());
             }
