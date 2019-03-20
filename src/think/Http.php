@@ -333,9 +333,7 @@ class Http
         if (!empty($appName)) {
             $this->app->request->setApp($this->name ?: '');
             $this->name($appName);
-            $this->app->classParser(function ($layer, $class) use ($appName) {
-                return 'app\\' . $appName . '\\' . $layer . '\\' . $class;
-            });
+            $this->app->setNamespace($this->app->getRootNamespace() . '\\' . $appName);
 
             $this->app->setAppPath($this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
             $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);

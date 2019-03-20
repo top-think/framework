@@ -44,6 +44,18 @@ class App extends Container
     protected $beginMem;
 
     /**
+     * 应用类库顶级命名空间
+     * @var string
+     */
+    protected $rootNamespace = 'app';
+
+    /**
+     * 当前应用类库命名空间
+     * @var string
+     */
+    protected $namespace = 'app';
+
+    /**
      * 应用根目录
      * @var string
      */
@@ -100,9 +112,6 @@ class App extends Container
      * @var bool
      */
     protected $initialized = false;
-
-    /** @var \Closure */
-    protected $classParser;
 
     /**
      * 架构方法
@@ -205,6 +214,51 @@ class App extends Container
     public function isDebug(): bool
     {
         return $this->appDebug;
+    }
+
+
+    /**
+     * 设置应用命名空间
+     * @access public
+     * @param  string $namespace 应用命名空间
+     * @return $this
+     */
+    public function setNamespace(string $namespace)
+    {
+        $this->namespace = $namespace;
+        return $this;
+    }
+
+    /**
+     * 设置应用根命名空间
+     * @access public
+     * @param  string $rootNamespace 应用命名空间
+     * @return $this
+     */
+    public function setRootNamespace(string $rootNamespace)
+    {
+        $this->rootNamespace = $rootNamespace;
+        return $this;
+    }
+
+    /**
+     * 获取应用类基础命名空间
+     * @access public
+     * @return string
+     */
+    public function getRootNamespace(): string
+    {
+        return $this->rootNamespace;
+    }
+
+    /**
+     * 获取应用类库命名空间
+     * @access public
+     * @return string
+     */
+    public function getNamespace(): string
+    {
+        return $this->namespace;
     }
 
 
@@ -493,22 +547,7 @@ class App extends Container
         $class = self::parseName(array_pop($array), 1);
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
-        $class = $path . $class;
-
-        if ($this->classParser) {
-            return call_user_func($this->classParser, $layer, $name);
-        }
-
-        return 'app\\' . $layer . '\\' . $class;
-    }
-
-    /**
-     * 设置类名解析器
-     * @param \Closure $parser
-     */
-    public function classParser(\Closure $parser)
-    {
-        $this->classParser = $parser;
+        return $this->namespace . '\\' . $layer . '\\' . $path . $class;
     }
 
     /**
