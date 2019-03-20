@@ -52,7 +52,7 @@ class Error
         if ($this->app->runningInConsole()) {
             $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
-            $handler->render($e)->send();
+            $handler->render($this->app->request, $e)->send();
         }
     }
 

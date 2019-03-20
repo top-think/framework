@@ -18,7 +18,6 @@ use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
 use think\Request;
 use think\route\Dispatch;
-use think\Http;
 
 class Controller extends Dispatch
 {
@@ -49,15 +48,13 @@ class Controller extends Dispatch
         $this->request
             ->setController(App::parseName($this->controller, 1))
             ->setAction($this->actionName);
-
-        return $this;
     }
 
     public function exec()
     {
         try {
             // 实例化控制器
-            $instance = $this->app->make(Http::class)->controller($this->controller);
+            $instance = $this->controller($this->controller);
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
@@ -85,5 +82,30 @@ class Controller extends Dispatch
         });
 
         return $this->app['middleware']->dispatch($this->request, 'controller');
+    }
+
+    /**
+     * 实例化访问控制器
+     * @access public
+     * @param  string $name 资源地址
+     * @return object
+     * @throws ClassNotFoundException
+     */
+    public function controller(string $name)
+    {
+        $suffix = $this->rule->config('controller_suffix') ? 'Controller' : '';
+
+        $controllerLayer = $this->rule->config('controller_layer') ?: 'controller';
+        $emptyController = $this->rule->config('empty_controller') ?: 'Error';
+
+        $class = $this->app->parseClass($controllerLayer, $name . $suffix);
+
+        if (class_exists($class)) {
+            return $this->app->make($class, [], true);
+        } elseif ($emptyController && class_exists($emptyClass = $this->app->parseClass($controllerLayer, $emptyController . $suffix))) {
+            return $this->app->make($emptyClass, [], true);
+        }
+
+        throw new ClassNotFoundException('class not exists:' . $class, $class);
     }
 }

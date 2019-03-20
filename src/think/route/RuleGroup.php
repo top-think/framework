@@ -37,7 +37,10 @@ class RuleGroup extends Rule
 
     protected $rule;
 
-    // MISS路由
+    /**
+     * MISS路由
+     * @var RuleItem
+     */
     protected $miss;
 
     // 自动路由
@@ -107,9 +110,9 @@ class RuleGroup extends Rule
     /**
      * 检测分组路由
      * @access public
-     * @param  Request $request  请求对象
-     * @param  string  $url      访问地址
-     * @param  bool    $completeMatch   路由是否完全匹配
+     * @param  Request $request       请求对象
+     * @param  string  $url           访问地址
+     * @param  bool    $completeMatch 路由是否完全匹配
      * @return Dispatch|false
      */
     public function check(Request $request, string $url, bool $completeMatch = false)
@@ -254,10 +257,10 @@ class RuleGroup extends Rule
     /**
      * 检测分组路由
      * @access public
-     * @param  Request $request  请求对象
-     * @param  array   $rules    路由规则
-     * @param  string  $url      访问地址
-     * @param  bool    $completeMatch   路由是否完全匹配
+     * @param  Request $request       请求对象
+     * @param  array   $rules         路由规则
+     * @param  string  $url           访问地址
+     * @param  bool    $completeMatch 路由是否完全匹配
      * @return Dispatch|false
      */
     protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, bool $completeMatch)
@@ -357,7 +360,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule():  ? RuleItem
+    public function getMissRule(): ?RuleItem
     {
         return $this->miss;
     }
@@ -367,7 +370,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getAutoRule() : string
+    public function getAutoRule(): string
     {
         return $this->auto;
     }
@@ -507,7 +510,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName():  ? string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
@@ -518,7 +521,7 @@ class RuleGroup extends Rule
      * @param  string $method 请求类型
      * @return array
      */
-    public function getRules(string $method = '') : array
+    public function getRules(string $method = ''): array
     {
         if ('' === $method) {
             return $this->rules;

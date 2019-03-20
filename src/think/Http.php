@@ -12,9 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
-use think\exception\HttpResponseException;
-use think\route\Dispatch;
+use think\exception\HttpException;
 
 /**
  * Web应用管理类
@@ -27,34 +25,129 @@ class Http
      */
     protected $app;
 
+
+    /**
+     * 是否多应用模式
+     * @var bool
+     */
+    protected $multi = false;
+
+    /**
+     * 是否自动多应用
+     * @var bool
+     */
+    protected $auto = false;
+
+    /**
+     * 默认应用名（多应用模式）
+     * @var string
+     */
+    protected $defaultApp = 'index';
+
+    /**
+     * 应用名称
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * 应用映射
+     * @var array
+     */
+    protected $map = [];
+
     /**
      * 是否需要使用路由
      * @var bool
      */
     protected $withRoute = true;
 
-    /**
-     * 访问控制器层名称
-     * @var string
-     */
-    protected $controllerLayer = 'controller';
-
-    /**
-     * 是否使用控制器类库后缀
-     * @var bool
-     */
-    protected $controllerSuffix = false;
-
-    /**
-     * 空控制器名称
-     * @var string
-     */
-    protected $emptyController = 'Error';
-
     public function __construct(App $app)
     {
-        $this->app = $app;
-        $this->app->initialize();
+        $this->app   = $app;
+        $this->multi = is_dir($this->app->getBasePath() . 'controller') ? false : true;
+    }
+
+    /**
+     * 自动多应用访问
+     * @access public
+     * @param  array $map 应用路由映射
+     * @return $this
+     */
+    public function autoMulti(array $map = [])
+    {
+        $this->multi = true;
+        $this->auto  = true;
+        $this->map   = $map;
+
+        return $this;
+    }
+
+    /**
+     * 是否为自动多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isAutoMulti(): bool
+    {
+        return $this->auto;
+    }
+
+    /**
+     * 设置应用模式
+     * @access public
+     * @param  bool $multi
+     * @return $this
+     */
+    public function multi(bool $multi)
+    {
+        $this->multi = $multi;
+        return $this;
+    }
+
+    /**
+     * 是否为多应用模式
+     * @access public
+     * @return bool
+     */
+    public function isMulti(): bool
+    {
+        return $this->multi;
+    }
+
+    /**
+     * 设置默认应用（对多应用有效）
+     * @access public
+     * @param  string $name 应用名
+     * @return $this
+     */
+    public function defaultApp(string $name)
+    {
+        $this->defaultApp = $name;
+        return $this;
+    }
+
+    /**
+     * 设置应用名称
+     * @access public
+     * @param  string $name 应用名称
+     * @return $this
+     */
+    public function name(string $name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+
+    /**
+     * 获取应用名称
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name ?: '';
     }
 
     /**
@@ -70,123 +163,70 @@ class Http
     }
 
     /**
-     * 设置控制器层名称
-     * @access public
-     * @param  string $layer 控制器层名称
-     * @return $this
+     * 初始化
      */
-    public function controllerLayer(string $layer)
+    protected function initialize()
     {
-        $this->controllerLayer = $layer;
-        return $this;
-    }
-
-    /**
-     * 设置空控制器名称
-     * @access public
-     * @param  string $empty 空控制器名称
-     * @return $this
-     */
-    public function emptyController(string $empty)
-    {
-        $this->emptyController = $empty;
-        return $this;
-    }
-
-    /**
-     * 设置是否启用控制器类库后缀
-     * @access public
-     * @param  bool $suffix 启用控制器类库后缀
-     * @return $this
-     */
-    public function controllerSuffix(bool $suffix = true)
-    {
-        $this->controllerSuffix = $suffix;
-        return $this;
-    }
-
-    /**
-     * 是否启用控制器类库后缀
-     * @access public
-     * @return bool
-     */
-    public function hasControllerSuffix(): bool
-    {
-        return $this->controllerSuffix;
-    }
-
-    /**
-     * 获取控制器层名称
-     * @access public
-     * @return string
-     */
-    public function getControllerLayer(): string
-    {
-        return $this->controllerLayer;
+        if (!$this->app->initialized()) {
+            $this->app->initialize();
+        }
     }
 
     /**
      * 执行应用程序
      * @access public
+     * @param Request|null $request
      * @return Response
      */
-    public function run(): Response
+    public function run(Request $request = null): Response
     {
+        //自动创建request对象
+        $request = $request ?? $this->app->make('request', [], true);
+
         try {
-            if ($this->withRoute) {
-                $dispatch = $this->routeCheck()->init();
-            } else {
-                $dispatch = $this->app->route->url($this->getRealPath())->init();
-            }
+            $response = $this->runWithRequest($request);
+        } catch (\Throwable $e) {
+            $this->reportException($e);
 
-            // 监听AppBegin
-            $this->app->event->trigger('AppBegin');
-
-            $data = null;
-        } catch (HttpResponseException $exception) {
-            $dispatch = null;
-            $data     = $exception->getResponse();
+            $response = $this->renderException($request, $e);
         }
-
-        $this->app->middleware->add(function (Request $request, $next) use ($dispatch, $data) {
-            return is_null($data) ? $dispatch->run() : $data;
-        });
-
-        $response = $this->app->middleware->dispatch($this->app->request);
-
-        // 监听AppEnd
-        $this->app->event->trigger('AppEnd', $response);
 
         return $response;
     }
 
     /**
-     * 实例化访问控制器
-     * @access public
-     * @param  string $name 资源地址
-     * @return object
-     * @throws ClassNotFoundException
+     * 执行应用程序
+     * @param Request $request
+     * @return mixed
      */
-    public function controller(string $name)
+    protected function runWithRequest(Request $request)
     {
-        $suffix = $this->controllerSuffix ? 'Controller' : '';
-        $class  = $this->app->parseClass($this->controllerLayer, $name . $suffix);
+        $this->app->instance('request', $request);
 
-        if (class_exists($class)) {
-            return $this->app->make($class, [], true);
-        } elseif ($this->emptyController && class_exists($emptyClass = $this->app->parseClass($this->controllerLayer, $this->emptyController . $suffix))) {
-            return $this->app->make($emptyClass, [], true);
-        }
+        $this->initialize();
 
-        throw new ClassNotFoundException('class not exists:' . $class, $class);
+        $this->parseMultiApp();
+
+        $this->app->middleware->add(function (Request $request) {
+
+            $withRoute = $this->withRoute ? function () {
+                $this->loadRoutes();
+            } : null;
+
+            return $this->app->route->dispatch($request, $withRoute);
+        });
+
+        $response = $this->app->middleware->dispatch($request);
+
+        return $response;
     }
 
     /**
-     * 路由初始化（路由规则注册）
+     * 加载路由
      * @access protected
      * @return void
      */
-    protected function routeInit(): void
+    protected function loadRoutes(): void
     {
         // 加载路由定义
         if (is_dir($this->getRoutePath())) {
@@ -211,85 +251,133 @@ class Http
     }
 
     /**
-     * URL路由检测（根据PATH_INFO)
-     * @access protected
-     * @return Dispatch
-     */
-    protected function routeCheck(): Dispatch
-    {
-        // 检测路由缓存
-        if (!$this->app->isDebug() && $this->app->route->config('route_check_cache')) {
-            $routeKey = $this->getRouteCacheKey();
-            $option   = $this->app->route->config('route_cache_option');
-
-            if ($option && $this->app->cache->connect($option)->has($routeKey)) {
-                return $this->app->cache->connect($option)->get($routeKey);
-            } elseif ($this->app->cache->has($routeKey)) {
-                return $this->app->cache->get($routeKey);
-            }
-        }
-
-        $this->routeInit();
-
-        // 路由检测
-        $dispatch = $this->app->route->check($this->getRealPath());
-
-        if (!empty($routeKey)) {
-            try {
-                if (!empty($option)) {
-                    $this->app->cache->connect($option)->tag('route_cache')->set($routeKey, $dispatch);
-                } else {
-                    $this->app->cache->tag('route_cache')->set($routeKey, $dispatch);
-                }
-            } catch (\Exception $e) {
-                // 存在闭包的时候缓存无效
-            }
-        }
-
-        return $dispatch;
-    }
-
-    /**
-     * 获取路由缓存Key
-     * @access protected
-     * @return string
-     */
-    protected function getRouteCacheKey(): string
-    {
-        if ($this->app->route->config('route_check_cache_key')) {
-            $closure  = $this->app->route->config('route_check_cache_key');
-            $routeKey = $closure($this->app->request);
-        } else {
-            $routeKey = md5($this->app->request->baseUrl(true) . ':' . $this->app->request->method());
-        }
-
-        return $routeKey;
-    }
-
-    /**
-     * 获取自动多应用模式下的实际URL Path
-     * @access public
-     * @return string
-     */
-    protected function getRealPath(): string
-    {
-        $path = $this->app->request->path();
-
-        if ($path && $this->app->isAutoMulti()) {
-            $path = substr_replace($path, '', 0, strpos($path, '/') ? strpos($path, '/') + 1 : strlen($path));
-        }
-
-        return $path;
-    }
-
-    /**
      * 获取路由目录
      * @access protected
      * @return string
      */
     protected function getRoutePath(): string
     {
-        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->app->isMulti() ? $this->app->getName() . DIRECTORY_SEPARATOR : '');
+        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->isMulti() ? $this->getName() . DIRECTORY_SEPARATOR : '');
+    }
+
+    /**
+     * Report the exception to the exception handler.
+     *
+     * @param  \Throwable $e
+     * @return void
+     */
+    protected function reportException(\Throwable $e)
+    {
+        $this->app['error_handle']->report($e);
+    }
+
+    /**
+     * Render the exception to a response.
+     *
+     * @param  Request    $request
+     * @param  \Throwable $e
+     * @return Response
+     */
+    protected function renderException($request, \Throwable $e)
+    {
+        return $this->app['error_handle']->render($request, $e);
+    }
+
+
+    /**
+     * 获取当前运行入口名称
+     * @access protected
+     * @return string
+     */
+    protected function getScriptName(): string
+    {
+        if (isset($_SERVER['SCRIPT_FILENAME'])) {
+            $file = $_SERVER['SCRIPT_FILENAME'];
+        } elseif (isset($_SERVER['argv'][0])) {
+            $file = realpath($_SERVER['argv'][0]);
+        }
+
+        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : $this->defaultApp;
+    }
+
+    /**
+     * 解析多应用
+     */
+    protected function parseMultiApp()
+    {
+        if ($this->isAutoMulti()) {
+            // 自动多应用识别
+            $path = $this->app->request->path();
+            $name = current(explode('/', $path));
+
+            if (isset($this->map[$name])) {
+                if ($this->map[$name] instanceof \Closure) {
+                    call_user_func_array($this->map[$name], [$this]);
+                } else {
+                    $appName = $this->map[$name];
+                }
+            } elseif ($name && false !== array_search($name, $this->map)) {
+                throw new HttpException(404, 'app not exists:' . $name);
+            } else {
+                $appName = $name ?: $this->defaultApp;
+            }
+
+            if ($name) {
+                $this->app->request->setPathinfo(preg_replace('/^' . $name . '\//', '', $this->app->request->pathinfo()));
+                $this->app->request->setRoot($name);
+            }
+        } elseif ($this->isMulti()) {
+            $appName = $this->name ?: $this->getScriptName();
+        }
+
+        if (!empty($appName)) {
+            $this->app->request->setApp($this->name ?: '');
+            $this->name($appName);
+            $this->app->classParser(function ($layer, $class) use ($appName) {
+                return 'app\\' . $appName . '\\' . $layer . '\\' . $class;
+            });
+
+            $this->app->setAppPath($this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
+            $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
+
+            //加载app文件
+            if (is_file($this->app->getRuntimePath() . 'init.php')) {
+                //直接加载缓存
+                include $this->app->getRuntimePath() . 'init.php';
+            } else {
+                $appPath = $this->app->getAppPath();
+
+                if (is_file($appPath . 'common.php')) {
+                    include_once $appPath . 'common.php';
+                }
+
+                $configPath = $this->app->getConfigPath();
+
+                $files = [];
+
+                if (is_dir($appPath . 'config')) {
+                    $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                } elseif (is_dir($configPath . $appName)) {
+                    $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                }
+
+                foreach ($files as $file) {
+                    $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+                }
+
+                if (is_file($appPath . 'event.php')) {
+                    $this->app->loadEvent(include $appPath . 'event.php');
+                }
+
+                if (is_file($appPath . 'middleware.php')) {
+                    $this->app->middleware->import(include $appPath . 'middleware.php');
+                }
+
+                if (is_file($appPath . 'provider.php')) {
+                    $this->app->bind(include $appPath . 'provider.php');
+                }
+            }
+        }
     }
 
 }

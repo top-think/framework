@@ -26,6 +26,29 @@ use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 use think\exception\Handle;
 
+/**
+ * Class Container
+ * @package think
+ *
+ * @property Route      $route
+ * @property Config     $config
+ * @property Cache      $cache
+ * @property Request    $request
+ * @property Http       $http
+ * @property Console    $console
+ * @property Env        $env
+ * @property Debug      $debug
+ * @property Event      $event
+ * @property Middleware $middleware
+ * @property Log        $log
+ * @property Lang       $lang
+ * @property Db         $db
+ * @property Cookie     $cookie
+ * @property Session    $session
+ * @property Url        $url
+ * @property Validate   $validate
+ * @property Build      $build
+ */
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
     /**
@@ -65,7 +88,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'session'                 => Session::class,
         'url'                     => Url::class,
         'validate'                => Validate::class,
-        'rule_name'               => route\RuleName::class,
         'error_handle'            => Handle::class,
         'view'                    => View::class,
 

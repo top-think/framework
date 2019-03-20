@@ -21,9 +21,9 @@ class RuleName
     /**
      * 注册路由标识
      * @access public
-     * @param  string   $name      路由标识
-     * @param  string   $value     路由规则
-     * @param  bool     $first     是否置顶
+     * @param  string       $name  路由标识
+     * @param  string|array $value 路由规则
+     * @param  bool         $first 是否置顶
      * @return void
      */
     public function setName(string $name, $value, bool $first = false): void
@@ -38,8 +38,8 @@ class RuleName
     /**
      * 注册路由规则
      * @access public
-     * @param  string   $rule      路由规则
-     * @param  RuleItem $route     路由
+     * @param  string   $rule  路由规则
+     * @param  RuleItem $route 路由
      * @return void
      */
     public function setRule(string $rule, RuleItem $route): void
@@ -50,9 +50,9 @@ class RuleName
     /**
      * 根据路由规则获取路由对象（列表）
      * @access public
-     * @param  string   $name      路由标识
-     * @param  string   $domain   域名
-     * @return array
+     * @param  string $rule   路由标识
+     * @param  string $domain 域名
+     * @return RuleItem[]
      */
     public function getRule(string $rule, string $domain = null): array
     {
@@ -73,7 +73,7 @@ class RuleName
     /**
      * 获取全部路由列表
      * @access public
-     * @param  string   $domain   域名
+     * @param  string $domain 域名
      * @return array
      */
     public function getRuleList(string $domain = null): array
@@ -105,7 +105,7 @@ class RuleName
     /**
      * 导入路由标识
      * @access public
-     * @param  array   $name      路由标识
+     * @param  array $item 路由标识
      * @return void
      */
     public function import(array $item): void
@@ -116,9 +116,9 @@ class RuleName
     /**
      * 根据路由标识获取路由信息（用于URL生成）
      * @access public
-     * @param  string   $name       路由标识
-     * @param  string   $domain     域名
-     * @param  string   $method     请求类型
+     * @param  string $name   路由标识
+     * @param  string $domain 域名
+     * @param  string $method 请求类型
      * @return array
      */
     public function getName(string $name = null, string $domain = null, string $method = '*'): array

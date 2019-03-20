@@ -73,6 +73,8 @@ abstract class Dispatch
         if (isset($param['convert'])) {
             $this->convert = $param['convert'];
         }
+
+        $this->init();
     }
 
     public function init()
@@ -92,8 +94,6 @@ abstract class Dispatch
 
             $this->doRouteAfter();
         }
-
-        return $this;
     }
 
     /**
@@ -183,8 +183,8 @@ abstract class Dispatch
     /**
      * 路由绑定模型实例
      * @access protected
-     * @param  array    $bindModel 绑定模型
-     * @param  array    $matches   路由变量
+     * @param  array $bindModel 绑定模型
+     * @param  array $matches   路由变量
      * @return void
      */
     protected function createBindModel(array $bindModel, array $matches): void
@@ -229,7 +229,7 @@ abstract class Dispatch
     /**
      * 处理路由请求缓存
      * @access protected
-     * @param  string|array  $cache  路由缓存
+     * @param  string|array $cache 路由缓存
      * @return void
      */
     protected function parseRequestCache($cache)
@@ -248,7 +248,7 @@ abstract class Dispatch
     /**
      * 验证数据
      * @access protected
-     * @param  array             $option
+     * @param  array $option
      * @return void
      * @throws \think\exception\ValidateException
      */
@@ -261,6 +261,7 @@ abstract class Dispatch
             $v = new Validate($validate, $message);
         } else {
             // 调用验证器
+            /** @var Validate $class */
             $class = $this->app->parseClass('validate', $validate);
             $v     = $class::make([], $message);
 

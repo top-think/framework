@@ -13,8 +13,9 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use think\cache\Driver;
+use think\exception\HttpResponseException;
 use think\exception\RouteNotFoundException;
-use think\facade\RuleName;
 use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
@@ -22,6 +23,7 @@ use think\route\Resource;
 use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
+use think\route\RuleName;
 
 class Route
 {
@@ -68,13 +70,32 @@ class Route
         'default_action'        => 'index',
         // 操作方法后缀
         'action_suffix'         => '',
+        // 是否开启路由检测缓存
+        'route_check_cache'     => false,
     ];
+
+    /**
+     * 当前应用
+     * @var App
+     */
+    protected $app;
 
     /**
      * 请求对象
      * @var Request
      */
     protected $request;
+
+    /**
+     * 缓存
+     * @var Driver
+     */
+    protected $cache;
+
+    /**
+     * @var RuleName
+     */
+    protected $ruleName;
 
     /**
      * 当前HOST
@@ -130,13 +151,18 @@ class Route
      */
     protected $mergeRuleRegex = true;
 
-    public function __construct(Request $request, array $config = [])
+    public function __construct(App $app, Cache $cache)
     {
-        $this->request = $request;
-        $this->config  = array_merge($this->config, $config);
-        $this->host    = $this->request->host(true);
+        $this->app    = $app;
+        $this->config = array_merge($this->config, $app->config->get('route'));
 
-        $this->setDefaultDomain();
+        if (!empty($this->config['route_cache_option'])) {
+            $this->cache = $cache->connect($this->config['route_cache_option']);
+        } else {
+            $this->cache = $cache->init();
+        }
+
+        $this->ruleName = new RuleName();
     }
 
     public function config(string $name = null)
@@ -148,27 +174,10 @@ class Route
         return $this->config[$name] ?? null;
     }
 
-    public static function __make(Request $request, Config $config)
-    {
-        $config = $config->get('route');
-        return new static($request, $config);
-    }
-
-    /**
-     * 设置路由的请求对象实例
-     * @access public
-     * @param  Request     $request   请求对象实例
-     * @return void
-     */
-    public function setRequest(Request $request): void
-    {
-        $this->request = $request;
-    }
-
     /**
      * 设置路由域名及分组（包括资源路由）是否延迟解析
      * @access public
-     * @param  bool     $lazy   路由是否延迟解析
+     * @param  bool $lazy 路由是否延迟解析
      * @return $this
      */
     public function lazy(bool $lazy = true)
@@ -180,7 +189,7 @@ class Route
     /**
      * 设置路由为测试模式
      * @access public
-     * @param  bool     $test   路由是否测试模式
+     * @param  bool $test 路由是否测试模式
      * @return void
      */
     public function setTestMode(bool $test): void
@@ -201,7 +210,7 @@ class Route
     /**
      * 设置路由域名及分组（包括资源路由）是否合并解析
      * @access public
-     * @param  bool     $merge   路由是否合并解析
+     * @param  bool $merge 路由是否合并解析
      * @return $this
      */
     public function mergeRuleRegex(bool $merge = true)
@@ -234,7 +243,7 @@ class Route
     /**
      * 设置当前域名
      * @access public
-     * @param  RuleGroup    $group 域名
+     * @param  RuleGroup $group 域名
      * @return void
      */
     public function setGroup(RuleGroup $group): void
@@ -255,7 +264,7 @@ class Route
     /**
      * 注册变量规则
      * @access public
-     * @param  array  $pattern 变量规则
+     * @param  array $pattern 变量规则
      * @return $this
      */
     public function pattern(array $pattern)
@@ -268,7 +277,7 @@ class Route
     /**
      * 注册路由参数
      * @access public
-     * @param  array  $option  参数
+     * @param  array $option 参数
      * @return $this
      */
     public function option(array $option)
@@ -281,8 +290,8 @@ class Route
     /**
      * 注册域名路由
      * @access public
-     * @param  string|array  $name 子域名
-     * @param  mixed         $rule 路由规则
+     * @param  string|array $name 子域名
+     * @param  mixed        $rule 路由规则
      * @return Domain
      */
     public function domain($name, $rule = null): Domain
@@ -333,8 +342,8 @@ class Route
     /**
      * 设置路由绑定
      * @access public
-     * @param  string     $bind 绑定信息
-     * @param  string     $domain 域名
+     * @param  string $bind   绑定信息
+     * @param  string $domain 域名
      * @return $this
      */
     public function bind(string $bind, string $domain = null)
@@ -359,7 +368,7 @@ class Route
     /**
      * 读取路由绑定
      * @access public
-     * @param  string    $domain 域名
+     * @param  string $domain 域名
      * @return string|null
      */
     public function getDomainBind(string $domain = null)
@@ -392,34 +401,48 @@ class Route
     /**
      * 读取路由标识
      * @access public
-     * @param  string    $name 路由标识
-     * @param  string    $domain 域名
-     * @param  string    $method 请求类型
-     * @return array
+     * @param  string $name   路由标识
+     * @param  string $domain 域名
+     * @param  string $method 请求类型
+     * @return RuleItem[]
      */
     public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {
-        return RuleName::getName($name, $domain, $method);
+        return $this->ruleName->getName($name, $domain, $method);
     }
 
     /**
      * 批量导入路由标识
      * @access public
-     * @param  array    $name 路由标识
+     * @param  array $name 路由标识
      * @return $this
      */
-    public function setName(array $name)
+    public function import(array $name)
     {
-        RuleName::import($name);
+        $this->ruleName->import($name);
+        return $this;
+    }
+
+    /**
+     * 注册路由标识
+     * @access public
+     * @param  string       $name  路由标识
+     * @param  string|array $value 路由规则
+     * @param  bool         $first 是否置顶
+     * @return Route
+     */
+    public function setName(string $name, $value, bool $first = false): Route
+    {
+        $this->ruleName->setName($name, $value, $first);
         return $this;
     }
 
     /**
      * 读取路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  string    $domain 域名
-     * @return array
+     * @param  string $rule   路由规则
+     * @param  string $domain 域名
+     * @return RuleItem[]
      */
     public function getRule(string $rule, string $domain = null): array
     {
@@ -427,18 +450,18 @@ class Route
             $domain = $this->domain;
         }
 
-        return RuleName::getRule($rule, $domain);
+        return $this->ruleName->getRule($rule, $domain);
     }
 
     /**
      * 读取路由列表
      * @access public
-     * @param  string    $domain 域名
+     * @param  string $domain 域名
      * @return array
      */
     public function getRuleList(string $domain = null): array
     {
-        return RuleName::getRuleList($domain);
+        return $this->ruleName->getRuleList($domain);
     }
 
     /**
@@ -448,16 +471,16 @@ class Route
      */
     public function clear(): void
     {
-        RuleName::clear();
+        $this->ruleName->clear();
         $this->group->clear();
     }
 
     /**
      * 注册路由规则
      * @access public
-     * @param  string    $rule       路由规则
-     * @param  mixed     $route      路由地址
-     * @param  string    $method     请求类型
+     * @param  string $rule   路由规则
+     * @param  mixed  $route  路由地址
+     * @param  string $method 请求类型
      * @return RuleItem
      */
     public function rule(string $rule, $route = null, string $method = '*'): RuleItem
@@ -468,8 +491,8 @@ class Route
     /**
      * 设置跨域有效路由规则
      * @access public
-     * @param  Rule      $rule      路由规则
-     * @param  string    $method    请求类型
+     * @param  Rule   $rule   路由规则
+     * @param  string $method 请求类型
      * @return $this
      */
     public function setCrossDomainRule(Rule $rule, string $method = '*')
@@ -486,8 +509,8 @@ class Route
     /**
      * 注册路由分组
      * @access public
-     * @param  string|\Closure    $name       分组名称或者参数
-     * @param  mixed              $route      分组路由
+     * @param  string|\Closure $name  分组名称或者参数
+     * @param  mixed           $route 分组路由
      * @return RuleGroup
      */
     public function group($name, $route = null): RuleGroup
@@ -505,8 +528,8 @@ class Route
     /**
      * 注册路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function any(string $rule, $route): RuleItem
@@ -517,8 +540,8 @@ class Route
     /**
      * 注册GET路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function get(string $rule, $route): RuleItem
@@ -529,8 +552,8 @@ class Route
     /**
      * 注册POST路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function post(string $rule, $route): RuleItem
@@ -541,8 +564,8 @@ class Route
     /**
      * 注册PUT路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function put(string $rule, $route): RuleItem
@@ -553,8 +576,8 @@ class Route
     /**
      * 注册DELETE路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function delete(string $rule, $route): RuleItem
@@ -565,8 +588,8 @@ class Route
     /**
      * 注册PATCH路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  mixed     $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  mixed  $route 路由地址
      * @return RuleItem
      */
     public function patch(string $rule, $route): RuleItem
@@ -577,8 +600,8 @@ class Route
     /**
      * 注册资源路由
      * @access public
-     * @param  string    $rule 路由规则
-     * @param  string    $route 路由地址
+     * @param  string $rule  路由规则
+     * @param  string $route 路由地址
      * @return Resource
      */
     public function resource(string $rule, string $route): Resource
@@ -590,9 +613,9 @@ class Route
     /**
      * 注册视图路由
      * @access public
-     * @param  string|array $rule 路由规则
+     * @param  string|array $rule     路由规则
      * @param  string       $template 路由模板地址
-     * @param  array        $vars 模板变量
+     * @param  array        $vars     模板变量
      * @return RuleItem
      */
     public function view(string $rule, string $template = '', array $vars = []): RuleItem
@@ -603,9 +626,9 @@ class Route
     /**
      * 注册重定向路由
      * @access public
-     * @param  string|array $rule 路由规则
-     * @param  string       $route 路由地址
-     * @param  array        $status 状态码
+     * @param  string|array $rule   路由规则
+     * @param  string       $route  路由地址
+     * @param  int          $status 状态码
      * @return RuleItem
      */
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
@@ -616,8 +639,8 @@ class Route
     /**
      * rest方法定义和修改
      * @access public
-     * @param  string|array  $name 方法名称
-     * @param  array|bool    $resource 资源
+     * @param  string|array $name     方法名称
+     * @param  array|bool   $resource 资源
      * @return $this
      */
     public function rest($name, $resource = [])
@@ -634,7 +657,7 @@ class Route
     /**
      * 获取rest方法定义的参数
      * @access public
-     * @param  string        $name 方法名称
+     * @param  string $name 方法名称
      * @return array|null
      */
     public function getRest(string $name = null)
@@ -661,7 +684,7 @@ class Route
     /**
      * 注册一个自动解析的URL路由
      * @access public
-     * @param  string    $route 路由地址
+     * @param  string $route 路由地址
      * @return void
      */
     public function auto(string $route): void
@@ -669,17 +692,70 @@ class Route
         $this->group->addAutoRule($route);
     }
 
+
+    /**
+     * 路由调度
+     * @param Request $request
+     * @param Closure $withRoute
+     * @return Response
+     */
+    public function dispatch(Request $request, $withRoute = null)
+    {
+        $this->request = $request;
+        $this->host    = $this->request->host(true);
+
+        $this->setDefaultDomain();
+
+        try {
+            if ($withRoute) {
+                $dispatch = $this->cache
+                    ->tag('route_cache')
+                    ->remember($this->getRouteCacheKey($request), function () use ($request, $withRoute) {
+                        //加载路由
+                        $withRoute();
+
+                        return $this->check();
+                    });
+            } else {
+                $dispatch = $this->url($request->path());
+            }
+
+            $response = $dispatch->run();
+        } catch (HttpResponseException $exception) {
+            $response = $exception->getResponse();
+        }
+
+        return $response;
+    }
+
+    /**
+     * 获取路由缓存Key
+     * @access protected
+     * @param Request $request
+     * @return string
+     */
+    protected function getRouteCacheKey(Request $request): string
+    {
+        if (!empty($this->config['route_check_cache_key'])) {
+            $closure  = $this->config['route_check_cache_key'];
+            $routeKey = $closure($request);
+        } else {
+            $routeKey = md5($request->baseUrl(true) . ':' . $request->method());
+        }
+
+        return $routeKey;
+    }
+
     /**
      * 检测URL路由
      * @access public
-     * @param  string    $url URL地址
      * @return Dispatch
      * @throws RouteNotFoundException
      */
-    public function check(string $url): Dispatch
+    public function check(): Dispatch
     {
         // 自动检测域名路由
-        $url = str_replace($this->config['pathinfo_depr'], '|', $url);
+        $url = str_replace($this->config['pathinfo_depr'], '|', $this->request->path());
 
         $completeMatch = $this->config['route_complete_match'];
 
@@ -702,7 +778,7 @@ class Route
     /**
      * 默认URL解析
      * @access public
-     * @param  string    $url URL地址
+     * @param  string $url URL地址
      * @return Dispatch
      */
     public function url(string $url): UrlDispatch
@@ -767,8 +843,8 @@ class Route
     /**
      * 设置全局的路由分组参数
      * @access public
-     * @param  string    $method     方法名
-     * @param  array     $args       调用参数
+     * @param  string $method 方法名
+     * @param  array  $args   调用参数
      * @return RuleGroup
      */
     public function __call($method, $args)

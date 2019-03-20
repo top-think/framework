@@ -45,7 +45,7 @@ class Url
 
         if (is_file($app->getRuntimePath() . 'route.php')) {
             // 读取路由映射文件
-            $app->route->setName(include $app->getRuntimePath() . 'route.php');
+            $app->route->import(include $app->getRuntimePath() . 'route.php');
         }
     }
 

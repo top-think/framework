@@ -14,25 +14,24 @@ namespace think\route\dispatch;
 
 use think\App;
 use think\exception\HttpException;
-use think\route\Dispatch;
+use think\Request;
+use think\route\Rule;
 
-class Url extends Dispatch
+class Url extends Controller
 {
-    public function init()
+
+    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
     {
         // 解析默认的URL规则
-        $result = $this->parseUrl($this->dispatch);
+        $dispatch = $this->parseUrl($dispatch);
 
-        return (new Controller($this->request, $this->rule, $result))->init();
+        parent::__construct($request, $rule, $dispatch, $param, $code);
     }
-
-    public function exec()
-    {}
 
     /**
      * 解析URL地址
      * @access protected
-     * @param  string   $url URL
+     * @param  string $url URL
      * @return array
      */
     protected function parseUrl(string $url): array
@@ -90,7 +89,7 @@ class Url extends Dispatch
     /**
      * 检查URL是否已经定义过路由
      * @access protected
-     * @param  array     $route  路由信息
+     * @param  array $route 路由信息
      * @return bool
      */
     protected function hasDefinedRoute(array $route): bool
