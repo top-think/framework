@@ -1059,10 +1059,9 @@ abstract class Builder
      * 生成Insert SQL
      * @access public
      * @param  Query     $query   查询对象
-     * @param  bool      $replace 是否replace
      * @return string
      */
-    public function insert(Query $query, bool $replace = false): string
+    public function insert(Query $query): string
     {
         $options = $query->getOptions();
 
@@ -1078,7 +1077,7 @@ abstract class Builder
         return str_replace(
             ['%INSERT%', '%TABLE%', '%EXTRA%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
-                $replace ? 'REPLACE' : 'INSERT',
+                !empty($options['replace']) ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
                 $this->parseExtra($query, $options['extra']),
                 implode(' , ', $fields),
@@ -1093,10 +1092,9 @@ abstract class Builder
      * @access public
      * @param  Query     $query   查询对象
      * @param  array     $dataSet 数据集
-     * @param  bool      $replace 是否replace
      * @return string
      */
-    public function insertAll(Query $query, array $dataSet, bool $replace = false): string
+    public function insertAll(Query $query, array $dataSet): string
     {
         $options = $query->getOptions();
 
@@ -1129,7 +1127,7 @@ abstract class Builder
         return str_replace(
             ['%INSERT%', '%TABLE%', '%EXTRA%', '%FIELD%', '%DATA%', '%COMMENT%'],
             [
-                $replace ? 'REPLACE' : 'INSERT',
+                !empty($options['replace']) ? 'REPLACE' : 'INSERT',
                 $this->parseTable($query, $options['table']),
                 $this->parseExtra($query, $options['extra']),
                 implode(' , ', $fields),

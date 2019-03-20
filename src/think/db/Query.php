@@ -2650,29 +2650,26 @@ class Query
      * @access public
      * @param  array   $data         数据
      * @param  boolean $getLastInsID 返回自增主键
-     * @param  string  $sequence     自增序列名
      * @return integer
      */
-    public function insert(array $data = [], bool $getLastInsID = false, string $sequence = null)
+    public function insert(array $data = [], bool $getLastInsID = false)
     {
         if (!empty($data)) {
             $this->options['data'] = $data;
         }
 
-        $replace = $this->options['replace'] ?? false;
-        return $this->connection->insert($this, $replace, $getLastInsID, $sequence);
+        return $this->connection->insert($this, $getLastInsID);
     }
 
     /**
      * 插入记录并获取自增ID
      * @access public
      * @param  array   $data     数据
-     * @param  string  $sequence 自增序列名
      * @return integer|string
      */
-    public function insertGetId(array $data, string $sequence = null)
+    public function insertGetId(array $data)
     {
-        return $this->insert($data, true, $sequence);
+        return $this->insert($data, true);
     }
 
     /**
@@ -2692,8 +2689,7 @@ class Query
             $limit = (int) $this->options['limit'];
         }
 
-        $replace = $this->options['replace'] ?? false;
-        return $this->connection->insertAll($this, $dataSet, $replace, $limit);
+        return $this->connection->insertAll($this, $dataSet, $limit);
     }
 
     /**

@@ -934,24 +934,22 @@ abstract class Connection
      * 插入记录
      * @access public
      * @param  Query   $query        查询对象
-     * @param  boolean $replace      是否replace
      * @param  boolean $getLastInsID 返回自增主键
-     * @param  string  $sequence     自增序列名
      * @return mixed
      */
-    public function insert(Query $query, bool $replace = false, bool $getLastInsID = false, string $sequence = null)
+    public function insert(Query $query, bool $getLastInsID = false)
     {
         // 分析查询表达式
         $options = $query->parseOptions();
 
         // 生成SQL语句
-        $sql = $this->builder->insert($query, $replace);
+        $sql = $this->builder->insert($query);
 
         // 执行操作
         $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
 
         if ($result) {
-            $sequence  = $sequence ?: ($options['sequence'] ?? null);
+            $sequence  = $options['sequence'] ?? null;
             $lastInsId = $this->getLastInsID($sequence);
 
             $data = $options['data'];
@@ -980,13 +978,12 @@ abstract class Connection
      * @access public
      * @param  Query   $query   查询对象
      * @param  mixed   $dataSet 数据集
-     * @param  bool    $replace 是否replace
      * @param  integer $limit   每次写入数据限制
      * @return integer
      * @throws \Exception
      * @throws \Throwable
      */
-    public function insertAll(Query $query, array $dataSet = [], bool $replace = false, int $limit = 0): int
+    public function insertAll(Query $query, array $dataSet = [], int $limit = 0): int
     {
         if (!is_array(reset($dataSet))) {
             return 0;
@@ -1003,7 +1000,7 @@ abstract class Connection
                 $count = 0;
 
                 foreach ($array as $item) {
-                    $sql = $this->builder->insertAll($query, $item, $replace);
+                    $sql = $this->builder->insertAll($query, $item);
                     $count += $this->execute($query, $sql, $query->getBind());
                 }
 
@@ -1017,7 +1014,7 @@ abstract class Connection
             return $count;
         }
 
-        $sql = $this->builder->insertAll($query, $dataSet, $replace);
+        $sql = $this->builder->insertAll($query, $dataSet);
 
         return $this->execute($query, $sql, $query->getBind());
     }
