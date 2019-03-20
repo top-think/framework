@@ -109,7 +109,7 @@ trait SoftDelete
 
         if ($name && !$this->isForce()) {
             // 软删除
-            $this->data($name, $this->autoWriteTimestamp($name));
+            $this->set($name, $this->autoWriteTimestamp($name));
 
             $result = $this->isUpdate()->withEvent(false)->save();
 
