@@ -310,7 +310,7 @@ class Http
 
             if ($name) {
                 $this->app->request->setRoot($name);
-                $this->app->request->setPathinfo(strpos($path, '/') ? strstr($path, '/') : '');
+                $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
             }
         } else {
             $appName = $this->name ?: $this->getScriptName();
