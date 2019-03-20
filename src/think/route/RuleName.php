@@ -28,6 +28,7 @@ class RuleName
      */
     public function setName(string $name, $value, bool $first = false): void
     {
+        $name = strtolower($name);
         if ($first && isset($this->item[$name])) {
             array_unshift($this->item[$name], $value);
         } else {

@@ -122,7 +122,7 @@ class RuleItem extends Rule
 
             $this->router->setName($name, $value, $first);
 
-            $this->router->setName($this->rule, $this);
+            $this->router->getRuleName()->setRule($this->rule, $this);
         }
     }
 

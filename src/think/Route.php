@@ -340,6 +340,16 @@ class Route
     }
 
     /**
+     * 获取域名
+     * @access public
+     * @return array
+     */
+    public function getRuleName(): RuleName
+    {
+        return $this->ruleName;
+    }
+
+    /**
      * 设置路由绑定
      * @access public
      * @param  string $bind   绑定信息
