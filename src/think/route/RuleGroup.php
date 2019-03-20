@@ -19,7 +19,6 @@ use think\Request;
 use think\Response;
 use think\Route;
 use think\route\dispatch\Response as ResponseDispatch;
-use think\route\dispatch\Url as UrlDispatch;
 
 class RuleGroup extends Rule
 {
@@ -42,9 +41,6 @@ class RuleGroup extends Rule
      * @var RuleItem
      */
     protected $miss;
-
-    // 自动路由
-    protected $auto;
 
     // 完整名称
     protected $fullName;
@@ -169,10 +165,7 @@ class RuleGroup extends Rule
             }
         }
 
-        if ($this->auto) {
-            // 自动解析URL地址
-            $result = new UrlDispatch($request, $this, $this->auto . '/' . $url);
-        } elseif ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
+        if ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
             $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->mergeGroupOptions());
         } else {
@@ -360,30 +353,9 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule(): ?RuleItem
+    public function getMissRule():  ? RuleItem
     {
         return $this->miss;
-    }
-
-    /**
-     * 获取分组的自动路由
-     * @access public
-     * @return string
-     */
-    public function getAutoRule(): string
-    {
-        return $this->auto;
-    }
-
-    /**
-     * 注册自动路由
-     * @access public
-     * @param  string $route 路由规则
-     * @return void
-     */
-    public function addAutoRule(string $route): void
-    {
-        $this->auto = $route;
     }
 
     /**
@@ -393,7 +365,7 @@ class RuleGroup extends Rule
      * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss($route, string $method = '*'): RuleItem
+    public function miss($route, string $method = '*') : RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
@@ -510,7 +482,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName(): ?string
+    public function getFullName():  ? string
     {
         return $this->fullName;
     }
@@ -521,7 +493,7 @@ class RuleGroup extends Rule
      * @param  string $method 请求类型
      * @return array
      */
-    public function getRules(string $method = ''): array
+    public function getRules(string $method = '') : array
     {
         if ('' === $method) {
             return $this->rules;

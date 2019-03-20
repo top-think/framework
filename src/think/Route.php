@@ -692,20 +692,9 @@ class Route
     }
 
     /**
-     * 注册一个自动解析的URL路由
-     * @access public
-     * @param  string $route 路由地址
-     * @return void
-     */
-    public function auto(string $route): void
-    {
-        $this->group->addAutoRule($route);
-    }
-
-    /**
      * 路由调度
-     * @param Request $request
-     * @param Closure $withRoute
+     * @param  Request $request
+     * @param  Closure $withRoute
      * @return Response
      */
     public function dispatch(Request $request, $withRoute = null)
@@ -745,7 +734,7 @@ class Route
     /**
      * 获取路由缓存Key
      * @access protected
-     * @param Request $request
+     * @param  Request $request
      * @return string
      */
     protected function getRouteCacheKey(Request $request): string
