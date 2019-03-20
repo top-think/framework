@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think\route;
 
-use think\Container;
 use think\Exception;
 use think\Request;
 use think\Route;

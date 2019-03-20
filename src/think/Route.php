@@ -692,7 +692,6 @@ class Route
         $this->group->addAutoRule($route);
     }
 
-
     /**
      * 路由调度
      * @param Request $request
