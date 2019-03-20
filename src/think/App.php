@@ -178,8 +178,8 @@ class App extends Container
     {
         $name = is_string($service) ? $service : get_class($service);
         return array_values(array_filter($this->services, function ($value) use ($name) {
-                return $value instanceof $name;
-            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
+            return $value instanceof $name;
+        }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
@@ -215,7 +215,6 @@ class App extends Container
     {
         return $this->appDebug;
     }
-
 
     /**
      * 设置应用命名空间
@@ -260,7 +259,6 @@ class App extends Container
     {
         return $this->namespace;
     }
-
 
     /**
      * 获取框架版本
@@ -387,6 +385,10 @@ class App extends Container
      */
     public function initialize()
     {
+        if ($this->initialized) {
+            return $this;
+        }
+
         $this->initialized = true;
 
         $this->beginTime = microtime(true);
@@ -423,15 +425,6 @@ class App extends Container
         }
 
         return $this;
-    }
-
-    /**
-     * 是否初始化过
-     * @return bool
-     */
-    public function initialized()
-    {
-        return $this->initialized;
     }
 
     /**

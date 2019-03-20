@@ -25,7 +25,6 @@ class Http
      */
     protected $app;
 
-
     /**
      * 是否多应用模式
      * @var bool
@@ -139,7 +138,6 @@ class Http
         return $this;
     }
 
-
     /**
      * 获取应用名称
      * @access public
@@ -160,16 +158,6 @@ class Http
     {
         $this->withRoute = $route;
         return $this;
-    }
-
-    /**
-     * 初始化
-     */
-    protected function initialize()
-    {
-        if (!$this->app->initialized()) {
-            $this->app->initialize();
-        }
     }
 
     /**
@@ -202,10 +190,11 @@ class Http
     protected function runWithRequest(Request $request)
     {
         $this->app->instance('request', $request);
+        $this->app->initialize();
 
-        $this->initialize();
-
-        $this->parseMultiApp();
+        if ($this->multi) {
+            $this->parseMultiApp();
+        }
 
         $this->app->middleware->add(function (Request $request) {
 
@@ -283,7 +272,6 @@ class Http
         return $this->app['error_handle']->render($request, $e);
     }
 
-
     /**
      * 获取当前运行入口名称
      * @access protected
@@ -303,9 +291,9 @@ class Http
     /**
      * 解析多应用
      */
-    protected function parseMultiApp()
+    protected function parseMultiApp(): void
     {
-        if ($this->isAutoMulti()) {
+        if ($this->auto) {
             // 自动多应用识别
             $path = $this->app->request->path();
             $name = current(explode('/', $path));
@@ -326,56 +314,57 @@ class Http
                 $this->app->request->setPathinfo(preg_replace('/^' . $name . '\//', '', $this->app->request->pathinfo()));
                 $this->app->request->setRoot($name);
             }
-        } elseif ($this->isMulti()) {
+        } else {
             $appName = $this->name ?: $this->getScriptName();
         }
 
-        if (!empty($appName)) {
-            $this->app->request->setApp($this->name ?: '');
-            $this->name($appName);
-            $this->app->setNamespace($this->app->getRootNamespace() . '\\' . $appName);
+        $this->loadApp($appName);
+    }
 
-            $this->app->setAppPath($this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
-            $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
+    protected function loadApp(string $appName): void
+    {
+        $this->name = $appName;
+        $this->app->request->setApp($appName);
+        $this->app->setNamespace($this->app->getRootNamespace() . '\\' . $appName);
+        $this->app->setAppPath($this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
+        $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
 
-            //加载app文件
-            if (is_file($this->app->getRuntimePath() . 'init.php')) {
-                //直接加载缓存
-                include $this->app->getRuntimePath() . 'init.php';
-            } else {
-                $appPath = $this->app->getAppPath();
+        //加载app文件
+        if (is_file($this->app->getRuntimePath() . 'init.php')) {
+            //直接加载缓存
+            include $this->app->getRuntimePath() . 'init.php';
+        } else {
+            $appPath = $this->app->getAppPath();
 
-                if (is_file($appPath . 'common.php')) {
-                    include_once $appPath . 'common.php';
-                }
+            if (is_file($appPath . 'common.php')) {
+                include_once $appPath . 'common.php';
+            }
 
-                $configPath = $this->app->getConfigPath();
+            $configPath = $this->app->getConfigPath();
 
-                $files = [];
+            $files = [];
 
-                if (is_dir($appPath . 'config')) {
-                    $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-                } elseif (is_dir($configPath . $appName)) {
-                    $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-                }
+            if (is_dir($appPath . 'config')) {
+                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+            } elseif (is_dir($configPath . $appName)) {
+                $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+            }
 
-                foreach ($files as $file) {
-                    $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-                }
+            foreach ($files as $file) {
+                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+            }
 
-                if (is_file($appPath . 'event.php')) {
-                    $this->app->loadEvent(include $appPath . 'event.php');
-                }
+            if (is_file($appPath . 'event.php')) {
+                $this->app->loadEvent(include $appPath . 'event.php');
+            }
 
-                if (is_file($appPath . 'middleware.php')) {
-                    $this->app->middleware->import(include $appPath . 'middleware.php');
-                }
+            if (is_file($appPath . 'middleware.php')) {
+                $this->app->middleware->import(include $appPath . 'middleware.php');
+            }
 
-                if (is_file($appPath . 'provider.php')) {
-                    $this->app->bind(include $appPath . 'provider.php');
-                }
+            if (is_file($appPath . 'provider.php')) {
+                $this->app->bind(include $appPath . 'provider.php');
             }
         }
     }
-
 }
