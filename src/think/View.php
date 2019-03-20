@@ -41,7 +41,7 @@ class View
     public function __construct(array $options = [])
     {
         // 初始化模板引擎
-        $type = $options['type'] ?? 'think';
+        $type = $options['type'] ?? 'php';
         unset($options['type']);
         $this->engine($type, $options);
 
