@@ -15,12 +15,6 @@ namespace think;
 class Url
 {
     /**
-     * ROOT地址
-     * @var string
-     */
-    protected $root;
-
-    /**
      * 绑定检查
      * @var bool
      */
@@ -161,7 +155,7 @@ class Url
             }
 
             // 路由标识不存在 直接解析
-            $url = $this->parseUrl($url);
+            $url = $this->parseUrl($url, $domain);
 
             if (isset($info['query'])) {
                 // 解析地址里面参数 合并到vars
@@ -207,7 +201,7 @@ class Url
         $domain = $this->parseDomain($url, $domain);
 
         // URL组装
-        $url = $domain . rtrim($this->root ?: $this->app->request->root(), '/') . '/' . ltrim($url, '/');
+        $url = $domain . rtrim($this->app->request->root(), '/') . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
 
@@ -220,7 +214,7 @@ class Url
      * @param  string $url URL
      * @return string
      */
-    protected function parseUrl(string $url): string
+    protected function parseUrl(string $url, &$domain): string
     {
         $request = $this->app->request;
 
@@ -235,6 +229,7 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 应用/控制器/操作
+            $app        = $request->app();
             $controller = $request->controller();
 
             if ('' == $url) {
@@ -243,6 +238,7 @@ class Url
                 $path       = explode('/', $url);
                 $action     = array_pop($path);
                 $controller = empty($path) ? $controller : array_pop($path);
+                $app        = empty($path) ? $app : array_pop($path);
             }
 
             if ($this->config['url_convert']) {
@@ -252,8 +248,13 @@ class Url
 
             $url = $controller . '/' . $action;
 
-            if ($this->app->http->isAutoMulti()) {
-                $url = $this->app->http->getName() . '/' . $url;
+            if ($app) {
+                $map = $this->app->http->getDomain();
+                if ($key = array_search($app, $map)) {
+                    $domain = $key;
+                } else {
+                    $url = $app . '/' . $url;
+                }
             }
         }
 
@@ -314,6 +315,10 @@ class Url
         } else {
             $scheme = $this->app->request->isSsl() ? 'https://' : 'http://';
 
+        }
+
+        if ($this->app->request->host() == $domain) {
+            return '';
         }
 
         return $scheme . $domain;
@@ -386,17 +391,5 @@ class Url
         }
 
         return [];
-    }
-
-    /**
-     * 指定当前生成URL地址的root
-     * @access public
-     * @param  string $root ROOT
-     * @return void
-     */
-    public function root(string $root): void
-    {
-        $this->root = $root;
-        $this->app->request->setRoot($root);
     }
 }

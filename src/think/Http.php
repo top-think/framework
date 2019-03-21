@@ -38,6 +38,12 @@ class Http
     protected $auto = false;
 
     /**
+     * 是否域名绑定应用
+     * @var bool
+     */
+    protected $bindDomain = false;
+
+    /**
      * 默认应用名（多应用模式）
      * @var string
      */
@@ -98,6 +104,26 @@ class Http
     {
         $this->domain = $map;
         return $this;
+    }
+
+    /**
+     * 域名绑定应用
+     * @access public
+     * @return array
+     */
+    public function getDomain(): array
+    {
+        return $this->domain;
+    }
+
+    /**
+     * 是否域名绑定应用
+     * @access public
+     * @return bool
+     */
+    public function isBindDomain(): bool
+    {
+        return $this->bindDomain;
     }
 
     /**
@@ -310,10 +336,13 @@ class Http
             $subDomain = $this->app->request->subDomain();
             $domain    = $this->app->request->host();
 
+            $this->bindDomain = false;
             if (isset($this->domain[$subDomain])) {
-                $appName = $this->domain[$subDomain];
+                $appName          = $this->domain[$subDomain];
+                $this->bindDomain = true;
             } elseif (isset($this->domain[$domain])) {
-                $appName = $this->domain[$domain];
+                $appName          = $this->domain[$domain];
+                $this->bindDomain = true;
             } else {
                 $path = $this->app->request->pathinfo();
                 $name = current(explode('/', $path));
