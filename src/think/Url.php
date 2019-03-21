@@ -133,7 +133,7 @@ class Url
                 $suffix = $match[2];
             }
 
-            if ($this->app->request->app()) {
+            if ($this->app->request->app() && !$this->app->http->isBindDomain()) {
                 $url = $this->app->request->app() . '/' . $url;
             }
         } elseif (!empty($rule) && isset($name)) {
