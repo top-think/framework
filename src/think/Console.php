@@ -31,6 +31,7 @@ use think\console\command\optimize\Schema;
 use think\console\command\RouteList;
 use think\console\command\RunServer;
 use think\console\command\ServiceDiscover;
+use think\console\command\VendorPublish;
 use think\console\command\Version;
 use think\console\Input;
 use think\console\input\Argument as InputArgument;
@@ -55,7 +56,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand = 'list';
+    protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -78,6 +79,7 @@ class Console
         'version'          => Version::class,
         'route:list'       => RouteList::class,
         'service:discover' => ServiceDiscover::class,
+        'vendor:publish'   => VendorPublish::class,
     ];
 
     /**
@@ -163,9 +165,9 @@ class Console
 
     /**
      * @access public
-     * @param  string $command
-     * @param  array  $parameters
-     * @param  string $driver
+     * @param string $command
+     * @param array  $parameters
+     * @param string $driver
      * @return Output|Buffer
      */
     public function call(string $command, array $parameters = [], string $driver = 'buffer')
@@ -229,8 +231,8 @@ class Console
     /**
      * 执行指令
      * @access public
-     * @param  Input  $input
-     * @param  Output $output
+     * @param Input  $input
+     * @param Output $output
      * @return int
      */
     public function doRun(Input $input, Output $output)
@@ -265,7 +267,7 @@ class Console
     /**
      * 设置输入参数定义
      * @access public
-     * @param  InputDefinition $definition
+     * @param InputDefinition $definition
      */
     public function setDefinition(InputDefinition $definition): void
     {
@@ -295,7 +297,7 @@ class Console
     /**
      * 是否捕获异常
      * @access public
-     * @param  bool $boolean
+     * @param bool $boolean
      * @api
      */
     public function setCatchExceptions(bool $boolean): void
@@ -306,7 +308,7 @@ class Console
     /**
      * 是否自动退出
      * @access public
-     * @param  bool $boolean
+     * @param bool $boolean
      * @api
      */
     public function setAutoExit(bool $boolean): void
@@ -331,7 +333,7 @@ class Console
     /**
      * 注册一个指令 （便于动态创建指令）
      * @access public
-     * @param  string $name 指令名
+     * @param string $name 指令名
      * @return Command
      */
     public function register(string $name)
@@ -342,7 +344,7 @@ class Console
     /**
      * 添加指令集
      * @access public
-     * @param  array $commands
+     * @param array $commands
      */
     public function addCommands(array $commands): void
     {
@@ -357,8 +359,8 @@ class Console
     /**
      * 添加一个指令
      * @access public
-     * @param  string|Command $command 指令对象或者指令类名
-     * @param  string         $name    指令名 留空则自动获取
+     * @param string|Command $command 指令对象或者指令类名
+     * @param string         $name    指令名 留空则自动获取
      * @return Command|null
      */
     public function addCommand($command, string $name = '')
@@ -397,7 +399,7 @@ class Console
     /**
      * 获取指令
      * @access public
-     * @param  string $name 指令名称
+     * @param string $name 指令名称
      * @return Command
      * @throws \InvalidArgumentException
      */
@@ -431,7 +433,7 @@ class Console
     /**
      * 某个指令是否存在
      * @access public
-     * @param  string $name 指令名称
+     * @param string $name 指令名称
      * @return bool
      */
     public function hasCommand(string $name): bool
@@ -465,7 +467,7 @@ class Console
     /**
      * 查找注册命名空间中的名称或缩写。
      * @access public
-     * @param  string $namespace
+     * @param string $namespace
      * @return string
      * @throws \InvalidArgumentException
      */
@@ -475,7 +477,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -504,7 +506,7 @@ class Console
     /**
      * 查找指令
      * @access public
-     * @param  string $name 名称或者别名
+     * @param string $name 名称或者别名
      * @return Command
      * @throws \InvalidArgumentException
      */
@@ -550,7 +552,7 @@ class Console
     /**
      * 获取所有的指令
      * @access public
-     * @param  string $namespace 命名空间
+     * @param string $namespace 命名空间
      * @return Command[]
      * @api
      */
@@ -573,8 +575,8 @@ class Console
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
      * @access protected
-     * @param  Input  $input  输入实例
-     * @param  Output $output 输出实例
+     * @param Input  $input  输入实例
+     * @param Output $output 输出实例
      */
     protected function configureIO(Input $input, Output $output): void
     {
@@ -602,9 +604,9 @@ class Console
     /**
      * 执行指令
      * @access protected
-     * @param  Command $command 指令实例
-     * @param  Input   $input   输入实例
-     * @param  Output  $output  输出实例
+     * @param Command $command 指令实例
+     * @param Input   $input   输入实例
+     * @param Output  $output  输出实例
      * @return int
      * @throws \Exception
      */
@@ -616,7 +618,7 @@ class Console
     /**
      * 获取指令的基础名称
      * @access protected
-     * @param  Input $input
+     * @param Input $input
      * @return string
      */
     protected function getCommandName(Input $input): string
@@ -646,7 +648,7 @@ class Console
     /**
      * 获取可能的建议
      * @access private
-     * @param  array $abbrevs
+     * @param array $abbrevs
      * @return string
      */
     private function getAbbreviationSuggestions(array $abbrevs): string
@@ -657,8 +659,8 @@ class Console
     /**
      * 返回命名空间部分
      * @access public
-     * @param  string $name  指令
-     * @param  int    $limit 部分的命名空间的最大数量
+     * @param string $name  指令
+     * @param int    $limit 部分的命名空间的最大数量
      * @return string
      */
     public function extractNamespace(string $name, int $limit = 0): string
@@ -672,8 +674,8 @@ class Console
     /**
      * 查找可替代的建议
      * @access private
-     * @param  string             $name
-     * @param  array|\Traversable $collection
+     * @param string             $name
+     * @param array|\Traversable $collection
      * @return array
      */
     private function findAlternatives(string $name, $collection): array
@@ -723,7 +725,7 @@ class Console
     /**
      * 返回所有的命名空间
      * @access private
-     * @param  string $name
+     * @param string $name
      * @return array
      */
     private function extractAllNamespaces(string $name): array
