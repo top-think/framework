@@ -253,7 +253,7 @@ class Url
             $url = $controller . '/' . $action;
 
             if ($app) {
-                $map = $this->app->http->getDomain();
+                $map = $this->app->config->get('app.domain_bind');
                 if ($key = array_search($app, $map)) {
                     $domain = true === $domain ? $key : $domain;
                 } else {

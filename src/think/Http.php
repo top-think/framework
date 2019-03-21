@@ -32,22 +32,10 @@ class Http
     protected $multi = false;
 
     /**
-     * 是否自动多应用
-     * @var bool
-     */
-    protected $auto = false;
-
-    /**
      * 是否域名绑定应用
      * @var bool
      */
     protected $bindDomain = false;
-
-    /**
-     * 默认应用名（多应用模式）
-     * @var string
-     */
-    protected $defaultApp = 'index';
 
     /**
      * 应用名称
@@ -55,65 +43,10 @@ class Http
      */
     protected $name;
 
-    /**
-     * 应用映射
-     * @var array
-     */
-    protected $map = [];
-
-    /**
-     * 域名映射
-     * @var array
-     */
-    protected $domain = [];
-
-    /**
-     * 是否需要使用路由
-     * @var bool
-     */
-    protected $withRoute = true;
-
     public function __construct(App $app)
     {
         $this->app   = $app;
         $this->multi = is_dir($this->app->getBasePath() . 'controller') ? false : true;
-    }
-
-    /**
-     * 自动多应用访问
-     * @access public
-     * @param array $map 应用路由映射
-     * @return $this
-     */
-    public function autoMulti(array $map = [])
-    {
-        $this->multi = true;
-        $this->auto  = true;
-        $this->map   = $map;
-
-        return $this;
-    }
-
-    /**
-     * 域名应用映射
-     * @access public
-     * @param  array $map 应用域名映射
-     * @return $this
-     */
-    public function domain(array $map)
-    {
-        $this->domain = $map;
-        return $this;
-    }
-
-    /**
-     * 域名绑定应用
-     * @access public
-     * @return array
-     */
-    public function getDomain(): array
-    {
-        return $this->domain;
     }
 
     /**
@@ -124,16 +57,6 @@ class Http
     public function isBindDomain(): bool
     {
         return $this->bindDomain;
-    }
-
-    /**
-     * 是否为自动多应用模式
-     * @access public
-     * @return bool
-     */
-    public function isAutoMulti(): bool
-    {
-        return $this->auto;
     }
 
     /**
@@ -159,18 +82,6 @@ class Http
     }
 
     /**
-     * 设置默认应用（对多应用有效）
-     * @access public
-     * @param string $name 应用名
-     * @return $this
-     */
-    public function defaultApp(string $name)
-    {
-        $this->defaultApp = $name;
-        return $this;
-    }
-
-    /**
      * 设置应用名称
      * @access public
      * @param string $name 应用名称
@@ -190,18 +101,6 @@ class Http
     public function getName(): string
     {
         return $this->name ?: '';
-    }
-
-    /**
-     * 设置是否使用路由
-     * @access public
-     * @param bool $route
-     * @return $this
-     */
-    public function withRoute(bool $route)
-    {
-        $this->withRoute = $route;
-        return $this;
     }
 
     /**
@@ -240,7 +139,7 @@ class Http
             $this->parseMultiApp();
         }
 
-        $withRoute = $this->withRoute ? function () {
+        $withRoute = $this->app->config->get('app.with_route') ? function () {
             $this->loadRoutes();
         } : null;
 
@@ -322,7 +221,7 @@ class Http
             $file = realpath($_SERVER['argv'][0]);
         }
 
-        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : $this->defaultApp;
+        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : '';
     }
 
     /**
@@ -330,33 +229,41 @@ class Http
      */
     protected function parseMultiApp(): void
     {
-        if ($this->auto) {
+        if ($this->app->config->get('app.auto_multi_app', false)) {
             // 自动多应用识别
-            // 获取当前子域名
-            $subDomain = $this->app->request->subDomain();
-            $domain    = $this->app->request->host();
-
             $this->bindDomain = false;
-            if (isset($this->domain[$subDomain])) {
-                $appName          = $this->domain[$subDomain];
-                $this->bindDomain = true;
-            } elseif (isset($this->domain[$domain])) {
-                $appName          = $this->domain[$domain];
-                $this->bindDomain = true;
-            } else {
+
+            $bind = $this->app->config->get('app.domain_bind', []);
+
+            if (!empty($bind)) {
+                // 获取当前子域名
+                $subDomain = $this->app->request->subDomain();
+                $domain    = $this->app->request->host();
+
+                if (isset($bind[$domain])) {
+                    $appName          = $bind[$domain];
+                    $this->bindDomain = true;
+                } elseif (isset($bind[$subDomain])) {
+                    $appName          = $bind[$subDomain];
+                    $this->bindDomain = true;
+                }
+            }
+
+            if (!$this->bindDomain) {
+                $map  = $this->app->config->get('app.app_map', []);
                 $path = $this->app->request->pathinfo();
                 $name = current(explode('/', $path));
 
-                if (isset($this->map[$name])) {
-                    if ($this->map[$name] instanceof \Closure) {
-                        call_user_func_array($this->map[$name], [$this->app]);
+                if (isset($map[$name])) {
+                    if ($map[$name] instanceof \Closure) {
+                        call_user_func_array($map[$name], [$this->app]);
                     } else {
-                        $appName = $this->map[$name];
+                        $appName = $map[$name];
                     }
-                } elseif ($name && false !== array_search($name, $this->map)) {
+                } elseif ($name && false !== array_search($name, $map)) {
                     throw new HttpException(404, 'app not exists:' . $name);
                 } else {
-                    $appName = $name ?: $this->defaultApp;
+                    $appName = $name;
                 }
 
                 if ($name) {
@@ -368,7 +275,7 @@ class Http
             $appName = $this->name ?: $this->getScriptName();
         }
 
-        $this->loadApp($appName);
+        $this->loadApp($appName ?: $this->app->config->get('app.default_app', 'index'));
     }
 
     protected function loadApp(string $appName): void
