@@ -314,14 +314,9 @@ class Url
             $scheme = '';
         } else {
             $scheme = $this->app->request->isSsl() ? 'https://' : 'http://';
-
         }
 
-        if ($this->app->request->host() == $domain) {
-            return '';
-        }
-
-        return $scheme . $domain;
+        return $this->app->request->host() == $domain ? '' : $scheme . $domain;
     }
 
     /**
