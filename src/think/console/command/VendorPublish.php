@@ -60,9 +60,7 @@ class VendorPublish extends Command
                 }
             }
 
-
             $this->output->writeln('<info>Succeed!</info>');
         }
-
     }
 }
