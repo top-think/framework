@@ -252,8 +252,8 @@ class Url
 
             $url = $controller . '/' . $action;
 
-            if ($this->app->isAutoMulti()) {
-                $url = $this->app->getName() . '/' . $url;
+            if ($this->app->http->isAutoMulti()) {
+                $url = $this->app->http->getName() . '/' . $url;
             }
         }
 
