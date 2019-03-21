@@ -334,7 +334,6 @@ class Console
      * 注册一个指令 （便于动态创建指令）
      * @access public
      * @param string $name 指令名
-     * @return Command
      */
     public function register(string $name)
     {
@@ -349,7 +348,7 @@ class Console
     public function addCommands(array $commands): void
     {
         foreach ($commands as $key => $command) {
-            if (is_subclass_of($command, "\\think\\console\\Command")) {
+            if (is_subclass_of($command, Command::class)) {
                 // 注册指令
                 $this->addCommand($command, is_numeric($key) ? '' : $key);
             }
@@ -361,7 +360,7 @@ class Console
      * @access public
      * @param string|Command $command 指令对象或者指令类名
      * @param string         $name    指令名 留空则自动获取
-     * @return Command|null
+     * @return Command|void
      */
     public function addCommand($command, string $name = '')
     {
@@ -412,10 +411,11 @@ class Console
         $command = $this->commands[$name];
 
         if (is_string($command)) {
+            /** @var Command $command */
             $command = new $command();
+            $command->setConsole($this);
+            $command->setApp($this->app);
         }
-
-        $command->setConsole($this);
 
         if ($this->wantHelps) {
             $this->wantHelps = false;
