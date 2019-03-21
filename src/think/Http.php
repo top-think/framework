@@ -56,6 +56,12 @@ class Http
     protected $map = [];
 
     /**
+     * 域名映射
+     * @var array
+     */
+    protected $domain = [];
+
+    /**
      * 是否需要使用路由
      * @var bool
      */
@@ -79,6 +85,18 @@ class Http
         $this->auto  = true;
         $this->map   = $map;
 
+        return $this;
+    }
+
+    /**
+     * 域名应用映射
+     * @access public
+     * @param  array $map 应用域名映射
+     * @return $this
+     */
+    public function domain(array $map)
+    {
+        $this->domain = $map;
         return $this;
     }
 
@@ -293,24 +311,34 @@ class Http
     {
         if ($this->auto) {
             // 自动多应用识别
-            $path = $this->app->request->pathinfo();
-            $name = current(explode('/', $path));
+            // 获取当前子域名
+            $subDomain = $this->app->request->subDomain();
+            $domain    = $this->app->request->host();
 
-            if (isset($this->map[$name])) {
-                if ($this->map[$name] instanceof \Closure) {
-                    call_user_func_array($this->map[$name], [$this]);
-                } else {
-                    $appName = $this->map[$name];
-                }
-            } elseif ($name && false !== array_search($name, $this->map)) {
-                throw new HttpException(404, 'app not exists:' . $name);
+            if (isset($this->domain[$subDomain])) {
+                $appName = $this->domain[$subDomain];
+            } elseif (isset($this->domain[$domain])) {
+                $appName = $this->domain[$domain];
             } else {
-                $appName = $name ?: $this->defaultApp;
-            }
+                $path = $this->app->request->pathinfo();
+                $name = current(explode('/', $path));
 
-            if ($name) {
-                $this->app->request->setRoot($name);
-                $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
+                if (isset($this->map[$name])) {
+                    if ($this->map[$name] instanceof \Closure) {
+                        call_user_func_array($this->map[$name], [$this]);
+                    } else {
+                        $appName = $this->map[$name];
+                    }
+                } elseif ($name && false !== array_search($name, $this->map)) {
+                    throw new HttpException(404, 'app not exists:' . $name);
+                } else {
+                    $appName = $name ?: $this->defaultApp;
+                }
+
+                if ($name) {
+                    $this->app->request->setRoot($name);
+                    $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
+                }
             }
         } else {
             $appName = $this->name ?: $this->getScriptName();
