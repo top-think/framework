@@ -76,7 +76,7 @@ class Http
     /**
      * 自动多应用访问
      * @access public
-     * @param  array $map 应用路由映射
+     * @param array $map 应用路由映射
      * @return $this
      */
     public function autoMulti(array $map = [])
@@ -113,7 +113,7 @@ class Http
     /**
      * 设置应用模式
      * @access public
-     * @param  bool $multi
+     * @param bool $multi
      * @return $this
      */
     public function multi(bool $multi)
@@ -135,7 +135,7 @@ class Http
     /**
      * 设置默认应用（对多应用有效）
      * @access public
-     * @param  string $name 应用名
+     * @param string $name 应用名
      * @return $this
      */
     public function defaultApp(string $name)
@@ -147,7 +147,7 @@ class Http
     /**
      * 设置应用名称
      * @access public
-     * @param  string $name 应用名称
+     * @param string $name 应用名称
      * @return $this
      */
     public function name(string $name)
@@ -169,7 +169,7 @@ class Http
     /**
      * 设置是否使用路由
      * @access public
-     * @param  bool $route
+     * @param bool $route
      * @return $this
      */
     public function withRoute(bool $route)
@@ -181,7 +181,7 @@ class Http
     /**
      * 执行应用程序
      * @access public
-     * @param  Request|null $request
+     * @param Request|null $request
      * @return Response
      */
     public function run(Request $request = null): Response
@@ -203,7 +203,7 @@ class Http
 
     /**
      * 执行应用程序
-     * @param  Request $request
+     * @param Request $request
      * @return mixed
      */
     protected function runWithRequest(Request $request)
@@ -214,16 +214,11 @@ class Http
             $this->parseMultiApp();
         }
 
-        $this->app->middleware->add(function (Request $request) {
+        $withRoute = $this->withRoute ? function () {
+            $this->loadRoutes();
+        } : null;
 
-            $withRoute = $this->withRoute ? function () {
-                $this->loadRoutes();
-            } : null;
-
-            return $this->app->route->dispatch($request, $withRoute);
-        });
-
-        return $this->app->middleware->dispatch($request);
+        return $this->app->route->dispatch($request, $withRoute);
     }
 
     /**
@@ -268,7 +263,7 @@ class Http
     /**
      * Report the exception to the exception handler.
      *
-     * @param  \Throwable $e
+     * @param \Throwable $e
      * @return void
      */
     protected function reportException(\Throwable $e)
@@ -279,8 +274,8 @@ class Http
     /**
      * Render the exception to a response.
      *
-     * @param  Request    $request
-     * @param  \Throwable $e
+     * @param Request    $request
+     * @param \Throwable $e
      * @return Response
      */
     protected function renderException($request, \Throwable $e)
