@@ -1281,13 +1281,11 @@ class Query
             // 同一字段多条件查询
             array_unshift($param, $field);
             $where = $param;
-        } elseif (!is_string($op)) {
-            $where = $this->whereEq($field, $op);
         } elseif ($field && is_null($condition)) {
-            if (in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
+            if (is_string($op) && in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
-            } elseif ('=' == $op) {
+            } elseif ('=' == $op || is_null($op)) {
                 $where = [$field, 'NULL', ''];
             } elseif ('<>' == $op) {
                 $where = [$field, 'NOTNULL', ''];
