@@ -24,7 +24,7 @@ abstract class Service
     /**
      * 加载路由
      * @access protected
-     * @param  $path 路由路径
+     * @param string $path 路由路径
      */
     protected function loadRoutesFrom($path)
     {
@@ -34,7 +34,7 @@ abstract class Service
     /**
      * 添加指令
      * @access protected
-     * @param  $commands 指令
+     * @param array|string $commands 指令
      */
     protected function commands($commands)
     {

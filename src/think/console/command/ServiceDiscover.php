@@ -15,7 +15,6 @@ namespace think\console\command;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\facade\App;
 
 class ServiceDiscover extends Command
 {
@@ -27,7 +26,7 @@ class ServiceDiscover extends Command
 
     public function execute(Input $input, Output $output)
     {
-        if (is_file($path = App::getRootPath() . 'vendor/composer/installed.json')) {
+        if (is_file($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
             $packages = json_decode(@file_get_contents($path), true);
 
             $services = [];
@@ -41,7 +40,7 @@ class ServiceDiscover extends Command
 
             $content = '<?php ' . PHP_EOL . $header . "return " . var_export($services, true) . ';';
 
-            if (!is_dir($runtimePath = App::getRuntimePath())) {
+            if (!is_dir($runtimePath = $this->app->getRuntimePath())) {
                 mkdir($runtimePath, 0755, true);
             }
 
