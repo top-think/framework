@@ -251,7 +251,7 @@ class Url
             if ($app) {
                 $map = $this->app->http->getDomain();
                 if ($key = array_search($app, $map)) {
-                    $domain = $key;
+                    $domain = true === $domain ? $key : $domain;
                 } else {
                     $url = $app . '/' . $url;
                 }
