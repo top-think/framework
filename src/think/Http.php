@@ -349,7 +349,7 @@ class Http
 
                 if (isset($this->map[$name])) {
                     if ($this->map[$name] instanceof \Closure) {
-                        call_user_func_array($this->map[$name], [$this]);
+                        call_user_func_array($this->map[$name], [$this->app]);
                     } else {
                         $appName = $this->map[$name];
                     }
