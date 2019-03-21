@@ -17,25 +17,14 @@ use think\Facade;
 /**
  * @see \think\App
  * @mixin \think\App
- * @method \think\App multi(bool $multi) static 设置多应用
- * @method \think\App path(string $path) static 设置应用路径
  * @method \think\App debug(bool $debug) static 设置应用调试模式
- * @method \think\App name(string $name) static 设置应用名称
- * @method \think\App controllerLayer(string $layer) static 设置应用控制器层
- * @method \think\App emptyController(string $empty) static 设置应用的空控制器名称
  * @method \think\App setNamespace(string $namespace) static 设置应用的命名空间
  * @method \think\App setRootNamespace(string $namespace) static 设置应用的根命名空间
- * @method \think\App controllerSuffix(bool $suffix) static 设置应用是否启用控制器类库后缀
- * @method \think\App autoMulti(array $map) static 自动多应用
- * @method bool isAutoMulti() static 判断是否为自动多应用
- * @method bool isMulti() static 判断是否为多应用
  * @method void initialize() static 初始化应用
- * @method void init() static 初始化应用
- * @method \think\Response run() static 执行应用
- * @method object controller(string $name) static 实例化控制器
  * @method string parseClass(string $layer, string $name) static 解析应用类的类名
  * @method string version() static 获取框架版本
  * @method bool isDebug() static 是否为调试模式
+ * @method bool runningInConsole() static 是否运行在CLI模式
  * @method string getRootPath() static 获取应用根目录
  * @method string getBasePath() static 获取应用基础目录
  * @method string getAppPath() static 获取应用类库目录
@@ -45,7 +34,6 @@ use think\Facade;
  * @method string getConfigExt() static 获取配置后缀
  * @method string getNamespace() static 获取应用类库命名空间
  * @method string getRootNamespace() static 获取应用类库根命名空间
- * @method string hasControllerSuffix() static 是否启用类库后缀
  * @method float getBeginTime() static 获取应用开启时间
  * @method integer getBeginMem() static 获取应用初始内存占用
  * @method string serialize(mixed $data) static 序列化数据
