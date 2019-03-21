@@ -1285,9 +1285,9 @@ class Query
             if (is_string($op) && in_array(strtoupper($op), ['NULL', 'NOTNULL', 'NOT NULL'], true)) {
                 // null查询
                 $where = [$field, $op, ''];
-            } elseif ('=' == $op || is_null($op)) {
+            } elseif ('=' === $op || is_null($op)) {
                 $where = [$field, 'NULL', ''];
-            } elseif ('<>' == $op) {
+            } elseif ('<>' === $op) {
                 $where = [$field, 'NOTNULL', ''];
             } else {
                 // 字段相等查询
