@@ -26,6 +26,12 @@ class Http
     protected $app;
 
     /**
+     * 应用路径
+     * @var string
+     */
+    protected $path;
+
+    /**
      * 是否多应用模式
      * @var bool
      */
@@ -101,6 +107,18 @@ class Http
     public function getName(): string
     {
         return $this->name ?: '';
+    }
+
+    /**
+     * 设置应用目录
+     * @access public
+     * @param string $path 应用目录
+     * @return $this
+     */
+    public function path(string $path)
+    {
+        $this->path = $path;
+        return $this;
     }
 
     /**
@@ -282,8 +300,7 @@ class Http
     {
         $this->name = $appName;
         $this->app->request->setApp($appName);
-        $this->app->setNamespace($this->app->getRootNamespace() . '\\' . $appName);
-        $this->app->setAppPath($this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
+        $this->app->setAppPath($this->path ?: $this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
         $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
 
         //加载app文件
@@ -323,5 +340,7 @@ class Http
                 $this->app->bind(include $appPath . 'provider.php');
             }
         }
+
+        $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: $this->app->getRootNamespace() . '\\' . $appName);
     }
 }

@@ -58,12 +58,22 @@ class Route
         'route_complete_match'  => false,
         // 使用注解路由
         'route_annotation'      => false,
+        // 路由缓存设置
+        'route_check_cache'     => false,
+        'route_cache_option'    => [],
+        'route_check_cache_key' => '',
         // 是否自动转换URL中的控制器和操作名
         'url_convert'           => true,
         // 默认的路由变量规则
         'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
         'url_html_suffix'       => 'html',
+        // 访问控制器层名称
+        'controller_layer'      => 'controller',
+        // 空控制器名
+        'empty_controller'      => 'Error',
+        // 是否使用控制器后缀
+        'controller_suffix'     => false,
         // 默认控制器名
         'default_controller'    => 'Index',
         // 默认操作名
