@@ -72,6 +72,8 @@ class Route
         'action_suffix'         => '',
         // 是否开启路由检测缓存
         'route_check_cache'     => false,
+        // URL使用普通参数方式
+        'url_common_param'      => false,
     ];
 
     /**

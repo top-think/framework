@@ -132,6 +132,10 @@ class Url
             if (!is_null($match[2])) {
                 $suffix = $match[2];
             }
+
+            if ($this->app->request->app()) {
+                $url = $this->app->request->app() . '/' . $url;
+            }
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
