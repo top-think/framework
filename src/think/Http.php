@@ -171,7 +171,7 @@ class Http
         // 设置开启事件机制
         $this->app->event->withEvent($this->app->config->get('app.with_event', true));
 
-        // 监听AppInit
+        // 监听HttpRun
         $this->app->event->trigger('HttpRun');
 
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
@@ -313,6 +313,11 @@ class Http
         $this->loadApp($appName ?: $this->app->config->get('app.default_app', 'index'));
     }
 
+    /**
+     * 加载应用文件
+     * @param string $appName 应用名
+     * @return void
+     */
     protected function loadApp(string $appName): void
     {
         $this->name = $appName;
