@@ -136,7 +136,7 @@ class Build
     public function buildRoute(): string
     {
         $namespace = $this->app->getNameSpace();
-        $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
+        $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则' . PHP_EOL . 'use think\\facade\\Route;' . PHP_EOL;
 
         $layer  = $this->app->config->get('route.controller_layer');
         $suffix = $this->app->config->get('route.controller_suffix');
@@ -202,7 +202,7 @@ class Build
     protected function getControllerRoute(ReflectionClass $class, string $controller): string
     {
         $content = '';
-        $comment = $class->getDocComment();
+        $comment = $class->getDocComment() ?: '';
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
@@ -263,7 +263,7 @@ class Build
      */
     protected function getMethodRouteComment(string $controller, ReflectionMethod $reflectMethod)
     {
-        $comment = $reflectMethod->getDocComment();
+        $comment = $reflectMethod->getDocComment() ?: '';
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
