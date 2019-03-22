@@ -173,7 +173,7 @@ class Http
     {
         // 加载路由定义
         if (is_dir($this->getRoutePath())) {
-            $files = glob($this->getRoutePath() . DIRECTORY_SEPARATOR . '*.php');
+            $files = glob($this->getRoutePath() . '*.php');
             foreach ($files as $file) {
                 include $file;
             }
