@@ -21,6 +21,12 @@ class Url
     protected $bindCheck;
 
     /**
+     * 显示域名
+     * @var bool
+     */
+    protected $showDomain;
+
+    /**
      * 应用对象
      * @var App
      */
@@ -99,6 +105,8 @@ class Url
                 list($url, $domain) = explode('@', $url, 2);
             }
         }
+
+        $this->showDomain = false === $domain ? false : true;
 
         // 解析参数
         if (is_string($vars)) {
@@ -320,7 +328,7 @@ class Url
             $scheme = $this->app->request->isSsl() ? 'https://' : 'http://';
         }
 
-        return $this->app->request->host() == $domain ? '' : $scheme . $domain;
+        return $this->app->request->host() == $domain && !$this->showDomain ? '' : $scheme . $domain;
     }
 
     /**
