@@ -40,11 +40,6 @@ class File
             $this->config = array_merge($this->config, $config);
         }
 
-        if (empty($this->config['path'])) {
-            $this->config['path'] = $app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
-        } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
-            $this->config['path'] .= DIRECTORY_SEPARATOR;
-        }
     }
 
     /**
@@ -131,6 +126,12 @@ class File
      */
     protected function getMasterLogFile(): string
     {
+        if (empty($this->config['path'])) {
+            $this->config['path'] = $this->app->getRuntimePath() . 'log' . DIRECTORY_SEPARATOR;
+        } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
+            $this->config['path'] .= DIRECTORY_SEPARATOR;
+        }
+
         if ($this->config['max_files']) {
             $files = glob($this->config['path'] . '*.log');
 
