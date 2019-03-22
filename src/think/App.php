@@ -110,7 +110,7 @@ class App extends Container
     /**
      * 架构方法
      * @access public
-     * @param  string $rootPath 应用根目录
+     * @param string $rootPath 应用根目录
      */
     public function __construct(string $rootPath = '')
     {
@@ -127,8 +127,8 @@ class App extends Container
     /**
      * 注册服务
      * @access public
-     * @param  Service|string $service 服务
-     * @param  bool           $force   强制重新注册
+     * @param Service|string $service 服务
+     * @param bool           $force   强制重新注册
      * @return Service|null
      */
     public function register($service, bool $force = false)
@@ -153,7 +153,7 @@ class App extends Container
     /**
      * 执行服务
      * @access public
-     * @param  Service $service 服务
+     * @param Service $service 服务
      * @return mixed
      */
     public function bootService($service)
@@ -165,21 +165,21 @@ class App extends Container
 
     /**
      * 获取服务
-     * @param  string|Service $service
+     * @param string|Service $service
      * @return Service|null
      */
     public function getService($service)
     {
         $name = is_string($service) ? $service : get_class($service);
         return array_values(array_filter($this->services, function ($value) use ($name) {
-            return $value instanceof $name;
-        }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
+                return $value instanceof $name;
+            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
      * 开启应用调试模式
      * @access public
-     * @param  bool $debug 开启应用调试模式
+     * @param bool $debug 开启应用调试模式
      * @return $this
      */
     public function debug(bool $debug = true)
@@ -201,7 +201,7 @@ class App extends Container
     /**
      * 设置应用命名空间
      * @access public
-     * @param  string $namespace 应用命名空间
+     * @param string $namespace 应用命名空间
      * @return $this
      */
     public function setNamespace(string $namespace)
@@ -213,7 +213,7 @@ class App extends Container
     /**
      * 设置应用根命名空间
      * @access public
-     * @param  string $rootNamespace 应用命名空间
+     * @param string $rootNamespace 应用命名空间
      * @return $this
      */
     public function setRootNamespace(string $rootNamespace)
@@ -367,10 +367,6 @@ class App extends Container
      */
     public function initialize()
     {
-        if ($this->initialized) {
-            return $this;
-        }
-
         $this->initialized = true;
 
         $this->beginTime = microtime(true);
@@ -404,6 +400,15 @@ class App extends Container
         }
 
         return $this;
+    }
+
+    /**
+     * 是否初始化过
+     * @return bool
+     */
+    public function initialized()
+    {
+        return $this->initialized;
     }
 
     /**
@@ -487,7 +492,7 @@ class App extends Container
     /**
      * 注册应用事件
      * @access protected
-     * @param  array $event 事件数据
+     * @param array $event 事件数据
      * @return void
      */
     public function loadEvent(array $event): void
@@ -508,8 +513,8 @@ class App extends Container
     /**
      * 解析应用类的类名
      * @access public
-     * @param  string $layer 层名 controller model ...
-     * @param  string $name  类名
+     * @param string $layer 层名 controller model ...
+     * @param string $name  类名
      * @return string
      */
     public function parseClass(string $layer, string $name): string
@@ -547,9 +552,9 @@ class App extends Container
      * 字符串命名风格转换
      * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
      * @access public
-     * @param  string  $name    字符串
-     * @param  integer $type    转换类型
-     * @param  bool    $ucfirst 首字母是否大写（驼峰规则）
+     * @param string  $name    字符串
+     * @param integer $type    转换类型
+     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
     public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true): string
@@ -567,7 +572,7 @@ class App extends Container
     /**
      * 获取类名(不包含命名空间)
      * @access public
-     * @param  string|object $class
+     * @param string|object $class
      * @return string
      */
     public static function classBaseName($class): string
@@ -579,8 +584,8 @@ class App extends Container
     /**
      * 创建工厂对象实例
      * @access public
-     * @param  string $name      工厂类名
-     * @param  string $namespace 默认命名空间
+     * @param string $name      工厂类名
+     * @param string $namespace 默认命名空间
      * @return mixed
      */
     public static function factory(string $name, string $namespace = '', ...$args)
