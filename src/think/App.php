@@ -44,12 +44,6 @@ class App extends Container
     protected $beginMem;
 
     /**
-     * 应用类库顶级命名空间
-     * @var string
-     */
-    protected $rootNamespace = 'app';
-
-    /**
      * 当前应用类库命名空间
      * @var string
      */
@@ -172,8 +166,8 @@ class App extends Container
     {
         $name = is_string($service) ? $service : get_class($service);
         return array_values(array_filter($this->services, function ($value) use ($name) {
-                return $value instanceof $name;
-            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
+            return $value instanceof $name;
+        }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
@@ -208,28 +202,6 @@ class App extends Container
     {
         $this->namespace = $namespace;
         return $this;
-    }
-
-    /**
-     * 设置应用根命名空间
-     * @access public
-     * @param string $rootNamespace 应用命名空间
-     * @return $this
-     */
-    public function setRootNamespace(string $rootNamespace)
-    {
-        $this->rootNamespace = $rootNamespace;
-        return $this;
-    }
-
-    /**
-     * 获取应用类基础命名空间
-     * @access public
-     * @return string
-     */
-    public function getRootNamespace(): string
-    {
-        return $this->rootNamespace;
     }
 
     /**

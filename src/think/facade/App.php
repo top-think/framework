@@ -19,7 +19,6 @@ use think\Facade;
  * @mixin \think\App
  * @method \think\App debug(bool $debug) static 设置应用调试模式
  * @method \think\App setNamespace(string $namespace) static 设置应用的命名空间
- * @method \think\App setRootNamespace(string $namespace) static 设置应用的根命名空间
  * @method void initialize() static 初始化应用
  * @method string parseClass(string $layer, string $name) static 解析应用类的类名
  * @method string version() static 获取框架版本
@@ -33,7 +32,6 @@ use think\Facade;
  * @method string getConfigPath() static 获取应用配置目录
  * @method string getConfigExt() static 获取配置后缀
  * @method string getNamespace() static 获取应用类库命名空间
- * @method string getRootNamespace() static 获取应用类库根命名空间
  * @method float getBeginTime() static 获取应用开启时间
  * @method integer getBeginMem() static 获取应用初始内存占用
  * @method string serialize(mixed $data) static 序列化数据

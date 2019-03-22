@@ -363,6 +363,6 @@ class Http
             }
         }
 
-        $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: $this->app->getRootNamespace() . '\\' . $appName);
+        $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: 'app\\' . $appName);
     }
 }

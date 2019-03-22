@@ -69,7 +69,7 @@ abstract class Make extends Command
 
     protected function getPathName(string $name): string
     {
-        $name = str_replace(App::getRootNamespace() . '\\', '', $name);
+        $name = str_replace('app\\', '', $name);
 
         return App::getBasePath() . ltrim(str_replace('\\', '/', $name), '/') . '.php';
     }
@@ -95,13 +95,7 @@ abstract class Make extends Command
 
     protected function getNamespace(string $app): string
     {
-        $namespace = App::getRootNamespace();
-
-        if ($app) {
-            $namespace .= '\\' . $app;
-        }
-
-        return $namespace;
+        return 'app' . ($app ? '\\' . $app : '');
     }
 
 }
