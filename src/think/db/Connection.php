@@ -487,10 +487,10 @@ abstract class Connection
     /**
      * 获取数据表的主键
      * @access public
-     * @param  string $tableName 数据表名
+     * @param  mixed $tableName 数据表名
      * @return string|array
      */
-    public function getPk(string $tableName)
+    public function getPk($tableName)
     {
         return $this->getTableInfo($tableName, 'pk');
     }
@@ -498,10 +498,10 @@ abstract class Connection
     /**
      * 获取数据表字段信息
      * @access public
-     * @param  string $tableName 数据表名
+     * @param  mixed $tableName 数据表名
      * @return array
      */
-    public function getTableFields(string $tableName): array
+    public function getTableFields($tableName): array
     {
         return $this->getTableInfo($tableName, 'fields');
     }
@@ -509,11 +509,11 @@ abstract class Connection
     /**
      * 获取数据表字段类型
      * @access public
-     * @param  string $tableName 数据表名
+     * @param  mixed $tableName 数据表名
      * @param  string $field    字段名
      * @return array|string
      */
-    public function getFieldsType(string $tableName, string $field = null)
+    public function getFieldsType($tableName, string $field = null)
     {
         $result = $this->getTableInfo($tableName, 'type');
 
@@ -527,10 +527,10 @@ abstract class Connection
     /**
      * 获取数据表绑定信息
      * @access public
-     * @param  string $tableName 数据表名
+     * @param  mixed $tableName 数据表名
      * @return array
      */
-    public function getFieldsBind(string $tableName): array
+    public function getFieldsBind($tableName): array
     {
         return $this->getTableInfo($tableName, 'bind');
     }
