@@ -338,7 +338,6 @@ class Request
     {
         $request = new static($config->get('route'));
 
-        $request->cookie = $app['cookie']->get();
         $request->server = $_SERVER;
         $request->env    = $app['env']->get();
 
