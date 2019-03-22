@@ -250,9 +250,9 @@ class Query
      * 得到当前或者指定名称的数据表
      * @access public
      * @param  string $name 不含前缀的数据表名字
-     * @return string
+     * @return mixed
      */
-    public function getTable(string $name = ''): string
+    public function getTable(string $name = '')
     {
         if (empty($name) && isset($this->options['table'])) {
             return $this->options['table'];
@@ -272,7 +272,7 @@ class Query
     public function getTableFields($tableName = ''): array
     {
         if ('' == $tableName) {
-            $tableName = $this->options['table'] ?? $this->getTable();
+            $tableName = $this->getTable();
         }
 
         return $this->connection->getTableFields($tableName);
@@ -301,9 +301,7 @@ class Query
             return $this->options['field_type'];
         }
 
-        $tableName = $this->options['table'] ?? $this->getTable();
-
-        return $this->connection->getFieldsType($tableName);
+        return $this->connection->getFieldsType($this->getTable());
     }
 
     /**
