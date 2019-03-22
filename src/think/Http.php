@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\HttpException;
+use Throwable;
 
 /**
  * Web应用管理类
@@ -135,7 +136,7 @@ class Http
 
         try {
             $response = $this->runWithRequest($request);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $this->reportException($e);
 
             $response = $this->renderException($request, $e);
@@ -145,13 +146,23 @@ class Http
     }
 
     /**
+     * 初始化
+     */
+    protected function initialize()
+    {
+        if (!$this->app->initialized()) {
+            $this->app->initialize();
+        }
+    }
+
+    /**
      * 执行应用程序
      * @param Request $request
      * @return mixed
      */
     protected function runWithRequest(Request $request)
     {
-        $this->app->initialize();
+        $this->initialize();
 
         if ($this->multi) {
             $this->parseMultiApp();
@@ -212,10 +223,10 @@ class Http
     /**
      * Report the exception to the exception handler.
      *
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return void
      */
-    protected function reportException(\Throwable $e)
+    protected function reportException(Throwable $e)
     {
         $this->app['error_handle']->report($e);
     }
@@ -224,10 +235,10 @@ class Http
      * Render the exception to a response.
      *
      * @param Request    $request
-     * @param \Throwable $e
+     * @param Throwable $e
      * @return Response
      */
-    protected function renderException($request, \Throwable $e)
+    protected function renderException($request, Throwable $e)
     {
         return $this->app['error_handle']->render($request, $e);
     }
