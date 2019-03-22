@@ -157,7 +157,13 @@ class Http
             $this->parseMultiApp();
         }
 
-        $withRoute = $this->app->config->get('app.with_route') ? function () {
+        // 设置开启事件机制
+        $this->app->event->withEvent($this->app->config->get('app.with_event', true));
+
+        // 监听AppInit
+        $this->app->event->trigger('HttpRun');
+
+        $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
         } : null;
 

@@ -86,12 +86,6 @@ class App extends Container
     protected $configExt = '.php';
 
     /**
-     * 是否需要事件响应
-     * @var bool
-     */
-    protected $withEvent = true;
-
-    /**
      * 应用初始化器
      * @var array
      */
@@ -180,18 +174,6 @@ class App extends Container
         return array_values(array_filter($this->services, function ($value) use ($name) {
             return $value instanceof $name;
         }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
-    }
-
-    /**
-     * 设置是否使用事件机制
-     * @access public
-     * @param  bool $event
-     * @return $this
-     */
-    public function withEvent(bool $event)
-    {
-        $this->withEvent = $event;
-        return $this;
     }
 
     /**
@@ -394,14 +376,14 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        //加载环境变量
+        // 加载环境变量
         if (is_file($this->rootPath . '.env')) {
             $this->env->load($this->rootPath . '.env');
         }
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
-        // 加载初始化文件
+        // 加载全局初始化文件
         if (is_file($this->getRuntimePath() . 'init.php')) {
             //直接加载缓存
             include $this->getRuntimePath() . 'init.php';
@@ -409,13 +391,10 @@ class App extends Container
             $this->load();
         }
 
-        // 设置开启事件机制
-        $this->event->withEvent($this->withEvent);
+        $this->debugModeInit();
 
         // 监听AppInit
-        $this->event->trigger('AppInit');
-
-        $this->debugModeInit();
+        $this->app->event->trigger('AppInit');
 
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
 
