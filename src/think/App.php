@@ -23,7 +23,7 @@ use think\initializer\RegisterService;
  */
 class App extends Container
 {
-    const VERSION = '5.2.0RC1';
+    const VERSION = '6.0.0RC1';
 
     /**
      * 应用调试模式
