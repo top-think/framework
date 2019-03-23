@@ -2628,9 +2628,7 @@ class Query
             return $this->insert($data);
         }
 
-        if (!empty($data)) {
-            $this->options['data'] = $data;
-        }
+        $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
 
         if (!empty($this->options['where'])) {
             $isUpdate = true;
@@ -2711,12 +2709,12 @@ class Query
      */
     public function update(array $data = []): int
     {
-        if (empty($data)) {
-            $data = $this->options['data'] ?? [];
+        if (!empty($data)) {
+            $this->options['data'] = array_merge($this->options['data'] ?? [], $data);
         }
 
         if (empty($this->options['where'])) {
-            $this->parseUpdateData($data);
+            $this->parseUpdateData($this->options['data']);
         }
 
         if (empty($this->options['where']) && $this->model) {
@@ -2727,8 +2725,6 @@ class Query
             // 如果没有任何更新条件则不执行
             throw new Exception('miss update condition');
         }
-
-        $this->options['data'] = $data;
 
         return $this->connection->update($this);
     }
