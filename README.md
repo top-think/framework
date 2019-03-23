@@ -1,16 +1,16 @@
 ![](https://box.kancloud.cn/5a0aaa69a5ff42657b5c4715f3d49221) 
 
-ThinkPHP 5.2
+ThinkPHP 6.0
 ===============
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=5.2)](https://scrutinizer-ci.com/g/top-think/framework/?branch=5.2)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=6.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=6.0)
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=master)](https://travis-ci.org/top-think/framework)
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net/)
 [![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
 
-ThinkPHP5.2底层架构采用PHP7.1改写和进一步优化。
+ThinkPHP6.0底层架构采用PHP7.1改写和进一步优化。
 
 ### 计划实现的核心主要特性：
 
@@ -18,6 +18,7 @@ ThinkPHP5.2底层架构采用PHP7.1改写和进一步优化。
  + 支持更多的PSR规范
  + 多应用支持
  + 引入事件系统替代行为
+ + 全新的应用服务架构
  + 视图和模板引擎分离
  + IDE助手
  + 用法统一和精简
@@ -28,13 +29,13 @@ ThinkPHP5.2底层架构采用PHP7.1改写和进一步优化。
 ## 安装
 
 ~~~
-composer create-project topthink/think tp5 5.2.*-dev
+composer create-project topthink/think tp 6.0.*-dev
 ~~~
 
 启动服务
 
 ~~~
-cd tp5
+cd tp
 php think run
 ~~~
 
@@ -63,7 +64,7 @@ ThinkPHP遵循Apache2开源协议发布，并提供免费使用。
 
 本项目包含的第三方源码和二进制文件之版权信息另行标注。
 
-版权所有Copyright © 2006-2018 by ThinkPHP (http://thinkphp.cn)
+版权所有Copyright © 2006-2019 by ThinkPHP (http://thinkphp.cn)
 
 All rights reserved。
 
