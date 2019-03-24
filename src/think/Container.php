@@ -151,7 +151,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             return $this->make($abstract);
         }
 
-        throw new ClassNotFoundException('class not exists: ' . $$abstract, $$abstract);
+        throw new ClassNotFoundException('class not exists: ' . $abstract, $abstract);
     }
 
     /**
