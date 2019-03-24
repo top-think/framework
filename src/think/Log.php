@@ -234,7 +234,7 @@ class Log implements LoggerInterface
         $log = [];
 
         foreach ($this->log as $level => $info) {
-            if (!App::isDebug() && 'debug' == $level) {
+            if (!$this->app->isDebug() && 'debug' == $level) {
                 continue;
             }
 

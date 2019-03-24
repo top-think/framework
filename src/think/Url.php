@@ -180,6 +180,13 @@ class Url
         $depr = $this->config['pathinfo_depr'];
         $url  = str_replace('/', $depr, $url);
 
+        $file = $this->app->request->baseFile();
+        if ($file && 0 !== strpos($this->app->request->url(), $file)) {
+            $file = str_replace('\\', '/', dirname($file));
+        }
+
+        $url = rtrim($file, '/') . '/' . $url;
+
         // URL后缀
         if ('/' == substr($url, -1) || '' == $url) {
             $suffix = '';
@@ -261,11 +268,17 @@ class Url
             $url = $controller . '/' . $action;
 
             if ($app) {
-                $map = $this->app->config->get('app.domain_bind', []);
-                if ($key = array_search($app, $map)) {
+                $bind = $this->app->config->get('app.domain_bind', []);
+                if ($key = array_search($app, $bind)) {
                     $domain = true === $domain ? $key : $domain;
                 } else {
-                    $url = $app . '/' . $url;
+                    $map = $this->app->config->get('app.app_map', []);
+
+                    if ($key = array_search($app, $map)) {
+                        $url = $key . '/' . $url;
+                    } else {
+                        $url = $app . '/' . $url;
+                    }
                 }
             }
         }
