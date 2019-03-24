@@ -59,7 +59,7 @@ class Session
 
     public static function __make(Config $config)
     {
-        return new static($config->get('session', []));
+        return new static($config->get('session'));
     }
 
     /**
@@ -80,13 +80,12 @@ class Session
     /**
      * session初始化
      * @access public
-     * @param  array $config
      * @return void
      * @throws \think\Exception
      */
-    public function init(array $config = []): void
+    public function init(): void
     {
-        $config = $config ?: $this->config;
+        $config = $this->config;
 
         if (isset($config['use_lock'])) {
             $this->lock = $config['use_lock'];
