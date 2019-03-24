@@ -213,7 +213,7 @@ class Url
         $domain = $this->parseDomain($url, $domain);
 
         // URL组装
-        $url = $domain . rtrim($this->app->request->root(), '/') . '/' . ltrim($url, '/');
+        $url = $domain . '/' . ltrim($url, '/');
 
         $this->bindCheck = false;
 
