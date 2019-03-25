@@ -1832,7 +1832,11 @@ class Request
      */
     public function host(bool $strict = false): string
     {
-        $host = strval($this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST'));
+        if ($this->host) {
+            $host = $this->host;
+        } else {
+            $host = strval($this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST'));
+        }
 
         return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
     }
