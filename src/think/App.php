@@ -116,6 +116,7 @@ class App extends Container
         static::setInstance($this);
 
         $this->instance('app', $this);
+        $this->instance('think\Container', $this);
     }
 
     /**
