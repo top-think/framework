@@ -15,7 +15,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\facade\App;
 
 class Model extends Command
 {
@@ -29,10 +28,10 @@ class Model extends Command
     protected function execute(Input $input, Output $output)
     {
         $app  = $input->getArgument('app');
-        $path = App::getBasePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'model';
+        $path = $this->app->getBasePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'model';
 
         $models    = glob($path . DIRECTORY_SEPARATOR . '*.php');
-        $namespace = App::getNameSpace() . ($app ? '\\' . $app : '');
+        $namespace = $this->app->getNameSpace() . ($app ? '\\' . $app : '');
 
         foreach ($models as $model) {
             $this->buildModel($namespace, $model);

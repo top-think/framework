@@ -15,8 +15,6 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
-use think\facade\App;
-use think\facade\Cache;
 
 class Clear extends Command
 {
@@ -37,12 +35,12 @@ class Clear extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->getOption('route')) {
-            Cache::clear('route_cache');
+            $this->app->cache->clear('route_cache');
         } else {
             if ($input->getArgument('app')) {
-                $runtimePath = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
+                $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
             } else {
-                $runtimePath = App::getRuntimePath();
+                $runtimePath = $this->app->getRuntimePath();
             }
 
             if ($input->getOption('cache')) {

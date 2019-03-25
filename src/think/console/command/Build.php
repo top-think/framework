@@ -15,8 +15,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Option;
 use think\console\Output;
-use think\facade\App;
-use think\facade\Build as AppBuild;
 
 class Build extends Command
 {
@@ -36,7 +34,7 @@ class Build extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->hasOption('app')) {
-            AppBuild::buildApp($input->getOption('app'));
+            $this->app->build->buildApp($input->getOption('app'));
             $output->writeln("Successed");
             return;
         }
@@ -44,7 +42,7 @@ class Build extends Command
         if ($input->hasOption('config')) {
             $build = include $input->getOption('config');
         } else {
-            $build = include App::getAppPath() . 'build.php';
+            $build = include $this->app->getAppPath() . 'build.php';
         }
 
         if (empty($build)) {
@@ -52,7 +50,7 @@ class Build extends Command
             return;
         }
 
-        AppBuild::run($build);
+        $this->app->build->run($build);
         $output->writeln("Successed");
     }
 }

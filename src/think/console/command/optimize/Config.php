@@ -14,8 +14,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\Container;
-use think\facade\App;
 
 class Config extends Command
 {
@@ -29,9 +27,9 @@ class Config extends Command
     protected function execute(Input $input, Output $output)
     {
         if ($input->getArgument('app')) {
-            $runtimePath = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
+            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
         } else {
-            $runtimePath = App::getRuntimePath();
+            $runtimePath = $this->app->getRuntimePath();
         }
 
         $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app') ?: '');
@@ -51,17 +49,17 @@ class Config extends Command
         $content = '';
 
         if ($app) {
-            $path = App::getBasePath() . $app . DIRECTORY_SEPARATOR;
+            $path = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
         } else {
-            $path = App::getAppPath();
+            $path = $this->app->getAppPath();
         }
 
-        $configPath = App::getConfigPath();
-        $configExt  = App::getConfigExt();
+        $configPath = $this->app->getConfigPath();
+        $configExt  = $this->app->getConfigExt();
 
         // 加载公共文件
-        if ($app && is_file(App::getBasePath() . 'common.php')) {
-            $common = substr(php_strip_whitespace(App::getBasePath() . 'common.php'), 6);
+        if ($app && is_file($this->app->getBasePath() . 'common.php')) {
+            $common = substr(php_strip_whitespace($this->app->getBasePath() . 'common.php'), 6);
             if ($common) {
                 $content .= PHP_EOL . $common . PHP_EOL;
             }
@@ -74,9 +72,7 @@ class Config extends Command
             }
         }
 
-        $content .= PHP_EOL . substr(php_strip_whitespace(App::getThinkPath() . 'helper.php'), 6) . PHP_EOL;
-
-        $config = Container::pull('config');
+        $content .= PHP_EOL . substr(php_strip_whitespace($this->app->getThinkPath() . 'helper.php'), 6) . PHP_EOL;
 
         // 加载应用配置文件
         $files = [];
@@ -94,10 +90,10 @@ class Config extends Command
         }
 
         foreach ($files as $file) {
-            $config->load($file, pathinfo($file, PATHINFO_FILENAME));
+            $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
         }
 
-        $content .= PHP_EOL . '\think\facade\Config::set(\think\facade\App::unserialize(\'' . addslashes(\think\facade\App::serialize($config->get())) . '\'));' . PHP_EOL;
+        $content .= PHP_EOL . '\think\facade\Config::set(\think\App::unserialize(\'' . addslashes(\think\App::serialize($this->app->config->get())) . '\'));' . PHP_EOL;
 
         // 加载事件定义文件
         if (is_file($path . 'event.php')) {

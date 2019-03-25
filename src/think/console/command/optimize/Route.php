@@ -14,8 +14,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\Container;
-use think\facade\App;
 
 class Route extends Command
 {
@@ -31,9 +29,9 @@ class Route extends Command
         $app = $input->getArgument('app');
 
         if ($app) {
-            $path = App::getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
+            $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
-            $path = App::getRuntimePath();
+            $path = $this->app->getRuntimePath();
         }
 
         $filename = $path . 'route.php';
@@ -47,12 +45,11 @@ class Route extends Command
 
     protected function buildRouteCache(string $app = null): string
     {
-        $route = Container::pull('route');
-        $route->setName([]);
-        $route->lazy(false);
+        $this->app->route->setName([]);
+        $this->app->route->lazy(false);
 
         // 路由检测
-        $path = App::getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
+        $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
 
         $files = is_dir($path) ? scandir($path) : [];
 
@@ -62,12 +59,12 @@ class Route extends Command
             }
         }
 
-        if (Container::pull('config')->get('route.route_annotation')) {
-            include Container::pull('build')->buildRoute();
+        if ($this->app->config->get('route.route_annotation')) {
+            include $this->app->build->buildRoute();
         }
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= '\think\facade\App::unserialize(\'' . App::serialize($route->getName()) . '\');';
+        $content .= '\think\App::unserialize(\'' . \think\App::serialize($route->getName()) . '\');';
         return $content;
     }
 

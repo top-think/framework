@@ -13,7 +13,6 @@ namespace think\console\command\make;
 
 use think\console\command\Make;
 use think\console\input\Option;
-use think\facade\App;
 
 class Controller extends Make
 {
@@ -46,7 +45,7 @@ class Controller extends Make
 
     protected function getClassName(string $name): string
     {
-        return parent::getClassName($name) . (App::make('config')->get('route.controller_suffix') ? 'Controller' : '');
+        return parent::getClassName($name) . ($this->app->config->get('route.controller_suffix') ? 'Controller' : '');
     }
 
     protected function getNamespace(string $app): string

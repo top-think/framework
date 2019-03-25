@@ -15,8 +15,6 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
-use think\facade\App;
-use think\facade\Route;
 
 abstract class Make extends Command
 {
@@ -61,9 +59,9 @@ abstract class Make extends Command
 
         return str_replace(['{%className%}', '{%actionSuffix%}', '{%namespace%}', '{%app_namespace%}'], [
             $class,
-            Route::config('action_suffix'),
+            $this->app->cache->config('action_suffix'),
             $namespace,
-            App::getNamespace(),
+            $this->app->getNamespace(),
         ], $stub);
     }
 
@@ -71,7 +69,7 @@ abstract class Make extends Command
     {
         $name = str_replace('app\\', '', $name);
 
-        return App::getBasePath() . ltrim(str_replace('\\', '/', $name), '/') . '.php';
+        return $this->app->getBasePath() . ltrim(str_replace('\\', '/', $name), '/') . '.php';
     }
 
     protected function getClassName(string $name): string

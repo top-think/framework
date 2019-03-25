@@ -13,7 +13,6 @@ namespace think\console\command\make;
 
 use think\console\command\Make;
 use think\console\input\Argument;
-use think\facade\App;
 
 class Command extends Make
 {
@@ -39,7 +38,7 @@ class Command extends Make
             $commandName,
             $class,
             $namespace,
-            App::getNamespace(),
+            $this->app->getNamespace(),
         ], $stub);
     }
 

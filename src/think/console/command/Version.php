@@ -15,7 +15,6 @@ namespace think\console\command;
 use think\console\Command;
 use think\console\Input;
 use think\console\Output;
-use think\facade\App;
 
 class Version extends Command
 {
@@ -28,7 +27,7 @@ class Version extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $output->writeln('v' . App::version());
+        $output->writeln('v' . $this->app->version());
     }
 
 }
