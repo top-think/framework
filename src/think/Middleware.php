@@ -185,7 +185,7 @@ class Middleware
             list($call, $param) = $middleware;
 
             try {
-                $response = call_user_func_array($call, [$request, $this->resolve(), $param]);
+                $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }
