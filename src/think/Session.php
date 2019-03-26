@@ -115,8 +115,8 @@ class Session
             $this->lock = $config['use_lock'];
         }
 
-        if (isset($config['var_session_id']) && isset($_REQUEST[$config['var_session_id']])) {
-            session_id($_REQUEST[$config['var_session_id']]);
+        if (isset($config['var_session_id']) && $this->app->request->request($config['var_session_id'])) {
+            session_id($this->app->request->request($config['var_session_id']));
         } elseif (!empty($config['id'])) {
             session_id($config['id']);
         }
@@ -325,7 +325,7 @@ class Session
         $this->set($name, $value);
 
         if (!$this->has('__flash__.__time__')) {
-            $this->set('__flash__.__time__', $_SERVER['REQUEST_TIME_FLOAT']);
+            $this->set('__flash__.__time__', $this->app->request->server('REQUEST_TIME_FLOAT'));
         }
 
         $this->push('__flash__', $name);
@@ -347,7 +347,7 @@ class Session
         if (!empty($item)) {
             $time = $item['__time__'];
 
-            if ($_SERVER['REQUEST_TIME_FLOAT'] > $time) {
+            if ($this->app->request->server('REQUEST_TIME_FLOAT') > $time) {
                 unset($item['__time__']);
                 $this->delete($item);
                 $this->set('__flash__', []);
