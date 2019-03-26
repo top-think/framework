@@ -303,10 +303,18 @@ class Cookie
         return;
     }
 
-    private function jsonFormatProtect(&$val, $key, $type = 'encode')
+    private function jsonFormatProtect(&$val, $key, $type = 'encode'): void
     {
         if (!empty($val) && true !== $val) {
             $val = 'decode' == $type ? urldecode($val) : urlencode((string) $val);
+        }
+    }
+
+    public function saveCookie(): void
+    {
+        foreach ($this->cookie as $name => $val) {
+            list($value, $expire, $option) = $val;
+            setCookie($name, $value, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
         }
     }
 
@@ -317,10 +325,7 @@ class Cookie
     public function __destruct()
     {
         if ($this->config['auto_write']) {
-            foreach ($this->cookie as $name => $val) {
-                list($value, $expire, $option) = $val;
-                setCookie($name, $value, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
-            }
+            $this->saveCookie();
         }
     }
 }
