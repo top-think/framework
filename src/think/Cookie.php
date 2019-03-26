@@ -20,19 +20,21 @@ class Cookie
      */
     protected $config = [
         // cookie 名称前缀
-        'prefix'    => '',
+        'prefix'     => '',
         // cookie 保存时间
-        'expire'    => 0,
+        'expire'     => 0,
         // cookie 保存路径
-        'path'      => '/',
+        'path'       => '/',
         // cookie 有效域名
-        'domain'    => '',
+        'domain'     => '',
         //  cookie 启用安全传输
-        'secure'    => false,
+        'secure'     => false,
         // httponly设置
-        'httponly'  => false,
+        'httponly'   => false,
         // 是否使用 setcookie
-        'setcookie' => true,
+        'setcookie'  => true,
+        // 是否自动写入
+        'auto_write' => true,
     ];
 
     /**
@@ -42,12 +44,29 @@ class Cookie
     protected $init;
 
     /**
+     * Cookie数据
+     * @var array
+     */
+    protected $data = [];
+
+    /**
+     * Cookie写入数据
+     * @var array
+     */
+    protected $cookie = [];
+
+    /**
      * 构造方法
      * @access public
      */
     public function __construct(array $config = [])
     {
         $this->init($config);
+    }
+
+    public static function __make(Config $config)
+    {
+        return (new static($config->get('cookie')))->setData($_COOKIE);
     }
 
     /**
@@ -65,9 +84,25 @@ class Cookie
         }
     }
 
-    public static function __make(Config $config)
+    /**
+     * 设置cookie数据
+     * @access public
+     * @param  array $data
+     * @return void
+     */
+    public function setData(array $data): void
     {
-        return new static($config->get('cookie', []));
+        $this->data = $data;
+    }
+
+    /**
+     * 获取cookie保存数据
+     * @access public
+     * @return array
+     */
+    public function getCookie(): array
+    {
+        return $this->cookie;
     }
 
     /**
@@ -119,15 +154,13 @@ class Cookie
 
         $expire = !empty($config['expire']) ? $_SERVER['REQUEST_TIME'] + intval($config['expire']) : 0;
 
-        if ($config['setcookie']) {
-            $this->setCookie($name, (string) $value, $expire, $config);
-        }
+        $this->data[$name] = $value;
 
-        $_COOKIE[$name] = $value;
+        $this->setCookie($name, (string) $value, $expire, $config);
     }
 
     /**
-     * Cookie 设置保存
+     * Cookie 保存
      *
      * @access public
      * @param  string $name  cookie名称
@@ -138,7 +171,7 @@ class Cookie
      */
     protected function setCookie(string $name, string $value, int $expire, array $option = []): void
     {
-        setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'] ? true : false, $option['httponly'] ? true : false);
+        $this->cookie[$name] = [$value, $expire, $option];
     }
 
     /**
@@ -174,7 +207,7 @@ class Cookie
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
         $name   = $prefix . $name;
 
-        return isset($_COOKIE[$name]);
+        return isset($this->data[$name]);
     }
 
     /**
@@ -194,16 +227,16 @@ class Cookie
         if ('' == $name) {
             if ($prefix) {
                 $value = [];
-                foreach ($_COOKIE as $k => $val) {
+                foreach ($this->data as $k => $val) {
                     if (0 === strpos($k, $prefix)) {
                         $value[$k] = $val;
                     }
                 }
             } else {
-                $value = $_COOKIE;
+                $value = $this->data;
             }
-        } elseif (isset($_COOKIE[$key])) {
-            $value = $_COOKIE[$key];
+        } elseif (isset($this->data[$key])) {
+            $value = $this->data[$key];
 
             if (0 === strpos($value, 'think:')) {
                 $value = substr($value, 6);
@@ -232,12 +265,10 @@ class Cookie
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
         $name   = $prefix . $name;
 
-        if ($config['setcookie']) {
-            $this->setCookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
-        }
+        $this->setCookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
 
         // 删除指定cookie
-        unset($_COOKIE[$name]);
+        unset($this->data[$name]);
     }
 
     /**
@@ -249,7 +280,7 @@ class Cookie
     public function clear(string $prefix = null): void
     {
         // 清除指定前缀的所有cookie
-        if (empty($_COOKIE)) {
+        if (empty($this->data)) {
             return;
         }
 
@@ -261,12 +292,10 @@ class Cookie
 
         if ($prefix) {
             // 如果前缀为空字符串将不作处理直接返回
-            foreach ($_COOKIE as $key => $val) {
+            foreach ($this->data as $key => $val) {
                 if (0 === strpos($key, $prefix)) {
-                    if ($config['setcookie']) {
-                        $this->setCookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
-                    }
-                    unset($_COOKIE[$key]);
+                    $this->setCookie($key, '', $_SERVER['REQUEST_TIME'] - 3600, $config);
+                    unset($this->data[$key]);
                 }
             }
         }
@@ -281,4 +310,17 @@ class Cookie
         }
     }
 
+    /**
+     * 析构方法
+     * @access public
+     */
+    public function __destruct()
+    {
+        if ($this->config['auto_write']) {
+            foreach ($this->cookie as $name => $val) {
+                list($value, $expire, $option) = $val;
+                setCookie($name, $value, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
+            }
+        }
+    }
 }

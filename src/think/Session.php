@@ -23,6 +23,12 @@ class Session
     protected $config = [];
 
     /**
+     * Session数据
+     * @var array
+     */
+    protected $data = [];
+
+    /**
      * 是否初始化
      * @var bool
      */
@@ -52,14 +58,21 @@ class Session
      */
     protected $lock = false;
 
-    public function __construct(array $config = [])
+    /**
+     * App实例
+     * @var App
+     */
+    protected $app;
+
+    public function __construct(App $app, array $config = [])
     {
         $this->config = $config;
+        $this->app    = $app;
     }
 
-    public static function __make(Config $config)
+    public static function __make(App $app, Config $config)
     {
-        return new static($config->get('session'));
+        return new static($app, $config->get('session'));
     }
 
     /**
@@ -75,6 +88,17 @@ class Session
         if (isset($config['use_lock'])) {
             $this->lock = $config['use_lock'];
         }
+    }
+
+    /**
+     * 设置数据
+     * @access public
+     * @param  array $data
+     * @return void
+     */
+    public function setData(array $data): void
+    {
+        $this->data = $data;
     }
 
     /**
@@ -112,6 +136,11 @@ class Session
                 session_start($config['options'] ?? []);
             } catch (\Exception $e) {
             }
+
+            if (empty($this->data)) {
+                $this->data = $_SESSION;
+            }
+
             $this->init = true;
         } else {
             $this->init = false;
@@ -154,9 +183,9 @@ class Session
             // 二维数组赋值
             list($name1, $name2) = explode('.', $name);
 
-            $_SESSION[$name1][$name2] = $value;
+            $this->data[$name1][$name2] = $value;
         } else {
-            $_SESSION[$name] = $value;
+            $this->data[$name] = $value;
         }
 
         $this->unlock();
@@ -175,7 +204,7 @@ class Session
 
         empty($this->init) && $this->boot();
 
-        $value = $_SESSION;
+        $value = $this->data;
 
         if ('' != $name) {
             $name = explode('.', $name);
@@ -239,7 +268,7 @@ class Session
         if (null !== $this->lockDriver && method_exists($this->lockDriver, 'lock')) {
             $t = time();
             // 使用 session_id 作为互斥条件，即只对同一 session_id 的会话互斥。第一次请求没有 session_id
-            $sessID = $_COOKIE[$this->sessKey] ?? '';
+            $sessID = $this->app->cookie->get($this->sessKey) ?: '';
 
             do {
                 if (time() - $t > $this->lockTimeout) {
@@ -263,7 +292,7 @@ class Session
         $this->pause();
 
         if ($this->lockDriver && method_exists($this->lockDriver, 'unlock')) {
-            $sessID = $_COOKIE[$this->sessKey] ?? '';
+            $sessID = $this->app->cookie->get($this->sessKey) ?: '';
             $this->lockDriver->unlock($sessID);
         }
     }
@@ -343,9 +372,9 @@ class Session
         } elseif (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
 
-            unset($_SESSION[$name1][$name2]);
+            unset($this->data[$name1][$name2]);
         } else {
-            unset($_SESSION[$name]);
+            unset($this->data[$name]);
         }
     }
 
@@ -358,7 +387,7 @@ class Session
     {
         empty($this->init) && $this->boot();
 
-        $_SESSION = [];
+        $this->data = [];
     }
 
     /**
@@ -371,7 +400,7 @@ class Session
     {
         empty($this->init) && $this->boot();
 
-        $value = $_SESSION;
+        $value = $this->data;
 
         $name = explode('.', $name);
 
@@ -415,6 +444,10 @@ class Session
     {
         session_start();
 
+        if (empty($this->data)) {
+            $this->data = $_SESSION;
+        }
+
         $this->init = true;
     }
 
@@ -425,8 +458,8 @@ class Session
      */
     public function destroy(): void
     {
-        if (!empty($_SESSION)) {
-            $_SESSION = [];
+        if (!empty($this->data)) {
+            $this->data = [];
         }
 
         session_unset();
@@ -458,5 +491,14 @@ class Session
         // 暂停session
         session_write_close();
         $this->init = false;
+    }
+
+    /**
+     * 析构方法
+     * @access public
+     */
+    public function __destruct()
+    {
+        $_SESSION = $this->data;
     }
 }
