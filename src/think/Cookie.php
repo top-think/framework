@@ -88,11 +88,12 @@ class Cookie
      * 设置cookie数据
      * @access public
      * @param  array $data
-     * @return void
+     * @return $this
      */
-    public function setData(array $data): void
+    public function setData(array $data)
     {
         $this->data = $data;
+        return $this;
     }
 
     /**
