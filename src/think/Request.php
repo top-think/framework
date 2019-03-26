@@ -338,8 +338,36 @@ class Request
     {
         $request = new static($config->get('route'));
 
-        $request->server = $_SERVER;
-        $request->env    = $app['env']->get();
+        $request->server  = $_SERVER;
+        $request->env     = $app->env->get();
+        $request->get     = $_GET;
+        $request->post    = $_POST ?: $request->getInputData($request->input);
+        $request->put     = $request->getInputData($request->input);
+        $request->request = $_REQUEST;
+        $request->session = $app->session->get();
+        $request->cookie  = $app->cookie->get();
+        $request->file    = $_FILES ?? [];
+
+        if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
+            $header = $result;
+        } else {
+            $header = [];
+            $server = $_SERVER;
+            foreach ($server as $key => $val) {
+                if (0 === strpos($key, 'HTTP_')) {
+                    $key          = str_replace('_', '-', strtolower(substr($key, 5)));
+                    $header[$key] = $val;
+                }
+            }
+            if (isset($server['CONTENT_TYPE'])) {
+                $header['content-type'] = $server['CONTENT_TYPE'];
+            }
+            if (isset($server['CONTENT_LENGTH'])) {
+                $header['content-length'] = $server['CONTENT_LENGTH'];
+            }
+        }
+
+        $request->header = array_change_key_case($header);
 
         return $request;
     }
@@ -1005,10 +1033,6 @@ class Request
      */
     public function get($name = '', $default = null, $filter = '')
     {
-        if (empty($this->get)) {
-            $this->get = $_GET;
-        }
-
         if (is_array($name)) {
             return $this->only($name, $this->get, $filter);
         }
@@ -1038,10 +1062,6 @@ class Request
      */
     public function post($name = '', $default = null, $filter = '')
     {
-        if (empty($this->post)) {
-            $this->post = !empty($_POST) ? $_POST : $this->getInputData($this->input);
-        }
-
         if (is_array($name)) {
             return $this->only($name, $this->post, $filter);
         }
@@ -1059,10 +1079,6 @@ class Request
      */
     public function put($name = '', $default = null, $filter = '')
     {
-        if (is_null($this->put)) {
-            $this->put = $this->getInputData($this->input);
-        }
-
         if (is_array($name)) {
             return $this->only($name, $this->put, $filter);
         }
@@ -1118,10 +1134,6 @@ class Request
      */
     public function request($name = '', $default = null, $filter = '')
     {
-        if (empty($this->request)) {
-            $this->request = $_REQUEST;
-        }
-
         if (is_array($name)) {
             return $this->only($name, $this->request, $filter);
         }
@@ -1138,17 +1150,11 @@ class Request
      */
     public function session(string $name = '', $default = null)
     {
-        if (empty($this->session)) {
-            $this->session = Session::get();
-        }
-
         if ('' === $name) {
             return $this->session;
         }
 
-        $data = $this->getData($this->session, $name);
-
-        return is_null($data) ? $default : $data;
+        return $this->getData($this->session, $name, $default);
     }
 
     /**
@@ -1161,12 +1167,8 @@ class Request
      */
     public function cookie(string $name = '', $default = null, $filter = '')
     {
-        if (empty($this->cookie)) {
-            $this->cookie = Cookie::get();
-        }
-
         if (!empty($name)) {
-            $data = Cookie::has($name) ? Cookie::get($name) : $default;
+            $data = $this->getData($this->cookie, $name, $default);
         } else {
             $data = $this->cookie;
         }
@@ -1228,10 +1230,6 @@ class Request
      */
     public function file(string $name = '')
     {
-        if (empty($this->file)) {
-            $this->file = $_FILES ?? [];
-        }
-
         $files = $this->file;
         if (!empty($files)) {
 
@@ -1327,30 +1325,6 @@ class Request
      */
     public function header(string $name = '', string $default = null)
     {
-        if (empty($this->header)) {
-            $header = [];
-
-            if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
-                $header = $result;
-            } else {
-                $server = $this->server;
-                foreach ($server as $key => $val) {
-                    if (0 === strpos($key, 'HTTP_')) {
-                        $key          = str_replace('_', '-', strtolower(substr($key, 5)));
-                        $header[$key] = $val;
-                    }
-                }
-                if (isset($server['CONTENT_TYPE'])) {
-                    $header['content-type'] = $server['CONTENT_TYPE'];
-                }
-                if (isset($server['CONTENT_LENGTH'])) {
-                    $header['content-length'] = $server['CONTENT_LENGTH'];
-                }
-            }
-
-            $this->header = array_change_key_case($header);
-        }
-
         if ('' === $name) {
             return $this->header;
         }
@@ -1417,15 +1391,16 @@ class Request
      * @access public
      * @param  array  $data 数据源
      * @param  string $name 字段名
+     * @param  mixed  $default 默认值
      * @return mixed
      */
-    protected function getData(array $data, string $name)
+    protected function getData(array $data, string $name, $default = null)
     {
         foreach (explode('.', $name) as $val) {
             if (isset($data[$val])) {
                 $data = $data[$val];
             } else {
-                return;
+                return $default;
             }
         }
 
