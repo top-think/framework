@@ -1310,7 +1310,7 @@ class Query
     protected function whereEq(string $field, $value): array
     {
         $where = [$field, '=', $value];
-        if ($this->getPk() == $field) {
+        if ($this->getModel() && $this->getPk() == $field) {
             $this->options['key'] = $value;
         }
 
