@@ -315,7 +315,7 @@ class Cookie
     {
         foreach ($this->cookie as $name => $val) {
             list($value, $expire, $option) = $val;
-            setCookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'], $option['httponly']);
+            setcookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'] ? true : false, $option['httponly'] ? true : false);
         }
     }
 
