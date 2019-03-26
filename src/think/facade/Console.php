@@ -28,6 +28,6 @@ class Console extends Facade
      */
     protected static function getFacadeClass()
     {
-        return \think\Console::class;
+        return 'console';
     }
 }

@@ -33,6 +33,6 @@ class View extends Facade
      */
     protected static function getFacadeClass()
     {
-        return 'think\View';
+        return 'view';
     }
 }
