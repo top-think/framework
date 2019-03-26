@@ -219,16 +219,31 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 创建新的模型实例
      * @access public
      * @param  array    $data 数据
-     * @param  bool     $isUpdate 是否为更新
      * @param  mixed    $where 更新条件
      * @return Model
      */
-    public function newInstance(array $data = [], bool $isUpdate = false, $where = null): Model
+    public function newInstance(array $data = [], $where = null): Model
     {
-        $model = (new static($data))->isUpdate($isUpdate, $where);
+        if (empty($data)) {
+            return new static();
+        }
+
+        $model = (new static($data))->exists(true)->setUpdateWhere($where);
 
         $model->trigger('after_read');
+
         return $model;
+    }
+
+    /**
+     * 设置模型的更新条件
+     * @access protected
+     * @param  mixed $where 更新条件
+     * @return void
+     */
+    protected function setUpdateWhere($where): void
+    {
+        $this->updateWhere = $where;
     }
 
     /**
@@ -746,24 +761,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 是否为更新数据
-     * @access public
-     * @param  bool   $update
-     * @param  mixed  $where
-     * @return $this
-     */
-    public function isUpdate(bool $update = true, $where = null)
-    {
-        $this->exists = $update;
-
-        if (!empty($where)) {
-            $this->updateWhere = $where;
-        }
-
-        return $this;
-    }
-
-    /**
      * 删除当前的记录
      * @access public
      * @return bool
@@ -832,7 +829,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $model->allowField($allowField);
         }
 
-        $model->isUpdate(false)->replace($replace)->save($data);
+        $model->replace($replace)->save($data);
 
         return $model;
     }
@@ -840,11 +837,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 更新数据
      * @access public
-     * @param  array      $data  数据数组
-     * @param  array      $allowField 允许字段
+     * @param  array $data  数据数组
+     * @param  mixed $where 更新条件
+     * @param  array $allowField 允许字段
      * @return static
      */
-    public static function update(array $data, array $allowField = [])
+    public static function update(array $data, $where = [], array $allowField = [])
     {
         $model = new static();
 
@@ -852,7 +850,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $model->allowField($allowField);
         }
 
-        $model->isUpdate(true)->save($data);
+        if (!empty($where)) {
+            $model->setUpdateWhere($where);
+        }
+
+        $model->exists(true)->save($data);
 
         return $model;
     }
