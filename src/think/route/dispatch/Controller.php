@@ -85,6 +85,23 @@ class Controller extends Dispatch
     }
 
     /**
+     * 检查访问控制器是否存在
+     * @access public
+     * @param  string $name 资源地址
+     * @return bool
+     */
+    public function exists(string $name)
+    {
+        $suffix = $this->rule->config('controller_suffix') ? 'Controller' : '';
+
+        $controllerLayer = $this->rule->config('controller_layer') ?: 'controller';
+
+        $class = $this->app->parseClass($controllerLayer, $name . $suffix);
+
+        return class_exists($class);
+    }
+
+    /**
      * 实例化访问控制器
      * @access public
      * @param  string $name 资源地址

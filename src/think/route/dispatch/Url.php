@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\route\dispatch;
 
 use think\App;
+use think\Container;
 use think\exception\HttpException;
 use think\Request;
 use think\route\Rule;
@@ -22,8 +23,9 @@ class Url extends Controller
 
     public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
     {
-        $this->request = $request;
-        $this->rule    = $rule;
+        $this->request  = $request;
+        $this->rule     = $rule;
+        $this->app      = Container::pull('app');
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
@@ -53,11 +55,7 @@ class Url extends Controller
         }
 
         // 解析控制器
-        $controller = !empty($path) ? array_shift($path) : null;
-
-        if ($controller && !preg_match('/^[A-Za-z][\w|\.]*$/', $controller)) {
-            throw new HttpException(404, 'controller not exists:' . $controller);
-        }
+        list($controller, $path) = $this->parseController($path, $this->app->config->get('app.auto_multi_controller', false));
 
         // 解析操作
         $action = !empty($path) ? array_shift($path) : null;
@@ -86,6 +84,59 @@ class Url extends Controller
         }
 
         return $route;
+    }
+
+    /**
+     * 解析访问控制器，支持多级控制器
+     * @access public
+     * @param  array $paths 地址
+     * @param  bool $multi 是否多级控制器
+     * @return array
+     * @throws HttpException
+     */
+    private function parseController(array $paths, bool $multi = false) : array
+    {
+        $tempPaths   = \array_merge([], $paths);
+        $controller  = !empty($tempPaths) ? array_shift($tempPaths) : null;
+        if ($controller && !\preg_match('/^[A-Za-z][\w|\.]*$/', $controller)) {
+            throw new HttpException(404, 'controller not exists:' . $controller);
+        }
+
+        if ($multi) {
+            // 处理多级控制器
+            $controllers = [];
+            \array_push($controllers, $controller);
+            // 控制器是否存在
+            $exists = $this->exists($controller);
+            do {
+                if (!$exists) {
+                    // 控制器不存在，取下一级路径
+                    $nextPath = !empty($tempPaths) ? \array_shift($tempPaths) : null;
+                    if ($nextPath && \preg_match('/^[A-Za-z][\w|\.]*$/', $nextPath)) {
+                        \array_push($controllers, $nextPath);
+                        $controller = join('.', $controllers);
+                    } else {
+                        // 下一级路径命名不正确, 压回数组, 退出循环
+                        if (!empty($nextPath)) {
+                            \array_unshift($tempPaths, $nextPath);
+                        }
+                        break;
+                    }
+                }
+                // 控制器是否存在
+                $exists = $this->exists($controller);
+            } while (!$exists);
+
+            // 多级控制器不存在，还原为单级控制器
+            if (!$exists) {
+                while (count($controllers) > 1) {
+                    \array_unshift($tempPaths, \array_pop($controllers));
+                }
+                $controller = join('.', $controllers);
+            }
+        }
+
+        return [$controller, $tempPaths];
     }
 
     /**
