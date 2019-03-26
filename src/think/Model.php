@@ -228,7 +228,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return new static();
         }
 
-        $model = (new static($data))->exists(true)->setUpdateWhere($where);
+        $model = (new static($data))->exists(true);
+        $model->setUpdateWhere($where);
 
         $model->trigger('after_read');
 
