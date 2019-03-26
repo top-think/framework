@@ -257,11 +257,11 @@ if (!function_exists('download')) {
      * @param  string $name     显示文件名
      * @param  bool   $content  是否为内容
      * @param  int    $expire   有效期（秒）
-     * @return \think\response\Download
+     * @return \think\response\File
      */
     function download(string $filename, string $name = '', bool $content = false, int $expire = 180)
     {
-        return Response::create($filename, 'download')->name($name)->isContent($content)->expire($expire);
+        return Response::create($filename, 'file')->name($name)->isContent($content)->expire($expire);
     }
 }
 

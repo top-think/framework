@@ -14,7 +14,7 @@ namespace think\response;
 use think\Exception;
 use think\Response;
 
-class Download extends Response
+class File extends Response
 {
     protected $expire = 360;
     protected $name;
