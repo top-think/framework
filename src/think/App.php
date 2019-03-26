@@ -445,7 +445,7 @@ class App extends Container
     {
         // 应用调试模式
         if (!$this->appDebug) {
-            $this->appDebug = $this->env->get('app_debug', false);
+            $this->appDebug = $this->env->get('app_debug') ? true : false;
         }
 
         if (!$this->appDebug) {
