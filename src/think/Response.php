@@ -136,6 +136,8 @@ class Response
             }
         }
 
+        Container::pull('cookie')->save();
+
         $this->sendData($data);
 
         if (function_exists('fastcgi_finish_request')) {
