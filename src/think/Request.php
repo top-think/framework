@@ -205,19 +205,19 @@ class Request
 
     /**
      * SESSION对象
-     * @var \think\Session
+     * @var Session
      */
     protected $session;
 
     /**
      * COOKIE对象
-     * @var \think\Cookie
+     * @var Cookie
      */
     protected $cookie;
 
     /**
      * ENV对象
-     * @var \think\Env
+     * @var Env
      */
     protected $env;
 
@@ -2160,7 +2160,7 @@ class Request
     /**
      * 设置COOKIE数据
      * @access public
-     * @param  \think\Cookie $cookie 数据
+     * @param Cookie $cookie 数据
      * @return $this
      */
     public function withCookie(Cookie $cookie)
@@ -2172,7 +2172,7 @@ class Request
     /**
      * 设置SESSION数据
      * @access public
-     * @param  \think\Session $session 数据
+     * @param Session $session 数据
      * @return $this
      */
     public function withSession(Session $session)
@@ -2208,7 +2208,7 @@ class Request
     /**
      * 设置ENV数据
      * @access public
-     * @param  \think\Env $env 数据
+     * @param Env $env 数据
      * @return $this
      */
     public function withEnv(Env $env)
