@@ -174,6 +174,12 @@ class Http
         // 监听HttpRun
         $this->app->event->trigger('HttpRun');
 
+        $this->app->request->withCookie($this->app->cookie->get());
+        $this->app->session->setName($this->app->config->get('session.name', 'PHPSESSID'));
+        $sessionId = $this->app->cookie->get($this->app->session->getName()) ?: '';
+        $this->app->session->setId($sessionId);
+        $this->app->request->withSession($this->app->session->get());
+
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
         } : null;
@@ -364,5 +370,21 @@ class Http
         }
 
         $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: 'app\\' . $appName);
+    }
+
+    /**
+     * HttpEnd
+     * @return void
+     */
+    public function end(): void
+    {
+        $this->app->event->trigger('HttpEnd');
+
+        // 写入日志
+        $this->app->log->save();
+        // 写入Cookie
+        $this->app->cookie->save();
+        // 写入Session
+        $this->app->session->save();
     }
 }

@@ -12,10 +12,10 @@ declare (strict_types = 1);
 
 namespace think\session\driver;
 
-use SessionHandlerInterface;
 use think\Exception;
+use think\session\SessionHandler;
 
-class Memcached implements SessionHandlerInterface
+class Memcached implements SessionHandler
 {
     protected $handler = null;
     protected $config  = [
@@ -31,16 +31,16 @@ class Memcached implements SessionHandlerInterface
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
+
+        $this->init();
     }
 
     /**
-     * 打开Session
+     * Session初始化
      * @access public
-     * @param  string    $savePath
-     * @param  mixed     $sessName
      * @return bool
      */
-    public function open($savePath, $sessName): bool
+    public function init(): bool
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
@@ -79,40 +79,26 @@ class Memcached implements SessionHandlerInterface
     }
 
     /**
-     * 关闭Session
-     * @access public
-     * @return bool
-     */
-    public function close(): bool
-    {
-        $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->quit();
-        $this->handler = null;
-
-        return true;
-    }
-
-    /**
      * 读取Session
      * @access public
      * @param  string $sessID
      * @return string
      */
-    public function read($sessID): string
+    public function read(string $sessID): array
     {
-        return (string) $this->handler->get($this->config['name'] . $sessID);
+        return $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
      * 写入Session
      * @access public
      * @param  string $sessID
-     * @param  string $sessData
+     * @param  array  $data
      * @return bool
      */
-    public function write($sessID, $sessData): bool
+    public function write(string $sessID, array $data): bool
     {
-        return $this->handler->set($this->config['name'] . $sessID, $sessData, $this->config['expire']);
+        return $this->handler->set($this->config['prefix'] . $sessID, $data, $this->config['expire']);
     }
 
     /**
@@ -121,19 +107,9 @@ class Memcached implements SessionHandlerInterface
      * @param  string $sessID
      * @return bool
      */
-    public function destroy($sessID): bool
+    public function delete(string $sessID): bool
     {
-        return $this->handler->delete($this->config['name'] . $sessID);
+        return $this->handler->delete($this->config['prefix'] . $sessID);
     }
 
-    /**
-     * Session 垃圾回收
-     * @access public
-     * @param  string $sessMaxLifeTime
-     * @return true
-     */
-    public function gc($sessMaxLifeTime): bool
-    {
-        return true;
-    }
 }

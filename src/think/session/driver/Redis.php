@@ -12,10 +12,10 @@ declare (strict_types = 1);
 
 namespace think\session\driver;
 
-use SessionHandlerInterface;
 use think\Exception;
+use think\session\SessionHandler;
 
-class Redis implements SessionHandlerInterface
+class Redis implements SessionHandler
 {
     /** @var \Redis */
     protected $handler = null;
@@ -33,17 +33,17 @@ class Redis implements SessionHandlerInterface
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
+
+        $this->init();
     }
 
     /**
      * 打开Session
      * @access public
-     * @param  string $savePath
-     * @param  mixed  $sessName
      * @return bool
      * @throws Exception
      */
-    public function open($savePath, $sessName): bool
+    public function init(): bool
     {
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
@@ -76,42 +76,29 @@ class Redis implements SessionHandlerInterface
     }
 
     /**
-     * 关闭Session
-     * @access public
-     */
-    public function close(): bool
-    {
-        $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->close();
-        $this->handler = null;
-
-        return true;
-    }
-
-    /**
      * 读取Session
      * @access public
      * @param  string $sessID
      * @return string
      */
-    public function read($sessID): string
+    public function read(string $sessID): array
     {
-        return (string) $this->handler->get($this->config['name'] . $sessID);
+        return $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
      * 写入Session
      * @access public
      * @param  string $sessID
-     * @param  string $sessData
+     * @param  array  $data
      * @return bool
      */
-    public function write($sessID, $sessData): bool
+    public function write(string $sessID, array $data): bool
     {
         if ($this->config['expire'] > 0) {
-            $result = $this->handler->setex($this->config['name'] . $sessID, $this->config['expire'], $sessData);
+            $result = $this->handler->setex($this->config['prefix'] . $sessID, $this->config['expire'], $data);
         } else {
-            $result = $this->handler->set($this->config['name'] . $sessID, $sessData);
+            $result = $this->handler->set($this->config['prefix'] . $sessID, $data);
         }
 
         return $result ? true : false;
@@ -123,58 +110,9 @@ class Redis implements SessionHandlerInterface
      * @param  string $sessID
      * @return bool
      */
-    public function destroy($sessID): bool
+    public function delete(string $sessID): bool
     {
-        return $this->handler->delete($this->config['name'] . $sessID) > 0;
+        return $this->handler->delete($this->config['prefix'] . $sessID) > 0;
     }
 
-    /**
-     * Session 垃圾回收
-     * @access public
-     * @param  string $sessMaxLifeTime
-     * @return bool
-     */
-    public function gc($sessMaxLifeTime): bool
-    {
-        return true;
-    }
-
-    /**
-     * Redis Session 驱动的加锁机制
-     * @access public
-     * @param  string  $sessID   用于加锁的sessID
-     * @param  integer $timeout 默认过期时间
-     * @return bool
-     */
-    public function lock(string $sessID, int $timeout = 10): bool
-    {
-        if (null == $this->handler) {
-            $this->open('', '');
-        }
-
-        $lockKey = 'LOCK_PREFIX_' . $sessID;
-        // 使用setnx操作加锁
-        $isLock = $this->handler->setnx($lockKey, 1);
-        if ($isLock) {
-            // 设置过期时间，防止死任务的出现
-            $this->handler->expire($lockKey, $timeout);
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Redis Session 驱动的解锁机制
-     * @access public
-     * @param  string  $sessID   用于解锁的sessID
-     */
-    public function unlock(string $sessID)
-    {
-        if (null == $this->handler) {
-            $this->open('', '');
-        }
-
-        $this->handler->del('LOCK_PREFIX_' . $sessID);
-    }
 }

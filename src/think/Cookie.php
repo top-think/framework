@@ -311,7 +311,7 @@ class Cookie
         }
     }
 
-    public function saveCookie(): void
+    public function save(): void
     {
         foreach ($this->cookie as $name => $val) {
             list($value, $expire, $option) = $val;
@@ -319,14 +319,4 @@ class Cookie
         }
     }
 
-    /**
-     * 析构方法
-     * @access public
-     */
-    public function __destruct()
-    {
-        if ($this->config['auto_write']) {
-            $this->saveCookie();
-        }
-    }
 }

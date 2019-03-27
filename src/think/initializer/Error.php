@@ -87,9 +87,6 @@ class Error
 
             $this->appException($exception);
         }
-
-        // 写入日志
-        $this->app->log->save();
     }
 
     /**

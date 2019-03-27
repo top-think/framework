@@ -344,8 +344,6 @@ class Request
         $request->post    = $_POST ?: $request->getInputData($request->input);
         $request->put     = $request->getInputData($request->input);
         $request->request = $_REQUEST;
-        $request->session = $app->session->get();
-        $request->cookie  = $app->cookie->get();
         $request->file    = $_FILES ?? [];
 
         if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
@@ -2170,6 +2168,18 @@ class Request
     public function withCookie(array $cookie)
     {
         $this->cookie = $cookie;
+        return $this;
+    }
+
+    /**
+     * 设置SESSION数据
+     * @access public
+     * @param  array $session 数据
+     * @return $this
+     */
+    public function withSession(array $session)
+    {
+        $this->session = $session;
         return $this;
     }
 

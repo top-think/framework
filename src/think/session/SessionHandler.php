@@ -1,0 +1,20 @@
+<?php
+// +----------------------------------------------------------------------
+// | ThinkPHP [ WE CAN DO IT JUST THINK ]
+// +----------------------------------------------------------------------
+// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// +----------------------------------------------------------------------
+// | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
+// +----------------------------------------------------------------------
+// | Author: liu21st <liu21st@gmail.com>
+// +----------------------------------------------------------------------
+declare (strict_types = 1);
+
+namespace think\session;
+
+interface SessionHandler
+{
+    public function read(string $sessionId): array;
+    public function delete(string $sessionId): bool;
+    public function write(string $sessionId, array $data): bool;
+}

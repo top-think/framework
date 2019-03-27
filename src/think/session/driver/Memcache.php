@@ -12,10 +12,10 @@ declare (strict_types = 1);
 
 namespace think\session\driver;
 
-use SessionHandlerInterface;
 use think\Exception;
+use think\session\SessionHandler;
 
-class Memcache implements SessionHandlerInterface
+class Memcache implements SessionHandler
 {
     protected $handler = null;
     protected $config  = [
@@ -24,21 +24,21 @@ class Memcache implements SessionHandlerInterface
         'expire'     => 3600, // session有效期
         'timeout'    => 0, // 连接超时时间（单位：毫秒）
         'persistent' => true, // 长连接
-        'name'       => '', // session name （memcache key前缀）
+        'prefix'     => '', // session name （memcache key前缀）
     ];
 
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
+
+        $this->init();
     }
 
     /**
      * 打开Session
      * @access public
-     * @param  string    $savePath
-     * @param  mixed     $sessName
      */
-    public function open($savePath, $sessName): bool
+    public function init(): bool
     {
         // 检测php环境
         if (!extension_loaded('memcache')) {
@@ -67,59 +67,37 @@ class Memcache implements SessionHandlerInterface
     }
 
     /**
-     * 关闭Session
-     * @access public
-     */
-    public function close(): bool
-    {
-        $this->gc(ini_get('session.gc_maxlifetime'));
-        $this->handler->close();
-        $this->handler = null;
-
-        return true;
-    }
-
-    /**
      * 读取Session
      * @access public
      * @param  string $sessID
+     * @return array
      */
-    public function read($sessID): string
+    public function read(string $sessID): array
     {
-        return (string) $this->handler->get($this->config['name'] . $sessID);
+        return $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
      * 写入Session
      * @access public
-     * @param  string    $sessID
-     * @param  string    $sessData
-     * @return bool
+     * @param  string $sessID
+     * @param  array  $data
+     * @return array
      */
-    public function write($sessID, $sessData): bool
+    public function write(string $sessID, array $data): bool
     {
-        return $this->handler->set($this->config['name'] . $sessID, $sessData, 0, $this->config['expire']);
+        return $this->handler->set($this->config['prefix'] . $sessID, $data, 0, $this->config['expire']);
     }
 
     /**
      * 删除Session
      * @access public
      * @param  string $sessID
-     * @return bool
+     * @return array
      */
-    public function destroy($sessID): bool
+    public function delete(string $sessID): bool
     {
-        return $this->handler->delete($this->config['name'] . $sessID);
+        return $this->handler->delete($this->config['prefix'] . $sessID);
     }
 
-    /**
-     * Session 垃圾回收
-     * @access public
-     * @param  int $sessMaxLifeTime
-     * @return true
-     */
-    public function gc($sessMaxLifeTime): bool
-    {
-        return true;
-    }
 }
