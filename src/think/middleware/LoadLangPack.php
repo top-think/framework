@@ -10,33 +10,53 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think\listener;
+namespace think\middleware;
 
+use Closure;
 use think\App;
+use think\Lang;
+use think\Request;
 
 class LoadLangPack
 {
+
+    /** @var Lang */
+    protected $lang;
+
+    /** @var App */
+    protected $app;
+
+    public function __construct(Lang $lang, App $app)
+    {
+        $this->lang = $lang;
+        $this->app  = $app;
+    }
+
     /**
      * 路由初始化（路由规则注册）
      * @access public
+     * @param Request $request
+     * @param Closure $next
      * @return void
      */
-    public function handle($event, App $app): void
+    public function handle($request, Closure $next)
     {
         // 读取默认语言
-        $app->lang->range($app->config->get('app.default_lang', 'zh-cn'));
+        $this->lang->range($this->app->config->get('app.default_lang', 'zh-cn'));
 
-        if ($app->config->get('app.lang_switch_on', false)) {
+        if ($this->app->config->get('app.lang_switch_on', false)) {
             // 开启多语言机制 检测当前语言
-            $app->lang->detect();
+            $this->lang->detect();
         }
 
-        $app->request->setLangset($app->lang->range());
+        $request->setLangset($this->lang->range());
 
         // 加载系统语言包
-        $app->lang->load([
-            $app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $app->request->langset() . '.php',
-            $app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $app->request->langset() . '.php',
+        $this->lang->load([
+            $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $request->langset() . '.php',
+            $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $request->langset() . '.php',
         ]);
+
+        return $next($request);
     }
 }

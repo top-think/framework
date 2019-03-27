@@ -363,7 +363,7 @@ class App extends Container
         $this->debugModeInit();
 
         // 监听AppInit
-        $this->app->event->trigger('AppInit');
+        $this->event->trigger('AppInit');
 
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
 

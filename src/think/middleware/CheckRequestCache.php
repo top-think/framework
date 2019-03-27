@@ -10,36 +10,46 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think\listener;
+namespace think\middleware;
 
-use think\App;
-use think\exception\HttpResponseException;
+use Closure;
+use think\Cache;
+use think\Request;
 use think\Response;
 
 class CheckRequestCache
 {
+    protected $cache;
+
+    public function __construct(Cache $cache)
+    {
+        $this->cache = $cache;
+    }
+
     /**
      * 设置当前地址的请求缓存
      * @access public
-     * @return void
+     * @param Request $request
+     * @param         $next
+     * @return Response
      */
-    public function handle($event, App $app): void
+    public function handle($request, Closure $next)
     {
-        $cache = $app->request->cache();
+        $cache = $request->cache();
 
         if ($cache) {
             list($key, $expire, $tag) = $cache;
 
-            if (strtotime($this->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $this->server('REQUEST_TIME')) {
+            if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $request->server('REQUEST_TIME')) {
                 // 读取缓存
-                $response = Response::create()->code(304);
-                throw new HttpResponseException($response);
-            } elseif ($app['cache']->has($key)) {
-                list($content, $header) = $app['cache']->get($key);
+                return Response::create()->code(304);
+            } elseif ($this->cache->has($key)) {
+                list($content, $header) = $this->cache->get($key);
 
-                $response = Response::create($content)->header($header);
-                throw new HttpResponseException($response);
+                return Response::create($content)->header($header);
             }
         }
+
+        return $next($request);
     }
 }
