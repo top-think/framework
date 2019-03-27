@@ -186,15 +186,13 @@ class Session
     {
         empty($this->init) && $this->boot();
 
-        $sessionId = $this->getId();
-
         if (strpos($name, '.')) {
             // 二维数组赋值
             list($name1, $name2) = explode('.', $name);
 
-            $this->data[$sessionId][$name1][$name2] = $value;
+            $this->data[$name1][$name2] = $value;
         } else {
-            $this->data[$sessionId][$name] = $value;
+            $this->data[$name] = $value;
         }
     }
 
@@ -224,11 +222,7 @@ class Session
      */
     protected function readSession(string $sessionId, string $name = '', $default = null)
     {
-        $value = $this->data[$sessionId] ?? [];
-
-        if (!is_array($value)) {
-            $value = [];
-        }
+        $value = $this->data;
 
         if ('' != $name) {
             $name = explode('.', $name);
@@ -268,9 +262,9 @@ class Session
             }
         } elseif (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
-            unset($this->data[$sessionId][$name1][$name2]);
+            unset($this->data[$name1][$name2]);
         } else {
-            unset($this->data[$sessionId][$name]);
+            unset($this->data[$name]);
         }
 
         return true;
@@ -283,15 +277,18 @@ class Session
      */
     public function save()
     {
-        $sessionId = $this->getId(false);
+        if ($this->handler) {
+            $sessionId = $this->getId(false);
 
-        if (!empty($this->data[$sessionId])) {
-            $data = $this->serialize($this->data[$sessionId]);
+            if (!empty($this->data)) {
+                $data = $this->serialize($this->data);
 
-            $this->handler->write($sessionId, $data, $this->expire);
-        } else {
-            $this->handler->delete($sessionId);
+                $this->handler->write($sessionId, $data, $this->expire);
+            } else {
+                $this->handler->delete($sessionId);
+            }
         }
+
     }
 
     /**
@@ -306,7 +303,7 @@ class Session
         $sessionId = $this->getId(false);
 
         if ($sessionId) {
-            $this->data[$sessionId] = [];
+            $this->data = [];
         }
     }
 
@@ -338,7 +335,7 @@ class Session
      */
     protected function hasSession(string $sessionId, string $name): bool
     {
-        $value = $this->data[$sessionId] ?? [];
+        $value = $this->data ?: [];
 
         $name = explode('.', $name);
 
@@ -363,11 +360,11 @@ class Session
         $sessionId = $this->getId();
 
         // 读取缓存数据
-        if (empty($this->data[$sessionId])) {
+        if (empty($this->data)) {
             $data = $this->handler->read($sessionId);
 
             if (!empty($data)) {
-                $this->data[$sessionId] = $this->unserialize($data);
+                $this->data = $this->unserialize($data);
             }
         }
 
@@ -383,20 +380,19 @@ class Session
     {
         $sessionId = $this->getId(false);
 
-        if ($sessionId && isset($this->data[$sessionId])) {
-            unset($this->data[$sessionId]);
+        if ($sessionId && !empty($this->data)) {
+            $this->data = [];
+            $this->save();
         }
-
-        $this->init = null;
     }
 
     /**
      * 生成session_id
-     * @access public
+     * @access protected
      * @param  bool $delete 是否删除关联会话文件
      * @return string
      */
-    public function regenerate(bool $delete = false): string
+    protected function regenerate(bool $delete = false): string
     {
         if ($delete) {
             $this->destroy();
@@ -406,16 +402,6 @@ class Session
 
         $this->sessionId = $sessionId;
         return $sessionId;
-    }
-
-    /**
-     * 暂停session
-     * @access public
-     * @return void
-     */
-    public function pause(): void
-    {
-        $this->init = false;
     }
 
     /**
