@@ -206,22 +206,22 @@ class Request
     protected $put;
 
     /**
-     * 当前SESSION参数
-     * @var array
+     * SESSION对象
+     * @var \think\Session
      */
-    protected $session = [];
+    protected $session;
 
     /**
-     * 当前FILE参数
-     * @var array
+     * COOKIE对象
+     * @var \think\Cookie
      */
-    protected $file = [];
+    protected $cookie;
 
     /**
-     * 当前COOKIE参数
-     * @var array
+     * ENV对象
+     * @var \think\Env
      */
-    protected $cookie = [];
+    protected $env;
 
     /**
      * 当前SERVER参数
@@ -230,10 +230,10 @@ class Request
     protected $server = [];
 
     /**
-     * 当前ENV参数
+     * 当前FILE参数
      * @var array
      */
-    protected $env = [];
+    protected $file = [];
 
     /**
      * 当前HEADER参数
@@ -339,7 +339,7 @@ class Request
         $request = new static($config->get('route'));
 
         $request->server  = $_SERVER;
-        $request->env     = $app->env->get();
+        $request->env     = $app->env;
         $request->get     = $_GET;
         $request->post    = $_POST ?: $request->getInputData($request->input);
         $request->put     = $request->getInputData($request->input);
@@ -1140,6 +1140,24 @@ class Request
     }
 
     /**
+     * 获取环境变量
+     * @access public
+     * @param  string $name 数据名称
+     * @param  string $default 默认值
+     * @return mixed
+     */
+    public function env(string $name = '', string $default = null)
+    {
+        if (empty($name)) {
+            return $this->env->get();
+        } else {
+            $name = strtoupper($name);
+        }
+
+        return $this->env->get($name, $default);
+    }
+
+    /**
      * 获取session数据
      * @access public
      * @param  string $name 数据名称
@@ -1149,10 +1167,10 @@ class Request
     public function session(string $name = '', $default = null)
     {
         if ('' === $name) {
-            return $this->session;
+            return $this->session->get();
         }
 
-        return $this->getData($this->session, $name, $default);
+        return $this->getData($this->session->get(), $name, $default);
     }
 
     /**
@@ -1166,9 +1184,9 @@ class Request
     public function cookie(string $name = '', $default = null, $filter = '')
     {
         if (!empty($name)) {
-            $data = $this->getData($this->cookie, $name, $default);
+            $data = $this->getData($this->cookie->get(), $name, $default);
         } else {
-            $data = $this->cookie;
+            $data = $this->cookie->get();
         }
 
         // 解析过滤器
@@ -1200,24 +1218,6 @@ class Request
         }
 
         return $this->server[$name] ?? $default;
-    }
-
-    /**
-     * 获取环境变量
-     * @access public
-     * @param  string $name 数据名称
-     * @param  string $default 默认值
-     * @return mixed
-     */
-    public function env(string $name = '', string $default = null)
-    {
-        if (empty($name)) {
-            return $this->env;
-        } else {
-            $name = strtoupper($name);
-        }
-
-        return $this->env[$name] ?? $default;
     }
 
     /**
@@ -2162,10 +2162,10 @@ class Request
     /**
      * 设置COOKIE数据
      * @access public
-     * @param  array $cookie 数据
+     * @param  \think\Cookie $cookie 数据
      * @return $this
      */
-    public function withCookie(array $cookie)
+    public function withCookie(Cookie $cookie)
     {
         $this->cookie = $cookie;
         return $this;
@@ -2174,10 +2174,10 @@ class Request
     /**
      * 设置SESSION数据
      * @access public
-     * @param  array $session 数据
+     * @param  \think\Session $session 数据
      * @return $this
      */
-    public function withSession(array $session)
+    public function withSession(Session $session)
     {
         $this->session = $session;
         return $this;
@@ -2210,10 +2210,10 @@ class Request
     /**
      * 设置ENV数据
      * @access public
-     * @param  array $env 数据
+     * @param  \think\Env $env 数据
      * @return $this
      */
-    public function withEnv(array $env)
+    public function withEnv(Env $env)
     {
         $this->env = $env;
         return $this;
