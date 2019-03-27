@@ -20,7 +20,6 @@ use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
 use think\db\exception\BindParamException;
-use think\Debug;
 use think\Exception;
 use think\exception\PDOException;
 use think\facade\Db;
@@ -602,11 +601,11 @@ abstract class Connection
 
             if ($config['debug']) {
                 $startTime             = microtime(true);
-                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
+                $this->links[$linkNum] = $this->createPdo($config['dsn'], $config['username'], $config['password'], $params);
                 // 记录数据库连接信息
                 $this->log('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
             } else {
-                $this->links[$linkNum] = new PDO($config['dsn'], $config['username'], $config['password'], $params);
+                $this->links[$linkNum] = $this->createPdo($config['dsn'], $config['username'], $config['password'], $params);
             }
 
             return $this->links[$linkNum];
@@ -618,6 +617,19 @@ abstract class Connection
                 throw $e;
             }
         }
+    }
+
+    /**
+     * 创建PDO实例
+     * @param $dsn
+     * @param $username
+     * @param $password
+     * @param $params
+     * @return PDO
+     */
+    protected function createPdo($dsn, $username, $password, $params)
+    {
+        return new PDO($dsn, $username, $password, $params);
     }
 
     /**
