@@ -36,9 +36,9 @@ class Memcache implements SessionHandler
 
     /**
      * 打开Session
-     * @access public
+     * @access protected
      */
-    public function init(): bool
+    protected function init(): bool
     {
         // 检测php环境
         if (!extension_loaded('memcache')) {
@@ -70,21 +70,21 @@ class Memcache implements SessionHandler
      * 读取Session
      * @access public
      * @param  string $sessID
-     * @return array
+     * @return string
      */
-    public function read(string $sessID): array
+    public function read(string $sessID): string
     {
-        return $this->handler->get($this->config['prefix'] . $sessID);
+        return (string) $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
      * 写入Session
      * @access public
      * @param  string $sessID
-     * @param  array  $data
+     * @param  string $data
      * @return array
      */
-    public function write(string $sessID, array $data): bool
+    public function write(string $sessID, string $data): bool
     {
         return $this->handler->set($this->config['prefix'] . $sessID, $data, 0, $this->config['expire']);
     }
@@ -93,7 +93,7 @@ class Memcache implements SessionHandler
      * 删除Session
      * @access public
      * @param  string $sessID
-     * @return array
+     * @return bool
      */
     public function delete(string $sessID): bool
     {

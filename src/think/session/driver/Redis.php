@@ -39,11 +39,11 @@ class Redis implements SessionHandler
 
     /**
      * 打开Session
-     * @access public
+     * @access protected
      * @return bool
      * @throws Exception
      */
-    public function init(): bool
+    protected function init(): bool
     {
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
@@ -81,19 +81,19 @@ class Redis implements SessionHandler
      * @param  string $sessID
      * @return string
      */
-    public function read(string $sessID): array
+    public function read(string $sessID): string
     {
-        return $this->handler->get($this->config['prefix'] . $sessID);
+        return (string) $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
      * 写入Session
      * @access public
      * @param  string $sessID
-     * @param  array  $data
+     * @param  string $data
      * @return bool
      */
-    public function write(string $sessID, array $data): bool
+    public function write(string $sessID, string $data): bool
     {
         if ($this->config['expire'] > 0) {
             $result = $this->handler->setex($this->config['prefix'] . $sessID, $this->config['expire'], $data);

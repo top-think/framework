@@ -18,11 +18,12 @@ use think\session\SessionHandler;
 class File implements SessionHandler
 {
     protected $config = [
-        'path'          => '',
-        'expire'        => 0,
-        'cache_subdir'  => true,
-        'data_compress' => false,
-        'serialize'     => ['serialize', 'unserialize'],
+        'path'           => '',
+        'expire'         => 0,
+        'cache_subdir'   => true,
+        'data_compress'  => false,
+        'gc_divisor'     => 1000,
+        'gc_maxlifetime' => 1440,
     ];
 
     public function __construct(App $app, array $config = [])
@@ -39,22 +40,49 @@ class File implements SessionHandler
     }
 
     /**
-     * 初始化检查
-     * @access private
+     * 打开Session
+     * @access protected
      * @return bool
+     * @throws Exception
      */
-    private function init(): bool
+    protected function init(): bool
     {
-        // 创建项目缓存目录
         try {
-            if (!is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true)) {
-                return true;
-            }
+            !is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true);
         } catch (\Exception $e) {
             // 写入失败
+            return false;
         }
 
-        return false;
+        if (1 == mt_rand(1, $this->config['gc_divisor'])) {
+            $this->gc();
+        }
+
+        return true;
+    }
+
+    /**
+     * Session 垃圾回收
+     * @access public
+     * @return true
+     */
+    public function gc()
+    {
+        $maxlifetime = $this->config['gc_maxlifetime'];
+        $list        = glob($this->config['path'] . '*');
+
+        foreach ($list as $path) {
+            if (is_dir($path)) {
+                $files = glob($path . DIRECTORY_SEPARATOR . '*.php');
+                foreach ($files as $file) {
+                    if (time() > filemtime($file) + $maxlifetime) {
+                        unlink($file);
+                    }
+                }
+            } elseif (time() > filemtime($path) + $maxlifetime) {
+                unlink($path);
+            }
+        }
     }
 
     /**
@@ -90,15 +118,15 @@ class File implements SessionHandler
     /**
      * 读取Session
      * @access public
-     * @param  string $sessionId
-     * @return array
+     * @param  string $sessID
+     * @return string
      */
-    public function read(string $sessionId): array
+    public function read(string $sessID): string
     {
-        $filename = $this->getFileName($sessionId);
+        $filename = $this->getFileName($sessID);
 
         if (!is_file($filename)) {
-            return [];
+            return '';
         }
 
         $content = file_get_contents($filename);
@@ -108,7 +136,7 @@ class File implements SessionHandler
             if (0 != $expire && time() > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
-                return [];
+                return '';
             }
 
             $content = substr($content, 32);
@@ -117,27 +145,29 @@ class File implements SessionHandler
                 //启用数据压缩
                 $content = gzuncompress($content);
             }
-            return $this->unserialize($content);
+
+            return $content;
         } else {
-            return [];
+            return '';
         }
     }
 
     /**
      * 写入Session
      * @access public
-     * @param  string $sessionId
-     * @param  array  $data
-     * @return array
+     * @param  string $sessID
+     * @param  string $sessData
+     * @return bool
      */
-    public function write(string $sessionId, array $data): bool
+    public function write(string $sessID, string $sessData): bool
     {
         $expire = $this->config['expire'];
 
-        $expire   = $this->getExpireTime($expire);
-        $filename = $this->getFileName($sessionId, true);
+        $expire = $this->getExpireTime($expire);
 
-        $data = $this->serialize($data);
+        $filename = $this->getFileName($sessID, true);
+
+        $data = $sessData;
 
         if ($this->config['data_compress'] && function_exists('gzcompress')) {
             //数据压缩
@@ -158,13 +188,13 @@ class File implements SessionHandler
     /**
      * 删除Session
      * @access public
-     * @param  string $sessionId
+     * @param  string $sessID
      * @return array
      */
-    public function delete(string $sessionId): bool
+    public function delete(string $sessID): bool
     {
         try {
-            return $this->unlink($this->getFileName($sessionId));
+            return $this->unlink($this->getFileName($sessID));
         } catch (\Exception $e) {
             return false;
         }
@@ -194,32 +224,6 @@ class File implements SessionHandler
     private function unlink(string $file): bool
     {
         return is_file($file) && unlink($file);
-    }
-
-    /**
-     * 序列化数据
-     * @access protected
-     * @param  mixed $data
-     * @return string
-     */
-    protected function serialize($data): string
-    {
-        $serialize = $this->config['serialize'][0];
-
-        return $serialize($data);
-    }
-
-    /**
-     * 反序列化数据
-     * @access protected
-     * @param  string $data
-     * @return mixed
-     */
-    protected function unserialize(string $data)
-    {
-        $unserialize = $this->config['serialize'][1];
-
-        return $unserialize($data);
     }
 
 }

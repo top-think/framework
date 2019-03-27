@@ -37,10 +37,10 @@ class Memcached implements SessionHandler
 
     /**
      * Session初始化
-     * @access public
+     * @access protected
      * @return bool
      */
-    public function init(): bool
+    protected function init(): bool
     {
         // 检测php环境
         if (!extension_loaded('memcached')) {
@@ -84,9 +84,9 @@ class Memcached implements SessionHandler
      * @param  string $sessID
      * @return string
      */
-    public function read(string $sessID): array
+    public function read(string $sessID): string
     {
-        return $this->handler->get($this->config['prefix'] . $sessID);
+        return (string) $this->handler->get($this->config['prefix'] . $sessID);
     }
 
     /**
@@ -96,7 +96,7 @@ class Memcached implements SessionHandler
      * @param  array  $data
      * @return bool
      */
-    public function write(string $sessID, array $data): bool
+    public function write(string $sessID, string $data): bool
     {
         return $this->handler->set($this->config['prefix'] . $sessID, $data, $this->config['expire']);
     }

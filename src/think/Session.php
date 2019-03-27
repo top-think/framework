@@ -114,7 +114,7 @@ class Session
         // 初始化session写入驱动
         $type = !empty($this->config['type']) ? $this->config['type'] : 'File';
 
-        $this->handler = $this->app->factory($type, '\\think\\session\\driver\\', $this->config['option'] ?? []);
+        $this->handler = $this->app->factory($type, '\\think\\session\\driver\\', $this->config);
 
         if (!empty($this->config['auto_start'])) {
             $this->start();
@@ -286,7 +286,9 @@ class Session
         $sessionId = $this->getId(false);
 
         if (!empty($this->data[$sessionId])) {
-            $this->handler->write($sessionId, $this->data[$sessionId], $this->expire);
+            $data = $this->serialize($this->data[$sessionId]);
+
+            $this->handler->write($sessionId, $data, $this->expire);
         } else {
             $this->handler->delete($sessionId);
         }
@@ -365,7 +367,7 @@ class Session
             $data = $this->handler->read($sessionId);
 
             if (!empty($data)) {
-                $this->data[$sessionId] = $data;
+                $this->data[$sessionId] = $this->unserialize($data);
             }
         }
 
@@ -494,4 +496,29 @@ class Session
         $this->set($key, $array);
     }
 
+    /**
+     * 序列化数据
+     * @access protected
+     * @param  mixed $data
+     * @return string
+     */
+    protected function serialize($data): string
+    {
+        $serialize = $this->config['serialize'][0] ?? 'serialize';
+
+        return $serialize($data);
+    }
+
+    /**
+     * 反序列化数据
+     * @access protected
+     * @param  string $data
+     * @return mixed
+     */
+    protected function unserialize(string $data)
+    {
+        $unserialize = $this->config['serialize'][1] ?? 'unserialize';
+
+        return $unserialize($data);
+    }
 }

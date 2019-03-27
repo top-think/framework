@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\facade\Cookie;
-use think\facade\Session;
 use think\route\Dispatch;
 
 class Request
