@@ -115,9 +115,7 @@ class Session
             $this->lock = $config['use_lock'];
         }
 
-        if (isset($config['var_session_id']) && $this->app->request->request($config['var_session_id'])) {
-            session_id($this->app->request->request($config['var_session_id']));
-        } elseif (!empty($config['id'])) {
+        if (!empty($config['id'])) {
             session_id($config['id']);
         }
 
