@@ -1927,6 +1927,7 @@ class Request
     {
         return $this->langset ?: '';
     }
+
     /**
      * 设置或者获取当前请求的content
      * @access public

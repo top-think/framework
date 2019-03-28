@@ -170,7 +170,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [$middleware, $param ?? null];
+        return [[Container::pull($middleware), 'handle'], $param ?? null];
     }
 
     protected function resolve(string $type = 'route')
@@ -183,10 +183,6 @@ class Middleware
             }
 
             list($call, $param) = $middleware;
-
-            if (is_string($call)) {
-                $call = [Container::pull($call), 'handle'];
-            }
 
             try {
                 $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);

@@ -427,10 +427,6 @@ class App extends Container
             $this->loadEvent(include $appPath . 'event.php');
         }
 
-        if (is_file($appPath . 'middleware.php')) {
-            $this->middleware->import(include $appPath . 'middleware.php');
-        }
-
         if (is_file($appPath . 'provider.php')) {
             $this->bind(include $appPath . 'provider.php');
         }

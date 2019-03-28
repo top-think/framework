@@ -134,6 +134,11 @@ class Http
         $request = $request ?? $this->app->make('request', [], true);
         $this->app->instance('request', $request);
 
+        // 加载全局中间件
+        if (is_file($this->app->getBasePath() . 'middleware.php')) {
+            $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');
+        }
+
         try {
             $response = $this->runWithRequest($request);
         } catch (Throwable $e) {
