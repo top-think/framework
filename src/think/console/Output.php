@@ -140,7 +140,7 @@ class Output
      * @param string $messages
      * @param int    $type
      */
-    public function writeln(string $messages, int $type = self::OUTPUT_NORMAL): void
+    public function writeln(string $messages, int $type = 0): void
     {
         $this->write($messages, true, $type);
     }
@@ -151,7 +151,7 @@ class Output
      * @param bool   $newline
      * @param int    $type
      */
-    public function write(string $messages, bool $newline = false, int $type = self::OUTPUT_NORMAL): void
+    public function write(string $messages, bool $newline = false, int $type = 0): void
     {
         $this->handle->write($messages, $newline, $type);
     }

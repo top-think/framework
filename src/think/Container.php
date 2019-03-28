@@ -47,7 +47,6 @@ use think\exception\Handle;
  * @property Session    $session
  * @property Url        $url
  * @property Validate   $validate
- * @property Build      $build
  */
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
@@ -69,7 +68,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     protected $bind = [
         'app'                     => App::class,
-        'build'                   => Build::class,
         'cache'                   => Cache::class,
         'config'                  => Config::class,
         'console'                 => Console::class,
