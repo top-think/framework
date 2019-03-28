@@ -74,7 +74,7 @@ class Redirect extends Response
         if (strpos($this->data, '://') || (0 === strpos($this->data, '/') && empty($this->params))) {
             return $this->data;
         } else {
-            return Container::pull('url')->build($this->data, $this->params);
+            return Container::pull('route')->buildUrl($this->data, $this->params);
         }
     }
 

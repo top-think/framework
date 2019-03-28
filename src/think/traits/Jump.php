@@ -35,7 +35,7 @@ trait Jump
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('route')->buildUrl($url);
         }
 
         $result = [
@@ -72,7 +72,7 @@ trait Jump
         if (is_null($url)) {
             $url = Container::pull('request')->isAjax() ? '' : 'javascript:history.back(-1);';
         } elseif ('' !== $url) {
-            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('url')->build($url);
+            $url = (strpos($url, '://') || 0 === strpos($url, '/')) ? $url : Container::pull('route')->buildUrl($url);
         }
 
         $result = [
