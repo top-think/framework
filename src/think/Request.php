@@ -205,7 +205,7 @@ class Request
 
     /**
      * SESSION对象
-     * @var \think\Session
+     * @var Session
      */
     protected $session;
 
@@ -217,7 +217,7 @@ class Request
 
     /**
      * ENV对象
-     * @var \think\Env
+     * @var Env
      */
     protected $env;
 
@@ -370,101 +370,6 @@ class Request
     }
 
     /**
-     * 创建一个URL请求
-     * @access public
-     * @param  string    $uri URL地址
-     * @param  string    $method 请求类型
-     * @param  array     $params 请求参数
-     * @param  array     $cookie
-     * @param  array     $files
-     * @param  array     $server
-     * @param  string    $content
-     * @return \think\Request
-     */
-    public function create(string $uri, string $method = 'GET', array $params = [], array $cookie = [], array $files = [], array $server = [], string $content = null)
-    {
-        $server['PATH_INFO']      = '';
-        $server['REQUEST_METHOD'] = strtoupper($method);
-        $info                     = parse_url($uri);
-
-        if (isset($info['host'])) {
-            $server['SERVER_NAME'] = $info['host'];
-            $server['HTTP_HOST']   = $info['host'];
-        }
-
-        if (isset($info['scheme'])) {
-            if ('https' === $info['scheme']) {
-                $server['HTTPS']       = 'on';
-                $server['SERVER_PORT'] = 443;
-            } else {
-                unset($server['HTTPS']);
-                $server['SERVER_PORT'] = 80;
-            }
-        }
-
-        if (isset($info['port'])) {
-            $server['SERVER_PORT'] = $info['port'];
-            $server['HTTP_HOST']   = $server['HTTP_HOST'] . ':' . $info['port'];
-        }
-
-        if (isset($info['user'])) {
-            $server['PHP_AUTH_USER'] = $info['user'];
-        }
-
-        if (isset($info['pass'])) {
-            $server['PHP_AUTH_PW'] = $info['pass'];
-        }
-
-        if (!isset($info['path'])) {
-            $info['path'] = '/';
-        }
-
-        $options     = [];
-        $queryString = '';
-
-        $options[strtolower($method)] = $params;
-
-        if (isset($info['query'])) {
-            parse_str(html_entity_decode($info['query']), $query);
-            if (!empty($params)) {
-                $params      = array_replace($query, $params);
-                $queryString = http_build_query($params, '', '&');
-            } else {
-                $params      = $query;
-                $queryString = $info['query'];
-            }
-        } elseif (!empty($params)) {
-            $queryString = http_build_query($params, '', '&');
-        }
-
-        if ($queryString) {
-            parse_str($queryString, $get);
-            $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;
-        }
-
-        $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
-        $server['QUERY_STRING'] = $queryString;
-        $options['cookie']      = $cookie;
-        $options['param']       = $params;
-        $options['file']        = $files;
-        $options['server']      = $server;
-        $options['url']         = $server['REQUEST_URI'];
-        $options['baseUrl']     = $info['path'];
-        $options['pathinfo']    = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
-        $options['method']      = $server['REQUEST_METHOD'];
-        $options['domain']      = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
-        $options['content']     = $content;
-
-        foreach ($options as $name => $item) {
-            if (property_exists($this, $name)) {
-                $this->$name = $item;
-            }
-        }
-
-        return $this;
-    }
-
-    /**
      * 设置当前包含协议的域名
      * @access public
      * @param  string $domain 域名
@@ -503,6 +408,18 @@ class Request
         }
 
         return $root;
+    }
+
+    /**
+     * 设置当前泛域名的值
+     * @access public
+     * @param  string $domain 域名
+     * @return $this
+     */
+    public function setSubDomain(string $domain)
+    {
+        $this->subDomain = $domain;
+        return $this;
     }
 
     /**
@@ -571,7 +488,6 @@ class Request
      */
     public function url(bool $complete = false): string
     {
-
         if ($this->url) {
             $url = $this->url;
         } elseif ($this->server('HTTP_X_REWRITE_URL')) {
@@ -828,6 +744,18 @@ class Request
         } else {
             $this->mimeType[$type] = $val;
         }
+    }
+
+    /**
+     * 设置请求类型
+     * @access public
+     * @param  string $method 请求类型
+     * @return $this
+     */
+    public function setMethod(string $method)
+    {
+        $this->method = strtoupper($method);
+        return $this;
     }
 
     /**
@@ -2161,10 +2089,10 @@ class Request
     /**
      * 设置COOKIE数据
      * @access public
-     * @param  \think\Cookie $cookie 数据
+     * @param array $cookie 数据
      * @return $this
      */
-    public function withCookie(Cookie $cookie)
+    public function withCookie(array $cookie)
     {
         $this->cookie = $cookie;
         return $this;
@@ -2173,7 +2101,7 @@ class Request
     /**
      * 设置SESSION数据
      * @access public
-     * @param  \think\Session $session 数据
+     * @param Session $session 数据
      * @return $this
      */
     public function withSession(Session $session)
@@ -2209,7 +2137,7 @@ class Request
     /**
      * 设置ENV数据
      * @access public
-     * @param  \think\Env $env 数据
+     * @param Env $env 数据
      * @return $this
      */
     public function withEnv(Env $env)
