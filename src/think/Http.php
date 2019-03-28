@@ -174,18 +174,6 @@ class Http
         // 监听HttpRun
         $this->app->event->trigger('HttpRun');
 
-        // Session初始化
-        $varSessionId = $this->app->config->get('route.var_session_id');
-        if ($varSessionId && $this->request->request($varSessionId)) {
-            $this->app->session->setId($this->request->request($varSessionId));
-        } else {
-            $sessionId = $this->app->cookie->get($this->app->config->get('session.cookie_name', 'PHPSESSID')) ?: '';
-            $this->app->session->setId($sessionId);
-        }
-
-        $this->app->request->withCookie($this->app->cookie);
-        $this->app->request->withSession($this->app->session);
-
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
         } : null;

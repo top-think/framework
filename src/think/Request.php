@@ -210,10 +210,10 @@ class Request
     protected $session;
 
     /**
-     * COOKIE对象
-     * @var \think\Cookie
+     * COOKIE数据
+     * @var array
      */
-    protected $cookie;
+    protected $cookie = [];
 
     /**
      * ENV对象
@@ -342,6 +342,7 @@ class Request
         $request->post    = $_POST ?: $request->getInputData($request->input);
         $request->put     = $request->getInputData($request->input);
         $request->request = $_REQUEST;
+        $request->cookie  = $_COOKIE;
         $request->file    = $_FILES ?? [];
 
         if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
@@ -1182,9 +1183,9 @@ class Request
     public function cookie(string $name = '', $default = null, $filter = '')
     {
         if (!empty($name)) {
-            $data = $this->getData($this->cookie->get(), $name, $default);
+            $data = $this->getData($this->cookie, $name, $default);
         } else {
-            $data = $this->cookie->get();
+            $data = $this->cookie;
         }
 
         // 解析过滤器

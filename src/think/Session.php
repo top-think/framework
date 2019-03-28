@@ -400,7 +400,7 @@ class Session
 
         $sessionId = md5(microtime(true) . uniqid());
 
-        $this->sessionId = $sessionId;
+        $this->setId($sessionId);
         return $sessionId;
     }
 
