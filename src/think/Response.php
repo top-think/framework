@@ -111,11 +111,6 @@ class Response
         // 处理输出数据
         $data = $this->getContent();
 
-        // Trace调试注入
-        if ('cli' != PHP_SAPI && Container::pull('env')->get('app_trace', Container::pull('config')->get('app.app_trace'))) {
-            Container::pull('debug')->inject($this, $data);
-        }
-
         if (200 == $this->code && $this->allowCache) {
             $cache = Container::pull('request')->getCache();
             if ($cache) {

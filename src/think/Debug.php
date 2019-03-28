@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think;
 
 use think\model\Collection as ModelCollection;
-use think\response\Redirect;
 
 class Debug
 {
@@ -35,26 +34,14 @@ class Debug
      */
     protected $app;
 
-    /**
-     * 配置参数
-     * @var array
-     */
-    protected $config = [];
-
     public function __construct(App $app, array $config = [])
     {
-        $this->app    = $app;
-        $this->config = $config;
+        $this->app = $app;
     }
 
-    public static function __make(App $app, Config $config)
+    public static function __make(App $app)
     {
-        return new static($app, $config->get('trace'));
-    }
-
-    public function setConfig(array $config): void
-    {
-        $this->config = array_merge($this->config, $config);
+        return new static($app);
     }
 
     /**
@@ -243,28 +230,4 @@ class Debug
         return $output;
     }
 
-    public function inject(Response $response, &$content)
-    {
-        $config = $this->config;
-        $type   = $config['type'] ?? 'Html';
-
-        unset($config['type']);
-
-        $trace = App::factory($type, '\\think\\debug\\', $config);
-
-        if ($response instanceof Redirect) {
-            //TODO 记录
-        } else {
-            $output = $trace->output($response, $this->app['log']->getLog());
-            if (is_string($output)) {
-                // trace调试信息注入
-                $pos = strripos($content, '</body>');
-                if (false !== $pos) {
-                    $content = substr($content, 0, $pos) . $output . substr($content, $pos);
-                } else {
-                    $content = $content . $output;
-                }
-            }
-        }
-    }
 }
