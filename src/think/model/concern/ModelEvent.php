@@ -14,6 +14,7 @@ namespace think\model\concern;
 
 use think\App;
 use think\Container;
+use think\exception\ModelEventException;
 
 /**
  * 模型事件处理
@@ -21,38 +22,16 @@ use think\Container;
 trait ModelEvent
 {
     /**
-     * 模型回调
-     * @var array
-     */
-    private static $event = [];
-
-    /**
      * 模型事件观察
      * @var array
      */
     protected static $observe = ['after_read', 'before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
 
     /**
-     * 绑定模型事件观察者类
-     * @var string
-     */
-    protected $observerClass;
-
-    /**
      * 是否需要事件响应
      * @var bool
      */
     protected $withEvent = true;
-
-    /**
-     * 清除回调方法
-     * @access public
-     * @return void
-     */
-    public static function flush(): void
-    {
-        self::$event[static::class] = [];
-    }
 
     /**
      * 注册一个模型观察者
@@ -68,7 +47,7 @@ trait ModelEvent
             if (method_exists($class, $call)) {
                 $instance = Container::getInstance()->invokeClass($class);
 
-                self::$event[static::class][$event][] = [$instance, $call];
+                Container::pull('event')->listen(static::class . '.' . $event, [$instance, $call]);
             }
         }
     }
@@ -93,18 +72,27 @@ trait ModelEvent
      */
     protected function trigger(string $event): bool
     {
-        $class = static::class;
+        if (!$this->withEvent) {
+            return true;
+        }
 
-        if ($this->withEvent && isset(self::$event[$class][$event])) {
-            foreach (self::$event[$class][$event] as $callback) {
-                $result = Container::getInstance()->invoke($callback, [$this]);
+        $call = 'on' . App::parseName($event, 1, false);
 
-                if (false === $result) {
-                    return false;
-                }
+        if (method_exists($this, $call)) {
+            $result = Container::getInstance()->invoke($call, [$this]);
+
+            if (false === $result) {
+                return false;
+            } else {
+                return true;
             }
         }
 
-        return true;
+        try {
+            Container::pull('event')->trigger(static::class . '.' . $event, $this);
+            return true;
+        } catch (ModelEventException $e) {
+            return false;
+        }
     }
 }

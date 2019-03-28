@@ -87,12 +87,6 @@ class Query
     protected $bind = [];
 
     /**
-     * 事件回调
-     * @var array
-     */
-    protected static $event = [];
-
-    /**
      * 日期查询表达式
      * @var array
      */
@@ -3476,7 +3470,7 @@ class Query
      */
     public static function event(string $event, callable $callback): void
     {
-        self::$event[$event] = $callback;
+        Container::pull('event')->listen('db.' . $event, $callback);
     }
 
     /**
@@ -3487,13 +3481,7 @@ class Query
      */
     public function trigger(string $event)
     {
-        $result = false;
-
-        if (isset(self::$event[$event])) {
-            $result = Container::getInstance()->invoke(self::$event[$event], [$this]);
-        }
-
-        return $result;
+        return Container::pull('event')->trigger('db.' . $event, $this);
     }
 
 }
