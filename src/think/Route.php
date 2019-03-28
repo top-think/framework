@@ -955,20 +955,18 @@ class Route
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检测URL绑定
-            if (!$this->bindCheck) {
-                $bind = $this->getDomainBind($domain && is_string($domain) ? $domain : null);
+            $bind = $this->getDomainBind($domain && is_string($domain) ? $domain : null);
 
-                if ($bind && 0 === strpos($url, $bind)) {
-                    $url = substr($url, strlen($bind) + 1);
-                } else {
-                    $binds = $this->getBind();
+            if ($bind && 0 === strpos($url, $bind)) {
+                $url = substr($url, strlen($bind) + 1);
+            } else {
+                $binds = $this->getBind();
 
-                    foreach ($binds as $key => $val) {
-                        if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
-                            $url    = substr($url, strlen($val) + 1);
-                            $domain = $key;
-                            break;
-                        }
+                foreach ($binds as $key => $val) {
+                    if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
+                        $url    = substr($url, strlen($val) + 1);
+                        $domain = $key;
+                        break;
                     }
                 }
             }
@@ -1028,8 +1026,6 @@ class Route
 
         // URL组装
         $url = $domain . '/' . ltrim($url, '/');
-
-        $this->bindCheck = false;
 
         return $url;
     }
