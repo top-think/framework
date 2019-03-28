@@ -41,7 +41,7 @@ class RouteList extends Command
     {
         $app = $input->getArgument('app');
 
-        if ($this->app->isMulti() && $app) {
+        if ($this->app->http->isMulti() && $app) {
             $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';
         } else {
             $filename = $this->app->getRuntimePath() . 'route_list.php';
@@ -60,7 +60,7 @@ class RouteList extends Command
         $this->app->route->setTestMode(true);
         $this->app->route->clear();
 
-        if ($this->app->isMulti() && $app) {
+        if ($this->app->http->isMulti() && $app) {
             $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
             $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;

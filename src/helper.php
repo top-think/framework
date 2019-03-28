@@ -30,7 +30,6 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
-use think\facade\Url;
 use think\Response;
 use think\route\RuleItem;
 
@@ -599,7 +598,7 @@ if (!function_exists('url')) {
      */
     function url(string $url = '', array $vars = [], $suffix = true, $domain = false)
     {
-        return Url::build($url, $vars, $suffix, $domain);
+        return Route::buildUrl($url, $vars, $suffix, $domain);
     }
 }
 

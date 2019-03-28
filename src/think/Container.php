@@ -84,7 +84,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'response'                => Response::class,
         'route'                   => Route::class,
         'session'                 => Session::class,
-        'url'                     => Url::class,
         'validate'                => Validate::class,
         'error_handle'            => Handle::class,
         'view'                    => View::class,
