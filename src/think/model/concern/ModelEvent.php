@@ -82,10 +82,11 @@ trait ModelEvent
             return true;
         }
 
-        $call = 'on' . App::parseName($event, 1, false);
+        $call  = 'on' . App::parseName($event, 1, false);
+        $class = static::class;
 
-        if (method_exists($this, $call)) {
-            $result = Container::getInstance()->invoke([$this, $call], [$this]);
+        if (method_exists($class, $call)) {
+            $result = Container::getInstance()->invoke([$class, $call], [$this]);
 
             if (false === $result) {
                 return false;
@@ -95,7 +96,7 @@ trait ModelEvent
         }
 
         try {
-            Container::pull('event')->trigger(static::class . '.' . $event, $this);
+            Container::pull('event')->trigger($class . '.' . $event, $this);
             return true;
         } catch (ModelEventException $e) {
             return false;
