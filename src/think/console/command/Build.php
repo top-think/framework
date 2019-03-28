@@ -66,7 +66,7 @@ class Build extends Command
             return;
         }
 
-        $this->run($build);
+        $this->build($build);
         $output->writeln("Successed");
     }
 
@@ -76,7 +76,7 @@ class Build extends Command
      * @param  array  $config 配置列表
      * @return void
      */
-    protected function run(array $config): void
+    protected function build(array $config): void
     {
         // 创建子目录和文件
         foreach ($config as $app => $list) {

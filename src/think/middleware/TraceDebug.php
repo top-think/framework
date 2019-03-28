@@ -48,7 +48,7 @@ class TraceDebug
         $response = $next($request);
 
         // Trace调试注入
-        if ('cli' != PHP_SAPI && $this->app->env->get('app_trace', $this->app->config->get('app.app_trace'))) {
+        if ($this->app->env->get('app_trace', $this->app->config->get('app.app_trace'))) {
             $data = $response->getContent();
             $this->traceDebug($response, $data);
             $response->content($data);
