@@ -28,6 +28,12 @@ trait ModelEvent
     protected static $observe = ['after_read', 'before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
 
     /**
+     * 模型事件观察者类名
+     * @var string
+     */
+    protected $observerClass;
+
+    /**
      * 是否需要事件响应
      * @var bool
      */
@@ -79,7 +85,7 @@ trait ModelEvent
         $call = 'on' . App::parseName($event, 1, false);
 
         if (method_exists($this, $call)) {
-            $result = Container::getInstance()->invoke($call, [$this]);
+            $result = Container::getInstance()->invoke([$this, $call], [$this]);
 
             if (false === $result) {
                 return false;
