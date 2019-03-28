@@ -228,7 +228,7 @@ class Http
      */
     protected function reportException(Throwable $e)
     {
-        $this->app['error_handle']->report($e);
+        $this->app->error_handle->report($e);
     }
 
     /**
@@ -240,7 +240,7 @@ class Http
      */
     protected function renderException($request, Throwable $e)
     {
-        return $this->app['error_handle']->render($request, $e);
+        return $this->app->error_handle->render($request, $e);
     }
 
     /**

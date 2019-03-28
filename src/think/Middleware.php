@@ -106,7 +106,7 @@ class Middleware
 
         $middleware = $this->buildMiddleware($middleware, $type);
 
-        if ($middleware) {
+        if (!empty($middleware)) {
             array_unshift($this->queue[$type], $middleware);
         }
     }
@@ -170,7 +170,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::pull($middleware), 'handle'], $param ?? null];
+        return [$middleware, $param ?? null];
     }
 
     protected function resolve(string $type = 'route')
@@ -183,6 +183,10 @@ class Middleware
             }
 
             list($call, $param) = $middleware;
+
+            if (is_string($call)) {
+                $call = [Container::pull($call), 'handle'];
+            }
 
             try {
                 $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);

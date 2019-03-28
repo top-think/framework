@@ -63,17 +63,6 @@ class Db
     }
 
     /**
-     * 初始化
-     * @access public
-     * @return void
-     */
-    public function init(): void
-    {
-        $this->queryTimes = 0;
-        $this->readMaster = [];
-    }
-
-    /**
      * 切换数据库连接
      * @access public
      * @param  mixed         $config 连接配置
