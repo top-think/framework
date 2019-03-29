@@ -85,19 +85,14 @@ trait ModelEvent
         $call  = 'on' . App::parseName($event, 1, false);
         $class = static::class;
 
-        if (method_exists($class, $call)) {
-            $result = Container::getInstance()->invoke([$class, $call], [$this]);
-
-            if (false === $result) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-
         try {
-            Container::pull('event')->trigger($class . '.' . $event, $this);
-            return true;
+            if (method_exists($class, $call)) {
+                $result = Container::getInstance()->invoke([$class, $call], [$this]);
+            } else {
+                $result = Container::pull('event')->trigger($class . '.' . $event, $this, true);
+            }
+
+            return false === $result ? false : true;
         } catch (ModelEventException $e) {
             return false;
         }

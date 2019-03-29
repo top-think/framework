@@ -69,7 +69,7 @@ class Handle
             }
 
             if ($this->app->config->get('log.record_trace')) {
-                $log .= "\r\n" . $exception->getTraceAsString();
+                $log .= PHP_EOL . $exception->getTraceAsString();
             }
 
             $this->app->log->record($log, 'error');

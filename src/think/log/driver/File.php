@@ -104,7 +104,7 @@ class File
         $info['timestamp'] = date($this->config['time_format']);
 
         foreach ($message as $type => $msg) {
-            $info[$type] = is_array($msg) ? implode("\r\n", $msg) : $msg;
+            $info[$type] = is_array($msg) ? implode(PHP_EOL, $msg) : $msg;
         }
 
         if (PHP_SAPI == 'cli') {
@@ -213,14 +213,14 @@ class File
     protected function parseCliLog(array $info): string
     {
         if ($this->config['json']) {
-            $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+            $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
         } else {
             $now = $info['timestamp'];
             unset($info['timestamp']);
 
-            $message = implode("\r\n", $info);
+            $message = implode(PHP_EOL, $info);
 
-            $message = "[{$now}]" . $message . "\r\n";
+            $message = "[{$now}]" . $message . PHP_EOL;
         }
 
         return $message;
@@ -243,13 +243,13 @@ class File
 
         if ($this->config['json']) {
             $info = $requestInfo + $info;
-            return json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\r\n";
+            return json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
         }
 
-        array_unshift($info, "---------------------------------------------------------------\r\n[{$info['timestamp']}] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}");
+        array_unshift($info, "---------------------------------------------------------------" . PHP_EOL . "[{$info['timestamp']}] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}");
         unset($info['timestamp']);
 
-        return implode("\r\n", $info) . "\r\n";
+        return implode(PHP_EOL, $info) . PHP_EOL;
     }
 
     protected function getDebugLog(&$info, $append, $apart): void
