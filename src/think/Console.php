@@ -11,6 +11,8 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use InvalidArgumentException;
+use LogicException;
 use think\console\Command;
 use think\console\command\Build;
 use think\console\command\Clear;
@@ -142,7 +144,7 @@ class Console
      */
     protected function setUser(string $user): void
     {
-        if (function_exists('posix_getpwnam')) {
+        if (extension_loaded('posix')) {
             $user = posix_getpwnam($user);
 
             if (!empty($user)) {
@@ -371,7 +373,7 @@ class Console
         }
 
         if (is_string($command)) {
-            $command = new $command();
+            $command = $this->app->invokeClass($command);
         }
 
         $command->setConsole($this);
@@ -384,7 +386,7 @@ class Console
         $command->setApp($this->app);
 
         if (null === $command->getDefinition()) {
-            throw new \LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
+            throw new LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
         }
 
         $this->commands[$command->getName()] = $command;
@@ -401,19 +403,19 @@ class Console
      * @access public
      * @param string $name 指令名称
      * @return Command
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function getCommand(string $name): Command
     {
         if (!isset($this->commands[$name])) {
-            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
+            throw new InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
         }
 
         $command = $this->commands[$name];
 
         if (is_string($command)) {
+            $command = $this->app->invokeClass($command);
             /** @var Command $command */
-            $command = new $command();
             $command->setConsole($this);
             $command->setApp($this->app);
         }
@@ -470,7 +472,7 @@ class Console
      * @access public
      * @param string $namespace
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function findNamespace(string $namespace): string
     {
@@ -493,12 +495,12 @@ class Console
                 $message .= implode("\n    ", $alternatives);
             }
 
-            throw new \InvalidArgumentException($message);
+            throw new InvalidArgumentException($message);
         }
 
         $exact = in_array($namespace, $namespaces, true);
         if (count($namespaces) > 1 && !$exact) {
-            throw new \InvalidArgumentException(sprintf('The namespace "%s" is ambiguous (%s).', $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))));
+            throw new InvalidArgumentException(sprintf('The namespace "%s" is ambiguous (%s).', $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))));
         }
 
         return $exact ? $namespace : reset($namespaces);
@@ -509,7 +511,7 @@ class Console
      * @access public
      * @param string $name 名称或者别名
      * @return Command
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function find(string $name): Command
     {
@@ -537,14 +539,14 @@ class Console
                 $message .= implode("\n    ", $alternatives);
             }
 
-            throw new \InvalidArgumentException($message);
+            throw new InvalidArgumentException($message);
         }
 
         $exact = in_array($name, $commands, true);
         if (count($commands) > 1 && !$exact) {
             $suggestions = $this->getAbbreviationSuggestions(array_values($commands));
 
-            throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
+            throw new InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
         }
 
         return $this->getCommand($exact ? $name : reset($commands));

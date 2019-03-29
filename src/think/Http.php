@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\exception\Handle;
 use think\exception\HttpException;
 use Throwable;
 
@@ -233,19 +234,19 @@ class Http
      */
     protected function reportException(Throwable $e)
     {
-        $this->app->error_handle->report($e);
+        $this->app->make(Handle::class)->report($e);
     }
 
     /**
      * Render the exception to a response.
      *
-     * @param Request    $request
+     * @param Request   $request
      * @param Throwable $e
      * @return Response
      */
     protected function renderException($request, Throwable $e)
     {
-        return $this->app->error_handle->render($request, $e);
+        return $this->app->make(Handle::class)->render($request, $e);
     }
 
     /**
@@ -373,6 +374,7 @@ class Http
 
     /**
      * HttpEnd
+     * @param Response $response
      * @return void
      */
     public function end(Response $response): void
