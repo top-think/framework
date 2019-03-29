@@ -24,7 +24,6 @@ use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
-use think\exception\Handle;
 
 /**
  * Class Container
@@ -45,7 +44,6 @@ use think\exception\Handle;
  * @property Db         $db
  * @property Cookie     $cookie
  * @property Session    $session
- * @property Url        $url
  * @property Validate   $validate
  */
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
@@ -85,7 +83,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'route'                   => Route::class,
         'session'                 => Session::class,
         'validate'                => Validate::class,
-        'error_handle'            => Handle::class,
         'view'                    => View::class,
 
         // 接口依赖注入
