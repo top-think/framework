@@ -863,7 +863,7 @@ class Route
 
         if (false === $item) {
             // 检测当前完整域名
-            $item = $this->domains[$this->host] ?: $this->domains['-'];
+            $item = $this->domains[$this->host] ?? $this->domains['-'];
         }
 
         if (is_string($item)) {
