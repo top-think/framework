@@ -22,6 +22,7 @@ use think\Facade;
  * @method array get(string $tag = '') static 获取插件信息
  * @method mixed listen(string $tag, mixed $params = null, bool $once = false) static 监听标签的行为
  * @method mixed exec(mixed $class, mixed $params = null) static 执行行为
+ * @method mixed execs(string $tagName, mixed $params = null) static 直接执行某个标签的行为
  */
 class Hook extends Facade
 {

@@ -178,6 +178,23 @@ class Hook
     }
 
     /**
+     * 执行某个标签的所有行为
+     * @access public
+     * @param  string    $tag    标签名
+     * @param  mixed     $params 参数
+     * @return array
+     */
+    public function execs($tag = '', $params = null)
+    {
+        $results = [];
+        $hooks = $this->get($tag);
+        foreach ($hooks as $hook) {
+            $results[] = $this->exec($hook, $params);
+        }
+        return $results;
+    }
+
+    /**
      * 执行某个标签的行为
      * @access protected
      * @param  mixed     $class  要执行的行为
