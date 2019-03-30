@@ -147,6 +147,8 @@ class Response
         if (!($this instanceof RedirectResponse)) {
             Container::pull('session')->flush();
         }
+
+        Container::pull('http')->end($this);
     }
 
     /**
