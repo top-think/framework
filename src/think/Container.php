@@ -166,10 +166,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         } elseif ($concrete instanceof Closure) {
             $this->bind[$abstract] = $concrete;
         } elseif (is_object($concrete)) {
-            if (isset($this->bind[$abstract])) {
-                $abstract = $this->bind[$abstract];
-            }
-            $this->instances[$abstract] = $concrete;
+            $this->instance($abstract, $concrete);
         } else {
             $this->bind[$abstract] = $concrete;
         }
@@ -186,13 +183,11 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function instance(string $abstract, $instance)
     {
-        if ($instance instanceof \Closure) {
-            $this->bind[$abstract] = $instance;
-        } else {
-            if (isset($this->bind[$abstract])) {
-                $abstract = $this->bind[$abstract];
-            }
+        if (isset($this->bind[$abstract])) {
+            $abstract = $this->bind[$abstract];
+        }
 
+        if (is_string($abstract)) {
             $this->instances[$abstract] = $instance;
         }
 
@@ -233,7 +228,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $abstract = $this->bind[$abstract];
         }
 
-        return isset($this->instances[$abstract]);
+        return is_string($abstract) && isset($this->instances[$abstract]);
     }
 
     /**
