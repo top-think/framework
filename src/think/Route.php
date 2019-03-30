@@ -185,6 +185,8 @@ class Route
             $this->import(include $app->getRuntimePath() . 'route.php');
         }
 
+        $this->setDefaultDomain();
+
         $this->ruleName = new RuleName();
     }
 
@@ -252,12 +254,12 @@ class Route
     protected function setDefaultDomain(): void
     {
         // 默认域名
-        $this->domain = $this->host;
+        $this->domain = '-';
 
         // 注册默认域名
-        $domain = new Domain($this, $this->host);
+        $domain = new Domain($this, '-');
 
-        $this->domains[$this->host] = $domain;
+        $this->domains['-'] = $domain;
 
         // 默认分组
         $this->group = $domain;
@@ -727,8 +729,7 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
-
-        $this->setDefaultDomain();
+        $this->domain  = $this->host;
 
         if ($withRoute) {
             $checkCallback = function () use ($request, $withRoute) {
@@ -862,7 +863,7 @@ class Route
 
         if (false === $item) {
             // 检测当前完整域名
-            $item = $this->domains[$this->host];
+            $item = $this->domains[$this->host] ?: $this->domains['-'];
         }
 
         if (is_string($item)) {
