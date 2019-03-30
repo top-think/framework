@@ -104,6 +104,17 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 获取所属域名
+     * @access public
+     * @param  string $domain 域名
+     * @return void
+     */
+    public function setDomain(string $domain): void
+    {
+        $this->domain = $domain;
+    }
+
+    /**
      * 检测分组路由
      * @access public
      * @param  Request $request       请求对象
@@ -353,7 +364,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule():  ? RuleItem
+    public function getMissRule(): ?RuleItem
     {
         return $this->miss;
     }
@@ -365,7 +376,7 @@ class RuleGroup extends Rule
      * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss($route, string $method = '*') : RuleItem
+    public function miss($route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
@@ -482,7 +493,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName():  ? string
+    public function getFullName(): ?string
     {
         return $this->fullName;
     }
@@ -493,7 +504,7 @@ class RuleGroup extends Rule
      * @param  string $method 请求类型
      * @return array
      */
-    public function getRules(string $method = '') : array
+    public function getRules(string $method = ''): array
     {
         if ('' === $method) {
             return $this->rules;

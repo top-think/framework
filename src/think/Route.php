@@ -731,6 +731,10 @@ class Route
         $this->host    = $this->request->host(true);
         $this->domain  = $this->host;
 
+        $this->domains[$this->host] = $this->domains['-'];
+        unset($this->domains['-']);
+        $this->domains[$this->host]->setDomain($this->host);
+
         if ($withRoute) {
             $checkCallback = function () use ($request, $withRoute) {
                 //加载路由
@@ -863,7 +867,7 @@ class Route
 
         if (false === $item) {
             // 检测当前完整域名
-            $item = $this->domains[$this->host] ?? $this->domains['-'];
+            $item = $this->domains[$this->host];
         }
 
         if (is_string($item)) {
