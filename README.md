@@ -3,8 +3,9 @@
 ThinkPHP 6.0
 ===============
 
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=6.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=6.0)
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=6.0)](https://travis-ci.org/top-think/framework)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=6.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=6.0)
+[![Code Coverage](https://scrutinizer-ci.com/g/top-think/framework/badges/coverage.png?b=6.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=6.0)
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
 [![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net/)
