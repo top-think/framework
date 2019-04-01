@@ -59,7 +59,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand = 'list';
+    protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -334,16 +334,6 @@ class Console
     }
 
     /**
-     * 注册一个指令 （便于动态创建指令）
-     * @access public
-     * @param string $name 指令名
-     */
-    public function register(string $name)
-    {
-        $this->addCommand(new Command($name));
-    }
-
-    /**
      * 添加指令集
      * @access public
      * @param array $commands
@@ -480,7 +470,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);

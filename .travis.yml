@@ -1,0 +1,33 @@
+dist: xenial
+language: php
+
+matrix:
+  fast_finish: true
+  include:
+    - php: 7.1
+    - php: 7.2
+    - php: 7.3
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+services:
+  - memcached
+  - redis-server
+  - mysql
+
+before_install:
+  - phpenv config-rm xdebug.ini || true
+  - echo "extension = memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+  - printf "\n" | pecl install -f redis
+  - travis_retry composer self-update
+  - mysql -e 'CREATE DATABASE test;'
+
+install:
+  - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
+
+script: vendor/bin/phpunit --coverage-clover=coverage.xml --configuration=phpunit.xml
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

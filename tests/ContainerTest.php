@@ -3,6 +3,7 @@
 namespace think\tests;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionMethod;
 use stdClass;
 use think\Container;
 use think\Exception;
@@ -17,9 +18,29 @@ class Taylor
         $this->name = $name;
     }
 
+    public function some(Container $container)
+    {
+
+    }
+
+    public static function static(Container $container)
+    {
+        return $container;
+    }
+
     public static function __make()
     {
         return new self('Taylor');
+    }
+}
+
+class SomeClass
+{
+    public $container;
+
+    public function __construct(Container $container)
+    {
+        $this->container = $container;
     }
 }
 
@@ -85,11 +106,39 @@ class ContainerTest extends TestCase
 
         $this->assertEquals('Taylor', $container->get('name'));
 
+        $container->bind('name2', Taylor::class);
+
         $object = new stdClass();
 
-        $container->instance('name', $object);
+        $this->assertFalse($container->exists('name2'));
 
-        $this->assertEquals($object, $container->get('name'));
+        $container->instance('name2', $object);
+
+        $this->assertTrue($container->exists('name2'));
+
+        $this->assertTrue($container->exists(Taylor::class));
+
+        $this->assertEquals($object, $container->make(Taylor::class));
+
+        $this->assertContains($object, $container->all());
+
+        $this->assertEquals(count($container->all()), count($container));
+
+        unset($container->name1);
+
+        $this->assertFalse($container->exists('name1'));
+
+        $container->delete('name2');
+
+        $this->assertFalse($container->exists('name2'));
+
+        $container->flush();
+
+        $this->assertEmpty($container->all());
+
+        foreach ($container as $class => $instance) {
+
+        }
     }
 
     public function testBind()
@@ -102,9 +151,33 @@ class ContainerTest extends TestCase
 
         $container->bind('name2', $object);
 
+        $container->bind('name3', Taylor::class);
+
+        $container->name4 = $object;
+
+        $container['name5'] = $object;
+
+        $this->assertTrue(isset($container->name4));
+
+        $this->assertTrue(isset($container['name5']));
+
         $this->assertInstanceOf(Taylor::class, $container->get('name'));
 
         $this->assertSame($object, $container->get('name2'));
+
+        $this->assertSame($object, $container->name4);
+
+        $this->assertSame($object, $container['name5']);
+
+        $this->assertInstanceOf(Taylor::class, $container->get('name3'));
+
+        unset($container['name']);
+
+        $this->assertFalse(isset($container['name']));
+
+        unset($container->name3);
+
+        $this->assertFalse(isset($container->name3));
     }
 
     public function testAutoConcreteResolution()
@@ -141,4 +214,75 @@ class ContainerTest extends TestCase
         $container = new Container;
         $container->invokeFunction('ContainerTestCallStub', []);
     }
+
+    public function testInvoke()
+    {
+        $container = new Container();
+
+        Container::setInstance($container);
+
+        $container->bind(Container::class, $container);
+
+        $stub = $this->createMock(Taylor::class);
+
+        $stub->expects($this->once())->method('some')->with($container)->will($this->returnSelf());
+
+        $container->invokeMethod([$stub, 'some']);
+
+        $this->assertSame($container, $container->invokeMethod(Taylor::class . '::static'));
+
+        $reflect = new ReflectionMethod($container, 'exists');
+
+        $this->assertTrue($container->invokeReflectMethod($container, $reflect, [Container::class]));
+
+        $this->assertSame($container, $container->invoke(function (Container $container) {
+            return $container;
+        }));
+
+        $this->assertSame($container, $container->invoke(Taylor::class . '::static'));
+
+        $object = $container->invokeClass(SomeClass::class);
+        $this->assertInstanceOf(SomeClass::class, $object);
+        $this->assertSame($container, $object->container);
+
+        $stdClass = new stdClass();
+
+        $container->invoke(function (Container $container, stdClass $stdObject, $key1, $lowKey, $key2 = 'default') use ($stdClass) {
+            $this->assertEquals('value1', $key1);
+            $this->assertEquals('default', $key2);
+            $this->assertEquals('value2', $lowKey);
+            $this->assertSame($stdClass, $stdObject);
+            return $container;
+        }, ['some' => $stdClass, 'key1' => 'value1', 'low_key' => 'value2']);
+    }
+
+    public function testInvokeMethodNotExists()
+    {
+        $container = $this->resolveContainer();
+        $this->expectException(Exception::class);
+
+        $container->invokeMethod([SomeClass::class, 'any']);
+    }
+
+    public function testInvokeClassNotExists()
+    {
+        $container = new Container();
+
+        Container::setInstance($container);
+
+        $container->bind(Container::class, $container);
+
+        $this->expectExceptionObject(new ClassNotFoundException('class not exists: SomeClass'));
+
+        $container->invokeClass('SomeClass');
+    }
+
+    protected function resolveContainer()
+    {
+        $container = new Container();
+
+        Container::setInstance($container);
+        return $container;
+    }
+
 }
