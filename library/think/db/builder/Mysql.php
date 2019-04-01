@@ -34,6 +34,11 @@ class Mysql extends Builder
      */
     public function insertAll($dataSet, $options = [], $replace = false)
     {
+        $dataSet = array_map(function ($data) {
+            ksort($data);
+            return $data;
+        }, $dataSet);
+        
         // 获取合法的字段
         if ('*' == $options['field']) {
             $fields = array_keys($this->query->getFieldsType($options['table']));
