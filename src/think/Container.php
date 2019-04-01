@@ -501,7 +501,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     public function __isset($name): bool
     {
-        return $this->has($name);
+        return $this->exists($name);
     }
 
     public function __unset($name)
@@ -511,7 +511,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     public function offsetExists($key)
     {
-        return $this->has($key);
+        return $this->exists($key);
     }
 
     public function offsetGet($key)
