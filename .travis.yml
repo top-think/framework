@@ -27,7 +27,8 @@ before_install:
 install:
   - travis_retry composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
-script: vendor/bin/phpunit --coverage-clover=coverage.xml --configuration=phpunit.xml
+script:
+  - vendor/bin/phpunit --coverage-clover=coverage.xml
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
