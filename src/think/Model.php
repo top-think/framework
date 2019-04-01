@@ -257,12 +257,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $connection = Db::buildConnection($this->connection);
 
         /** @var Query $query */
-        if ($this->query) {
-            $query = new $this->query($connection);
-        } else {
-            $queryClass = $connection->getConfig('query');
-            $query      = new $queryClass($connection);
-        }
+        $queryClass = $this->query ?: $connection->getConfig('query');
+        $query      = new $queryClass($connection);
 
         $query->model($this)
             ->name($this->name)
