@@ -15,7 +15,6 @@ namespace think;
 use ArrayAccess;
 use JsonSerializable;
 use think\db\Query;
-use think\facade\Db;
 
 /**
  * Class Model
@@ -254,7 +253,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function buildQuery(): Query
     {
-        $connection = Db::buildConnection($this->connection);
+        $connection = Container::pull('db')->buildConnection($this->connection);
 
         /** @var Query $query */
         $queryClass = $this->query ?: $connection->getConfig('query');
