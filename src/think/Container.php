@@ -359,7 +359,14 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             return $reflect->invokeArgs($class ?? null, $args);
         } catch (ReflectionException $e) {
-            throw new Exception('method not exists: ' . (is_array($method) ? $method[0] . '::' . $method[1] : $method) . '()');
+            if (is_array($method)) {
+                $class    = is_object($method[0]) ? get_class($method[0]) : $method[0];
+                $callback = $class . '::' . $method[1];
+            } else {
+                $callback = $method;
+            }
+
+            throw new Exception('method not exists: ' . $callback . '()');
         }
     }
 
