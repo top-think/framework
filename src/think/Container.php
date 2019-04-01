@@ -185,7 +185,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         if (isset($this->bind[$abstract])) {
             $bind = $this->bind[$abstract];
-            
+
             if (is_string($bind)) {
                 $this->instances[$bind] = $instance;
                 return $this;
@@ -284,6 +284,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         foreach ((array) $abstract as $name) {
             $name = $this->alias[$name] ?? $name;
+
+            if (isset($this->bind[$name])) {
+                $name = $this->bind[$name];
+            }
 
             if (isset($this->instances[$name])) {
                 unset($this->instances[$name]);
