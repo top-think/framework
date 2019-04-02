@@ -32,19 +32,37 @@ class Middleware
         'default_namespace' => 'app\\http\\middleware\\',
     ];
 
+    /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
+
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
     }
 
-    public static function __make(Config $config)
+    public static function __make(App $app, Config $config)
     {
-        return new static($config->get('middleware'));
+        return (new static($config->get('middleware')))->setApp($app);
     }
 
     public function setConfig(array $config): void
     {
         $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * 设置应用对象
+     * @access public
+     * @param  App  $app
+     * @return $this
+     */
+    public function setApp(App $app)
+    {
+        $this->app = $app;
+        return $this;
     }
 
     /**
@@ -170,7 +188,7 @@ class Middleware
             list($middleware, $param) = explode(':', $middleware, 2);
         }
 
-        return [[Container::pull($middleware), 'handle'], $param ?? null];
+        return [[$this->app->make($middleware), 'handle'], $param ?? null];
     }
 
     protected function resolve(string $type = 'route')

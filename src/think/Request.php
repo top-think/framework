@@ -1971,7 +1971,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        Container::pull('session')->set($name, $token);
+        $this->session->set($name, $token);
 
         return $token;
     }
