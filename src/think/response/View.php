@@ -12,6 +12,7 @@
 namespace think\response;
 
 use think\Response;
+use think\View as BaseView;
 
 class View extends Response
 {
@@ -20,6 +21,13 @@ class View extends Response
     protected $vars    = [];
     protected $filter;
     protected $contentType = 'text/html';
+    protected $view;
+
+    public function __construct(BaseView $view, $data = '', int $code = 200)
+    {
+        parent::__construct($data, $code);
+        $this->view = $view;
+    }
 
     /**
      * 处理数据
@@ -30,7 +38,7 @@ class View extends Response
     protected function output($data): string
     {
         // 渲染模板输出
-        return \think\facade\View::filter($this->filter)
+        return $this->view->filter($this->filter)
             ->assign($this->vars)
             ->fetch($data);
     }
@@ -83,7 +91,7 @@ class View extends Response
      */
     public function exists(string $name): bool
     {
-        return \think\facade\View::exists($name);
+        return $this->view->exists($name);
     }
 
 }

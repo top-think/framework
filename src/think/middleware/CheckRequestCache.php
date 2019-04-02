@@ -50,6 +50,19 @@ class CheckRequestCache
             }
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        if (200 == $response->getCode() && $response->isAllowCache()) {
+            if ($cache) {
+                $header                  = $response->getHeader();
+                $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
+                $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
+                $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
+
+                $this->cache->tag($tag)->set($key, [$response->getContent(), $header], $expire);
+            }
+        }
+
+        return $response;
     }
 }

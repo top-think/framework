@@ -11,8 +11,9 @@
 
 namespace think\response;
 
-use think\Container;
+use think\Request;
 use think\Response;
+use think\Route;
 
 class Redirect extends Response
 {
@@ -21,10 +22,14 @@ class Redirect extends Response
 
     // URL参数
     protected $params = [];
+    protected $route;
+    protected $request;
 
-    public function __construct($data = '', int $code = 302)
+    public function __construct(Route $route, Request $request, $data = '', int $code = 302)
     {
         parent::__construct($data, $code);
+        $this->route   = $route;
+        $this->request = $request;
 
         $this->cacheControl('no-cache,must-revalidate');
     }
@@ -51,14 +56,12 @@ class Redirect extends Response
      */
     public function with($name, $value = null)
     {
-        $session = Container::pull('session');
-
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                $session->flash($key, $val);
+                $this->session->flash($key, $val);
             }
         } else {
-            $session->flash($name, $value);
+            $this->session->flash($name, $value);
         }
 
         return $this;
@@ -74,7 +77,7 @@ class Redirect extends Response
         if (strpos($this->data, '://') || (0 === strpos($this->data, '/') && empty($this->params))) {
             return $this->data;
         } else {
-            return Container::pull('route')->buildUrl($this->data, $this->params);
+            return $this->route->buildUrl($this->data, $this->params);
         }
     }
 
@@ -92,7 +95,7 @@ class Redirect extends Response
      */
     public function remember()
     {
-        Container::pull('session')->set('redirect_url', Container::pull('request')->url());
+        $this->session->set('redirect_url', $this->request->url());
 
         return $this;
     }
@@ -104,11 +107,9 @@ class Redirect extends Response
      */
     public function restore()
     {
-        $session = Container::pull('session');
-
-        if ($session->has('redirect_url')) {
-            $this->data = $session->get('redirect_url');
-            $session->delete('redirect_url');
+        if ($this->session->has('redirect_url')) {
+            $this->data = $this->session->get('redirect_url');
+            $this->session->delete('redirect_url');
         }
 
         return $this;

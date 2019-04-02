@@ -12,10 +12,19 @@
 namespace think\response;
 
 use think\Response;
+use think\View;
 
 class Jump extends Response
 {
     protected $contentType = 'text/html';
+
+    protected $view;
+
+    public function __construct(View $view, $data = '', int $code = 200)
+    {
+        parent::__construct($data, $code);
+        $this->view = $view;
+    }
 
     /**
      * 处理数据
@@ -26,7 +35,7 @@ class Jump extends Response
      */
     protected function output($data): string
     {
-        return \think\facade\View::assign($data)
+        return $this->view->assign($data)
             ->fetch($this->options['jump_template']);
     }
 }

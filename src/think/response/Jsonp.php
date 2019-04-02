@@ -11,7 +11,7 @@
 
 namespace think\response;
 
-use think\Container;
+use think\Request;
 use think\Response;
 
 class Jsonp extends Response
@@ -25,6 +25,15 @@ class Jsonp extends Response
 
     protected $contentType = 'application/javascript';
 
+    protected $request;
+
+    public function __construct(Request $request, $data = '', int $code = 200)
+    {
+        parent::__construct($data, $code);
+
+        $this->request = $request;
+    }
+
     /**
      * 处理数据
      * @access protected
@@ -36,7 +45,7 @@ class Jsonp extends Response
     {
         try {
             // 返回JSON数据格式到客户端 包含状态信息 [当url_common_param为false时是无法获取到$_GET的数据的，故使用Request来获取<xiaobo.sun@qq.com>]
-            $var_jsonp_handler = Container::pull('request')->param($this->options['var_jsonp_handler'], "");
+            $var_jsonp_handler = $this->request->param($this->options['var_jsonp_handler'], "");
             $handler           = !empty($var_jsonp_handler) ? $var_jsonp_handler : $this->options['default_jsonp_handler'];
 
             $data = json_encode($data, $this->options['json_encode_param']);
