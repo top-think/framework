@@ -17,14 +17,15 @@ use PDO;
 use PDOStatement;
 use think\App;
 use think\Collection;
-use think\Container;
+use think\Config;
+use think\Db;
 use think\db\exception\BindParamException;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
+use think\Event;
 use think\Exception;
 use think\exception\DbException;
 use think\exception\PDOException;
-use think\facade\Db;
 use think\Model;
 use think\model\Collection as ModelCollection;
 use think\model\Relation;
@@ -43,6 +44,24 @@ class Query
      * @var Model
      */
     protected $model;
+
+    /**
+     * 事件对象
+     * @var Event
+     */
+    protected $event;
+
+    /**
+     * 配置对象
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * Db对象
+     * @var Db
+     */
+    protected $db;
 
     /**
      * 当前数据表名称（不含前缀）
@@ -195,6 +214,55 @@ class Query
         $this->connection = $connection;
 
         return $this;
+    }
+
+    /**
+     * 设置配置对象
+     * @access public
+     * @param  Config $config
+     * @return $this
+     */
+    public function setConfig(Config $config)
+    {
+        $this->config = $config;
+
+        return $this;
+    }
+
+    /**
+     * 设置Event对象
+     * @access public
+     * @param  Event $event
+     * @return $this
+     */
+    public function setEvent(Event $event)
+    {
+        $this->event = $event;
+
+        return $this;
+    }
+
+    /**
+     * 设置Db对象
+     * @access public
+     * @param  Db $db
+     * @return $this
+     */
+    public function setDb(Db $db)
+    {
+        $this->db = $db;
+        $this->connection->setDb($db);
+        return $this;
+    }
+
+    /**
+     * 获取Db对象
+     * @access public
+     * @return Db
+     */
+    public function getDb()
+    {
+        return $this->db;
     }
 
     /**
@@ -1468,7 +1536,7 @@ class Query
             $simple = false;
         }
 
-        $paginate = array_merge($this->paginateConfig, Container::pull('config')->get('paginate'));
+        $paginate = array_merge($this->paginateConfig, $this->config->get('paginate'));
 
         if (is_array($listRows)) {
             $config   = array_merge($paginate, $listRows);
@@ -1883,7 +1951,7 @@ class Query
     {
         $table = $all ? '*' : $this->getTable();
 
-        Db::readMaster($table);
+        $this->db->readMaster($table);
 
         return $this;
     }
@@ -3219,9 +3287,6 @@ class Query
         $column  = $column ?: $this->getPk();
 
         if (isset($options['order'])) {
-            if (Container::pull('app')->isDebug()) {
-                throw new DbException('chunk not support call order');
-            }
             unset($options['order']);
         }
 
@@ -3449,7 +3514,7 @@ class Query
             }
         }
 
-        if (is_string($options['table']) && Db::isReadMaster($options['table'])) {
+        if (is_string($options['table']) && $this->db->isReadMaster($options['table'])) {
             $options['master'] = true;
         }
 
@@ -3474,18 +3539,6 @@ class Query
     }
 
     /**
-     * 注册回调方法
-     * @access public
-     * @param  string   $event    事件名
-     * @param  callable $callback 回调方法
-     * @return void
-     */
-    public static function event(string $event, callable $callback): void
-    {
-        Container::pull('event')->listen('db.' . $event, $callback);
-    }
-
-    /**
      * 触发事件
      * @access public
      * @param  string $event 事件名
@@ -3493,7 +3546,7 @@ class Query
      */
     public function trigger(string $event)
     {
-        return Container::pull('event')->trigger('db.' . $event, $this);
+        return $this->event->trigger('db.' . $event, $this);
     }
 
 }

@@ -19,11 +19,11 @@ use think\App;
 use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
+use think\Db;
 use think\db\exception\BindParamException;
 use think\Exception;
 use think\exception\PDOException;
-use think\facade\Db;
-use think\facade\Log;
+use think\Log;
 
 abstract class Connection
 {
@@ -124,6 +124,12 @@ abstract class Connection
      * @var Builder
      */
     protected $builder;
+
+    /**
+     * Db对象
+     * @var Db
+     */
+    protected $db;
 
     /**
      * 数据库连接参数配置
@@ -237,6 +243,12 @@ abstract class Connection
     protected $cache;
 
     /**
+     * 日志对象
+     * @var Log
+     */
+    protected $log;
+
+    /**
      * 架构函数 读取数据库配置信息
      * @access public
      * @param  array $config 数据库配置数组
@@ -252,6 +264,7 @@ abstract class Connection
 
         $this->builder = new $class($this);
         $this->cache   = Container::pull('cache');
+        $this->log     = Container::pull('log');
 
         // 执行初始化操作
         $this->initialize();
@@ -284,9 +297,6 @@ abstract class Connection
             if (empty($config['type'])) {
                 throw new InvalidArgumentException('Undefined db type');
             }
-
-            // 记录初始化信息
-            Log::record('[ DB ] INIT ' . $config['type']);
 
             if (true === $name) {
                 $name = md5(serialize($config));
@@ -333,6 +343,19 @@ abstract class Connection
     public function getBuilder(): Builder
     {
         return $this->builder;
+    }
+
+    /**
+     * 设置当前的数据库Db对象
+     * @access public
+     * @param  Db $db
+     * @return $this
+     */
+    public function setDb(Db $db)
+    {
+        $this->db = $db;
+
+        return $this;
     }
 
     /**
@@ -611,7 +634,7 @@ abstract class Connection
             return $this->links[$linkNum];
         } catch (\PDOException $e) {
             if ($autoConnection) {
-                Log::error($e->getMessage());
+                $this->log->error($e->getMessage());
                 return $this->connect($autoConnection, $linkNum);
             } else {
                 throw $e;
@@ -759,7 +782,7 @@ abstract class Connection
 
         $this->bind = $bind;
 
-        Db::updateQueryTimes();
+        $this->db->updateQueryTimes();
 
         try {
             // 调试开始
@@ -1748,7 +1771,7 @@ abstract class Connection
     protected function log($log, $type = 'sql'): void
     {
         if ($this->config['debug']) {
-            Log::record($log, $type);
+            $this->log->record($log, $type);
         }
     }
 

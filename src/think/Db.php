@@ -24,10 +24,22 @@ class Db
     protected $connection;
 
     /**
+     * 配置对象
+     * @var Config
+     */
+    protected $config;
+
+    /**
+     * Event对象
+     * @var Event
+     */
+    protected $event;
+
+    /**
      * 数据库配置
      * @var array
      */
-    protected $config = [];
+    protected $option = [];
 
     /**
      * 读取主库
@@ -52,14 +64,19 @@ class Db
             $config['query'] = '\\think\\db\\Query';
         }
 
-        $this->config = $config;
+        $this->option = $config;
 
         $this->connect($config);
     }
 
-    public static function __make(Config $config)
+    public static function __make(Event $event, Config $config)
     {
-        return new static($config->get('database'));
+        $db = new static($config->get('database'));
+
+        $db->event  = $event;
+        $db->config = $config;
+
+        return $db;
     }
 
     /**
@@ -141,10 +158,10 @@ class Db
     private function parseConfig($config): array
     {
         if (empty($config)) {
-            $config = $this->config;
+            $config = $this->option;
         } elseif (is_string($config)) {
             // 支持读取配置参数
-            $config = $this->config[$config] ?? null;
+            $config = $this->option[$config] ?? null;
         }
 
         return $config;
@@ -158,7 +175,7 @@ class Db
      */
     public function getConfig(string $name = '')
     {
-        return $name ? ($this->config[$name] ?? null) : $this->config;
+        return $name ? ($this->option[$name] ?? null) : $this->option;
     }
 
     /**
@@ -182,14 +199,35 @@ class Db
     public function buildQuery(string $query, $connection)
     {
         $connection = $this->buildConnection($connection);
-        return new $query($connection);
+        return $this->newQuery($query, $connection);
+    }
+
+    /**
+     * 注册回调方法
+     * @access public
+     * @param  string   $event    事件名
+     * @param  callable $callback 回调方法
+     * @return void
+     */
+    public function event(string $event, callable $callback): void
+    {
+        $this->event->listen('db.' . $event, $callback);
+    }
+
+    protected function newQuery(string $class, $connection)
+    {
+        $query = new $class($connection);
+
+        $query->setEvent($this->event);
+        $query->setConfig($this->config);
+        $query->setDb($this);
+
+        return $query;
     }
 
     public function __call($method, $args)
     {
-        $class = $this->config['query'];
-
-        $query = new $class($this->connection);
+        $query = $this->newQuery($this->option['query'], $this->connection);
 
         return call_user_func_array([$query, $method], $args);
     }

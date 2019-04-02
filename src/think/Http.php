@@ -279,7 +279,7 @@ class Http
             if (!empty($bind)) {
                 // 获取当前子域名
                 $subDomain = $this->app->request->subDomain();
-                $domain    = $this->app->request->host();
+                $domain    = $this->app->request->host(true);
 
                 if (isset($bind[$domain])) {
                     $appName          = $bind[$domain];
