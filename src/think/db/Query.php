@@ -123,7 +123,13 @@ class Query
         $query = new static($this->connection);
 
         if ($this->model) {
-            $query->name($this->name)->model($this->model);
+            $query->model($this->model);
+        }
+
+        if (isset($this->options['table'])) {
+            $query->table($this->options['table']);
+        } else {
+            $query->name($this->name);
         }
 
         return $query;
