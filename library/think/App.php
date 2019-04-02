@@ -883,7 +883,7 @@ class App extends Container
      */
     public function getRuntimePath()
     {
-        return $this->runtimePath;
+        return $this->env->get('runtime_path',$this->runtimePath);
     }
 
     /**
@@ -893,7 +893,7 @@ class App extends Container
      */
     public function getThinkPath()
     {
-        return $this->thinkPath;
+        return $this->env->get('think_path',$this->thinkPath);
     }
 
     /**
@@ -903,7 +903,7 @@ class App extends Container
      */
     public function getRoutePath()
     {
-        return $this->routePath;
+        return $this->env->get('route_path',$this->routePath);
     }
 
     /**
@@ -913,7 +913,7 @@ class App extends Container
      */
     public function getConfigPath()
     {
-        return $this->configPath;
+        return $this->env->get('config_path',$this->configPath);
     }
 
     /**
