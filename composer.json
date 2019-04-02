@@ -27,6 +27,8 @@
         "opis/closure": "^3.1"
     },
     "require-dev": {
+        "mikey179/vfsstream": "^1.6",
+        "mockery/mockery": "^1.2",
         "phpunit/phpunit": "^7.0"
     },
     "autoload": {
