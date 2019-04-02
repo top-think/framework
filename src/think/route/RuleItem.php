@@ -137,11 +137,6 @@ class RuleItem extends Rule
      */
     public function checkRule(Request $request, string $url, $match = null, bool $completeMatch = false)
     {
-        if ($dispatch = $this->checkCrossDomain($request)) {
-            // 允许跨域
-            return $dispatch;
-        }
-
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
             return false;

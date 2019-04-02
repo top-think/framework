@@ -565,54 +565,6 @@ abstract class Rule
     }
 
     /**
-     * 设置是否允许跨域
-     * @access public
-     * @param  bool  $allow  是否允许跨域
-     * @param  array $header 头信息
-     * @return $this
-     */
-    public function allowCrossDomain(bool $allow = true, array $header = [])
-    {
-        if (!empty($header)) {
-            $this->header($header);
-        }
-
-        if ($allow && $this->parent) {
-            $this->parent->addRuleItem($this, 'options');
-        }
-
-        return $this->setOption('cross_domain', $allow);
-    }
-
-    /**
-     * 检查OPTIONS请求
-     * @access public
-     * @param  Request $request 当前请求对象
-     * @return Dispatch|void
-     */
-    protected function checkCrossDomain(Request $request)
-    {
-        if (!empty($this->option['cross_domain'])) {
-
-            $header = [
-                'Access-Control-Allow-Origin'  => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
-            ];
-
-            if (!empty($this->option['header'])) {
-                $header = array_merge($header, $this->option['header']);
-            }
-
-            $this->option['header'] = $header;
-
-            if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch($request, $this, Response::create()->code(204)->header($header));
-            }
-        }
-    }
-
-    /**
      * 设置路由规则全局有效
      * @access public
      * @return $this

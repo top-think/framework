@@ -124,11 +124,6 @@ class RuleGroup extends Rule
      */
     public function check(Request $request, string $url, bool $completeMatch = false)
     {
-        if ($dispatch = $this->checkCrossDomain($request)) {
-            // 跨域OPTIONS请求
-            return $dispatch;
-        }
-
         // 检查分组有效性
         if (!$this->checkOption($this->option, $request) || !$this->checkUrl($url)) {
             return false;
@@ -364,7 +359,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule(): ?RuleItem
+    public function getMissRule():  ? RuleItem
     {
         return $this->miss;
     }
@@ -376,7 +371,7 @@ class RuleGroup extends Rule
      * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss($route, string $method = '*'): RuleItem
+    public function miss($route, string $method = '*') : RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
@@ -493,7 +488,7 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName(): ?string
+    public function getFullName():  ? string
     {
         return $this->fullName;
     }
@@ -504,7 +499,7 @@ class RuleGroup extends Rule
      * @param  string $method 请求类型
      * @return array
      */
-    public function getRules(string $method = ''): array
+    public function getRules(string $method = '') : array
     {
         if ('' === $method) {
             return $this->rules;
