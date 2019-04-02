@@ -120,7 +120,13 @@ class Query
      */
     public function newQuery()
     {
-        return new static($this->connection);
+        $query = new static($this->connection);
+
+        if ($this->model) {
+            $query->name($this->name)->model($this->model);
+        }
+
+        return $query;
     }
 
     /**
