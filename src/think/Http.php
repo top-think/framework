@@ -296,11 +296,7 @@ class Http
                 $name = current(explode('/', $path));
 
                 if (isset($map[$name])) {
-                    if ($map[$name] instanceof \Closure) {
-                        call_user_func_array($map[$name], [$this->app]);
-                    } else {
-                        $appName = $map[$name];
-                    }
+                    $appName = $map[$name];
                 } elseif ($name && false !== array_search($name, $map)) {
                     throw new HttpException(404, 'app not exists:' . $name);
                 } else {
