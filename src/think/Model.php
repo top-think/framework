@@ -253,6 +253,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function buildQuery(): Query
     {
+        $queryClass = $this->query ?: Container::pull('db')->getConfig('query');
         /** @var Query $query */
         $query = Container::pull('db')->buildQuery($queryClass, $this->connection);
 
