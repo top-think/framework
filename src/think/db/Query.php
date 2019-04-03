@@ -151,6 +151,8 @@ class Query
             $query->name($this->name);
         }
 
+        $query->setDb($this->db);
+
         return $query;
     }
 
@@ -1601,6 +1603,13 @@ class Query
         if (is_string($table)) {
             if (strpos($table, ')')) {
                 // 子查询
+            } elseif (false === strpos($table, ',')) {
+                if (strpos($table, ' ')) {
+                    list($item, $alias) = explode(' ', $table);
+                    $table              = [];
+                    $this->alias([$item => $alias]);
+                    $table[$item] = $alias;
+                }
             } else {
                 $tables = explode(',', $table);
                 $table  = [];
