@@ -12,10 +12,8 @@ declare (strict_types = 1);
 
 namespace think\db;
 
-use InvalidArgumentException;
 use PDO;
 use PDOStatement;
-use think\App;
 use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
@@ -28,12 +26,6 @@ use think\Log;
 abstract class Connection
 {
     const PARAM_FLOAT = 21;
-
-    /**
-     * 数据库连接实例
-     * @var array
-     */
-    protected static $instance = [];
 
     /**
      * PDO操作实例
@@ -277,36 +269,6 @@ abstract class Connection
      */
     protected function initialize(): void
     {}
-
-    /**
-     * 取得数据库连接类实例
-     * @access public
-     * @param  array       $config 连接配置
-     * @param  bool|string $name 连接标识 true 强制重新连接
-     * @return Connection
-     * @throws Exception
-     */
-    public static function instance(array $config = [], $name = false)
-    {
-        if (false === $name) {
-            $name = md5(serialize($config));
-        }
-
-        if (true === $name || !isset(self::$instance[$name])) {
-
-            if (empty($config['type'])) {
-                throw new InvalidArgumentException('Undefined db type');
-            }
-
-            if (true === $name) {
-                $name = md5(serialize($config));
-            }
-
-            self::$instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
-        }
-
-        return self::$instance[$name];
-    }
 
     /**
      * 获取当前连接器类对应的Builder类

@@ -24,6 +24,12 @@ class Db
     protected $connection;
 
     /**
+     * 数据库连接实例
+     * @var array
+     */
+    protected $instance = [];
+
+    /**
      * 配置对象
      * @var Config
      */
@@ -66,7 +72,7 @@ class Db
 
         $this->option = $config;
 
-        $this->connection = $this->connect($config);
+        $this->connect($config);
     }
 
     public static function __make(Event $event, Config $config)
@@ -84,12 +90,42 @@ class Db
      * @access public
      * @param  mixed       $config 连接配置
      * @param  bool|string $name 连接标识 true 强制重新连接
-     * @return object
-     * @throws Exception
+     * @return $this
      */
     public function connect($config = [], $name = false)
     {
-        return Connection::instance($this->parseConfig($config), $name);
+        $this->connection = $this->instance($this->parseConfig($config), $name);
+        return $this;
+    }
+
+    /**
+     * 取得数据库连接类实例
+     * @access public
+     * @param  array       $config 连接配置
+     * @param  bool|string $name 连接标识 true 强制重新连接
+     * @return Connection
+     * @throws Exception
+     */
+    public function instance(array $config = [], $name = false)
+    {
+        if (false === $name) {
+            $name = md5(serialize($config));
+        }
+
+        if (true === $name || !isset($this->instance[$name])) {
+
+            if (empty($config['type'])) {
+                throw new InvalidArgumentException('Undefined db type');
+            }
+
+            if (true === $name) {
+                $name = md5(serialize($config));
+            }
+
+            $this->instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
+        }
+
+        return $this->instance[$name];
     }
 
     /**
@@ -185,8 +221,7 @@ class Db
      */
     public function buildQuery(string $query, $connection)
     {
-        $connection = $this->connect($connection);
-        return $this->newQuery($query, $connection);
+        return $this->connect($connection)->newQuery($query);
     }
 
     /**
@@ -208,9 +243,9 @@ class Db
      * @param  Connection $connection   连接对象
      * @return mixed
      */
-    protected function newQuery(string $class, $connection)
+    protected function newQuery(string $class, $connection = null)
     {
-        $query = new $class($connection);
+        $query = new $class($connection ?: $this->connection);
 
         $query->setEvent($this->event);
         $query->setConfig($this->config);
