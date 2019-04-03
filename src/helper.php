@@ -506,16 +506,13 @@ if (!function_exists('route')) {
 if (!function_exists('session')) {
     /**
      * Session管理
-     * @param  string|array $name  session名称，如果为数组表示进行session设置
+     * @param  string|array $name  session名称
      * @param  mixed        $value session值
      * @return mixed
      */
     function session($name, $value = '')
     {
-        if (is_array($name)) {
-            // 初始化
-            Session::init($name);
-        } elseif (is_null($name)) {
+        if (is_null($name)) {
             // 清除
             Session::clear();
         } elseif ('' === $value) {

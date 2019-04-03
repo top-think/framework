@@ -143,7 +143,7 @@ class Http
             $response = $this->renderException($request, $e);
         }
 
-        return $response->setCookie($this->app->cookie)->setSession($this->app->session);
+        return $response->setCookie($this->app->cookie);
     }
 
     /**

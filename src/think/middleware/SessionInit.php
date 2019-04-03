@@ -54,7 +54,7 @@ class SessionInit
 
         $request->withSession($this->session);
 
-        $response = $next($request);
+        $response = $next($request)->setSession($this->session);
 
         if (isset($cookieName)) {
             $this->app->cookie->set($cookieName, $this->session->getId());
