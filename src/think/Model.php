@@ -200,10 +200,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->connection = array_merge($config->get('database'), $this->connection);
         }
 
-        if (!empty($this->query)) {
-            $this->query = $config->get('database.query');
-        }
-
         // 执行初始化操作
         $this->initialize();
     }
@@ -258,7 +254,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function buildQuery(): Query
     {
         /** @var Query $query */
-        $query = Container::pull('db')->buildQuery($this->query, $this->connection);
+        $queryClass = $this->query ?: Container::pull('db')->getConfig('query');
+        $query      = Container::pull('db')->buildQuery($queryClass, $this->connection);
 
         $query->model($this)
             ->name($this->name)
