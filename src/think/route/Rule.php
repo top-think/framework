@@ -82,7 +82,7 @@ abstract class Rule
      * 需要和分组合并的路由参数
      * @var array
      */
-    protected $mergeOptions = ['after', 'model', 'header', 'response', 'append', 'middleware'];
+    protected $mergeOptions = ['after', 'model', 'append', 'middleware'];
 
     /**
      * 是否需要后置操作
@@ -382,31 +382,6 @@ abstract class Rule
     public function validate($validate, string $scene = null, array $message = [], bool $batch = false)
     {
         $this->option['validate'] = [$validate, $scene, $message, $batch];
-
-        return $this;
-    }
-
-    /**
-     * 绑定Response对象
-     * @access public
-     * @param  mixed $response Response对象
-     * @return $this
-     */
-    public function response($response)
-    {
-        $this->option['response'][] = $response;
-        return $this;
-    }
-
-    /**
-     * 设置Response Header信息
-     * @access public
-     * @param  array $header 头信息
-     * @return $this
-     */
-    public function header(array $header)
-    {
-        $this->option['header'] = $header;
 
         return $this;
     }

@@ -212,15 +212,9 @@ if (!function_exists('cookie')) {
      */
     function cookie($name, $value = '', $option = null)
     {
-        if (is_array($name)) {
-            // 初始化
-            Cookie::init($name);
-        } elseif (is_null($name)) {
-            // 清除
-            Cookie::clear($value);
-        } elseif ('' === $value) {
+        if ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name);
+            return 0 === strpos($name, '?') ? Request::has(substr($name, 1), 'cookie') : Request::cookie($name);
         } elseif (is_null($value)) {
             // 删除
             return Cookie::delete($name);
