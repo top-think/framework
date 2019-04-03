@@ -9,12 +9,15 @@ use PHPUnit\Framework\TestCase;
 use think\App;
 use think\Config;
 use think\Console;
+use think\Event;
 use think\Exception;
-use think\exception\HttpException;
+use think\exception\Handle;
 use think\Http;
+use think\Log;
 use think\Request;
 use think\Response;
 use think\Route;
+use think\Session;
 
 class HttpTest extends TestCase
 {
@@ -75,6 +78,8 @@ class HttpTest extends TestCase
             ],
         ]);
 
+        $this->http->multi(false);
+
         $this->app->shouldReceive('getBasePath')->andReturn($root->getChild('app')->url() . DIRECTORY_SEPARATOR);
         $this->app->shouldReceive('getRootPath')->andReturn($root->url() . DIRECTORY_SEPARATOR);
 
@@ -84,19 +89,38 @@ class HttpTest extends TestCase
         $this->prepareApp($request, $response);
 
         $this->assertEquals($response, $this->http->run($request));
+
+        $this->assertFalse($this->http->isMulti());
     }
 
     /**
+     * @param $request
      * @param $auto
+     * @param $name
      * @dataProvider multiAppRunProvider
      */
-    public function testMultiAppRun($request, $auto, $index)
+    public function testMultiAppRun($request, $auto, $name, $path = null)
     {
         $root = vfsStream::setup('rootDir', null, [
-            'app'   => [
+            'app'    => [
                 'middleware.php' => '<?php return [];',
+                'app1'           => [
+                    'common.php'     => '',
+                    'event.php'      => '<?php return ["bind"=>[],"listen"=>[],"subscribe"=>[]];',
+                    'provider.php'   => '<?php return [];',
+                    'middleware.php' => '<?php return [];',
+                    'config'         => [
+                        'app.php' => '<?php return [];',
+                    ],
+                ],
             ],
-            'route' => [
+            'config' => [
+                'app.php' => '<?php return [];',
+                'app1'    => [
+                    'app.php' => '<?php return [];',
+                ],
+            ],
+            'route'  => [
                 'route.php' => '<?php return [];',
             ],
         ]);
@@ -111,16 +135,14 @@ class HttpTest extends TestCase
         ]);
 
         $config->shouldReceive('get')->with('app.app_map', [])->andReturn([
-            'some1' => 'app1',
-            'some2' => function ($app) {
-                $this->assertEquals($this->app, $app);
-            },
+            'some1' => 'app3',
         ]);
 
         $this->app->shouldReceive('get')->with('config')->andReturn($config);
 
         $this->app->shouldReceive('getBasePath')->andReturn($root->getChild('app')->url() . DIRECTORY_SEPARATOR);
         $this->app->shouldReceive('getRootPath')->andReturn($root->url() . DIRECTORY_SEPARATOR);
+        $this->app->shouldReceive('getConfigPath')->andReturn($root->getChild('config')->url() . DIRECTORY_SEPARATOR);
 
         $response = m::mock(Response::class)->makePartial();
 
@@ -128,13 +150,32 @@ class HttpTest extends TestCase
 
         $this->assertTrue($this->http->isMulti());
 
-        if ($index === 4) {
+        if ($name === null) {
             $this->http->shouldReceive('reportException')->once();
 
             $this->http->shouldReceive('renderException')->once()->andReturn($response);
         }
 
+        if (!$auto) {
+            $this->http->name($name);
+        }
+
+        if ($path) {
+            $this->http->path($path);
+        }
+
         $this->assertEquals($response, $this->http->run($request));
+
+        if ($name !== null) {
+            $this->assertEquals($name, $this->http->getName());
+        }
+
+        if ($name === 'app1' || $name === 'app2') {
+            $this->assertTrue($this->http->isBindDomain());
+        }
+        if ($path) {
+            $this->assertEquals($path, $this->app->getAppPath());
+        }
     }
 
     public function multiAppRunProvider()
@@ -151,14 +192,18 @@ class HttpTest extends TestCase
         $request3->shouldReceive('pathinfo')->andReturn('some1/a/b/c');
 
         $request4 = m::mock(Request::class)->makePartial();
-        $request4->shouldReceive('pathinfo')->andReturn('app1/a/b/c');
+        $request4->shouldReceive('pathinfo')->andReturn('app3/a/b/c');
+
+        $request5 = m::mock(Request::class)->makePartial();
+        $request5->shouldReceive('pathinfo')->andReturn('some2/a/b/c');
 
         return [
-            [$request1, true, 1],
-            [$request2, true, 2],
-            [$request3, true, 3],
-            [$request4, true, 4],
-            [$request1, false, 5],
+            [$request1, true, 'app1'],
+            [$request2, true, 'app2'],
+            [$request3, true, 'app3'],
+            [$request4, true, null],
+            [$request5, true, 'some2', 'path'],
+            [$request1, false, 'some3'],
         ];
     }
 
@@ -173,11 +218,32 @@ class HttpTest extends TestCase
 
         $this->http->shouldReceive('runWithRequest')->once()->with($request)->andThrow($exception);
 
-        $this->http->shouldReceive('reportException')->once()->with($exception);
+        $handle = m::mock(Handle::class);
 
-        $this->http->shouldReceive('renderException')->once()->with($request, $exception)->andReturn($response);
+        $handle->shouldReceive('report')->once()->with($exception);
+        $handle->shouldReceive('render')->once()->with($request, $exception)->andReturn($response);
+
+        $this->app->shouldReceive('make')->with(Handle::class)->andReturn($handle);
+
+        $response->shouldReceive('setCookie')->andReturn($response);
 
         $this->assertEquals($response, $this->http->run($request));
+    }
+
+    public function testEnd()
+    {
+        $response = m::mock(Response::class);
+        $event    = m::mock(Event::class);
+        $event->shouldReceive('trigger')->once()->with('HttpEnd', $response);
+        $this->app->shouldReceive('get')->once()->with('event')->andReturn($event);
+        $log = m::mock(Log::class);
+        $log->shouldReceive('save')->once();
+        $this->app->shouldReceive('get')->once()->with('log')->andReturn($log);
+        $session = m::mock(Session::class);
+        $session->shouldReceive('save')->once();
+        $this->app->shouldReceive('get')->once()->with('session')->andReturn($session);
+
+        $this->http->end($response);
     }
 
 }
