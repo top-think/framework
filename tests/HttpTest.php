@@ -10,7 +10,6 @@ use think\App;
 use think\Config;
 use think\Console;
 use think\Exception;
-use think\exception\HttpException;
 use think\Http;
 use think\Request;
 use think\Response;
