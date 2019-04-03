@@ -42,7 +42,7 @@ class SessionInit
     public function handle($request, Closure $next)
     {
         // Session初始化
-        $varSessionId = $this->app->config->get('route.var_session_id');
+        $varSessionId = $this->app->config->get('session.var_session_id');
 
         if ($varSessionId && $request->request($varSessionId)) {
             $this->session->setId($request->request($varSessionId));

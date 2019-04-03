@@ -51,10 +51,10 @@ class Session
     protected $expire = 0;
 
     /**
-     * App实例
-     * @var App
+     * Request实例
+     * @var Request
      */
-    protected $app;
+    protected $request;
 
     /**
      * Session写入对象
@@ -62,15 +62,15 @@ class Session
      */
     protected $handler;
 
-    public function __construct(App $app, array $config = [])
+    public function __construct(Request $request, array $config = [])
     {
-        $this->config = $config;
-        $this->app    = $app;
+        $this->config  = $config;
+        $this->request = $request;
     }
 
-    public static function __make(App $app, Config $config)
+    public static function __make(Request $request, Config $config)
     {
-        return new static($app, $config->get('session'));
+        return new static($request, $config->get('session'));
     }
 
     /**
@@ -114,7 +114,7 @@ class Session
         // 初始化session写入驱动
         $type = !empty($this->config['type']) ? $this->config['type'] : 'File';
 
-        $this->handler = $this->app->factory($type, '\\think\\session\\driver\\', $this->config);
+        $this->handler = App::factory($type, '\\think\\session\\driver\\', $this->config);
 
         if (!empty($this->config['auto_start'])) {
             $this->start();
@@ -432,7 +432,7 @@ class Session
         $this->set($name, $value);
 
         if (!$this->has('__flash__.__time__')) {
-            $this->set('__flash__.__time__', $this->app->request->time(true));
+            $this->set('__flash__.__time__', $this->request->time(true));
         }
 
         $this->push('__flash__', $name);
@@ -454,7 +454,7 @@ class Session
         if (!empty($item)) {
             $time = $item['__time__'];
 
-            if ($this->app->request->time(true) > $time) {
+            if ($this->request->time(true) > $time) {
                 unset($item['__time__']);
                 $this->delete($item);
                 $this->set('__flash__', []);
