@@ -252,6 +252,7 @@ class Http
     /**
      * 获取当前运行入口名称
      * @access protected
+     * @codeCoverageIgnore
      * @return string
      */
     protected function getScriptName(): string
