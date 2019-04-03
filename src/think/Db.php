@@ -12,7 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+use InvalidArgumentException;
 use think\db\Connection;
+use think\db\Query;
 use think\db\Raw;
 
 class Db
@@ -61,13 +63,13 @@ class Db
 
     /**
      * 架构函数
-     * @param  array         $config 连接配置
+     * @param array $config 连接配置
      * @access public
      */
     public function __construct(array $config = [])
     {
         if (empty($config['query'])) {
-            $config['query'] = '\\think\\db\\Query';
+            $config['query'] = Query::class;
         }
 
         $this->option = $config;
@@ -88,8 +90,8 @@ class Db
     /**
      * 切换数据库连接
      * @access public
-     * @param  mixed       $config 连接配置
-     * @param  bool|string $name 连接标识 true 强制重新连接
+     * @param mixed       $config 连接配置
+     * @param bool|string $name   连接标识 true 强制重新连接
      * @return $this
      */
     public function connect($config = [], $name = false)
@@ -101,10 +103,9 @@ class Db
     /**
      * 取得数据库连接类实例
      * @access public
-     * @param  array       $config 连接配置
-     * @param  bool|string $name 连接标识 true 强制重新连接
+     * @param array       $config 连接配置
+     * @param bool|string $name   连接标识 true 强制重新连接
      * @return Connection
-     * @throws Exception
      */
     public function instance(array $config = [], $name = false)
     {
@@ -131,7 +132,7 @@ class Db
     /**
      * 设置从主库读取数据
      * @access public
-     * @param  string $table 数据表
+     * @param string $table 数据表
      * @return $this
      */
     public function readMaster(string $table = '*')
@@ -144,7 +145,7 @@ class Db
     /**
      * 是否从主库读取数据
      * @access public
-     * @param  string $table 数据表
+     * @param string $table 数据表
      * @return bool
      */
     public function isReadMaster(string $table): bool
@@ -155,7 +156,7 @@ class Db
     /**
      * 使用表达式设置数据
      * @access public
-     * @param  string $value 表达式
+     * @param string $value 表达式
      * @return Raw
      */
     public function raw(string $value): Raw
@@ -186,7 +187,7 @@ class Db
     /**
      * 数据库连接参数解析
      * @access private
-     * @param  mixed $config
+     * @param mixed $config
      * @return array
      */
     private function parseConfig($config): array
@@ -204,7 +205,7 @@ class Db
     /**
      * 获取数据库的配置参数
      * @access public
-     * @param  string $name 参数名称
+     * @param string $name 参数名称
      * @return mixed
      */
     public function getConfig(string $name = '')
@@ -215,8 +216,8 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access public
-     * @param  string       $query      查询对象类名
-     * @param  string|array $connection 连接配置信息
+     * @param string       $query      查询对象类名
+     * @param string|array $connection 连接配置信息
      * @return mixed
      */
     public function buildQuery(string $query, $connection = [])
@@ -227,8 +228,8 @@ class Db
     /**
      * 注册回调方法
      * @access public
-     * @param  string   $event    事件名
-     * @param  callable $callback 回调方法
+     * @param string   $event    事件名
+     * @param callable $callback 回调方法
      * @return void
      */
     public function event(string $event, callable $callback): void
@@ -237,18 +238,30 @@ class Db
     }
 
     /**
+     * 触发事件
+     * @access public
+     * @param string $event  事件名
+     * @param mixed  $params 传入参数
+     * @param bool   $once
+     * @return mixed
+     */
+    public function trigger(string $event, $params = null, bool $once = false)
+    {
+        return $this->event->trigger('db.' . $event, $params, $once);
+    }
+
+    /**
      * 创建一个新的查询对象
      * @access protected
-     * @param  string     $query      查询对象类名
-     * @param  Connection $connection 连接对象
+     * @param string     $class      查询对象类名
+     * @param Connection $connection 连接对象
      * @return mixed
      */
     protected function newQuery(string $class, $connection = null)
     {
+        /** @var Query $query */
         $query = new $class($connection ?: $this->connection);
 
-        $query->setEvent($this->event);
-        $query->setConfig($this->config);
         $query->setDb($this);
 
         return $query;

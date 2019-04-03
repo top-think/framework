@@ -86,10 +86,10 @@ class Console
     ];
 
     /**
-     * 初始化器
+     * 启动器
      * @var array
      */
-    protected static $initializers = [];
+    protected static $startCallbacks = [];
 
     public function __construct(App $app)
     {
@@ -108,33 +108,33 @@ class Console
         //加载指令
         $this->loadCommands();
 
-        $this->initialize();
+        $this->start();
     }
 
     /**
      * 添加初始化器
      * @param Closure $callback
      */
-    public static function init(Closure $callback): void
+    public static function starting(Closure $callback): void
     {
-        static::$initializers[] = $callback;
+        static::$startCallbacks[] = $callback;
     }
 
     /**
-     * 清空初始化器
+     * 清空启动器
      */
-    public static function flushInit(): void
+    public static function flushStartCallbacks(): void
     {
-        static::$initializers = [];
+        static::$startCallbacks = [];
     }
 
     /**
-     * 初始化
+     * 启动
      */
-    protected function initialize(): void
+    protected function start(): void
     {
-        foreach (static::$initializers as $initialize) {
-            $initialize($this);
+        foreach (static::$startCallbacks as $callback) {
+            $callback($this);
         }
     }
 

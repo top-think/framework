@@ -13,19 +13,27 @@ declare (strict_types = 1);
 namespace think\initializer;
 
 use think\App;
+use think\service\PaginatorService;
 
 class RegisterService
 {
+
+    protected $services = [
+        PaginatorService::class,
+    ];
+
     public function init(App $app)
     {
         $file = $app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'services.php';
 
-        if (is_file($file)) {
-            $services = include $file;
+        $services = $this->services;
 
-            foreach ($services as $service) {
-                $app->register($service);
-            }
+        if (is_file($file)) {
+            $services = array_merge($services, include $file);
+        }
+
+        foreach ($services as $service) {
+            $app->register($service);
         }
     }
 }

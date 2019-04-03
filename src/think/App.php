@@ -142,6 +142,10 @@ class App extends Container
             $service->register();
         }
 
+        if (property_exists($service, 'bind')) {
+            $this->bind($service->bind);
+        }
+
         $this->services[] = $service;
     }
 

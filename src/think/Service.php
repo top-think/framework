@@ -40,7 +40,7 @@ abstract class Service
     {
         $commands = is_array($commands) ? $commands : func_get_args();
 
-        Console::init(function (Console $console) use ($commands) {
+        Console::starting(function (Console $console) use ($commands) {
             $console->addCommands($commands);
         });
     }
