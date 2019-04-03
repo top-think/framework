@@ -215,11 +215,11 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access public
-     * @param  string $query        查询对象类名
-     * @param  mixed  $connection   连接配置信息
+     * @param  string       $query      查询对象类名
+     * @param  string|array $connection 连接配置信息
      * @return mixed
      */
-    public function buildQuery(string $query, $connection)
+    public function buildQuery(string $query, $connection = [])
     {
         return $this->connect($connection)->newQuery($query);
     }
@@ -238,9 +238,9 @@ class Db
 
     /**
      * 创建一个新的查询对象
-     * @access public
-     * @param  string     $query        查询对象类名
-     * @param  Connection $connection   连接对象
+     * @access protected
+     * @param  string     $query      查询对象类名
+     * @param  Connection $connection 连接对象
      * @return mixed
      */
     protected function newQuery(string $class, $connection = null)
