@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use think\App;
 use think\Container;
 use think\Request;
 use think\Response;
@@ -65,7 +66,6 @@ abstract class Dispatch
     {
         $this->request  = $request;
         $this->rule     = $rule;
-        $this->app      = Container::pull('app');
         $this->dispatch = $dispatch;
         $this->param    = $param;
         $this->code     = $code;
@@ -73,8 +73,12 @@ abstract class Dispatch
         if (isset($param['convert'])) {
             $this->convert = $param['convert'];
         }
+    }
 
-        $this->init();
+    public function setApp(App $app)
+    {
+        $this->app = $app;
+        return $this;
     }
 
     public function init()
@@ -103,6 +107,7 @@ abstract class Dispatch
      */
     public function run(): Response
     {
+        $this->init();
         $option = $this->rule->getOption();
 
         // 数据自动验证
@@ -155,26 +160,6 @@ abstract class Dispatch
             $this->createBindModel($option['model'], $matches);
         }
 
-        // 指定Header数据
-        if (!empty($option['header'])) {
-            $header = $option['header'];
-            $this->app['event']->listen('ResponseSend', function ($response) use ($header) {
-                $response->header($header);
-            });
-        }
-
-        // 指定Response响应数据
-        if (!empty($option['response'])) {
-            foreach ($option['response'] as $response) {
-                $this->app['event']->listen('ResponseSend', $response);
-            }
-        }
-
-        // 开启请求缓存
-        if (isset($option['cache']) && $this->request->isGet()) {
-            $this->parseRequestCache($option['cache']);
-        }
-
         if (!empty($option['append'])) {
             $this->request->setRoute($option['append']);
         }
@@ -224,25 +209,6 @@ abstract class Dispatch
                 $this->app->instance(get_class($result), $result);
             }
         }
-    }
-
-    /**
-     * 处理路由请求缓存
-     * @access protected
-     * @param  string|array $cache 路由缓存
-     * @return void
-     */
-    protected function parseRequestCache($cache)
-    {
-        if (is_array($cache)) {
-            list($key, $expire, $tag) = array_pad($cache, 3, null);
-        } else {
-            $key    = str_replace('|', '/', $this->request->url());
-            $expire = $cache;
-            $tag    = null;
-        }
-
-        $this->request->cache($key, (int) $expire, $tag);
     }
 
     /**

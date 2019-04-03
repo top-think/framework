@@ -66,7 +66,7 @@ class Db
 
         $this->option = $config;
 
-        $this->connect($config);
+        $this->connection = $this->connect($config);
     }
 
     public static function __make(Event $event, Config $config)
@@ -82,16 +82,14 @@ class Db
     /**
      * 切换数据库连接
      * @access public
-     * @param  mixed         $config 连接配置
-     * @param  bool|string   $name 连接标识 true 强制重新连接
-     * @return $this|object
+     * @param  mixed       $config 连接配置
+     * @param  bool|string $name 连接标识 true 强制重新连接
+     * @return object
      * @throws Exception
      */
     public function connect($config = [], $name = false)
     {
-        $this->connection = Connection::instance($this->parseConfig($config), $name);
-
-        return $this;
+        return Connection::instance($this->parseConfig($config), $name);
     }
 
     /**
@@ -179,17 +177,6 @@ class Db
     }
 
     /**
-     * 创建一个新的Connection对象
-     * @access public
-     * @param  mixed  $connection   连接配置信息
-     * @return mixed
-     */
-    public function buildConnection($connection)
-    {
-        return Connection::instance($this->parseConfig($connection));
-    }
-
-    /**
      * 创建一个新的查询对象
      * @access public
      * @param  string $query        查询对象类名
@@ -198,7 +185,7 @@ class Db
      */
     public function buildQuery(string $query, $connection)
     {
-        $connection = $this->buildConnection($connection);
+        $connection = $this->connect($connection);
         return $this->newQuery($query, $connection);
     }
 
@@ -214,6 +201,13 @@ class Db
         $this->event->listen('db.' . $event, $callback);
     }
 
+    /**
+     * 创建一个新的查询对象
+     * @access public
+     * @param  string     $query        查询对象类名
+     * @param  Connection $connection   连接对象
+     * @return mixed
+     */
     protected function newQuery(string $class, $connection)
     {
         $query = new $class($connection);

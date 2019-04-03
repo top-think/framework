@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think\route;
 
 use think\App;
-use think\Container;
 use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
@@ -57,12 +56,6 @@ class Domain extends RuleGroup
             return $result;
         }
 
-        // 添加域名中间件
-        if (!empty($this->option['middleware'])) {
-            Container::pull('middleware')->import($this->option['middleware']);
-            unset($this->option['middleware']);
-        }
-
         return parent::check($request, $url, $completeMatch);
     }
 
@@ -92,9 +85,6 @@ class Domain extends RuleGroup
 
         if ($bind) {
             $this->parseBindAppendParam($bind);
-
-            // 记录绑定信息
-            Container::pull('log')->record('[ BIND ] ' . var_export($bind, true));
 
             // 如果有URL绑定 则进行绑定检测
             $type = substr($bind, 0, 1);

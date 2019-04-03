@@ -755,7 +755,7 @@ class Route
 
         $this->app->middleware->add(function () use ($dispatch) {
             try {
-                $response = $dispatch->run();
+                $response = $dispatch->setApp($this->app)->run();
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }
