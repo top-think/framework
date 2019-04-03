@@ -205,19 +205,19 @@ if (!function_exists('config')) {
 if (!function_exists('cookie')) {
     /**
      * Cookie管理
-     * @param  string|array $name   cookie名称，如果为数组表示进行cookie设置
-     * @param  mixed        $value  cookie值
-     * @param  mixed        $option 参数
+     * @param  string $name   cookie名称
+     * @param  mixed  $value  cookie值
+     * @param  mixed  $option 参数
      * @return mixed
      */
-    function cookie($name, $value = '', $option = null)
+    function cookie(string $name, $value = '', $option = null)
     {
-        if ('' === $value) {
-            // 获取
-            return 0 === strpos($name, '?') ? Request::has(substr($name, 1), 'cookie') : Request::cookie($name);
-        } elseif (is_null($value)) {
+        if (is_null($value)) {
             // 删除
             return Cookie::delete($name);
+        } elseif ('' === $value) {
+            // 获取
+            return 0 === strpos($name, '?') ? Request::has(substr($name, 1), 'cookie') : Request::cookie($name);
         } else {
             // 设置
             return Cookie::set($name, $value, $option);
@@ -506,21 +506,21 @@ if (!function_exists('route')) {
 if (!function_exists('session')) {
     /**
      * Session管理
-     * @param  string|array $name  session名称
-     * @param  mixed        $value session值
+     * @param  string $name  session名称
+     * @param  mixed  $value session值
      * @return mixed
      */
-    function session($name, $value = '')
+    function session(string $name = null, $value = '')
     {
         if (is_null($name)) {
             // 清除
             Session::clear();
-        } elseif ('' === $value) {
-            // 判断或获取
-            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } elseif (is_null($value)) {
             // 删除
             Session::delete($name);
+        } elseif ('' === $value) {
+            // 判断或获取
+            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } else {
             // 设置
             Session::set($name, $value);
