@@ -129,7 +129,7 @@ trait Jump
      */
     protected function redirect($url, $params = [], $code = 302, $with = [])
     {
-        $response = new Redirect($url);
+        $response = Response::create($url, 'redirect');
 
         if (is_integer($params)) {
             $code   = $params;
