@@ -15,6 +15,9 @@ use think\Service;
 
 class SomeService extends Service
 {
+    public $bind = [
+        'some' => 'class',
+    ];
 
     public function register()
     {
