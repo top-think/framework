@@ -396,17 +396,6 @@ class Query
     }
 
     /**
-     * 监听SQL执行
-     * @access public
-     * @param callable $callback 回调方法
-     * @return void
-     */
-    public function listen(callable $callback): void
-    {
-        $this->connection->listen($callback);
-    }
-
-    /**
      * 获取最近插入的ID
      * @access public
      * @param string $sequence 自增序列名
