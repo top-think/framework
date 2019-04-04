@@ -16,6 +16,7 @@ use InvalidArgumentException;
 use think\db\Connection;
 use think\db\Query;
 use think\db\Raw;
+use think\exception\DbException;
 
 class Db
 {
