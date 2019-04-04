@@ -559,6 +559,7 @@ class App extends Container
      * @access public
      * @param string $name      工厂类名
      * @param string $namespace 默认命名空间
+     * @param array  $args
      * @return mixed
      */
     public static function factory(string $name, string $namespace = '', ...$args)

@@ -73,6 +73,12 @@ class Db
         $this->connect($config);
     }
 
+    /**
+     * @param Event  $event
+     * @param Config $config
+     * @return Db
+     * @codeCoverageIgnore
+     */
     public static function __make(Event $event, Config $config)
     {
         $db = new static($config->get('database'));
