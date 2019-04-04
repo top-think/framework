@@ -118,6 +118,12 @@ abstract class Connection
     protected $db;
 
     /**
+     * 是否读取主库
+     * @var bool
+     */
+    protected $readMaster = false;
+
+    /**
      * 数据库连接参数配置
      * @var array
      */
@@ -738,7 +744,7 @@ abstract class Connection
      */
     public function getPDOStatement(string $sql, array $bind = [], bool $master = false, bool $procedure = false): PDOStatement
     {
-        $this->initConnect($master);
+        $this->initConnect($this->readMaster ?: $master);
 
         // 记录SQL语句
         $this->queryStr = $sql;
@@ -799,7 +805,7 @@ abstract class Connection
         $this->queryPDOStatement($query->master(true), $sql, $bind);
 
         if (!$origin && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
-            $this->db->readMaster($query->getTable());
+            $this->readMaster = true;
         }
 
         $this->numRows = $this->PDOStatement->rowCount();

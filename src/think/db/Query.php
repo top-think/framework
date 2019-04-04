@@ -1556,7 +1556,7 @@ class Query
             } elseif (false === strpos($table, ',')) {
                 if (strpos($table, ' ')) {
                     list($item, $alias) = explode(' ', $table);
-                    $table = [];
+                    $table              = [];
                     $this->alias([$item => $alias]);
                     $table[$item] = $alias;
                 }
@@ -1897,21 +1897,6 @@ class Query
     public function master(bool $readMaster = true)
     {
         $this->options['master'] = $readMaster;
-        return $this;
-    }
-
-    /**
-     * 设置后续从主库读取数据
-     * @access public
-     * @param bool $all 是否所有表有效
-     * @return $this
-     */
-    public function readMaster(bool $all = false)
-    {
-        $table = $all ? '*' : $this->getTable();
-
-        $this->db->readMaster($table);
-
         return $this;
     }
 
@@ -3473,10 +3458,6 @@ class Query
             }
         }
 
-        if (is_string($options['table']) && $this->db->isReadMaster($options['table'])) {
-            $options['master'] = true;
-        }
-
         foreach (['group', 'having', 'limit', 'force', 'comment', 'partition', 'duplicate', 'extra'] as $name) {
             if (!isset($options[$name])) {
                 $options[$name] = '';
@@ -3486,10 +3467,10 @@ class Query
         if (isset($options['page'])) {
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
-            $page             = $page > 0 ? $page : 1;
-            $listRows         = $listRows ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset           = $listRows * ($page - 1);
-            $options['limit'] = $offset . ',' . $listRows;
+            $page                  = $page > 0 ? $page : 1;
+            $listRows              = $listRows ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset                = $listRows * ($page - 1);
+            $options['limit']      = $offset . ',' . $listRows;
         }
 
         $this->options = $options;

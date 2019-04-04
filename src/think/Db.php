@@ -50,12 +50,6 @@ class Db
     protected $option = [];
 
     /**
-     * 读取主库
-     * @var array
-     */
-    protected $readMaster = [];
-
-    /**
      * 查询次数
      * @var int
      */
@@ -123,30 +117,6 @@ class Db
         }
 
         return $this->instance[$name];
-    }
-
-    /**
-     * 设置从主库读取数据
-     * @access public
-     * @param string $table 数据表
-     * @return $this
-     */
-    public function readMaster(string $table = '*')
-    {
-        $this->readMaster[$table] = true;
-
-        return $this;
-    }
-
-    /**
-     * 是否从主库读取数据
-     * @access public
-     * @param string $table 数据表
-     * @return bool
-     */
-    public function isReadMaster(string $table): bool
-    {
-        return isset($this->readMaster['*']) || isset($this->readMaster[$table]);
     }
 
     /**
