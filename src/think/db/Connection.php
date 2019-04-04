@@ -1697,7 +1697,7 @@ abstract class Connection
         if (!empty($listen)) {
             foreach ($listen as $callback) {
                 if (is_callable($callback)) {
-                    call_user_func_array($callback, [$sql, $runtime, $explain, $master]);
+                    $callback($sql, $runtime, $explain, $master);
                 }
             }
         } else {
