@@ -156,7 +156,7 @@ class Env implements ArrayAccess
 
     public function offsetUnset($name)
     {
-        unset($this->data[$name]);
+        throw new Exception('not support: unset');
     }
 
     public function offsetGet($name)
