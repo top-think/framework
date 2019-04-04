@@ -50,6 +50,12 @@ class Db
     protected $option = [];
 
     /**
+     * SQL监听
+     * @var array
+     */
+    protected $listen = [];
+
+    /**
      * 查询次数
      * @var int
      */
@@ -188,6 +194,27 @@ class Db
     public function buildQuery($connection = [])
     {
         return $this->connect($connection)->newQuery();
+    }
+
+    /**
+     * 监听SQL执行
+     * @access public
+     * @param callable $callback 回调方法
+     * @return void
+     */
+    public function listen(callable $callback): void
+    {
+        $this->listen[] = $callback;
+    }
+
+    /**
+     * 获取监听SQL执行
+     * @access public
+     * @return array
+     */
+    public function getListen(): array
+    {
+        return $this->listen;
     }
 
     /**

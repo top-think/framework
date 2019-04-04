@@ -1683,17 +1683,6 @@ abstract class Connection
     }
 
     /**
-     * 监听SQL执行
-     * @access public
-     * @param callable $callback 回调方法
-     * @return void
-     */
-    public function listen(callable $callback): void
-    {
-        self::$event[] = $callback;
-    }
-
-    /**
      * 触发SQL事件
      * @access protected
      * @param string $sql     SQL语句
@@ -1704,8 +1693,9 @@ abstract class Connection
      */
     protected function triggerSql(string $sql, string $runtime, array $explain = [], bool $master = false): void
     {
-        if (!empty(self::$event)) {
-            foreach (self::$event as $callback) {
+        $listen = $this->db->getListen();
+        if (!empty($listen)) {
+            foreach ($listen as $callback) {
                 if (is_callable($callback)) {
                     call_user_func_array($callback, [$sql, $runtime, $explain, $master]);
                 }
