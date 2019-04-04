@@ -89,7 +89,8 @@ trait ModelEvent
             if (method_exists($class, $call)) {
                 $result = Container::getInstance()->invoke([$class, $call], [$this]);
             } else {
-                $result = Container::pull('event')->trigger($class . '.' . $event, $this, true);
+                $result = Container::pull('event')->trigger($class . '.' . $event, $this);
+                $result = empty($result) ? true : end($result);
             }
 
             return false === $result ? false : true;
