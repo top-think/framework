@@ -32,12 +32,6 @@ class Db
     protected $instance = [];
 
     /**
-     * 配置对象
-     * @var Config
-     */
-    protected $config;
-
-    /**
      * Event对象
      * @var Event
      */
@@ -83,8 +77,7 @@ class Db
     {
         $db = new static($config->get('database'));
 
-        $db->event  = $event;
-        $db->config = $config;
+        $db->event = $event;
 
         return $db;
     }
@@ -172,9 +165,13 @@ class Db
     {
         if (empty($config)) {
             $config = $this->option;
-        } elseif (is_string($config)) {
+        } elseif (is_string($config) && isset($this->option[$config])) {
             // 支持读取配置参数
-            $config = $this->option[$config] ?? null;
+            $config = $this->option[$config];
+        }
+
+        if (!is_array($config)) {
+            throw new DbException('database config error:' . $config);
         }
 
         return $config;

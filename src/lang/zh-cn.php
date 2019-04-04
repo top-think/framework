@@ -42,6 +42,7 @@ return [
     'error session handler'                                     => '错误的SESSION处理器类',
     'not allow php tag'                                         => '模板不允许使用PHP语法',
     'not support'                                               => '不支持',
+    'database config error'                                     => '数据库配置信息错误',
     'redisd master'                                             => 'Redisd 主服务器错误',
     'redisd slave'                                              => 'Redisd 从服务器错误',
     'must run at sae'                                           => '必须在SAE运行',
