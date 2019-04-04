@@ -94,22 +94,16 @@ abstract class Connection
     protected $attrCase = PDO::CASE_LOWER;
 
     /**
-     * 监听回调
-     * @var array
-     */
-    protected static $event = [];
-
-    /**
      * 数据表信息
      * @var array
      */
-    protected static $info = [];
+    protected $info = [];
 
     /**
-     * Builder类名
-     * @var string
+     * 查询开始时间
+     * @var float
      */
-    protected $builderClassName;
+    protected $queryStartTime;
 
     /**
      * Builder对象
@@ -171,7 +165,7 @@ abstract class Connection
         // Builder类
         'builder'         => '',
         // Query类
-        'query'           => '\\think\\db\\Query',
+        'query'           => '',
         // 是否需要断线重连
         'break_reconnect' => false,
         // 断线标识字符串
@@ -245,7 +239,7 @@ abstract class Connection
      * @access public
      * @param array $config 数据库配置数组
      */
-    public function __construct(array $config = [])
+    public function __construct(Cache $cache, Log $log, array $config = [])
     {
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
@@ -255,8 +249,8 @@ abstract class Connection
         $class = $this->getBuilderClass();
 
         $this->builder = new $class($this);
-        $this->cache   = Container::pull('cache');
-        $this->log     = Container::pull('log');
+        $this->cache   = $cache;
+        $this->log     = $log;
 
         // 执行初始化操作
         $this->initialize();
@@ -272,16 +266,22 @@ abstract class Connection
     }
 
     /**
+     * 获取当前连接器类对应的Query类
+     * @access public
+     * @return string
+     */
+    public function getQueryClass(): string
+    {
+        return $this->getConfig('query') ?: Query::class;
+    }
+
+    /**
      * 获取当前连接器类对应的Builder类
      * @access public
      * @return string
      */
     public function getBuilderClass(): string
     {
-        if (!empty($this->builderClassName)) {
-            return $this->builderClassName;
-        }
-
         return $this->getConfig('builder') ?: '\\think\\db\\builder\\' . ucfirst($this->getConfig('type'));
     }
 
@@ -433,7 +433,7 @@ abstract class Connection
             $schema = $tableName;
         }
 
-        if (!isset(self::$info[$schema])) {
+        if (!isset($this->info[$schema])) {
             // 读取缓存
             $cacheFile = Container::pull('app')->getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $schema . '.php';
 
@@ -444,7 +444,7 @@ abstract class Connection
             }
 
             $fields = array_keys($info);
-            $bind   = $type = [];
+            $bind   = $type   = [];
 
             foreach ($info as $key => $val) {
                 // 记录字段类型
@@ -463,10 +463,10 @@ abstract class Connection
                 $pk = null;
             }
 
-            self::$info[$schema] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
+            $this->info[$schema] = ['fields' => $fields, 'type' => $type, 'bind' => $bind, 'pk' => $pk];
         }
 
-        return $fetch ? self::$info[$schema][$fetch] : self::$info[$schema];
+        return $fetch ? $this->info[$schema][$fetch] : $this->info[$schema];
     }
 
     /**
@@ -799,7 +799,7 @@ abstract class Connection
         $this->queryPDOStatement($query->master(true), $sql, $bind);
 
         if (!$origin && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
-            Db::readMaster($query->getTable());
+            $this->db->readMaster($query->getTable());
         }
 
         $this->numRows = $this->PDOStatement->rowCount();
@@ -998,7 +998,7 @@ abstract class Connection
                 $count = 0;
 
                 foreach ($array as $item) {
-                    $sql   = $this->builder->insertAll($query, $item);
+                    $sql = $this->builder->insertAll($query, $item);
                     $count += $this->execute($query, $sql, $query->getBind());
                 }
 
@@ -1280,8 +1280,8 @@ abstract class Connection
 
             // 判断占位符
             $sql = is_numeric($key) ?
-                substr_replace($sql, $value, strpos($sql, '?'), 1) :
-                substr_replace($sql, $value, strpos($sql, ':' . $key), strlen(':' . $key));
+            substr_replace($sql, $value, strpos($sql, '?'), 1) :
+            substr_replace($sql, $value, strpos($sql, ':' . $key), strlen(':' . $key));
         }
 
         return rtrim($sql);
@@ -1657,14 +1657,11 @@ abstract class Connection
     {
         if (!empty($this->config['debug'])) {
             // 开启数据库调试模式
-            $debug = Container::pull('debug');
-
             if ($start) {
-                $debug->remark('queryStartTime', 'time');
+                $this->queryStartTime = microtime(true);
             } else {
                 // 记录操作结束时间
-                $debug->remark('queryEndTime', 'time');
-                $runtime = $debug->getRangeTime('queryStartTime', 'queryEndTime');
+                $runtime = number_format((microtime(true) - $this->queryStartTime), 6);
                 $sql     = $sql ?: $this->getLastsql();
                 $result  = [];
 

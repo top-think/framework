@@ -68,10 +68,6 @@ class Db
      */
     public function __construct(array $config = [])
     {
-        if (empty($config['query'])) {
-            $config['query'] = Query::class;
-        }
-
         $this->option = $config;
 
         $this->connect($config);
@@ -216,13 +212,12 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access public
-     * @param string       $query      查询对象类名
      * @param string|array $connection 连接配置信息
      * @return mixed
      */
-    public function buildQuery(string $query, $connection = [])
+    public function buildQuery($connection = [])
     {
-        return $this->connect($connection)->newQuery($query);
+        return $this->connect($connection)->newQuery();
     }
 
     /**
@@ -253,14 +248,15 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access protected
-     * @param string     $class      查询对象类名
      * @param Connection $connection 连接对象
      * @return mixed
      */
-    protected function newQuery(string $class, $connection = null)
+    protected function newQuery($connection = null)
     {
         /** @var Query $query */
-        $query = new $class($connection ?: $this->connection);
+        $connection = $connection ?: $this->connection;
+        $class      = $connection->getQueryClass();
+        $query      = new $class($connection);
 
         $query->setDb($this);
 
@@ -269,7 +265,7 @@ class Db
 
     public function __call($method, $args)
     {
-        $query = $this->newQuery($this->option['query'], $this->connection);
+        $query = $this->newQuery($this->connection);
 
         return call_user_func_array([$query, $method], $args);
     }

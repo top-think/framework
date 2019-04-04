@@ -31,12 +31,6 @@ class Sqlsrv extends Connection
     ];
 
     /**
-     * Builder类
-     * @var string
-     */
-    protected $builder = '\\think\\db\\builder\\Sqlsrv';
-
-    /**
      * 解析pdo连接的dsn信息
      * @access protected
      * @param  array $config 连接信息

@@ -19,11 +19,6 @@ use think\db\Connection;
  */
 class Pgsql extends Connection
 {
-    /**
-     * Builder类
-     * @var string
-     */
-    protected $builder = '\\think\\db\\builder\\Pgsql';
 
     /**
      * 默认PDO连接参数

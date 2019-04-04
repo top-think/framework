@@ -20,11 +20,6 @@ use think\db\Connection;
  */
 class Mysql extends Connection
 {
-    /**
-     * Builder类
-     * @var string
-     */
-    protected $builder = '\\think\\db\\builder\\Mysql';
 
     /**
      * 解析pdo连接的dsn信息

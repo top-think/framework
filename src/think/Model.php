@@ -91,12 +91,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected $connection;
 
     /**
-     * 数据库查询对象类名
-     * @var string
-     */
-    protected $query;
-
-    /**
      * 模型名称
      * @var string
      */
@@ -254,8 +248,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function buildQuery(): Query
     {
         /** @var Query $query */
-        $queryClass = $this->query ?: Container::pull('db')->getConfig('query');
-        $query      = Container::pull('db')->buildQuery($queryClass, $this->connection);
+        $query = Container::pull('db')->buildQuery($this->connection);
 
         $query->model($this)
             ->name($this->name)

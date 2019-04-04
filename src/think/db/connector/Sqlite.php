@@ -19,11 +19,6 @@ use think\db\Connection;
  */
 class Sqlite extends Connection
 {
-    /**
-     * Builder类
-     * @var string
-     */
-    protected $builder = '\\think\\db\\builder\\Sqlite';
 
     /**
      * 解析pdo连接的dsn信息
