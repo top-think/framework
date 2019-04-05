@@ -327,7 +327,6 @@ class Controller
             return $v->getError();
         }
 
-
         if (is_string($validate)) {
             $validate = $v->getRules();
         }
