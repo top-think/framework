@@ -431,8 +431,7 @@ class Validate
                 }
             }
         }
-
-
+        1
         foreach ($rules as $key => $rule) {
             // field => 'rule1|rule2...' field => ['rule1','rule2',...]
             if (strpos($key, '|')) {
