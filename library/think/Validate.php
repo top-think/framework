@@ -385,7 +385,6 @@ class Validate
         return $this;
     }
 
-
     /**
      * 获取当前规则
      * @access public
