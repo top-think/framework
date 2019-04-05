@@ -100,18 +100,7 @@ class RuleGroup extends Rule
      */
     public function getDomain(): string
     {
-        return $this->domain;
-    }
-
-    /**
-     * 获取所属域名
-     * @access public
-     * @param  string $domain 域名
-     * @return void
-     */
-    public function setDomain(string $domain): void
-    {
-        $this->domain = $domain;
+        return $this->domain ?: '-';
     }
 
     /**

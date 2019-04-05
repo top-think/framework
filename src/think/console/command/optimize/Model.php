@@ -21,13 +21,19 @@ class Model extends Command
     protected function configure()
     {
         $this->setName('optimize:model')
-            ->addArgument('app', Argument::OPTIONAL, 'Build app model .')
-            ->setDescription('Build model ide helper.');
+            ->addArgument('app', Argument::OPTIONAL, 'app name .')
+            ->setDescription('Build app model ide helper.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        $app  = $input->getArgument('app');
+        $app = $input->getArgument('app');
+
+        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
+        }
+
         $path = $this->app->getBasePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'model';
 
         $models    = glob($path . DIRECTORY_SEPARATOR . '*.php');

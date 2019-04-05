@@ -45,19 +45,18 @@ class RuleName
      */
     public function setRule(string $rule, RuleItem $route): void
     {
-        $this->rule[$route->getDomain()][$rule][$route->getRoute()] = $route;
+        $this->rule[$rule][$route->getRoute()] = $route;
     }
 
     /**
      * 根据路由规则获取路由对象（列表）
      * @access public
      * @param  string $rule   路由标识
-     * @param  string $domain 域名
      * @return RuleItem[]
      */
-    public function getRule(string $rule, string $domain = null): array
+    public function getRule(string $rule): array
     {
-        return $this->rule[$domain][$rule] ?? [];
+        return $this->rule[$rule] ?? [];
     }
 
     /**
@@ -74,30 +73,23 @@ class RuleName
     /**
      * 获取全部路由列表
      * @access public
-     * @param  string $domain 域名
      * @return array
      */
-    public function getRuleList(string $domain = null): array
+    public function getRuleList(): array
     {
         $list = [];
 
-        foreach ($this->rule as $ruleDomain => $rules) {
-            foreach ($rules as $rule => $items) {
-                foreach ($items as $item) {
-                    $val = [];
+        foreach ($this->rule as $rule => $rules) {
+            foreach ($rules as $item) {
+                $val = [];
 
-                    foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
-                        $call        = 'get' . $param;
-                        $val[$param] = $item->$call();
-                    }
-
-                    $list[$ruleDomain][] = $val;
+                foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
+                    $call        = 'get' . $param;
+                    $val[$param] = $item->$call();
                 }
-            }
-        }
 
-        if ($domain) {
-            return $list[$domain] ?? [];
+                $list[] = $val;
+            }
         }
 
         return $list;

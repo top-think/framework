@@ -29,11 +29,17 @@ class Facade extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $app  = $input->getArgument('app');
+        $app = $input->getArgument('app');
+
+        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
+        }
+
         $path = $this->app->getBasePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'facade';
 
         $facades   = glob($path . DIRECTORY_SEPARATOR . '*.php');
-        $namespace = $this->app->getNameSpace() . ($app ? '\\' . $app : '');
+        $namespace = 'app' . ($app ? '\\' . $app : '');
 
         foreach ($facades as $facade) {
             $this->buildFacade($namespace, $facade);

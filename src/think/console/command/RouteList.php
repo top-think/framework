@@ -41,10 +41,10 @@ class RouteList extends Command
     {
         $app = $input->getArgument('app');
 
-        if ($this->app->http->isMulti() && $app) {
+        if ($app) {
             $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list_' . $app . '.php';
         } else {
-            $filename = $this->app->getRuntimePath() . 'route_list.php';
+            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'route_list.php';
         }
 
         if (is_file($filename)) {
@@ -60,7 +60,7 @@ class RouteList extends Command
         $this->app->route->setTestMode(true);
         $this->app->route->clear();
 
-        if ($this->app->http->isMulti() && $app) {
+        if ($app) {
             $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
             $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
@@ -75,7 +75,12 @@ class RouteList extends Command
         }
 
         if ($this->app->config->get('route.route_annotation')) {
-            include $this->app->build->buildRoute();
+            $this->app->console->call('route:build', [$app ?: '']);
+            $filename = $this->app->getRuntimePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
+
+            if (is_file($filename)) {
+                include $filename;
+            }
         }
 
         $table = new Table();

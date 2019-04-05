@@ -205,7 +205,7 @@ class Http
         if ($this->app->route->config('route_annotation')) {
             // 自动生成注解路由定义
             if ($this->app->isDebug()) {
-                $this->app->console->call('optimize:route');
+                $this->app->console->call('route:build', [$this->name]);
             }
 
             $filename = $this->app->getRuntimePath() . 'build_route.php';

@@ -116,12 +116,6 @@ class Route
     protected $host;
 
     /**
-     * 当前域名
-     * @var string
-     */
-    protected $domain;
-
-    /**
      * 当前分组对象
      * @var RuleGroup
      */
@@ -253,11 +247,8 @@ class Route
      */
     protected function setDefaultDomain(): void
     {
-        // 默认域名
-        $this->domain = '-';
-
         // 注册默认域名
-        $domain = new Domain($this, '-');
+        $domain = new Domain($this);
 
         $this->domains['-'] = $domain;
 
@@ -383,7 +374,7 @@ class Route
      */
     public function bind(string $bind, string $domain = null)
     {
-        $domain = is_null($domain) ? $this->domain : $domain;
+        $domain = is_null($domain) ? '-' : $domain;
 
         $this->bind[$domain] = $bind;
 
@@ -409,7 +400,7 @@ class Route
     public function getDomainBind(string $domain = null)
     {
         if (is_null($domain)) {
-            $domain = $this->domain;
+            $domain = '-';
         } elseif (false === strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }
@@ -452,10 +443,9 @@ class Route
      * @param array $name 路由标识
      * @return $this
      */
-    public function import(array $name)
+    public function import(array $name): void
     {
         $this->ruleName->import($name);
-        return $this;
     }
 
     /**
@@ -464,39 +454,44 @@ class Route
      * @param string       $name  路由标识
      * @param string|array $value 路由规则
      * @param bool         $first 是否置顶
-     * @return Route
+     * @return void
      */
-    public function setName(string $name, $value, bool $first = false): Route
+    public function setName(string $name, $value, bool $first = false): void
     {
         $this->ruleName->setName($name, $value, $first);
-        return $this;
+    }
+
+    /**
+     * 保存路由规则
+     * @access public
+     * @param string $rule   路由规则
+     * @param RuleItem $ruleItem RuleItem对象
+     * @return void
+     */
+    public function setRule(string $rule, RuleItem $ruleItem = null): void
+    {
+        $this->ruleName->setRule($rule, $ruleItem);
     }
 
     /**
      * 读取路由
      * @access public
      * @param string $rule   路由规则
-     * @param string $domain 域名
      * @return RuleItem[]
      */
-    public function getRule(string $rule, string $domain = null): array
+    public function getRule(string $rule): array
     {
-        if (is_null($domain)) {
-            $domain = $this->domain;
-        }
-
-        return $this->ruleName->getRule($rule, $domain);
+        return $this->ruleName->getRule($rule);
     }
 
     /**
      * 读取路由列表
      * @access public
-     * @param string $domain 域名
      * @return array
      */
-    public function getRuleList(string $domain = null): array
+    public function getRuleList(): array
     {
-        return $this->ruleName->getRuleList($domain);
+        return $this->ruleName->getRuleList();
     }
 
     /**
@@ -729,11 +724,6 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
-        $this->domain  = $this->host;
-
-        $this->domains[$this->host] = $this->domains['-'];
-        unset($this->domains['-']);
-        $this->domains[$this->host]->setDomain($this->host);
 
         if ($withRoute) {
             $checkCallback = function () use ($request, $withRoute) {
@@ -866,8 +856,8 @@ class Route
         }
 
         if (false === $item) {
-            // 检测当前完整域名
-            $item = $this->domains[$this->host];
+            // 检测全局域名规则
+            $item = $this->domains['-'];
         }
 
         if (is_string($item)) {
@@ -1183,6 +1173,10 @@ class Route
     {
         foreach ($rule as $item) {
             list($url, $pattern, $domain, $suffix) = $item;
+
+            if ('-' == $domain) {
+                $domain = $this->host;
+            }
 
             if (is_string($allowDomain) && $domain != $allowDomain) {
                 continue;

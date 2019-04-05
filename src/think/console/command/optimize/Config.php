@@ -20,17 +20,20 @@ class Config extends Command
     protected function configure()
     {
         $this->setName('optimize:config')
-            ->addArgument('app', Argument::OPTIONAL, 'Build app config cache .')
+            ->addArgument('app', Argument::OPTIONAL, 'app name .')
             ->setDescription('Build config and common file cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->getArgument('app')) {
-            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
-        } else {
-            $runtimePath = $this->app->getRuntimePath();
+        $app = $input->getArgument('app');
+
+        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
         }
+
+        $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
 
         $content = '<?php ' . PHP_EOL . $this->buildCacheContent($input->getArgument('app') ?: '');
 

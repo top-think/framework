@@ -31,6 +31,7 @@ use think\console\command\optimize\Config;
 use think\console\command\optimize\Facade;
 use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
+use think\console\command\RouteBuild;
 use think\console\command\RouteList;
 use think\console\command\RunServer;
 use think\console\command\ServiceDiscover;
@@ -59,7 +60,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand  = 'list';
+    protected $defaultCommand = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -81,6 +82,7 @@ class Console
         'run'              => RunServer::class,
         'version'          => Version::class,
         'route:list'       => RouteList::class,
+        'route:build'      => RouteBuild::class,
         'service:discover' => ServiceDiscover::class,
         'vendor:publish'   => VendorPublish::class,
     ];
@@ -470,7 +472,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
