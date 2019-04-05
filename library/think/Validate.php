@@ -385,6 +385,29 @@ class Validate
         return $this;
     }
 
+
+    /**
+     * 获取当前规则
+     * @access public
+     * @param  string    $scene 验证场景
+     * @return array
+     */
+    public function getRules($scene = '')
+    {
+        if (empty($rules)) {
+            // 读取验证规则
+            $rules = $this->rule;
+        }
+        // 获取场景定义
+        $this->getScene($scene);
+        foreach ($this->append as $key => $rule) {
+            if (!isset($rules[$key])) {
+                $rules[$key] = $rule;
+            }
+        }
+        return $rules;
+    }
+
     /**
      * 数据自动验证
      * @access public
@@ -399,17 +422,17 @@ class Validate
 
         if (empty($rules)) {
             // 读取验证规则
-            $rules = $this->rule;
-        }
-
-        // 获取场景定义
-        $this->getScene($scene);
-
-        foreach ($this->append as $key => $rule) {
-            if (!isset($rules[$key])) {
-                $rules[$key] = $rule;
+            $rules = $this->getRules($scene);
+        } else {
+            // 设置验证场景
+            $this->getScene($scene);
+            foreach ($this->append as $key => $rule) {
+                if (!isset($rules[$key])) {
+                    $rules[$key] = $rule;
+                }
             }
         }
+
 
         foreach ($rules as $key => $rule) {
             // field => 'rule1|rule2...' field => ['rule1','rule2',...]

@@ -277,6 +277,78 @@ class Controller
         return true;
     }
 
+    /**
+     * 验证当前用户输入数据并返回验证器部分变量数组
+     * 验证成功返回过滤后的数组,失败返回错误信息
+     * @access protected
+     * @param  string|array $validate 验证器名或者验证规则数组
+     * @param  array        $message  提示信息
+     * @param  bool         $batch    是否批量验证
+     * @param  mixed        $callback 回调方法（闭包）
+     * @return array|string
+     * @throws ValidateException
+     */
+    protected function validateGetData($validate, $message = [], $batch = false, $callback = null)
+    {
+        if (is_array($validate)) {
+            $v = $this->app->validate();
+            $v->rule($validate);
+        } else {
+            if (strpos($validate, '.')) {
+                // 支持场景
+                list($validate, $scene) = explode('.', $validate);
+            }
+            $v = $this->app->validate($validate);
+            if (!empty($scene)) {
+                $v->scene($scene);
+            }
+        }
+
+        // 是否批量验证
+        if ($batch || $this->batchValidate) {
+            $v->batch(true);
+        }
+
+        if (is_array($message)) {
+            $v->message($message);
+        }
+
+        $data = $this->request->param();
+
+        if ($callback && is_callable($callback)) {
+            call_user_func_array($callback, [$v, &$data]);
+        }
+
+        if (!$v->check($data)) {
+
+            if ($this->failException) {
+                throw new ValidateException($v->getError());
+            }
+            return $v->getError();
+        }
+
+
+        if (is_string($validate)) {
+            $validate = $v->getRules();
+        }
+        $postData = [];
+        $field = [];
+        foreach ($validate as $str=>$value) {
+            if (strpos($str, '|') === false) {
+                $field[] = $str;
+            } else {
+                $field[] = explode('|', $str)[0];
+            }
+        }
+        foreach ($field as $f) {
+            if (isset($data[$f])) {
+                $postData[$f] = $data[$f];
+            }
+        }
+
+        return $postData;
+    }
+
     public function __debugInfo()
     {
         $data = get_object_vars($this);
