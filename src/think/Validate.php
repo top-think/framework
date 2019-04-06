@@ -808,9 +808,6 @@ class Validate
             case 'image':
                 $result = $value instanceof File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]);
                 break;
-            case 'token':
-                $result = $this->token($value, '__token__', $data);
-                break;
             default:
                 if (isset($this->type[$rule])) {
                     // 注册的验证规则
