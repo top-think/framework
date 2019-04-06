@@ -13,8 +13,6 @@ declare (strict_types = 1);
 namespace think;
 
 use think\exception\ValidateException;
-use think\facade\Db;
-use think\facade\Lang;
 use think\validate\ValidateRule;
 
 class Validate
@@ -23,7 +21,7 @@ class Validate
      * 自定义验证类型
      * @var array
      */
-    protected static $type = [];
+    protected $type = [];
 
     /**
      * 验证类型别名
@@ -55,7 +53,7 @@ class Validate
      * 默认规则提示
      * @var array
      */
-    protected static $typeMsg = [
+    protected $typeMsg = [
         'require'     => ':attribute require',
         'must'        => ':attribute must',
         'number'      => ':attribute must be numeric',
@@ -193,30 +191,34 @@ class Validate
     protected $regex = [];
 
     /**
-     * 架构函数
-     * @access public
-     * @param  array $rules 验证规则
-     * @param  array $message 验证提示信息
-     * @param  array $field 验证字段描述信息
+     * Db对象
+     * @var Db
      */
-    public function __construct(array $rules = [], array $message = [], array $field = [])
-    {
-        $this->rule    = $rules + $this->rule;
-        $this->message = array_merge($this->message, $message);
-        $this->field   = array_merge($this->field, $field);
-    }
+    protected $db;
 
     /**
-     * 创建一个验证器类
-     * @access public
-     * @param  array $rules 验证规则
-     * @param  array $message 验证提示信息
-     * @param  array $field 验证字段描述信息
-     * @return Validate
+     * 语言对象
+     * @var Lang
      */
-    public static function make(array $rules = [], array $message = [], array $field = [])
+    protected $lang;
+
+    public static function __make(Lang $lang, Db $db)
     {
-        return new static($rules, $message, $field);
+        $instance = new static();
+
+        $instance->lang = $lang;
+        $instance->db   = $db;
+        return $instance;
+    }
+
+    public function setLang(Lang $lang)
+    {
+        $this->lang = $lang;
+    }
+
+    public function setDb(Db $db)
+    {
+        $this->db = $db;
     }
 
     /**
@@ -245,15 +247,17 @@ class Validate
      * @access public
      * @param  string|array    $type  验证规则类型
      * @param  callable        $callback callback方法(或闭包)
-     * @return void
+     * @return $this
      */
-    public static function extend($type, callable $callback = null): void
+    public function extend($type, callable $callback = null)
     {
         if (is_array($type)) {
-            self::$type = array_merge(self::$type, $type);
+            $this->type = array_merge($this->type, $type);
         } else {
-            self::$type[$type] = $callback;
+            $this->type[$type] = $callback;
         }
+
+        return $this;
     }
 
     /**
@@ -263,12 +267,12 @@ class Validate
      * @param  string        $msg  验证提示信息
      * @return void
      */
-    public static function setTypeMsg($type, string $msg = null): void
+    public function setTypeMsg($type, string $msg = null): void
     {
         if (is_array($type)) {
-            self::$typeMsg = array_merge(self::$typeMsg, $type);
+            $this->typeMsg = array_merge($this->typeMsg, $type);
         } else {
-            self::$typeMsg[$type] = $msg;
+            $this->typeMsg[$type] = $msg;
         }
     }
 
@@ -409,12 +413,11 @@ class Validate
     /**
      * 数据自动验证
      * @access public
-     * @param  array     $data  数据
-     * @param  mixed     $rules  验证规则
-     * @param  string    $scene 验证场景
+     * @param  array $data  数据
+     * @param  array $rules  验证规则
      * @return bool
      */
-    public function check(array $data, array $rules = [], string $scene = ''): bool
+    public function check(array $data, array $rules = []): bool
     {
         $this->error = [];
 
@@ -423,8 +426,9 @@ class Validate
             $rules = $this->rule;
         }
 
-        // 获取场景定义
-        $this->getScene($scene);
+        if ($this->currentScene) {
+            $this->getScene($this->currentScene);
+        }
 
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
@@ -511,7 +515,7 @@ class Validate
                 // 判断验证类型
                 list($type, $rule) = $this->getValidateType($key, $rule);
 
-                $callback = self::$type[$type] ?? [$this, $type];
+                $callback = $this->type[$type] ?? [$this, $type];
 
                 $result = call_user_func_array($callback, [$value, $rule]);
             }
@@ -573,8 +577,8 @@ class Validate
                     continue;
                 }
 
-                if (isset(self::$type[$type])) {
-                    $result = call_user_func_array(self::$type[$type], [$value, $rule, $data, $field, $title]);
+                if (isset($this->type[$type])) {
+                    $result = call_user_func_array($this->type[$type], [$value, $rule, $data, $field, $title]);
                 } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
@@ -587,7 +591,7 @@ class Validate
                 if (!empty($msg[$i])) {
                     $message = $msg[$i];
                     if (is_string($message) && strpos($message, '{%') === 0) {
-                        $message = Lang::get(substr($message, 2, -1));
+                        $message = $this->lang->get(substr($message, 2, -1));
                     }
                 } else {
                     $message = $this->getRuleMsg($field, $title, $info, $rule);
@@ -808,9 +812,9 @@ class Validate
                 $result = $this->token($value, '__token__', $data);
                 break;
             default:
-                if (isset(self::$type[$rule])) {
+                if (isset($this->type[$rule])) {
                     // 注册的验证规则
-                    $result = call_user_func_array(self::$type[$rule], [$value]);
+                    $result = call_user_func_array($this->type[$rule], [$value]);
                 } elseif (function_exists('ctype_' . $rule)) {
                     // ctype验证规则
                     $ctypeFun = 'ctype_' . $rule;
@@ -979,19 +983,6 @@ class Validate
         }
 
         return in_array($this->getImageType($file->getRealPath()), [1, 2, 3, 6]);
-    }
-
-    /**
-     * 验证请求类型
-     * @access public
-     * @param  mixed     $value  字段值
-     * @param  mixed     $rule  验证规则
-     * @return bool
-     */
-    public function method($value, $rule): bool
-    {
-        $method = Container::pull('request')->method();
-        return strtoupper($rule) == $method;
     }
 
     /**
@@ -1393,37 +1384,6 @@ class Validate
         return is_scalar($value) && 1 === preg_match($rule, (string) $value);
     }
 
-    /**
-     * 验证表单令牌
-     * @access public
-     * @param  mixed     $value  字段值
-     * @param  mixed     $rule  验证规则
-     * @param  array     $data  数据
-     * @return bool
-     */
-    public function token($value, $rule, array $data = []): bool
-    {
-        $rule    = !empty($rule) ? $rule : '__token__';
-        $session = Container::pull('session');
-
-        if (!isset($data[$rule]) || !$session->has($rule)) {
-            // 令牌数据无效
-            return false;
-        }
-
-        // 令牌验证
-        if (isset($data[$rule]) && $session->get($rule) === $data[$rule]) {
-            // 防止重复提交
-            $session->delete($rule); // 验证完成销毁session
-            return true;
-        }
-
-        // 开启TOKEN重置
-        $session->delete($rule);
-
-        return false;
-    }
-
     // 获取错误信息
     public function getError()
     {
@@ -1437,7 +1397,7 @@ class Validate
      * @param  string    $key  数据标识 支持二维
      * @return mixed
      */
-    protected function getDataValue(array $data, string $key)
+    protected function getDataValue(array $data, $key)
     {
         if (is_numeric($key)) {
             $value = $key;
@@ -1468,20 +1428,18 @@ class Validate
      */
     protected function getRuleMsg(string $attribute, string $title, string $type, $rule): string
     {
-        $lang = Container::pull('lang');
-
         if (isset($this->message[$attribute . '.' . $type])) {
             $msg = $this->message[$attribute . '.' . $type];
         } elseif (isset($this->message[$attribute][$type])) {
             $msg = $this->message[$attribute][$type];
         } elseif (isset($this->message[$attribute])) {
             $msg = $this->message[$attribute];
-        } elseif (isset(self::$typeMsg[$type])) {
-            $msg = self::$typeMsg[$type];
+        } elseif (isset($this->typeMsg[$type])) {
+            $msg = $this->typeMsg[$type];
         } elseif (0 === strpos($type, 'require')) {
-            $msg = self::$typeMsg['require'];
+            $msg = $this->typeMsg['require'];
         } else {
-            $msg = $title . $lang->get('not conform to the rules');
+            $msg = $title . $this->lang->get('not conform to the rules');
         }
 
         if (!is_string($msg)) {
@@ -1489,9 +1447,9 @@ class Validate
         }
 
         if (0 === strpos($msg, '{%')) {
-            $msg = $lang->get(substr($msg, 2, -1));
-        } elseif ($lang->has($msg)) {
-            $msg = $lang->get($msg);
+            $msg = $this->lang->get(substr($msg, 2, -1));
+        } elseif ($this->lang->has($msg)) {
+            $msg = $this->lang->get($msg);
         }
 
         if (is_scalar($rule) && false !== strpos($msg, ':')) {
@@ -1521,30 +1479,15 @@ class Validate
      * @param  string $scene  验证场景
      * @return void
      */
-    protected function getScene(string $scene = ''): void
+    protected function getScene(string $scene): void
     {
-        if (empty($scene)) {
-            // 读取指定场景
-            $scene = $this->currentScene;
-        }
-
         $this->only = $this->append = $this->remove = [];
-
-        if (empty($scene)) {
-            return;
-        }
 
         if (method_exists($this, 'scene' . $scene)) {
             call_user_func([$this, 'scene' . $scene]);
         } elseif (isset($this->scene[$scene])) {
             // 如果设置了验证适用场景
-            $scene = $this->scene[$scene];
-
-            if (is_string($scene)) {
-                $scene = explode(',', $scene);
-            }
-
-            $this->only = $scene;
+            $this->only = $this->scene[$scene];
         }
     }
 

@@ -151,7 +151,7 @@ class Lang
 
         // 空参数返回所有定义
         if (is_null($name)) {
-            return $this->lang[$range];
+            return $this->lang[$range] ?? [];
         }
 
         $key   = strtolower($name);

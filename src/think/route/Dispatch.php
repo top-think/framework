@@ -224,17 +224,22 @@ abstract class Dispatch
 
         if (is_array($validate)) {
             // 指定验证规则
-            $v = new Validate($validate, $message);
+            $v = new Validate();
+            $v->rule($validate);
         } else {
             // 调用验证器
             /** @var Validate $class */
             $class = $this->app->parseClass('validate', $validate);
-            $v     = $class::make([], $message);
+            $v     = new $class();
 
             if (!empty($scene)) {
                 $v->scene($scene);
             }
         }
+
+        $v->message($message);
+        $v->setLang($this->app->lang);
+        $v->setDb($this->app->db);
 
         $v->batch($batch)->failException(true)->check($this->request->param());
     }

@@ -112,18 +112,23 @@ class Controller
     protected function validate(array $data, $validate, array $message = [], bool $batch = false)
     {
         if (is_array($validate)) {
-            $v = new Validate($validate, $message);
+            $v = new Validate();
+            $v->rule($validate);
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
                 list($validate, $scene) = explode('.', $validate);
             }
             $class = $this->app->parseClass('validate', $validate);
-            $v     = $class::make([], $message);
+            $v     = new $class();
             if (!empty($scene)) {
                 $v->scene($scene);
             }
         }
+
+        $v->message($message);
+        $v->setLang($this->app->lang);
+        $v->setDb($this->app->db);
 
         // 是否批量验证
         if ($batch || $this->batchValidate) {
