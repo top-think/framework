@@ -43,22 +43,21 @@ class SessionInit
     {
         // Session初始化
         $varSessionId = $this->app->config->get('session.var_session_id');
+        $cookieName   = $this->app->config->get('session.name', 'PHPSESSID');
 
         if ($varSessionId && $request->request($varSessionId)) {
-            $this->session->setId($request->request($varSessionId));
+            $sessionId = $request->request($varSessionId);
         } else {
-            $cookieName = $this->app->config->get('session.cookie_name', 'PHPSESSID');
-            $sessionId  = $request->cookie($cookieName) ?: '';
-            $this->session->setId($sessionId);
+            $sessionId = $request->cookie($cookieName) ?: '';
         }
+
+        $this->session->setId($sessionId);
 
         $request->withSession($this->session);
 
         $response = $next($request)->setSession($this->session);
 
-        if (isset($cookieName)) {
-            $this->app->cookie->set($cookieName, $this->session->getId());
-        }
+        $this->app->cookie->set($cookieName, $this->session->getId());
 
         return $response;
     }
