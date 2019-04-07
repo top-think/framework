@@ -1067,9 +1067,6 @@ abstract class Builder
 
         // 分析并处理数据
         $data = $this->parseData($query, $options['data']);
-        if (empty($data)) {
-            return '';
-        }
 
         $fields = array_keys($data);
         $values = array_values($data);
