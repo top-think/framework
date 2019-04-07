@@ -606,7 +606,8 @@ if (!function_exists('validate')) {
     function validate(array $data, $validate, array $message = [], bool $batch = false)
     {
         if (is_array($validate)) {
-            $v = new Validate($validate, $message);
+            $v = new Validate();
+            $v->rule($validate);
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
@@ -614,12 +615,16 @@ if (!function_exists('validate')) {
             }
 
             $class = app()->parseClass('validate', $validate);
-            $v     = $class::make([], $message);
+            $v     = new $class();
 
             if (!empty($scene)) {
                 $v->scene($scene);
             }
         }
+
+        $v->message($message);
+        $v->setLang(app('lang'));
+        $v->setDb(app('db'));
 
         return $v->batch($batch)->failException(true)->check($data);
     }

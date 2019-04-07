@@ -343,10 +343,10 @@ class Http
 
             $files = [];
 
-            if (is_dir($appPath . 'config')) {
-                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            } elseif (is_dir($configPath . $appName)) {
+            if (is_dir($configPath . $appName)) {
                 $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+            } elseif (is_dir($appPath . 'config')) {
+                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
             }
 
             foreach ($files as $file) {
