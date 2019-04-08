@@ -664,7 +664,7 @@ abstract class Connection
         // 返回结果集
         while ($result = $this->PDOStatement->fetch($this->fetchType)) {
             if ($model) {
-                yield $model->newInstance($result, true, $condition);
+                yield $model->newInstance($result, $condition);
             } else {
                 yield $result;
             }

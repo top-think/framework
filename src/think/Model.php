@@ -233,6 +233,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->name = basename($name);
         }
 
+        if (static::$maker) {
+            call_user_func(static::$maker, $this);
+        }
+
         // 执行初始化操作
         $this->initialize();
     }
@@ -287,10 +291,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function buildQuery(): Query
     {
         /** @var Query $query */
-        if (static::$maker) {
-            call_user_func(static::$maker, $this);
-        }
-
         $query = $this->db->buildQuery($this->connection);
 
         $query->model($this)
@@ -306,7 +306,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 获取当前模型的数据库查询对象
+     * 设置当前模型的数据库查询对象
      * @access public
      * @param  Query $query 查询对象实例
      * @return $this
