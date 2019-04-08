@@ -134,8 +134,7 @@ abstract class Dispatch
     protected function doRouteAfter(): void
     {
         // 记录匹配的路由信息
-        $option  = $this->rule->getOption();
-        $matches = $this->rule->getVars();
+        $option = $this->rule->getOption();
 
         // 添加中间件
         if (!empty($option['middleware'])) {
@@ -144,7 +143,7 @@ abstract class Dispatch
 
         // 绑定模型数据
         if (!empty($option['model'])) {
-            $this->createBindModel($option['model'], $matches);
+            $this->createBindModel($option['model'], $this->request->route());
         }
 
         if (!empty($option['append'])) {
