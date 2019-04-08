@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use ArrayAccess;
+use Closure;
 use JsonSerializable;
 use think\db\Query;
 
@@ -151,6 +152,55 @@ abstract class Model implements JsonSerializable, ArrayAccess
     private $lazySave = false;
 
     /**
+     * 服务注入
+     * @var Closure
+     */
+    protected static $maker;
+
+    /**
+     * 设置服务注入
+     * @access public
+     * @param  Closure $maker
+     * @return void
+     */
+    public static function maker(Closure $maker)
+    {
+        static::$maker = $maker;
+    }
+
+    /**
+     * 设置Db对象
+     * @access public
+     * @param  Db $lang Db对象
+     * @return void
+     */
+    public function setDb(Db $db)
+    {
+        $this->db = $db;
+    }
+
+    /**
+     * 设置Connection信息
+     * @access public
+     * @param  mixed $connection 数据库配置
+     * @return void
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+    }
+
+    /**
+     * 获取Connection信息
+     * @access public
+     * @return void
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
      * 架构函数
      * @access public
      * @param  array $data 数据
@@ -171,27 +221,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
         // 记录原始数据
         $this->origin = $this->data;
 
-        $config = Container::pull('config');
-
         if (empty($this->name)) {
             // 当前模型名
             $name       = str_replace('\\', '/', static::class);
             $this->name = basename($name);
-        }
-
-        if (is_null($this->autoWriteTimestamp)) {
-            // 自动写入时间戳
-            $this->autoWriteTimestamp = $config->get('database.auto_timestamp');
-        }
-
-        if (is_null($this->dateFormat)) {
-            // 设置时间戳格式
-            $this->dateFormat = $config->get('database.datetime_format');
-        }
-
-        if (!empty($this->connection) && is_array($this->connection)) {
-            // 设置模型的数据库连接
-            $this->connection = array_merge($config->get('database'), $this->connection);
         }
 
         // 执行初始化操作
@@ -248,7 +281,11 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected function buildQuery(): Query
     {
         /** @var Query $query */
-        $query = Container::pull('db')->buildQuery($this->connection);
+        if (static::$maker) {
+            call_user_func(static::$maker, $this);
+        }
+
+        $query = $this->db->buildQuery($this->connection);
 
         $query->model($this)
             ->name($this->name)

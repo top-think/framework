@@ -57,6 +57,39 @@ trait TimeStamp
     }
 
     /**
+     * 获取自动写入时间字段
+     * @access public
+     * @return $this
+     */
+    public function getAutoWriteTimestamp()
+    {
+        return $this->autoWriteTimestamp;
+    }
+
+    /**
+     * 设置时间字段格式化
+     * @access public
+     * @param  string $format
+     * @return $this
+     */
+    public function setDateFormat(string $format)
+    {
+        $this->dateFormat = $format;
+
+        return $this;
+    }
+
+    /**
+     * 获取自动写入时间字段
+     * @access public
+     * @return $this
+     */
+    public function getDateFormat()
+    {
+        return $this->dateFormat;
+    }
+
+    /**
      * 自动写入时间戳
      * @access protected
      * @param  string $name 时间戳字段

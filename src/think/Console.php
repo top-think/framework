@@ -97,7 +97,9 @@ class Console
     {
         $this->app = $app;
 
-        $this->app->initialize();
+        if (!$this->app->initialized()) {
+            $this->app->initialize();
+        }
 
         $user = $this->app->config->get('console.user');
 
