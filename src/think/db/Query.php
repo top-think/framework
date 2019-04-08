@@ -2978,7 +2978,7 @@ class Query
         if (!empty($this->options['fail'])) {
             $this->throwNotFound();
         } elseif (!empty($this->options['allow_empty'])) {
-            return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance() : [];
+            return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance()->setQuery($this) : [];
         } elseif (!empty($this->options['array'])) {
             return [];
         }
@@ -3117,7 +3117,7 @@ class Query
             $this->jsonResult($result, $options['json'], $options['json_assoc'], $withRelationAttr);
         }
 
-        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options));
+        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options))->setQuery($this);
 
         // 动态获取器
         if (!empty($options['with_attr'])) {

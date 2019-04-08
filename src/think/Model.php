@@ -284,28 +284,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 创建模型的查询对象
-     * @access protected
-     * @return Query
-     */
-    protected function buildQuery(): Query
-    {
-        /** @var Query $query */
-        $query = $this->db->buildQuery($this->connection);
-
-        $query->model($this)
-            ->name($this->name)
-            ->json($this->json, $this->jsonAssoc)
-            ->setFieldType($this->schema);
-
-        if (!empty($this->table)) {
-            $query->table($this->table);
-        }
-
-        return $query->pk($this->pk);
-    }
-
-    /**
      * 设置当前模型的数据库查询对象
      * @access public
      * @param  Query $query 查询对象实例
@@ -313,7 +291,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function setQuery(Query $query)
     {
-        $this->queryInstance = $query;
+        $this->queryInstance = clone $query;
         return $this;
     }
 
@@ -325,11 +303,23 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function db($scope = []): Query
     {
+        /** @var Query $query */
         if ($this->queryInstance) {
-            return $this->queryInstance;
+            $query = $this->queryInstance->removeOption();
+        } else {
+            $query = $this->db->buildQuery($this->connection);
         }
 
-        $query = $this->buildQuery();
+        $query->model($this)
+            ->name($this->name)
+            ->json($this->json, $this->jsonAssoc)
+            ->setFieldType($this->schema);
+
+        if (!empty($this->table)) {
+            $query->table($this->table);
+        }
+
+        $query->pk($this->pk);
 
         // 软删除
         if (property_exists($this, 'withTrashed') && !$this->withTrashed) {
