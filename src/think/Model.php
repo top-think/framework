@@ -307,13 +307,14 @@ abstract class Model implements JsonSerializable, ArrayAccess
         if ($this->queryInstance) {
             $query = $this->queryInstance->removeOption();
         } else {
-            $query = $this->db->buildQuery($this->connection);
-            $query->model($this)
+            $query = $this->db->buildQuery($this->connection)
                 ->name($this->name)
                 ->pk($this->pk);
         }
 
-        $query->json($this->json, $this->jsonAssoc)->setFieldType($this->schema);
+        $query->model($this)
+            ->json($this->json, $this->jsonAssoc)
+            ->setFieldType($this->schema);
 
         if (!empty($this->table)) {
             $query->table($this->table);
