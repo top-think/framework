@@ -109,7 +109,7 @@ class App extends Container
     public function __construct(string $rootPath = '')
     {
         $this->thinkPath   = dirname(__DIR__) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = $rootPath ? rtrim($rootPath, '/') . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->rootPath    = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
 
@@ -171,8 +171,8 @@ class App extends Container
     {
         $name = is_string($service) ? $service : get_class($service);
         return array_values(array_filter($this->services, function ($value) use ($name) {
-                return $value instanceof $name;
-            }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
+            return $value instanceof $name;
+        }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
     }
 
     /**
