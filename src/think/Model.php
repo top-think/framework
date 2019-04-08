@@ -308,18 +308,16 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $query = $this->queryInstance->removeOption();
         } else {
             $query = $this->db->buildQuery($this->connection);
+            $query->model($this)
+                ->name($this->name)
+                ->pk($this->pk);
         }
 
-        $query->model($this)
-            ->name($this->name)
-            ->json($this->json, $this->jsonAssoc)
-            ->setFieldType($this->schema);
+        $query->json($this->json, $this->jsonAssoc)->setFieldType($this->schema);
 
         if (!empty($this->table)) {
             $query->table($this->table);
         }
-
-        $query->pk($this->pk);
 
         // 软删除
         if (property_exists($this, 'withTrashed') && !$this->withTrashed) {
