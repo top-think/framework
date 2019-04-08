@@ -59,7 +59,7 @@ trait TimeStamp
     /**
      * 获取自动写入时间字段
      * @access public
-     * @return $this
+     * @return bool|string
      */
     public function getAutoWriteTimestamp()
     {
@@ -82,7 +82,7 @@ trait TimeStamp
     /**
      * 获取自动写入时间字段
      * @access public
-     * @return $this
+     * @return string
      */
     public function getDateFormat()
     {

@@ -152,6 +152,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     private $lazySave = false;
 
     /**
+     * Db对象
+     * @var Db
+     */
+    protected $db;
+
+    /**
      * 服务注入
      * @var Closure
      */
@@ -171,7 +177,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置Db对象
      * @access public
-     * @param  Db $lang Db对象
+     * @param  Db $db Db对象
      * @return void
      */
     public function setDb(Db $db)
@@ -193,7 +199,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 获取Connection信息
      * @access public
-     * @return void
+     * @return string|array
      */
     public function getConnection()
     {

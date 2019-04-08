@@ -76,7 +76,7 @@ class RouteList extends Command
 
         if ($this->app->config->get('route.route_annotation')) {
             $this->app->console->call('route:build', [$app ?: '']);
-            $filename = $this->app->getRuntimePath() . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
+            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
 
             if (is_file($filename)) {
                 include $filename;
