@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
 use think\exception\ValidateException;
 use think\validate\ValidateRule;
 
@@ -202,13 +203,14 @@ class Validate
      */
     protected $lang;
 
-    public static function __make(Lang $lang, Db $db)
-    {
-        $instance = new static();
+    /**
+     * @var Closure
+     */
+    protected static $maker;
 
-        $instance->lang = $lang;
-        $instance->db   = $db;
-        return $instance;
+    public static function maker(Closure $maker)
+    {
+        static::$maker = $maker;
     }
 
     public function setLang(Lang $lang)
@@ -419,6 +421,10 @@ class Validate
      */
     public function check(array $data, array $rules = []): bool
     {
+        if (static::$maker && !$this->lang) {
+            call_user_func(static::$maker, $this);
+        }
+
         $this->error = [];
 
         if (empty($rules)) {
@@ -500,6 +506,10 @@ class Validate
      */
     public function checkRule($value, $rules): bool
     {
+        if (static::$maker && !$this->lang) {
+            call_user_func(static::$maker, $this);
+        }
+
         if ($rules instanceof \Closure) {
             return call_user_func_array($rules, [$value]);
         } elseif ($rules instanceof ValidateRule) {
@@ -1014,7 +1024,7 @@ class Validate
             // 指定模型类
             $db = new $rule[0];
         } else {
-            $db = Db::name($rule[0]);
+            $db = $this->db->name($rule[0]);
         }
 
         $key = $rule[1] ?? $field;

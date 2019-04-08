@@ -10,32 +10,18 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think\initializer;
+namespace think\service;
 
-use think\App;
-use think\service\PaginatorService;
-use think\service\ValidateService;
+use think\Service;
+use think\Validate;
 
-class RegisterService
+class ValidateService extends Service
 {
-
-    protected $services = [
-        PaginatorService::class,
-        ValidateService::class,
-    ];
-
-    public function init(App $app)
+    public function boot()
     {
-        $file = $app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'services.php';
-
-        $services = $this->services;
-
-        if (is_file($file)) {
-            $services = array_merge($services, include $file);
-        }
-
-        foreach ($services as $service) {
-            $app->register($service);
-        }
+        Validate::maker(function (Validate $validate) {
+            $validate->setLang($this->app->lang);
+            $validate->setDb($this->app->db);
+        });
     }
 }
