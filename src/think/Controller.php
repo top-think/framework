@@ -127,8 +127,6 @@ class Controller
         }
 
         $v->message($message);
-        $v->setLang($this->app->lang);
-        $v->setDb($this->app->db);
 
         // 是否批量验证
         if ($batch || $this->batchValidate) {

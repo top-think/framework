@@ -622,11 +622,7 @@ if (!function_exists('validate')) {
             }
         }
 
-        $v->message($message);
-        $v->setLang(app('lang'));
-        $v->setDb(app('db'));
-
-        return $v->batch($batch)->failException(true)->check($data);
+        return $v->message($message)->batch($batch)->failException(true)->check($data);
     }
 }
 

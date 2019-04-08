@@ -237,11 +237,7 @@ abstract class Dispatch
             }
         }
 
-        $v->message($message);
-        $v->setLang($this->app->lang);
-        $v->setDb($this->app->db);
-
-        $v->batch($batch)->failException(true)->check($this->request->param());
+        $v->message($message)->batch($batch)->failException(true)->check($this->request->param());
     }
 
     public function convert(bool $convert)
