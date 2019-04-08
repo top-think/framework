@@ -84,12 +84,6 @@ abstract class Rule
      */
     protected $mergeOptions = ['after', 'model', 'append', 'middleware'];
 
-    /**
-     * 是否需要后置操作
-     * @var bool
-     */
-    protected $doAfter = false;
-
     abstract public function check(Request $request, string $url, bool $completeMatch = false);
 
     /**
@@ -265,16 +259,6 @@ abstract class Rule
     public function getMethod(): string
     {
         return strtolower($this->method);
-    }
-
-    /**
-     * 路由是否有后置操作
-     * @access public
-     * @return bool
-     */
-    public function doAfter(): bool
-    {
-        return $this->doAfter;
     }
 
     /**
@@ -615,10 +599,7 @@ abstract class Rule
         $url   = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams(implode('|', $url), $matches);
 
-        $this->route   = $route;
-        $this->vars    = $matches;
-        $this->option  = $option;
-        $this->doAfter = true;
+        $request->setRoute($matches);
 
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
@@ -924,7 +905,7 @@ abstract class Rule
 
     public function __sleep()
     {
-        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern', 'doAfter'];
+        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern'];
     }
 
     public function __wakeup()
