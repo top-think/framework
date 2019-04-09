@@ -286,28 +286,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
     /**
-     * 获取容器中的对象实例
-     * @access public
-     * @return array
-     */
-    public function all()
-    {
-        return $this->instances;
-    }
-
-    /**
-     * 清除容器中的对象实例
-     * @access public
-     * @return void
-     */
-    public function flush(): void
-    {
-        $this->instances = [];
-        $this->bind      = [];
-
-    }
-
-    /**
      * 执行函数或者闭包方法 支持参数调用
      * @access public
      * @param mixed $function 函数或者闭包
