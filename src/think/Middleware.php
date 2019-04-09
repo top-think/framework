@@ -207,7 +207,7 @@ class Middleware
             }
 
             try {
-                $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);
+                $response = $this->app->invoke($call, [$request, $this->resolve($type), $param]);
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }
