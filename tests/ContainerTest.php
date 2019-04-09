@@ -120,10 +120,6 @@ class ContainerTest extends TestCase
 
         $this->assertEquals($object, $container->make(Taylor::class));
 
-        $this->assertContains($object, $container->all());
-
-        $this->assertEquals(count($container->all()), count($container));
-
         unset($container->name1);
 
         $this->assertFalse($container->exists('name1'));
@@ -131,10 +127,6 @@ class ContainerTest extends TestCase
         $container->delete('name2');
 
         $this->assertFalse($container->exists('name2'));
-
-        $container->flush();
-
-        $this->assertEmpty($container->all());
 
         foreach ($container as $class => $instance) {
 
