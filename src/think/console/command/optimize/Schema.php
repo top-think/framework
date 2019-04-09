@@ -88,10 +88,14 @@ class Schema extends Command
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
-            $table   = $class::getTable();
-            $dbName  = $class::getConfig('database');
+
+            /** @var \think\Model $model */
+            $model = new $class;
+
+            $table   = $model->getTable();
+            $dbName  = $model->getConfig('database');
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $class::getConnection()->getFields($table);
+            $info    = $model->db()->getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
 
             file_put_contents($path . $dbName . '.' . $table . '.php', $content);
