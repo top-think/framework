@@ -90,12 +90,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     ];
 
     /**
-     * 容器标识别名
-     * @var array
-     */
-    protected $alias = [];
-
-    /**
      * 获取当前容器的实例（单例）
      * @access public
      * @return static
@@ -248,8 +242,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function make(string $abstract, array $vars = [], bool $newInstance = false)
     {
-        $abstract = $this->alias[$abstract] ?? $abstract;
-
         if (isset($this->instances[$abstract]) && !$newInstance) {
             return $this->instances[$abstract];
         }
@@ -260,7 +252,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             if ($concrete instanceof Closure) {
                 $object = $this->invokeFunction($concrete, $vars);
             } else {
-                $this->alias[$abstract] = $concrete;
                 return $this->make($concrete, $vars, $newInstance);
             }
         } else {
@@ -283,8 +274,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public function delete($abstract): void
     {
         foreach ((array) $abstract as $name) {
-            $name = $this->alias[$name] ?? $name;
-
             if (isset($this->bind[$name])) {
                 $name = $this->bind[$name];
             }
@@ -314,7 +303,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         $this->instances = [];
         $this->bind      = [];
-        $this->alias     = [];
+
     }
 
     /**
