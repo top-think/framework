@@ -27,7 +27,7 @@ class Redis implements SessionHandler
         'expire'     => 3600, // 有效期(秒)
         'timeout'    => 0, // 超时时间(秒)
         'persistent' => true, // 是否长连接
-        'name'       => '', // session key前缀
+        'prefix'     => '', // session key前缀
     ];
 
     public function __construct(array $config = [])
