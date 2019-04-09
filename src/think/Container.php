@@ -181,8 +181,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $bind = $this->bind[$abstract];
 
             if (is_string($bind)) {
-                $this->instances[$bind] = $instance;
-                return $this;
+                return $this->instance($bind, $instance);
             }
         }
 
@@ -225,7 +224,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $bind = $this->bind[$abstract];
 
             if (is_string($bind)) {
-                return isset($this->instances[$bind]);
+                return $this->exists($bind);
             }
         }
 
@@ -268,19 +267,21 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     /**
      * 删除容器中的对象实例
      * @access public
-     * @param string|array $abstract 类名或者标识
+     * @param string $name 类名或者标识
      * @return void
      */
-    public function delete($abstract): void
+    public function delete($name)
     {
-        foreach ((array) $abstract as $name) {
-            if (isset($this->bind[$name])) {
-                $name = $this->bind[$name];
-            }
+        if (isset($this->bind[$name])) {
+            $bind = $this->bind[$name];
 
-            if (isset($this->instances[$name])) {
-                unset($this->instances[$name]);
+            if (is_string($bind)) {
+                return $this->delete($bind);
             }
+        }
+
+        if (isset($this->instances[$name])) {
+            unset($this->instances[$name]);
         }
     }
 
