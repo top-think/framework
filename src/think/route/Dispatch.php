@@ -75,14 +75,9 @@ abstract class Dispatch
         }
     }
 
-    public function setApp(App $app)
+    public function init(App $app)
     {
         $this->app = $app;
-        return $this;
-    }
-
-    public function init()
-    {
         // 执行路由后置操作
         $this->doRouteAfter();
     }
@@ -94,7 +89,6 @@ abstract class Dispatch
      */
     public function run(): Response
     {
-        $this->init();
         $option = $this->rule->getOption();
 
         // 数据自动验证
@@ -154,8 +148,8 @@ abstract class Dispatch
     /**
      * 路由绑定模型实例
      * @access protected
-     * @param  array $bindModel 绑定模型
-     * @param  array $matches   路由变量
+     * @param array $bindModel 绑定模型
+     * @param array $matches   路由变量
      * @return void
      */
     protected function createBindModel(array $bindModel, array $matches): void
@@ -200,7 +194,7 @@ abstract class Dispatch
     /**
      * 验证数据
      * @access protected
-     * @param  array $option
+     * @param array $option
      * @return void
      * @throws \think\exception\ValidateException
      */

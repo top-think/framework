@@ -24,9 +24,9 @@ class Controller extends Dispatch
     protected $controller;
     protected $actionName;
 
-    public function init()
+    public function init(App $app)
     {
-        parent::init();
+        parent::init($app);
 
         $result = $this->dispatch;
 

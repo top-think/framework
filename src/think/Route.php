@@ -743,9 +743,11 @@ class Route
             $dispatch = $this->url($request->path());
         }
 
+        $dispatch->init($this->app);
+
         $this->app->middleware->add(function () use ($dispatch) {
             try {
-                $response = $dispatch->setApp($this->app)->run();
+                $response = $dispatch->run();
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }
