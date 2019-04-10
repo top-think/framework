@@ -233,7 +233,7 @@ class Validate
     /**
      * 设置Db对象
      * @access public
-     * @param  Db $lang Db对象
+     * @param  Db $db Db对象
      * @return void
      */
     public function setDb(Db $db)

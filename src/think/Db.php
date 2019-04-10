@@ -18,6 +18,11 @@ use think\db\Query;
 use think\db\Raw;
 use think\exception\DbException;
 
+/**
+ * Class Db
+ * @package think
+ * @mixin Query
+ */
 class Db
 {
     /**
@@ -78,7 +83,7 @@ class Db
     {
         $db = new static($config->get('database'));
 
-        $db->event = $event;
+        $db->setEvent($event);
 
         return $db;
     }
@@ -222,6 +227,15 @@ class Db
     }
 
     /**
+     * 设置Event对象
+     * @param Event $event
+     */
+    public function setEvent(Event $event)
+    {
+        $this->event = $event;
+    }
+
+    /**
      * 注册回调方法
      * @access public
      * @param string   $event    事件名
@@ -230,7 +244,9 @@ class Db
      */
     public function event(string $event, callable $callback): void
     {
-        $this->event->listen('db.' . $event, $callback);
+        if ($this->event) {
+            $this->event->listen('db.' . $event, $callback);
+        }
     }
 
     /**
@@ -243,7 +259,9 @@ class Db
      */
     public function trigger(string $event, $params = null, bool $once = false)
     {
-        return $this->event->trigger('db.' . $event, $params, $once);
+        if ($this->event) {
+            return $this->event->trigger('db.' . $event, $params, $once);
+        }
     }
 
     /**

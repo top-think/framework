@@ -45,13 +45,13 @@ use think\db\Query;
  * @method Query limit(mixed $offset, integer $length = null) static 查询LIMIT
  * @method Query order(mixed $field, string $order = null) static 查询ORDER
  * @method Query orderRaw(string $field, array $bind = []) static 查询ORDER
- * @method Query cache(mixed $key = null , integer $expire = null) static 设置查询缓存
+ * @method Query cache(mixed $key = null, integer $expire = null) static 设置查询缓存
  * @method mixed value(string $field) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method Model find(mixed $data = null) static 查询单个记录 不存在返回Null
  * @method Model findOrEmpty(mixed $data = null) static 查询单个记录 不存在返回空模型
  * @method \think\model\Collection select(mixed $data = null) static 查询多个记录
- * @method Model withAttr(array $name,\Closure $closure) 动态定义获取器
+ * @method Model withAttr(array $name, \Closure $closure) 动态定义获取器
  */
 abstract class Model implements JsonSerializable, ArrayAccess
 {
@@ -166,7 +166,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置服务注入
      * @access public
-     * @param  Closure $maker
+     * @param Closure $maker
      * @return void
      */
     public static function maker(Closure $maker)
@@ -177,7 +177,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置Db对象
      * @access public
-     * @param  Db $db Db对象
+     * @param Db $db Db对象
      * @return void
      */
     public function setDb(Db $db)
@@ -188,7 +188,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置Connection信息
      * @access public
-     * @param  mixed $connection 数据库配置
+     * @param mixed $connection 数据库配置
      * @return void
      */
     public function setConnection($connection)
@@ -209,7 +209,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 架构函数
      * @access public
-     * @param  array $data 数据
+     * @param array $data 数据
      */
     public function __construct(array $data = [])
     {
@@ -254,8 +254,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 创建新的模型实例
      * @access public
-     * @param  array    $data 数据
-     * @param  mixed    $where 更新条件
+     * @param array $data  数据
+     * @param mixed $where 更新条件
      * @return Model
      */
     public function newInstance(array $data = [], $where = null): Model
@@ -275,7 +275,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置模型的更新条件
      * @access protected
-     * @param  mixed $where 更新条件
+     * @param mixed $where 更新条件
      * @return void
      */
     protected function setUpdateWhere($where): void
@@ -286,7 +286,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置当前模型的数据库查询对象
      * @access public
-     * @param  Query $query 查询对象实例
+     * @param Query $query 查询对象实例
      * @return $this
      */
     public function setQuery(Query $query)
@@ -298,7 +298,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
-     * @param  array|false $scope 使用的全局查询范围
+     * @param array|false $scope 使用的全局查询范围
      * @return Query
      */
     public function db($scope = []): Query
@@ -359,12 +359,13 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @return void
      */
     protected static function init(): void
-    {}
+    {
+    }
 
     /**
      * 数据自动完成
      * @access protected
-     * @param  array $auto 要自动更新的字段列表
+     * @param array $auto 要自动更新的字段列表
      * @return void
      */
     protected function autoCompleteData(array $auto = []): void
@@ -383,19 +384,20 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             $this->setAttr($field, !is_null($value) ? $value : $default);
         }
-
     }
 
     protected function checkData(): void
-    {}
+    {
+    }
 
     protected function checkResult($result): void
-    {}
+    {
+    }
 
     /**
      * 更新是否强制写入数据 而不做比较
      * @access public
-     * @param  bool $force
+     * @param bool $force
      * @return $this
      */
     public function force(bool $force = true)
@@ -417,7 +419,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 新增数据是否使用Replace
      * @access public
-     * @param  bool $replace
+     * @param bool $replace
      * @return $this
      */
     public function replace(bool $replace = true)
@@ -429,10 +431,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 刷新模型数据
      * @access public
-     * @param  bool $relation 是否刷新关联数据
+     * @param bool $relation 是否刷新关联数据
      * @return $this
      */
-    public function reflesh(bool $relation = false)
+    public function refresh(bool $relation = false)
     {
         if ($this->exists) {
             $this->data   = $this->db()->fetchArray()->find($this->getKey());
@@ -449,7 +451,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置数据是否存在
      * @access public
-     * @param  bool $exists
+     * @param bool $exists
      * @return $this
      */
     public function exists(bool $exists = true)
@@ -481,7 +483,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 延迟保存当前数据对象
      * @access public
-     * @param  array|bool  $data     数据
+     * @param array|bool $data 数据
      * @return void
      */
     public function lazySave($data = []): void
@@ -500,8 +502,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 保存当前数据对象
      * @access public
-     * @param  array  $data     数据
-     * @param  string $sequence 自增序列名
+     * @param array  $data     数据
+     * @param string $sequence 自增序列名
      * @return bool
      */
     public function save(array $data = [], string $sequence = null): bool
@@ -533,7 +535,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 检查数据是否允许写入
      * @access protected
-     * @param  array   $append 自动完成的字段列表
+     * @param array $append 自动完成的字段列表
      * @return array
      */
     protected function checkAllowFields(array $append = []): array
@@ -651,7 +653,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 新增写入数据
      * @access protected
-     * @param  string   $sequence 自增名
+     * @param string $sequence 自增名
      * @return bool
      */
     protected function insertData(string $sequence = null): bool
@@ -744,8 +746,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 保存多个数据到当前数据对象
      * @access public
-     * @param  iterable $dataSet 数据
-     * @param  boolean  $replace 是否自动识别更新和写入
+     * @param iterable $dataSet 数据
+     * @param boolean  $replace 是否自动识别更新和写入
      * @return Collection
      * @throws \Exception
      */
@@ -823,7 +825,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置自动完成的字段（ 规则通过修改器定义）
      * @access public
-     * @param  array $fields 需要自动完成的字段
+     * @param array $fields 需要自动完成的字段
      * @return $this
      */
     public function auto(array $fields)
@@ -836,9 +838,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 写入数据
      * @access public
-     * @param  array      $data  数据数组
-     * @param  array      $field 允许字段
-     * @param  bool       $replace 使用Replace
+     * @param array $data       数据数组
+     * @param array $allowField 允许字段
+     * @param bool  $replace    使用Replace
      * @return static
      */
     public static function create(array $data, array $allowField = [], bool $replace = false): Model
@@ -857,9 +859,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 更新数据
      * @access public
-     * @param  array $data  数据数组
-     * @param  mixed $where 更新条件
-     * @param  array $allowField 允许字段
+     * @param array $data       数据数组
+     * @param mixed $where      更新条件
+     * @param array $allowField 允许字段
      * @return static
      */
     public static function update(array $data, $where = [], array $allowField = [])
@@ -882,8 +884,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 删除记录
      * @access public
-     * @param  mixed $data 主键列表 支持闭包查询条件
-     * @param  bool  $force 是否强制删除
+     * @param mixed $data  主键列表 支持闭包查询条件
+     * @param bool  $force 是否强制删除
      * @return bool
      */
     public static function destroy($data, bool $force = false): bool
@@ -932,8 +934,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 修改器 设置数据对象的值
      * @access public
-     * @param  string $name  名称
-     * @param  mixed  $value 值
+     * @param string $name  名称
+     * @param mixed  $value 值
      * @return void
      */
     public function __set(string $name, $value): void
@@ -944,7 +946,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 获取器 获取数据对象的值
      * @access public
-     * @param  string $name 名称
+     * @param string $name 名称
      * @return mixed
      */
     public function __get(string $name)
@@ -955,7 +957,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 检测数据对象的值
      * @access public
-     * @param  string $name 名称
+     * @param string $name 名称
      * @return bool
      */
     public function __isset(string $name): bool
@@ -966,7 +968,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 销毁数据对象的值
      * @access public
-     * @param  string $name 名称
+     * @param string $name 名称
      * @return void
      */
     public function __unset(string $name): void
@@ -998,7 +1000,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 设置使用的全局查询范围
      * @access public
-     * @param  array|false $scope 启用的全局查询范围
+     * @param array|false $scope 启用的全局查询范围
      * @return Query
      */
     public static function useGlobalScope($scope)
