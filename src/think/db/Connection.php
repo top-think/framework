@@ -948,6 +948,9 @@ abstract class Connection
 
         // 生成SQL语句
         $sql = $this->builder->insert($query);
+        
+        // 主键自增连续
+		$this->execute('alter table ' .$options['table']. ' auto_increment=1', [] , $query);
 
         // 执行操作
         $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
