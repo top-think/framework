@@ -108,7 +108,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public static function getInstance()
     {
-        if (is_null(static::$instance)) {
+        if (static::$instance === null) {
             static::$instance = new static;
         }
 
