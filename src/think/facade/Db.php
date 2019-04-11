@@ -59,7 +59,6 @@ use think\Facade;
  * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
  * @method string getLastInsID(string $sequence = null) static 获取最近插入的ID
  * @method mixed getConfig(string $name = '') static 获取数据库的配置参数
- * @method bool isReadMaster(string $table) static 后续是否从主服务器读取数据
  */
 class Db extends Facade
 {

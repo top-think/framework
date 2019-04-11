@@ -16,9 +16,8 @@ use think\Facade;
 /**
  * @see \think\Validate
  * @mixin \think\Validate
- * @method \think\Validate make(array $rules = [], array $message = [], array $field = []) static 创建一个验证器类
  * @method \think\Validate rule(mixed $name, mixed $rule = '') static 添加字段验证规则
- * @method void extend(string $type, mixed $callback = null) static 注册扩展验证（类型）规则
+ * @method void extend(string $type, callable $callback = null, string $message='') static 注册扩展验证（类型）规则
  * @method void setTypeMsg(mixed $type, string $msg = null) static 设置验证规则的默认提示信息
  * @method \think\Validate message(mixed $name, string $message = '') static 设置提示信息
  * @method \think\Validate scene(string $name) static 设置验证场景
@@ -57,8 +56,9 @@ use think\Facade;
  * @method bool token(mixed $value, mixed $rule) static 验证表单令牌
  * @method bool dateFormat(mixed $value, mixed $rule) static 验证时间和日期是否符合指定格式
  * @method bool unique(mixed $value, mixed $rule, array $data = [], string $field = '') static 验证是否唯一
- * @method bool check(array $data, mixed $rules = [], string $scene = '') static 数据自动验证
- * @method mixed getError(mixed $value, mixed $rule) static 获取错误信息
+ * @method bool check(array $data, mixed $rules = []) static 数据自动验证
+ * @method bool checkRule(mixed $data, mixed $rules = []) static 数据手动验证
+ * @method mixed getError() static 获取错误信息
  */
 class Validate extends Facade
 {

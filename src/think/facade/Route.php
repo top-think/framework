@@ -38,10 +38,8 @@ use think\Facade;
  * @method \think\route\RuleItem patch(string $rule, mixed $route, array $option = [], array $pattern = []) static 注册路由
  * @method \think\route\Resource resource(string $rule, mixed $route, array $option = [], array $pattern = []) static 注册资源路由
  * @method \think\Route controller(string $rule, mixed $route, array $option = [], array $pattern = []) static 注册控制器路由
- * @method \think\Route alias(string $rule, mixed $route, array $option = [], array $pattern = []) static 注册别名路由
  * @method \think\Route rest(string $name, array $resource = []) static rest方法定义和修改
  * @method \think\route\RuleItem miss(string|\Closure $route, string $method = '*', array $option = []) static 注册未匹配路由规则后的处理
- * @method \think\route\RuleItem auto(string $route) static 注册一个自动解析的URL路由
  * @method \think\route\Dispatch check(string $url, string $depr = '/', bool $must = false, bool $completeMatch = false) static 检测URL路由
  */
 class Route extends Facade
