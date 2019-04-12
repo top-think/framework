@@ -165,8 +165,9 @@ class Route
 
     public function __construct(App $app, Cache $cache)
     {
-        $this->app    = $app;
-        $this->config = array_merge($this->config, $app->config->get('route'));
+        $this->app      = $app;
+        $this->config   = array_merge($this->config, $app->config->get('route'));
+        $this->ruleName = new RuleName();
 
         if (!empty($this->config['route_cache_option'])) {
             $this->cache = $cache->connect($this->config['route_cache_option']);
@@ -180,8 +181,6 @@ class Route
         }
 
         $this->setDefaultDomain();
-
-        $this->ruleName = new RuleName();
     }
 
     public function config(string $name = null)
