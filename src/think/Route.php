@@ -877,7 +877,7 @@ class Route
      * @param  bool|string  $domain 是否显示域名 或者直接传入域名
      * @return string
      */
-    public function buildUrl(string $url = '', $vars = [], $suffix = true, $domain = false): string
+    public function buildUrl(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
         // 解析URL
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
@@ -911,19 +911,13 @@ class Route
 
         $this->showDomain = false === $domain ? false : true;
 
-        // 解析参数
-        if (is_string($vars)) {
-            // aaa=1&bbb=2 转换成数组
-            parse_str($vars, $vars);
-        }
-
         if ($url) {
             $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
             $rule = $this->getName($checkName, $checkDomain);
 
-            if (is_null($rule) && isset($info['query'])) {
+            if (empty($rule) && isset($info['query'])) {
                 $rule = $this->getName($url, $checkDomain);
                 // 解析地址里面参数 合并到vars
                 parse_str($info['query'], $params);
@@ -1021,9 +1015,7 @@ class Route
         $domain = $this->parseDomain($url, $domain);
 
         // URL组装
-        $url = $domain . '/' . ltrim($url, '/');
-
-        return $url;
+        return $domain . '/' . ltrim($url, '/');
     }
 
     /**
