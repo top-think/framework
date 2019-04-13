@@ -31,13 +31,11 @@ class Event
      * @var array
      */
     protected $bind = [
-        'AppInit'      => event\AppInit::class,
-        'AppBegin'     => event\AppBegin::class,
-        'AppEnd'       => event\AppEnd::class,
-        'LogLevel'     => event\LogLevel::class,
-        'LogWrite'     => event\LogWrite::class,
-        'ResponseSend' => event\ResponseSend::class,
-        'ResponseEnd'  => event\ResponseEnd::class,
+        'AppInit'  => event\AppInit::class,
+        'HttpRun'  => event\HttpRun::class,
+        'HttpEnd'  => event\HttpEnd::class,
+        'LogLevel' => event\LogLevel::class,
+        'LogWrite' => event\LogWrite::class,
     ];
 
     /**

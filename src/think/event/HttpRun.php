@@ -12,7 +12,7 @@
 namespace think\event;
 
 /**
- * AppEnd事件类
+ * HttpRun事件类
  */
-class AppEnd
+class HttpRun
 {}
