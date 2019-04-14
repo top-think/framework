@@ -173,28 +173,6 @@ class Debug
     }
 
     /**
-     * 获取文件加载信息
-     * @access public
-     * @param  bool  $detail 是否显示详细
-     * @return integer|array
-     */
-    public function getFile(bool $detail = false)
-    {
-        if ($detail) {
-            $files = get_included_files();
-            $info  = [];
-
-            foreach ($files as $key => $file) {
-                $info[] = $file . ' ( ' . number_format(filesize($file) / 1024, 2) . ' KB )';
-            }
-
-            return $info;
-        }
-
-        return count(get_included_files());
-    }
-
-    /**
      * 浏览器友好的变量输出
      * @access public
      * @param  mixed         $var 变量

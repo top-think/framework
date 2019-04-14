@@ -11,7 +11,7 @@
 declare (strict_types = 1);
 namespace think\debug;
 
-use think\Container;
+use think\App;
 use think\Response;
 
 /**
@@ -33,13 +33,13 @@ class Html
     /**
      * 调试输出接口
      * @access public
-     * @param  Response  $response Response对象
-     * @param  array     $log 日志信息
+     * @param  App      $app 应用实例
+     * @param  Response $response Response对象
+     * @param  array    $log 日志信息
      * @return bool|string
      */
-    public function output(Response $response, array $log = [])
+    public function output(App $app, Response $response, array $log = [])
     {
-        $app     = Container::pull('app');
         $request = $app->request;
 
         $contentType = $response->getHeader('Content-Type');
@@ -65,15 +65,15 @@ class Html
         $base = [
             '请求信息' => date('Y-m-d H:i:s', $request->time()) . ' ' . $uri,
             '运行时间' => number_format((float) $runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
-            '查询信息' => Container::pull('db')->getQueryTimes() . ' queries',
-            '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
+            '查询信息' => $app->db->getQueryTimes() . ' queries',
+            '缓存信息' => $app->cache->getReadTimes() . ' reads,' . $app->cache->getWriteTimes() . ' writes',
         ];
 
-        if (session_id()) {
-            $base['会话信息'] = 'SESSION_ID=' . session_id();
+        if ($app->session->getId(false)) {
+            $base['会话信息'] = 'SESSION_ID=' . $app->session->getId();
         }
 
-        $info = Container::pull('debug')->getFile(true);
+        $info = $this->getFileInfo();
 
         // 页面Trace信息
         $trace = [];
@@ -106,4 +106,20 @@ class Html
         return ob_get_clean();
     }
 
+    /**
+     * 获取文件加载信息
+     * @access protected
+     * @return integer|array
+     */
+    protected function getFileInfo()
+    {
+        $files = get_included_files();
+        $info  = [];
+
+        foreach ($files as $key => $file) {
+            $info[] = $file . ' ( ' . number_format(filesize($file) / 1024, 2) . ' KB )';
+        }
+
+        return $info;
+    }
 }

@@ -69,7 +69,7 @@ class TraceDebug
         if ($response instanceof Redirect) {
             //TODO 记录
         } else {
-            $output = $trace->output($response, $this->app->log->getLog());
+            $output = $trace->output($this->app, $response, $this->app->log->getLog());
             if (is_string($output)) {
                 // trace调试信息注入
                 $pos = strripos($content, '</body>');
