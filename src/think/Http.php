@@ -329,40 +329,42 @@ class Http
         $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
 
         //加载app文件
-        if (is_file($this->app->getRuntimePath() . 'init.php')) {
-            //直接加载缓存
-            include $this->app->getRuntimePath() . 'init.php';
-        } else {
-            $appPath = $this->app->getAppPath();
+        if (is_dir($this->app->getAppPath())) {
+            if (is_file($this->app->getRuntimePath() . 'init.php')) {
+                //直接加载缓存
+                include $this->app->getRuntimePath() . 'init.php';
+            } else {
+                $appPath = $this->app->getAppPath();
 
-            if (is_file($appPath . 'common.php')) {
-                include_once $appPath . 'common.php';
-            }
+                if (is_file($appPath . 'common.php')) {
+                    include_once $appPath . 'common.php';
+                }
 
-            $configPath = $this->app->getConfigPath();
+                $configPath = $this->app->getConfigPath();
 
-            $files = [];
+                $files = [];
 
-            if (is_dir($configPath . $appName)) {
-                $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            } elseif (is_dir($appPath . 'config')) {
-                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            }
+                if (is_dir($configPath . $appName)) {
+                    $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                } elseif (is_dir($appPath . 'config')) {
+                    $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                }
 
-            foreach ($files as $file) {
-                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-            }
+                foreach ($files as $file) {
+                    $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+                }
 
-            if (is_file($appPath . 'event.php')) {
-                $this->app->loadEvent(include $appPath . 'event.php');
-            }
+                if (is_file($appPath . 'event.php')) {
+                    $this->app->loadEvent(include $appPath . 'event.php');
+                }
 
-            if (is_file($appPath . 'middleware.php')) {
-                $this->app->middleware->import(include $appPath . 'middleware.php');
-            }
+                if (is_file($appPath . 'middleware.php')) {
+                    $this->app->middleware->import(include $appPath . 'middleware.php');
+                }
 
-            if (is_file($appPath . 'provider.php')) {
-                $this->app->bind(include $appPath . 'provider.php');
+                if (is_file($appPath . 'provider.php')) {
+                    $this->app->bind(include $appPath . 'provider.php');
+                }
             }
         }
 

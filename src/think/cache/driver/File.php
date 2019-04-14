@@ -51,27 +51,6 @@ class File extends Driver
         } elseif (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }
-
-        $this->init();
-    }
-
-    /**
-     * 初始化检查
-     * @access private
-     * @return bool
-     */
-    private function init(): bool
-    {
-        // 创建项目缓存目录
-        try {
-            if (!is_dir($this->options['path']) && mkdir($this->options['path'], 0755, true)) {
-                return true;
-            }
-        } catch (\Exception $e) {
-            // 写入失败
-        }
-
-        return false;
     }
 
     /**
