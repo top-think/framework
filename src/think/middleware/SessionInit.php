@@ -15,6 +15,7 @@ namespace think\middleware;
 use Closure;
 use think\App;
 use think\Request;
+use think\response\Redirect as RedirectResponse;
 use think\Session;
 
 class SessionInit
@@ -58,6 +59,11 @@ class SessionInit
         $response = $next($request)->setSession($this->session);
 
         $this->app->cookie->set($cookieName, $this->session->getId());
+
+        // 清空当次请求有效的数据
+        if (!($response instanceof RedirectResponse)) {
+            $this->session->flush();
+        }
 
         return $response;
     }

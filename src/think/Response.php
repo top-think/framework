@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\response\Redirect as RedirectResponse;
-
 class Response
 {
     /**
@@ -160,11 +158,6 @@ class Response
         if (function_exists('fastcgi_finish_request')) {
             // 提高页面响应
             fastcgi_finish_request();
-        }
-
-        // 清空当次请求有效的数据
-        if (!($this instanceof RedirectResponse)) {
-            $this->session->flush();
         }
     }
 
