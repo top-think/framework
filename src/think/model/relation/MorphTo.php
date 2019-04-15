@@ -220,7 +220,7 @@ class MorphTo extends Relation
                         } else {
                             $relationModel = $data[$result->$morphKey];
                             $relationModel->setParent(clone $result);
-                            $relationModel->isUpdate(true);
+                            $relationModel->exists(true);
                         }
 
                         $result->setRelation($attr, $relationModel);
@@ -276,7 +276,7 @@ class MorphTo extends Relation
 
         if ($data) {
             $data->setParent(clone $result);
-            $data->isUpdate(true);
+            $data->exists(true);
         }
 
         $result->setRelation(App::parseName($relation), $data ?: null);

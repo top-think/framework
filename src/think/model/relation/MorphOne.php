@@ -147,7 +147,7 @@ class MorphOne extends Relation
                 } else {
                     $relationModel = $data[$result->$pk];
                     $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
+                    $relationModel->exists(true);
                 }
 
                 $result->setRelation($attr, $relationModel);
@@ -178,7 +178,7 @@ class MorphOne extends Relation
             if (isset($data[$pk])) {
                 $relationModel = $data[$pk];
                 $relationModel->setParent(clone $result);
-                $relationModel->isUpdate(true);
+                $relationModel->exists(true);
             } else {
                 $relationModel = null;
             }

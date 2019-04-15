@@ -589,7 +589,7 @@ trait RelationShip
         }
 
         // 获取关联数据
-        return $modelRelation->getRelation();
+        return $modelRelation->getModel()->getRelation();
     }
 
     /**
@@ -631,12 +631,12 @@ trait RelationShip
     {
         foreach ($this->relationWrite as $name => $val) {
             if ($val instanceof Model) {
-                $val->isUpdate()->save();
+                $val->exists(true)->save();
             } else {
                 $model = $this->getRelation($name);
 
                 if ($model instanceof Model) {
-                    $model->isUpdate()->save($val);
+                    $model->exists(true)->save($val);
                 }
             }
         }
@@ -674,5 +674,16 @@ trait RelationShip
                 }
             }
         }
+    }
+
+    /**
+     * 移除当前模型的关联属性
+     * @access public
+     * @return $this
+     */
+    public function removeRelation()
+    {
+        $this->relation = [];
+        return $this;
     }
 }

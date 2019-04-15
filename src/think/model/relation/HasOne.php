@@ -213,7 +213,7 @@ class HasOne extends OneToOne
                 } else {
                     $relationModel = $data[$result->$localKey];
                     $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
+                    $relationModel->exists(true);
                 }
 
                 if ($relationModel && !empty($this->bindAttr)) {
@@ -253,7 +253,7 @@ class HasOne extends OneToOne
         } else {
             $relationModel = $data[$result->$localKey];
             $relationModel->setParent(clone $result);
-            $relationModel->isUpdate(true);
+            $relationModel->exists(true);
         }
 
         if ($relationModel && !empty($this->bindAttr)) {

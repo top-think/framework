@@ -151,7 +151,7 @@ class MorphMany extends Relation
 
                 foreach ($data[$result->$pk] as &$relationModel) {
                     $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
+                    $relationModel->exists(true);
                 }
 
                 $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
@@ -186,7 +186,7 @@ class MorphMany extends Relation
 
             foreach ($data[$key] as &$relationModel) {
                 $relationModel->setParent(clone $result);
-                $relationModel->isUpdate(true);
+                $relationModel->exists(true);
             }
 
             $result->setRelation(App::parseName($relation), $this->resultSetBuild($data[$key]));

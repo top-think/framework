@@ -250,7 +250,7 @@ abstract class OneToOne extends Relation
             } else {
                 $relationModel = new $model($list[$relation]);
                 $relationModel->setParent(clone $result);
-                $relationModel->isUpdate(true);
+                $relationModel->exists(true);
             }
 
             if ($relationModel && !empty($this->bindAttr)) {
