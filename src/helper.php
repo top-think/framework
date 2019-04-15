@@ -22,7 +22,6 @@ use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
 use think\facade\Db;
-use think\facade\Debug;
 use think\facade\Env;
 use think\facade\Event;
 use think\facade\Lang;
@@ -30,6 +29,8 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
+use think\Model;
+use think\model\Collection as ModelCollection;
 use think\Response;
 use think\route\RuleItem;
 
@@ -225,24 +226,6 @@ if (!function_exists('cookie')) {
     }
 }
 
-if (!function_exists('debug')) {
-    /**
-     * 记录时间（微秒）和内存使用情况
-     * @param  string         $start 开始标签
-     * @param  string         $end   结束标签
-     * @param  integer|string $dec   小数位 如果是m 表示统计内存占用
-     * @return mixed
-     */
-    function debug(string $start, string $end = '', $dec = 6)
-    {
-        if ('' == $end) {
-            Debug::remark($start);
-        } else {
-            return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
-        }
-    }
-}
-
 if (!function_exists('download')) {
     /**
      * 获取\think\response\Download对象实例
@@ -268,7 +251,32 @@ if (!function_exists('dump')) {
      */
     function dump($var, bool $echo = true, string $label = null)
     {
-        return Debug::dump($var, $echo, $label);
+        $label = (null === $label) ? '' : rtrim($label) . ':';
+        if ($var instanceof Model || $var instanceof ModelCollection) {
+            $var = $var->toArray();
+        }
+
+        ob_start();
+        var_dump($var);
+
+        $output = ob_get_clean();
+        $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
+
+        if (PHP_SAPI == 'cli') {
+            $output = PHP_EOL . $label . $output . PHP_EOL;
+        } else {
+            if (!extension_loaded('xdebug')) {
+                $output = htmlspecialchars($output, ENT_SUBSTITUTE);
+            }
+            $output = '<pre>' . $label . $output . '</pre>';
+        }
+
+        if ($echo) {
+            echo $output;
+            return;
+        }
+
+        return $output;
     }
 }
 

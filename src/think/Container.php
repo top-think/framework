@@ -36,7 +36,6 @@ use think\exception\ClassNotFoundException;
  * @property Http       $http
  * @property Console    $console
  * @property Env        $env
- * @property Debug      $debug
  * @property Event      $event
  * @property Middleware $middleware
  * @property Log        $log
@@ -71,7 +70,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'console'                 => Console::class,
         'cookie'                  => Cookie::class,
         'db'                      => Db::class,
-        'debug'                   => Debug::class,
         'env'                     => Env::class,
         'event'                   => Event::class,
         'http'                    => Http::class,
