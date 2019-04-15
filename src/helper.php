@@ -16,6 +16,7 @@ declare (strict_types = 1);
 
 use think\App;
 use think\Container;
+use think\db\Raw;
 use think\exception\HttpException;
 use think\exception\HttpResponseException;
 use think\facade\Cache;
@@ -138,29 +139,10 @@ if (!function_exists('class_basename')) {
      * @param  mixed $class 类名
      * @return string
      */
-    function class_basename($class)
+    function class_basename($class): string
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
-    }
-}
-
-if (!function_exists('trait_uses_recursive')) {
-    /**
-     * 获取一个trait里所有引用到的trait
-     *
-     * @param  string $trait
-     * @return array
-     */
-    function trait_uses_recursive($trait)
-    {
-        $traits = class_uses($trait);
-
-        foreach ($traits as $trait) {
-            $traits += trait_uses_recursive($trait);
-        }
-
-        return $traits;
     }
 }
 
@@ -171,7 +153,7 @@ if (!function_exists('class_uses_recursive')) {
      * @param  mixed $class 类名
      * @return array
      */
-    function class_uses_recursive($class)
+    function class_uses_recursive($class): array
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -427,7 +409,7 @@ if (!function_exists('parse_name')) {
      * @param  bool   $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    function parse_name(string $name, int $type = 0, bool $ucfirst = true)
+    function parse_name(string $name, int $type = 0, bool $ucfirst = true): string
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -447,7 +429,7 @@ if (!function_exists('raw')) {
      * @param  string $sql SQL指令
      * @return \think\db\Raw
      */
-    function raw(string $sql)
+    function raw(string $sql): Raw
     {
         return Db::raw($sql);
     }
@@ -506,7 +488,7 @@ if (!function_exists('route')) {
      * @param  string $method 请求类型
      * @return RuleItem
      */
-    function route(string $rule, $route, $method = '*')
+    function route(string $rule, $route, $method = '*'): RuleItem
     {
         return Route::rule($rule, $route, $method);
     }
@@ -576,7 +558,7 @@ if (!function_exists('trait_uses_recursive')) {
      * @param  string $trait Trait
      * @return array
      */
-    function trait_uses_recursive(string $trait)
+    function trait_uses_recursive(string $trait): array
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {
@@ -596,7 +578,7 @@ if (!function_exists('url')) {
      * @param bool|string $domain 域名
      * @return string
      */
-    function url(string $url = '', array $vars = [], $suffix = true, $domain = false)
+    function url(string $url = '', array $vars = [], $suffix = true, $domain = false): string
     {
         return Route::buildUrl($url, $vars, $suffix, $domain);
     }
@@ -609,10 +591,10 @@ if (!function_exists('validate')) {
      * @param  string|array $validate 验证器名或者验证规则数组
      * @param  array        $message  提示信息
      * @param  bool         $batch    是否批量验证
-     * @return true
+     * @return bool
      * @throws ValidateException
      */
-    function validate(array $data, $validate, array $message = [], bool $batch = false)
+    function validate(array $data, $validate, array $message = [], bool $batch = false): bool
     {
         if (is_array($validate)) {
             $v = new Validate();
