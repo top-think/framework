@@ -25,7 +25,7 @@ ThinkPHP6.0底层架构采用PHP7.1改写和进一步优化。
  + 用法统一和精简
 
 
-> ThinkPHP5.2的运行环境要求PHP7.1+。
+> ThinkPHP6.0的运行环境要求PHP7.1+。
 
 ## 安装
 
@@ -53,11 +53,11 @@ composer update topthink/framework
 
 ## 命名规范
 
-`ThinkPHP5`遵循PSR-2命名规范和PSR-4自动加载规范。
+`ThinkPHP6`遵循PSR-2命名规范和PSR-4自动加载规范。
 
 ## 参与开发
 
-请参阅 [ThinkPHP5 核心框架包](https://github.com/top-think/framework)。
+请参阅 [ThinkPHP核心框架包](https://github.com/top-think/framework)。
 
 ## 版权信息
 
