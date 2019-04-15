@@ -53,13 +53,14 @@ class Lang
     ];
 
     // 设定当前的语言
-    public function range(string $range = '')
+    public function setLangSet(string $lang): void
     {
-        if ('' == $range) {
-            return $this->range;
-        } else {
-            $this->range = $range;
-        }
+        $this->range = $lang;
+    }
+
+    public function getLangSet(): string
+    {
+        return $this->range;
     }
 
     /**
@@ -184,22 +185,23 @@ class Lang
     /**
      * 自动侦测设置获取语言选择
      * @access public
+     * @param  Request $request Request对象
      * @return string
      */
-    public function detect(): string
+    public function detect(Request $request): string
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
 
-        if (isset($_GET[$this->langDetectVar])) {
+        if ($request->get($this->langDetectVar)) {
             // url中设置了语言变量
-            $langSet = strtolower($_GET[$this->langDetectVar]);
-        } elseif (isset($_COOKIE[$this->langCookieVar])) {
+            $langSet = strtolower($request->get($this->langDetectVar));
+        } elseif ($request->cookie($this->langCookieVar)) {
             // Cookie中设置了语言变量
-            $langSet = strtolower($_COOKIE[$this->langCookieVar]);
-        } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            $langSet = strtolower($request->cookie($this->langCookieVar));
+        } elseif ($request->server('HTTP_ACCEPT_LANGUAGE')) {
             // 自动侦测浏览器语言
-            preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches);
+            preg_match('/^([a-z\d\-]+)/i', $request->server('HTTP_ACCEPT_LANGUAGE'), $matches);
             $langSet = strtolower($matches[1]);
             if (isset($this->acceptLanguage[$langSet])) {
                 $langSet = $this->acceptLanguage[$langSet];
@@ -215,19 +217,6 @@ class Lang
     }
 
     /**
-     * 设置当前语言到Cookie
-     * @access public
-     * @param  string $lang 语言
-     * @return void
-     */
-    public function saveToCookie(string $lang = null): void
-    {
-        $range = $lang ?: $this->range;
-
-        $_COOKIE[$this->langCookieVar] = $range;
-    }
-
-    /**
      * 设置语言自动侦测的变量
      * @access public
      * @param  string $var 变量名称
@@ -239,6 +228,16 @@ class Lang
     }
 
     /**
+     * 获取语言自动侦测的变量
+     * @access public
+     * @return string
+     */
+    public function getLangDetectVar(): string
+    {
+        return $this->langDetectVar;
+    }
+
+    /**
      * 设置语言的cookie保存变量
      * @access public
      * @param  string $var 变量名称
@@ -247,6 +246,16 @@ class Lang
     public function setLangCookieVar(string $var): void
     {
         $this->langCookieVar = $var;
+    }
+
+    /**
+     * 获取语言的cookie保存变量
+     * @access public
+     * @return string
+     */
+    public function getLangCookieVar(): string
+    {
+        return $this->langCookieVar;
     }
 
     /**

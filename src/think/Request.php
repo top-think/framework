@@ -156,12 +156,6 @@ class Request
     protected $action;
 
     /**
-     * 当前语言集
-     * @var string
-     */
-    protected $langset;
-
-    /**
      * 当前请求参数
      * @var array
      */
@@ -1907,28 +1901,6 @@ class Request
     {
         $name = $this->action ?: '';
         return $convert ? strtolower($name) : $name;
-    }
-
-    /**
-     * 设置当前的语言
-     * @access public
-     * @param  string $lang 语言名
-     * @return $this
-     */
-    public function setLangset(string $lang)
-    {
-        $this->langset = $lang;
-        return $this;
-    }
-
-    /**
-     * 获取当前的语言
-     * @access public
-     * @return string
-     */
-    public function langset(): string
-    {
-        return $this->langset ?: '';
     }
 
     /**

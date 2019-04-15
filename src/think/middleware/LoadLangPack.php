@@ -42,19 +42,23 @@ class LoadLangPack
     public function handle($request, Closure $next)
     {
         // 读取默认语言
-        $this->lang->range($this->app->config->get('app.default_lang', 'zh-cn'));
+        $this->lang->setLangset($this->app->config->get('app.default_lang', 'zh-cn'));
 
         if ($this->app->config->get('app.lang_switch_on', false)) {
             // 开启多语言机制 检测当前语言
-            $this->lang->detect();
+            $this->lang->detect($request);
         }
 
-        $request->setLangset($this->lang->range());
+        $langset = $this->lang->getLangSet();
+
+        if ($this->app->config('app.lang_use_cookie')) {
+            $this->app->cookie($this->lang->getLangCookieVar(), $langset);
+        }
 
         // 加载系统语言包
         $this->lang->load([
-            $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $request->langset() . '.php',
-            $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $request->langset() . '.php',
+            $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
+            $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
         ]);
 
         return $next($request);
