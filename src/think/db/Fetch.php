@@ -369,7 +369,7 @@ class Fetch
      */
     public function selectOrFail($data = null): string
     {
-        return $this->failException(true)->select($data);
+        return $this->query->failException(true)->select($data);
     }
 
     /**
@@ -380,7 +380,7 @@ class Fetch
      */
     public function findOrFail($data = null): string
     {
-        return $this->failException(true)->find($data);
+        return $this->query->failException(true)->find($data);
     }
 
     /**
@@ -468,11 +468,11 @@ class Fetch
         if (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
             $field = App::parseName(substr($method, 5));
-            return $this->where($field, '=', $args[0])->find();
+            return $this->query->where($field, '=', $args[0])->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
             $name = App::parseName(substr($method, 10));
-            return $this->where($name, '=', $args[0])->value($args[1]);
+            return $this->query->where($name, '=', $args[0])->value($args[1]);
         }
 
         $result = call_user_func_array([$this->query, $method], $args);

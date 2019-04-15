@@ -51,8 +51,8 @@ class LoadLangPack
 
         $langset = $this->lang->getLangSet();
 
-        if ($this->app->config('app.lang_use_cookie')) {
-            $this->app->cookie($this->lang->getLangCookieVar(), $langset);
+        if ($this->app->config->get('app.lang_use_cookie')) {
+            $this->app->cookie->set($this->lang->getLangCookieVar(), $langset);
         }
 
         // 加载系统语言包

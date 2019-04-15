@@ -33,6 +33,7 @@ use think\Model;
 use think\model\Collection as ModelCollection;
 use think\Response;
 use think\route\RuleItem;
+use think\Validate;
 
 if (!function_exists('abort')) {
     /**
@@ -215,7 +216,7 @@ if (!function_exists('cookie')) {
     {
         if (is_null($value)) {
             // 删除
-            return Cookie::delete($name);
+            Cookie::delete($name);
         } elseif ('' === $value) {
             // 获取
             return 0 === strpos($name, '?') ? Request::has(substr($name, 1), 'cookie') : Request::cookie($name);
@@ -579,7 +580,7 @@ if (!function_exists('trait_uses_recursive')) {
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {
-            $traits += traitUsesRecursive($trait);
+            $traits += trait_uses_recursive($trait);
         }
 
         return $traits;

@@ -2651,7 +2651,7 @@ class Query
      * @access public
      * @param array   $data         数据
      * @param boolean $getLastInsID 返回自增主键
-     * @return integer
+     * @return integer|string
      */
     public function insert(array $data = [], bool $getLastInsID = false)
     {

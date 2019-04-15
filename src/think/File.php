@@ -101,11 +101,21 @@ class File extends SplFileObject
      * 获取上传文件的信息
      * @access public
      * @param  string   $name
-     * @return array|string
+     * @return array
      */
-    public function getInfo(string $name = '')
+    public function getInfo(): array
     {
-        return $this->info[$name] ?? $this->info;
+        return $this->info;
+    }
+
+    /**
+     * 获取上传文件的name
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->info['name'] ?? '';
     }
 
     /**
@@ -257,7 +267,7 @@ class File extends SplFileObject
             $ext = explode(',', $ext);
         }
 
-        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo($this->getName(), PATHINFO_EXTENSION));
 
         if (!in_array($extension, $ext)) {
             $this->error = 'extensions to upload is not allowed';
@@ -274,7 +284,7 @@ class File extends SplFileObject
      */
     public function checkImg(): bool
     {
-        $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
+        $extension = strtolower(pathinfo($this->getName(), PATHINFO_EXTENSION));
 
         /* 对图像文件进行严格检测 */
         if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array($this->getImageType($this->filename), [1, 2, 3, 4, 6, 13])) {
@@ -408,11 +418,11 @@ class File extends SplFileObject
             $savename = $this->autoBuildName();
         } elseif ('' === $savename || false === $savename) {
             // 保留原文件名
-            $savename = $this->getInfo('name');
+            $savename = $this->getName();
         }
 
         if (!strpos($savename, '.')) {
-            $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
+            $savename .= '.' . pathinfo($this->getName(), PATHINFO_EXTENSION);
         }
 
         return $savename;
