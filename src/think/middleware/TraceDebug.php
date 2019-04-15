@@ -17,6 +17,7 @@ use think\App;
 use think\Config;
 use think\Request;
 use think\Response;
+use think\response\Redirect;
 
 class TraceDebug
 {
