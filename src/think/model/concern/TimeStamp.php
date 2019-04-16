@@ -44,6 +44,12 @@ trait TimeStamp
     protected $dateFormat;
 
     /**
+     * 高精度时间记录
+     * @var bool
+     */
+    protected $timestamp = false;
+
+    /**
      * 是否需要自动写入时间字段
      * @access public
      * @param  bool|string $auto
@@ -110,9 +116,7 @@ trait TimeStamp
                 case 'datetime':
                 case 'date':
                 case 'timestamp':
-                    $format = !empty($param) ? $param : $this->dateFormat;
-                    $format .= strpos($format, 'u') || false !== strpos($format, '\\') ? '' : '.u';
-                    $value = $this->formatDateTime($format);
+                    $value = $this->formatDateTime('Y-m-d H:i:s.u');
                     break;
                 default:
                     if (false !== strpos($type, '\\')) {
@@ -126,8 +130,7 @@ trait TimeStamp
             }
         } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
             ['datetime', 'date', 'timestamp'])) {
-            $format = strpos($this->dateFormat, 'u') || false !== strpos($this->dateFormat, '\\') ? '' : '.u';
-            $value  = $this->formatDateTime($this->dateFormat . $format);
+            $value = $this->formatDateTime('Y-m-d H:i:s.u');
         }
 
         return $value;

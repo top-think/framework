@@ -409,9 +409,9 @@ trait Attribute
                 }
                 break;
             case 'datetime':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = is_numeric($value) ? $value : strtotime($value);
-                $value  = $this->formatDateTime($format, $value);
+
+                $value = is_numeric($value) ? $value : strtotime($value);
+                $value = $this->formatDateTime('Y-m-d H:i:s.u', $value);
                 break;
             case 'object':
                 if (is_object($value)) {

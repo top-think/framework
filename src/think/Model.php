@@ -599,10 +599,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return false;
         }
 
-        if ($this->autoWriteTimestamp && $this->updateTime && !isset($this->data[$this->updateTime])) {
+        if ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
             // 自动写入更新时间
-            $this->data[$this->updateTime] = $this->autoWriteTimestamp($this->updateTime);
-            $data[$this->updateTime]       = $this->data[$this->updateTime];
+            $data[$this->updateTime]       = $this->autoWriteTimestamp($this->updateTime);
+            $this->data[$this->updateTime] = $data[$this->updateTime];
         }
 
         // 检查允许字段
