@@ -44,12 +44,6 @@ trait TimeStamp
     protected $dateFormat;
 
     /**
-     * 高精度时间记录
-     * @var bool
-     */
-    protected $timestamp = false;
-
-    /**
      * 是否需要自动写入时间字段
      * @access public
      * @param  bool|string $auto
