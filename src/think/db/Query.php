@@ -815,12 +815,12 @@ class Query
      * 字段值增长
      * @access public
      * @param string  $field    字段名
-     * @param integer $step     增长值
+     * @param float   $step     增长值
      * @param integer $lazyTime 延时时间(s)
      * @param string  $op       INC/DEC
      * @return $this
      */
-    public function inc(string $field, int $step = 1, int $lazyTime = 0, string $op = 'INC')
+    public function inc(string $field, float $step = 1, int $lazyTime = 0, string $op = 'INC')
     {
         if ($lazyTime > 0) {
             // 延迟写入
@@ -845,11 +845,11 @@ class Query
      * 字段值减少
      * @access public
      * @param string  $field    字段名
-     * @param integer $step     增长值
+     * @param float   $step     增长值
      * @param integer $lazyTime 延时时间(s)
      * @return $this
      */
-    public function dec(string $field, int $step = 1, int $lazyTime = 0)
+    public function dec(string $field, float $step = 1, int $lazyTime = 0)
     {
         return $this->inc($field, $step, $lazyTime, 'DEC');
     }
