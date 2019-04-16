@@ -14,9 +14,7 @@ namespace think\session;
 
 interface SessionHandler
 {
-
     public function read(string $sessionId): string;
     public function delete(string $sessionId): bool;
     public function write(string $sessionId, string $data): bool;
-
 }

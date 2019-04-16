@@ -139,11 +139,22 @@ class Session
         }
     }
 
+    /**
+     * 设置SessionName
+     * @access public
+     * @param  string $name session_name
+     * @return void
+     */
     public function setName(string $name): void
     {
         $this->sessionName = $name;
     }
 
+    /**
+     * 获取sessionName
+     * @access public
+     * @return string
+     */
     public function getName(): string
     {
         return $this->sessionName;
@@ -209,18 +220,17 @@ class Session
 
         $sessionId = $this->getId();
 
-        return $this->readSession($sessionId, $name, $default);
+        return $this->readSession($name, $default);
     }
 
     /**
      * session获取
      * @access protected
-     * @param  string $sessionId session_id
      * @param  string $name session名称
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    protected function readSession(string $sessionId, string $name = '', $default = null)
+    protected function readSession(string $name = '', $default = null)
     {
         $value = $this->data;
 
@@ -243,10 +253,10 @@ class Session
     /**
      * 删除session数据
      * @access public
-     * @param  string|array $name session名称
+     * @param  string $name session名称
      * @return void
      */
-    public function delete($name): bool
+    public function delete(string $name): bool
     {
         empty($this->init) && $this->boot();
 
@@ -256,11 +266,7 @@ class Session
             return false;
         }
 
-        if (is_array($name)) {
-            foreach ($name as $key) {
-                $this->deleteSession($sessionId, $key);
-            }
-        } elseif (strpos($name, '.')) {
+        if (strpos($name, '.')) {
             list($name1, $name2) = explode('.', $name);
             unset($this->data[$name1][$name2]);
         } else {
@@ -288,7 +294,6 @@ class Session
                 $this->handler->delete($sessionId);
             }
         }
-
     }
 
     /**
@@ -320,7 +325,7 @@ class Session
         $sessionId = $this->getId(false);
 
         if ($sessionId) {
-            return $this->hasSession($sessionId, $name);
+            return $this->hasSession($name);
         }
 
         return false;
@@ -329,11 +334,10 @@ class Session
     /**
      * 判断session数据
      * @access protected
-     * @param  string $sessionId session_id
      * @param  string $name session名称
      * @return bool
      */
-    protected function hasSession(string $sessionId, string $name): bool
+    protected function hasSession(string $name): bool
     {
         $value = $this->data ?: [];
 
@@ -387,7 +391,7 @@ class Session
     }
 
     /**
-     * 生成session_id
+     * 重新生成session_id
      * @access protected
      * @param  bool $delete 是否删除关联会话文件
      * @return string

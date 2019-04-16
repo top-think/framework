@@ -1880,11 +1880,11 @@ abstract class Connection
      * @access public
      * @param string  $type     自增或者自减
      * @param string  $guid     写入标识
-     * @param integer $step     写入步进值
+     * @param float   $step     写入步进值
      * @param integer $lazyTime 延时时间(s)
      * @return false|integer
      */
-    public function lazyWrite(string $type, string $guid, int $step, int $lazyTime)
+    public function lazyWrite(string $type, string $guid, float $step, int $lazyTime)
     {
         if (!$this->cache->has($guid . '_time')) {
             // 计时开始
