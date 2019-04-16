@@ -43,13 +43,15 @@ class SessionInit
     public function handle($request, Closure $next)
     {
         // Session初始化
+        $this->session->init();
+
         $varSessionId = $this->app->config->get('session.var_session_id');
-        $cookieName   = $this->app->config->get('session.name', 'PHPSESSID');
+        $sessionName  = $this->session->getName();
 
         if ($varSessionId && $request->request($varSessionId)) {
             $sessionId = $request->request($varSessionId);
         } else {
-            $sessionId = $request->cookie($cookieName) ?: '';
+            $sessionId = $request->cookie($sessionName) ?: '';
         }
 
         $this->session->setId($sessionId);
@@ -58,7 +60,7 @@ class SessionInit
 
         $response = $next($request)->setSession($this->session);
 
-        $this->app->cookie->set($cookieName, $this->session->getId());
+        $this->app->cookie->set($sessionName, $this->session->getId());
 
         // 清空当次请求有效的数据
         if (!($response instanceof RedirectResponse)) {

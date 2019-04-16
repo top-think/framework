@@ -399,7 +399,9 @@ class Session
     protected function regenerate(bool $delete = false): string
     {
         if ($delete) {
+            $data = $this->data;
             $this->destroy();
+            $this->data = $data;
         }
 
         $sessionId = md5(microtime(true) . uniqid());
