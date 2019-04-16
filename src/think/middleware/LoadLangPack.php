@@ -61,6 +61,13 @@ class LoadLangPack
             $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
         ]);
 
+        // 加载扩展语言包
+        $list = $this->app->config->get('app.lang_extend_list', []);
+
+        if (isset($list[$langset])) {
+            $this->lang->load($list[$langset]);
+        }
+
         return $next($request);
     }
 }

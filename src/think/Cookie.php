@@ -84,7 +84,7 @@ class Cookie
      * @access public
      * @param  string $name  cookie名称
      * @param  string $value cookie值
-     * @param  mixed  $option 可选参数 可能会是
+     * @param  mixed  $option 可选参数
      * @return void
      */
     public function set(string $name, string $value, $option = null): void
