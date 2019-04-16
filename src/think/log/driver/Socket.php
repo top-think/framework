@@ -11,14 +11,14 @@
 
 namespace think\log\driver;
 
-use think\Container;
-
 /**
  * github: https://github.com/luofei614/SocketLog
  * @author luofei614<weibo.com/luofei614>
  */
 class Socket
 {
+    protected $app;
+
     public $port = 1116; //SocketLog 服务的http的端口号
 
     protected $config = [
@@ -47,8 +47,10 @@ class Socket
      * @access public
      * @param  array $config 缓存参数
      */
-    public function __construct(array $config = [])
+    public function __construct(App $app, array $config = [])
     {
+        $this->app = $app;
+
         if (!empty($config)) {
             $this->config = array_merge($this->config, $config);
         }
@@ -68,11 +70,11 @@ class Socket
 
         $trace = [];
 
-        if (Container::pull('app')->isDebug()) {
-            $runtime    = round(microtime(true) - Container::pull('app')->getBeginTime(), 10);
+        if ($this->app->isDebug()) {
+            $runtime    = round(microtime(true) - $this->app->getBeginTime(), 10);
             $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
             $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
-            $memory_use = number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024, 2);
+            $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
             $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
             $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
 
