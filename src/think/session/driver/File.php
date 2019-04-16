@@ -20,7 +20,7 @@ class File implements SessionHandler
     protected $config = [
         'path'           => '',
         'expire'         => 0,
-        'cache_subdir'   => true,
+        'prefix'         => '',
         'data_compress'  => false,
         'gc_divisor'     => 1000,
         'gc_maxlifetime' => 1440,
@@ -94,9 +94,9 @@ class File implements SessionHandler
      */
     protected function getFileName(string $name, bool $auto = false): string
     {
-        if ($this->config['cache_subdir']) {
+        if ($this->config['prefix']) {
             // 使用子目录
-            $name = substr($name, 0, 2) . DIRECTORY_SEPARATOR . 'sess_' . $name;
+            $name = $this->config['prefix'] . DIRECTORY_SEPARATOR . 'sess_' . $name;
         } else {
             $name = 'sess_' . $name;
         }

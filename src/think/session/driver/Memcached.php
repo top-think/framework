@@ -23,7 +23,7 @@ class Memcached implements SessionHandler
         'port'     => 11211, // memcache端口
         'expire'   => 3600, // session有效期
         'timeout'  => 0, // 连接超时时间（单位：毫秒）
-        'name'     => '', // session name （memcache key前缀）
+        'prefix'   => '', // session name （memcache key前缀）
         'username' => '', //账号
         'password' => '', //密码
     ];
