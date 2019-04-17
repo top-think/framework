@@ -19,7 +19,6 @@ use think\Request;
 
 class LoadLangPack
 {
-
     /** @var Lang */
     protected $lang;
 
@@ -41,19 +40,8 @@ class LoadLangPack
      */
     public function handle($request, Closure $next)
     {
-        // 读取默认语言
-        $this->lang->setLangset($this->app->config->get('app.default_lang', 'zh-cn'));
-
-        if ($this->app->config->get('app.lang_switch_on', false)) {
-            // 开启多语言机制 检测当前语言
-            $this->lang->detect($request);
-        }
-
+        // 当前语言
         $langset = $this->lang->getLangSet();
-
-        if ($this->app->config->get('app.lang_use_cookie')) {
-            $this->app->cookie->set($this->lang->getLangCookieVar(), $langset);
-        }
 
         // 加载系统语言包
         $this->lang->load([
@@ -61,12 +49,14 @@ class LoadLangPack
             $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
         ]);
 
-        // 加载扩展语言包
-        $list = $this->app->config->get('app.lang_extend_list', []);
+        // 加载扩展（自定义）语言包
+        $list = $this->app->config->get('lang.extend_list', []);
 
         if (isset($list[$langset])) {
             $this->lang->load($list[$langset]);
         }
+
+        $this->lang->saveToCookie($this->app->cookie);
 
         return $next($request);
     }
