@@ -1253,15 +1253,6 @@ abstract class Connection
     {
         $options = $query->getOptions();
 
-        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
-            $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, null, $key);
-
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
         if (isset($options['field'])) {
             $query->removeOption('field');
         }
@@ -1271,6 +1262,16 @@ abstract class Connection
         }
 
         $query->setOption('field', $field);
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            $cache  = $options['cache'];
+            $result = $this->getCacheData($query, $cache, null, $key);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
+
         $query->setOption('limit', 1);
 
         // 生成查询SQL
@@ -1335,16 +1336,6 @@ abstract class Connection
     {
         $options = $query->getOptions();
 
-        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
-            // 判断查询缓存
-            $cache  = $options['cache'];
-            $result = $this->getCacheData($query, $cache, null, $guid);
-
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
         if (isset($options['field'])) {
             $query->removeOption('field');
         }
@@ -1361,6 +1352,16 @@ abstract class Connection
         }
 
         $query->setOption('field', $field);
+
+        if (empty($options['fetch_sql']) && !empty($options['cache'])) {
+            // 判断查询缓存
+            $cache  = $options['cache'];
+            $result = $this->getCacheData($query, $cache, null, $guid);
+
+            if (false !== $result) {
+                return $result;
+            }
+        }
 
         // 生成查询SQL
         $sql = $this->builder->select($query);
