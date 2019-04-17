@@ -48,8 +48,8 @@ class Memcache implements SessionHandler
         $this->handler = new \Memcache;
 
         // 支持集群
-        $hosts = explode(',', $this->config['host']);
-        $ports = explode(',', $this->config['port']);
+        $hosts = (array) $this->config['host'];
+        $ports = (array) $this->config['port'];
 
         if (empty($ports[0])) {
             $ports[0] = 11211;
