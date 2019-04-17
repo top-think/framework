@@ -77,38 +77,25 @@ class Lang
         return new static($request, $config->get('lang'));
     }
 
-    // 设定当前的语言
+    /**
+     * 设置当前语言
+     * @access public
+     * @param  string $name 语言
+     * @return void
+     */
     public function setLangSet(string $lang): void
     {
         $this->range = $lang;
     }
 
+    /**
+     * 获取当前语言
+     * @access public
+     * @return string
+     */
     public function getLangSet(): string
     {
         return $this->range;
-    }
-
-    /**
-     * 设置语言定义(不区分大小写)
-     * @access public
-     * @param  string|array  $name 语言变量
-     * @param  string        $value 语言值
-     * @param  string        $range 语言作用域
-     * @return mixed
-     */
-    public function set($name, $value = null, $range = '')
-    {
-        $range = $range ?: $this->range;
-
-        if (!isset($this->lang[$range])) {
-            $this->lang[$range] = [];
-        }
-
-        if (is_array($name)) {
-            return $this->lang[$range] = array_change_key_case($name) + $this->lang[$range];
-        }
-
-        return $this->lang[$range][strtolower($name)] = $value;
     }
 
     /**
@@ -125,14 +112,9 @@ class Lang
             $this->lang[$range] = [];
         }
 
-        // 批量定义
-        if (is_string($file)) {
-            $file = [$file];
-        }
-
         $lang = [];
 
-        foreach ($file as $_file) {
+        foreach ((array) $file as $_file) {
             if (is_file($_file)) {
                 // 记录加载信息
                 $_lang = include $_file;
@@ -150,7 +132,7 @@ class Lang
     }
 
     /**
-     * 获取语言定义(不区分大小写)
+     * 判断是否存在语言定义(不区分大小写)
      * @access public
      * @param  string|null   $name 语言变量
      * @param  string        $range 语言作用域
@@ -239,6 +221,12 @@ class Lang
         }
     }
 
+    /**
+     * 保存当前语言到Cookie
+     * @access public
+     * @param  Cookie $cookie Cookie对象
+     * @return void
+     */
     public function saveToCookie(Cookie $cookie)
     {
         if ($this->config['use_cookie']) {
