@@ -132,7 +132,7 @@ abstract class Dispatch
 
         // 添加中间件
         if (!empty($option['middleware'])) {
-            $this->app['middleware']->import($option['middleware']);
+            $this->app->middleware->import($option['middleware']);
         }
 
         // 绑定模型数据

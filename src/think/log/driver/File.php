@@ -235,10 +235,10 @@ class File
     protected function parseLog(array $info): string
     {
         $requestInfo = [
-            'ip'     => $this->app['request']->ip(),
-            'method' => $this->app['request']->method(),
-            'host'   => $this->app['request']->host(),
-            'uri'    => $this->app['request']->url(),
+            'ip'     => $this->app->request->ip(),
+            'method' => $this->app->request->method(),
+            'host'   => $this->app->request->host(),
+            'uri'    => $this->app->request->url(),
         ];
 
         if ($this->config['json']) {

@@ -59,7 +59,7 @@ class Controller extends Dispatch
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
 
-        $this->app['middleware']->controller(function (Request $request, $next) use ($instance) {
+        $this->app->middleware->controller(function (Request $request, $next) use ($instance) {
             // 获取当前操作名
             $action = $this->actionName . $this->rule->config('action_suffix');
 
@@ -81,7 +81,7 @@ class Controller extends Dispatch
             return $this->autoResponse($data);
         });
 
-        return $this->app['middleware']->dispatch($this->request, 'controller');
+        return $this->app->middleware->dispatch($this->request, 'controller');
     }
 
     /**

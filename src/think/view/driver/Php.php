@@ -79,7 +79,7 @@ class Php
         $this->template = $template;
 
         // 记录视图信息
-        $this->app['log']
+        $this->app->log
             ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
 
         extract($data, EXTR_OVERWRITE);
@@ -114,7 +114,7 @@ class Php
             $this->config['view_path'] = $this->app->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
-        $request = $this->app['request'];
+        $request = $this->app->request;
 
         // 获取视图根目录
         if (strpos($template, '@')) {

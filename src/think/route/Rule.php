@@ -391,6 +391,17 @@ abstract class Rule
     }
 
     /**
+     * 允许跨域
+     * @access public
+     * @param  array $header 自定义Header
+     * @return $this
+     */
+    public function allowCrossDomain(array $header = [])
+    {
+        return $this->middleware('\think\middleware\AllowCrossDomain', $header);
+    }
+
+    /**
      * 设置路由缓存
      * @access public
      * @param  array|string $cache 缓存
