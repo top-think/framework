@@ -287,7 +287,7 @@ class Loader
         // Composer 自动加载支持
         if (is_dir(VENDOR_PATH . 'composer')) {
             if (PHP_VERSION_ID >= 50600 && is_file(VENDOR_PATH . 'composer' . DS . 'autoload_static.php')) {
-                require VENDOR_PATH . 'composer' . DS . 'autoload_static.php';
+                require_once VENDOR_PATH . 'composer' . DS . 'autoload_static.php';
 
                 $declaredClass = get_declared_classes();
                 $composerClass = array_pop($declaredClass);
