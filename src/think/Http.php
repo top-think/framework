@@ -288,6 +288,9 @@ class Http
                 } elseif (isset($bind[$subDomain])) {
                     $appName          = $bind[$subDomain];
                     $this->bindDomain = true;
+                } elseif (isset($bind['*'])) {
+                    $appName          = $bind['*'];
+                    $this->bindDomain = true;
                 }
             }
 
