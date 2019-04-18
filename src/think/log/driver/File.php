@@ -19,6 +19,10 @@ use think\App;
  */
 class File
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $config = [
         'time_format' => 'c',
         'single'      => false,
@@ -29,7 +33,17 @@ class File
         'json'        => false,
     ];
 
+    /**
+     * 应用对象
+     * @var App
+     */
     protected $app;
+
+    /**
+     * 是否控制台执行
+     * @var bool
+     */
+    protected $isCli = false;
 
     // 实例化并传入参数
     public function __construct(App $app, $config = [])
@@ -40,6 +54,7 @@ class File
             $this->config = array_merge($this->config, $config);
         }
 
+        $this->isCli = $app->runningInConsole();
     }
 
     /**
@@ -107,7 +122,7 @@ class File
             $info[$type] = is_array($msg) ? implode(PHP_EOL, $msg) : $msg;
         }
 
-        if (PHP_SAPI == 'cli') {
+        if ($this->isCli) {
             $message = $this->parseCliLog($info);
         } else {
             // 添加调试日志
@@ -149,7 +164,7 @@ class File
 
             $destination = $this->config['path'] . $name . '.log';
         } else {
-            $cli = PHP_SAPI == 'cli' ? '_cli' : '';
+            $cli = $this->isCli ? '_cli' : '';
 
             if ($this->config['max_files']) {
                 $filename = date('Ymd') . $cli . '.log';
@@ -172,7 +187,7 @@ class File
      */
     protected function getApartLevelFile(string $path, string $type): string
     {
-        $cli = PHP_SAPI == 'cli' ? '_cli' : '';
+        $cli = $this->isCli ? '_cli' : '';
 
         if ($this->config['single']) {
             $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
