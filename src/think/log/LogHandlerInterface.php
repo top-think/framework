@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\log;
 
+/**
+ * 日志驱动接口
+ */
 interface LogHandlerInterface
 {
     /**

@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\session;
 
+/**
+ * Session驱动接口
+ */
 interface SessionHandlerInterface
 {
     public function read(string $sessionId): string;

@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\view;
 
+/**
+ * 视图驱动接口
+ */
 interface TemplateHandlerInterface
 {
     /**

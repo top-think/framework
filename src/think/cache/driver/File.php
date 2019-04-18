@@ -12,15 +12,18 @@ declare (strict_types = 1);
 
 namespace think\cache\driver;
 
+use think\App;
 use think\cache\Driver;
-use think\Container;
 
 /**
- * 文件类型缓存类
- * @author    liu21st <liu21st@gmail.com>
+ * 文件缓存类
  */
 class File extends Driver
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $options = [
         'expire'        => 0,
         'cache_subdir'  => true,
@@ -32,19 +35,22 @@ class File extends Driver
         'tag_prefix'    => 'tag_',
     ];
 
+    /**
+     * 有效期
+     * @var int|\DateTime
+     */
     protected $expire;
 
     /**
      * 架构函数
-     * @param array $options
+     * @param App   $app 应用对象
+     * @param array $options 参数
      */
-    public function __construct(array $options = [])
+    public function __construct(App $app, array $options = [])
     {
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-
-        $app = Container::pull('app');
 
         if (empty($this->options['path'])) {
             $this->options['path'] = $app->getRuntimePath() . 'cache' . DIRECTORY_SEPARATOR;

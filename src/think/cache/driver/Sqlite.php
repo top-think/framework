@@ -15,10 +15,13 @@ use think\cache\Driver;
 
 /**
  * Sqlite缓存驱动
- * @author    liu21st <liu21st@gmail.com>
  */
 class Sqlite extends Driver
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $options = [
         'db'         => ':memory:',
         'table'      => 'sharedmemory',

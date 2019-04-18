@@ -11,6 +11,9 @@
 
 namespace think\cache;
 
+/**
+ * 缓存驱动接口
+ */
 interface CacheHandlerInterface
 {
     /**

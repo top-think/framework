@@ -15,10 +15,13 @@ use think\cache\Driver;
 
 /**
  * Wincache缓存驱动
- * @author    liu21st <liu21st@gmail.com>
  */
 class Wincache extends Driver
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $options = [
         'prefix'     => '',
         'expire'     => 0,
