@@ -20,6 +20,6 @@ interface LogHandlerInterface
      * @param  array $log 日志信息
      * @return bool
      */
-    public function save(array $log = []): bool;
+    public function save(array $log): bool;
 
 }

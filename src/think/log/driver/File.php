@@ -60,11 +60,11 @@ class File
     /**
      * 日志写入接口
      * @access public
-     * @param  array    $log    日志信息
-     * @param  bool     $append 是否追加请求信息
+     * @param  array $log    日志信息
+     * @param  bool  $append 是否追加请求信息
      * @return bool
      */
-    public function save(array $log = [], bool $append = false): bool
+    public function save(array $log, bool $append = false): bool
     {
         $destination = $this->getMasterLogFile();
 
@@ -103,10 +103,10 @@ class File
     /**
      * 日志写入
      * @access protected
-     * @param  array     $message 日志信息
-     * @param  string    $destination 日志文件
-     * @param  bool      $apart 是否独立文件写入
-     * @param  bool      $append 是否追加请求信息
+     * @param  array  $message 日志信息
+     * @param  string $destination 日志文件
+     * @param  bool   $apart 是否独立文件写入
+     * @param  bool   $append 是否追加请求信息
      * @return bool
      */
     protected function write(array $message, string $destination, bool $apart = false, bool $append = false): bool
@@ -205,7 +205,7 @@ class File
     /**
      * 检查日志文件大小并自动生成备份文件
      * @access protected
-     * @param  string    $destination 日志文件
+     * @param  string $destination 日志文件
      * @return void
      */
     protected function checkLogSize(string $destination): void
@@ -222,7 +222,7 @@ class File
     /**
      * CLI日志解析
      * @access protected
-     * @param  array     $info 日志信息
+     * @param  array $info 日志信息
      * @return string
      */
     protected function parseCliLog(array $info): string
@@ -244,7 +244,7 @@ class File
     /**
      * 解析日志
      * @access protected
-     * @param  array     $info 日志信息
+     * @param  array $info 日志信息
      * @return string
      */
     protected function parseLog(array $info): string

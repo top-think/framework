@@ -59,10 +59,10 @@ class Socket
     /**
      * 调试输出接口
      * @access public
-     * @param  array     $log 日志信息
+     * @param  array $log 日志信息
      * @return bool
      */
-    public function save(array $log = [])
+    public function save(array $log)
     {
         if (!$this->check()) {
             return false;
