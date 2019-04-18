@@ -55,15 +55,15 @@ class Memcached extends Driver
         }
 
         // 支持集群
-        $hosts = explode(',', $this->options['host']);
-        $ports = explode(',', $this->options['port']);
+        $hosts = (array) $this->options['host'];
+        $ports = (array) $this->options['port'];
         if (empty($ports[0])) {
             $ports[0] = 11211;
         }
 
         // 建立连接
         $servers = [];
-        foreach ((array) $hosts as $i => $host) {
+        foreach ($hosts as $i => $host) {
             $servers[] = [$host, $ports[$i] ?? $ports[0], 1];
         }
 
@@ -139,8 +139,8 @@ class Memcached extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function inc(string $name, int $step = 1)
@@ -159,8 +159,8 @@ class Memcached extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function dec(string $name, int $step = 1)

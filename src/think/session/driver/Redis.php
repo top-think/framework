@@ -13,9 +13,9 @@ declare (strict_types = 1);
 namespace think\session\driver;
 
 use think\Exception;
-use think\session\SessionHandler;
+use think\session\SessionHandlerInterface;
 
-class Redis implements SessionHandler
+class Redis implements SessionHandlerInterface
 {
     /** @var \Redis */
     protected $handler = null;

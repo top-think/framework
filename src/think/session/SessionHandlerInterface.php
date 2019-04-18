@@ -12,7 +12,7 @@ declare (strict_types = 1);
 
 namespace think\session;
 
-interface SessionHandler
+interface SessionHandlerInterface
 {
     public function read(string $sessionId): string;
     public function delete(string $sessionId): bool;

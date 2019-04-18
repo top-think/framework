@@ -13,9 +13,9 @@ declare (strict_types = 1);
 namespace think\session\driver;
 
 use think\App;
-use think\session\SessionHandler;
+use think\session\SessionHandlerInterface;
 
-class File implements SessionHandler
+class File implements SessionHandlerInterface
 {
     protected $config = [
         'path'           => '',
