@@ -18,6 +18,9 @@ use think\exception\ErrorException;
 use think\exception\Handle;
 use Throwable;
 
+/**
+ * 错误和异常处理
+ */
 class Error
 {
     /** @var App */

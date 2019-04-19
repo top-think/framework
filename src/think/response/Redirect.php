@@ -15,6 +15,9 @@ use think\Request;
 use think\Response;
 use think\Route;
 
+/**
+ * Redirect Response
+ */
 class Redirect extends Response
 {
 

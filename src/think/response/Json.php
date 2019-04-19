@@ -13,6 +13,9 @@ namespace think\response;
 
 use think\Response;
 
+/**
+ * Json Response
+ */
 class Json extends Response
 {
     // 输出参数

@@ -14,6 +14,9 @@ namespace think;
 
 use ArrayAccess;
 
+/**
+ * Env管理类
+ */
 class Env implements ArrayAccess
 {
     /**

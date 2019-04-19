@@ -14,6 +14,9 @@ namespace think\response;
 use think\Response;
 use think\View as BaseView;
 
+/**
+ * View Response
+ */
 class View extends Response
 {
     // 输出参数

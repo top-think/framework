@@ -19,9 +19,8 @@ use think\Model;
 use think\model\Relation;
 
 /**
- * Class OneToOne
+ * 一对一关联基础类
  * @package think\model\relation
- *
  */
 abstract class OneToOne extends Relation
 {

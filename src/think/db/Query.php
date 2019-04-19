@@ -30,6 +30,9 @@ use think\model\Relation;
 use think\model\relation\OneToOne;
 use think\Paginator;
 
+/**
+ * 数据查询类
+ */
 class Query
 {
     /**

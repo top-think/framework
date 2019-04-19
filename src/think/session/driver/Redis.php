@@ -15,6 +15,9 @@ namespace think\session\driver;
 use think\Exception;
 use think\session\SessionHandlerInterface;
 
+/**
+ * Session Redis驱动
+ */
 class Redis implements SessionHandlerInterface
 {
     /** @var \Redis */

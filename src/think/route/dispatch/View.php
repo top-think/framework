@@ -15,6 +15,9 @@ namespace think\route\dispatch;
 use think\Response;
 use think\route\Dispatch;
 
+/**
+ * View Dispatcher
+ */
 class View extends Dispatch
 {
     public function exec()

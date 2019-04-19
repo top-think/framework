@@ -18,6 +18,9 @@ use think\Request;
 use think\Response;
 use think\Validate;
 
+/**
+ * 路由调度基础类
+ */
 abstract class Dispatch
 {
     /**

@@ -15,6 +15,9 @@ namespace think\view\driver;
 use think\App;
 use think\template\exception\TemplateNotFoundException;
 
+/**
+ * PHP原生模板驱动
+ */
 class Php
 {
     protected $template;

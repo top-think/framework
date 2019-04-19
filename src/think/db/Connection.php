@@ -23,6 +23,9 @@ use think\Exception;
 use think\exception\PDOException;
 use think\Log;
 
+/**
+ * 数据库连接基础类
+ */
 abstract class Connection
 {
     const PARAM_FLOAT = 21;

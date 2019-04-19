@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 事件管理类
+ */
 class Event
 {
     /**

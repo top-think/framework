@@ -14,6 +14,9 @@ namespace think\model;
 
 use think\Model;
 
+/**
+ * 多对多中间表模型类
+ */
 class Pivot extends Model
 {
 

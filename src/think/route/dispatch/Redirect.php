@@ -15,6 +15,9 @@ namespace think\route\dispatch;
 use think\Response;
 use think\route\Dispatch;
 
+/**
+ * Redirect Dispatcher
+ */
 class Redirect extends Dispatch
 {
     public function exec()

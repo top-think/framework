@@ -22,6 +22,9 @@ use think\model\Pivot;
 use think\model\Relation;
 use think\Paginator;
 
+/**
+ * 多对多关联类
+ */
 class BelongsToMany extends Relation
 {
     /**

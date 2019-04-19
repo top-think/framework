@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 系统服务基础类
+ */
 abstract class Service
 {
     protected $app;

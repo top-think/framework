@@ -15,6 +15,9 @@ namespace think\session\driver;
 use think\App;
 use think\session\SessionHandlerInterface;
 
+/**
+ * Session 文件驱动
+ */
 class File implements SessionHandlerInterface
 {
     protected $config = [

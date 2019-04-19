@@ -19,6 +19,9 @@ use think\exception\HttpException;
 use think\Request;
 use think\route\Dispatch;
 
+/**
+ * Controller Dispatcher
+ */
 class Controller extends Dispatch
 {
     protected $controller;

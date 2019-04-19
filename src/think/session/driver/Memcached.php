@@ -15,6 +15,9 @@ namespace think\session\driver;
 use think\Exception;
 use think\session\SessionHandlerInterface;
 
+/**
+ * Session Memcached驱动
+ */
 class Memcached implements SessionHandlerInterface
 {
     protected $handler = null;

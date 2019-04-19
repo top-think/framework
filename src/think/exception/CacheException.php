@@ -15,6 +15,9 @@ use Psr\Cache\CacheException as Psr6CacheExceptionInterface;
 use Psr\SimpleCache\CacheException as SimpleCacheExceptionInterface;
 use think\Exception;
 
+/**
+ * 缓存异常
+ */
 class CacheException extends Exception implements Psr6CacheExceptionInterface, SimpleCacheExceptionInterface
 {
 }

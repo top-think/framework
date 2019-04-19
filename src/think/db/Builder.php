@@ -15,6 +15,9 @@ namespace think\db;
 use PDO;
 use think\Exception;
 
+/**
+ * Db Builder
+ */
 abstract class Builder
 {
     /**

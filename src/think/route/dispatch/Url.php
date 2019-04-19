@@ -17,6 +17,9 @@ use think\exception\HttpException;
 use think\Request;
 use think\route\Rule;
 
+/**
+ * Url Dispatcher
+ */
 class Url extends Controller
 {
 

@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 响应输出基础类
+ */
 class Response
 {
     /**

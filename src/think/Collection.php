@@ -18,6 +18,9 @@ use Countable;
 use IteratorAggregate;
 use JsonSerializable;
 
+/**
+ * 数据集管理类
+ */
 class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable
 {
     /**

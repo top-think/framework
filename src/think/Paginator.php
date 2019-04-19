@@ -23,6 +23,7 @@ use think\paginator\driver\Bootstrap;
 use Traversable;
 
 /**
+ * 分页基础类
  * @method array all()
  */
 abstract class Paginator implements ArrayAccess, Countable, IteratorAggregate, JsonSerializable

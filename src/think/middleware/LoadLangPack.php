@@ -17,6 +17,9 @@ use think\App;
 use think\Lang;
 use think\Request;
 
+/**
+ * 多语言加载
+ */
 class LoadLangPack
 {
     /** @var Lang */

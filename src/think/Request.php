@@ -14,6 +14,9 @@ namespace think;
 
 use think\route\Dispatch;
 
+/**
+ * 请求管理类
+ */
 class Request
 {
     /**

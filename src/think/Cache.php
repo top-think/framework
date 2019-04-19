@@ -18,6 +18,9 @@ use think\cache\CacheItem;
 use think\cache\Driver;
 use think\exception\InvalidArgumentException;
 
+/**
+ * 缓存管理类
+ */
 class Cache implements CacheItemPoolInterface
 {
     /**

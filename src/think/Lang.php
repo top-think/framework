@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 多语言管理类
+ */
 class Lang
 {
     /**

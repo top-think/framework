@@ -15,6 +15,9 @@ namespace think;
 use think\exception\ValidateException;
 use think\traits\Jump;
 
+/**
+ * 控制器基础类
+ */
 class Controller
 {
     use Jump;

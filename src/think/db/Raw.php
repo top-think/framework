@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\db;
 
+/**
+ * SQL Raw
+ */
 class Raw
 {
     /**

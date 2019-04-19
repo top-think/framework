@@ -19,6 +19,9 @@ use think\Exception;
 use think\Model;
 use think\model\Relation;
 
+/**
+ * 多态一对多关联
+ */
 class MorphMany extends Relation
 {
 

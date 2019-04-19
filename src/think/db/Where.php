@@ -14,6 +14,9 @@ namespace think\db;
 
 use ArrayAccess;
 
+/**
+ * 数组查询对象
+ */
 class Where implements ArrayAccess
 {
     /**

@@ -17,6 +17,9 @@ use think\service\ModelService;
 use think\service\PaginatorService;
 use think\service\ValidateService;
 
+/**
+ * 注册系统服务
+ */
 class RegisterService
 {
 

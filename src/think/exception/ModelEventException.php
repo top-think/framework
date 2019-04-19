@@ -13,6 +13,9 @@ namespace think\exception;
 
 use think\Exception;
 
+/**
+ * 模型事件异常
+ */
 class ModelEventException extends Exception
 {
 }

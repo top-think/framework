@@ -16,6 +16,9 @@ use InvalidArgumentException;
 use LogicException;
 use think\exception\HttpResponseException;
 
+/**
+ * 中间件管理类
+ */
 class Middleware
 {
     /**

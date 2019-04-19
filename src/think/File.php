@@ -14,6 +14,9 @@ namespace think;
 
 use SplFileObject;
 
+/**
+ * 文件上传类
+ */
 class File extends SplFileObject
 {
     /**

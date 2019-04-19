@@ -15,6 +15,9 @@ namespace think\cache;
 use Psr\SimpleCache\CacheInterface;
 use think\exception\InvalidArgumentException;
 
+/**
+ * SimpleCache接口
+ */
 abstract class SimpleCache implements CacheInterface
 {
     /**

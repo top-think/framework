@@ -14,6 +14,9 @@ namespace think\route;
 
 use think\Route;
 
+/**
+ * 资源路由类
+ */
 class Resource extends RuleGroup
 {
     // 资源路由名称

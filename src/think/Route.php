@@ -25,6 +25,9 @@ use think\route\RuleGroup;
 use think\route\RuleItem;
 use think\route\RuleName;
 
+/**
+ * 路由管理类
+ */
 class Route
 {
     /**

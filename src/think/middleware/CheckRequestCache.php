@@ -17,6 +17,9 @@ use think\Cache;
 use think\Request;
 use think\Response;
 
+/**
+ * 请求缓存处理
+ */
 class CheckRequestCache
 {
     protected $cache;

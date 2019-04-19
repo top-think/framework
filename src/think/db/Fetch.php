@@ -15,6 +15,9 @@ namespace think\db;
 use think\App;
 use think\Exception;
 
+/**
+ * SQL获取类
+ */
 class Fetch
 {
     /**

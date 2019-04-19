@@ -16,6 +16,9 @@ use Closure;
 use think\App;
 use think\Model;
 
+/**
+ * BelongsTo关联类
+ */
 class BelongsTo extends OneToOne
 {
     /**

@@ -14,6 +14,9 @@ namespace think\response;
 use think\Request;
 use think\Response;
 
+/**
+ * Jsonp Response
+ */
 class Jsonp extends Response
 {
     // 输出参数

@@ -14,6 +14,9 @@ namespace think;
 
 use Psr\Log\LoggerInterface;
 
+/**
+ * 日志管理类
+ */
 class Log implements LoggerInterface
 {
     const EMERGENCY = 'emergency';

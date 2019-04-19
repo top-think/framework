@@ -15,6 +15,9 @@ namespace think\service;
 use think\Service;
 use think\Validate;
 
+/**
+ * 验证服务类
+ */
 class ValidateService extends Service
 {
     public function boot()

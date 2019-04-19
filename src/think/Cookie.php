@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * Cookie管理类
+ */
 class Cookie
 {
     /**

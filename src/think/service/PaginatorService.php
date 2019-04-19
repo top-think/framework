@@ -16,6 +16,9 @@ use think\Paginator;
 use think\paginator\driver\Bootstrap;
 use think\Service;
 
+/**
+ * 分页服务类
+ */
 class PaginatorService extends Service
 {
     public function register()

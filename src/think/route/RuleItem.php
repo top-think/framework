@@ -16,6 +16,9 @@ use think\Exception;
 use think\Request;
 use think\Route;
 
+/**
+ * 路由规则类
+ */
 class RuleItem extends Rule
 {
     /**

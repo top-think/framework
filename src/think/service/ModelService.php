@@ -15,6 +15,9 @@ namespace think\service;
 use think\Model;
 use think\Service;
 
+/**
+ * 模型服务类
+ */
 class ModelService extends Service
 {
     public function boot()

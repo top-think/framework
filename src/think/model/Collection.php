@@ -16,6 +16,9 @@ use think\Collection as BaseCollection;
 use think\Model;
 use think\Paginator;
 
+/**
+ * 模型数据集类
+ */
 class Collection extends BaseCollection
 {
     /**

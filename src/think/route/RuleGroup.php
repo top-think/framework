@@ -20,6 +20,9 @@ use think\Response;
 use think\Route;
 use think\route\dispatch\Response as ResponseDispatch;
 
+/**
+ * 路由分组类
+ */
 class RuleGroup extends Rule
 {
     // 分组路由（包括子分组）

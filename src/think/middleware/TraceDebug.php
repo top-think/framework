@@ -19,6 +19,9 @@ use think\Request;
 use think\Response;
 use think\response\Redirect;
 
+/**
+ * 页面Trace中间件
+ */
 class TraceDebug
 {
 

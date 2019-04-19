@@ -17,6 +17,9 @@ use think\App;
 use think\db\Raw;
 use think\model\Relation;
 
+/**
+ * 模型数据处理
+ */
 trait Attribute
 {
     /**

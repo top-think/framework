@@ -14,6 +14,9 @@ namespace think;
 
 use Yaconf;
 
+/**
+ * 配置管理类
+ */
 class Config
 {
     /**

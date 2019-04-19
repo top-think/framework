@@ -18,6 +18,9 @@ use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
 
+/**
+ * 域名路由
+ */
 class Domain extends RuleGroup
 {
     /**

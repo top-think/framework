@@ -11,6 +11,9 @@
 
 namespace think\exception;
 
+/**
+ * 数据验证异常
+ */
 class ValidateException extends \RuntimeException
 {
     protected $error;

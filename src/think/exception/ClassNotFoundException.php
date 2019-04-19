@@ -13,6 +13,9 @@ namespace think\exception;
 
 use Psr\Container\NotFoundExceptionInterface;
 
+/**
+ * 类不存在异常
+ */
 class ClassNotFoundException extends \RuntimeException implements NotFoundExceptionInterface
 {
     protected $class;

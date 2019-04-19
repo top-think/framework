@@ -18,6 +18,9 @@ use DateTimeInterface;
 use Psr\Cache\CacheItemInterface;
 use think\exception\InvalidArgumentException;
 
+/**
+ * CacheItem实现类
+ */
 class CacheItem implements CacheItemInterface
 {
     /**

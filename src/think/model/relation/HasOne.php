@@ -17,6 +17,9 @@ use think\App;
 use think\db\Query;
 use think\Model;
 
+/**
+ * HasOne 关联类
+ */
 class HasOne extends OneToOne
 {
     /**

@@ -19,6 +19,9 @@ use think\db\Query;
 use think\Model;
 use think\model\Relation;
 
+/**
+ * 一对多关联类
+ */
 class HasMany extends Relation
 {
     /**

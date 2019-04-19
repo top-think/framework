@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * Session管理类
+ */
 class Session
 {
     /**

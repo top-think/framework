@@ -14,6 +14,9 @@ namespace think\response;
 use think\Response;
 use think\View;
 
+/**
+ * Jump Response
+ */
 class Jump extends Response
 {
     protected $contentType = 'text/html';

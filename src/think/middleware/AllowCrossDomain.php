@@ -16,6 +16,9 @@ use Closure;
 use think\Request;
 use think\Response;
 
+/**
+ * 跨域请求支持
+ */
 class AllowCrossDomain
 {
     protected $header = [

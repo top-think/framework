@@ -19,6 +19,9 @@ use think\Exception;
 use think\Model;
 use think\model\Relation;
 
+/**
+ * 远程一对多关联类
+ */
 class HasManyThrough extends Relation
 {
     /**

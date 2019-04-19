@@ -22,6 +22,9 @@ use think\route\dispatch\Redirect as RedirectDispatch;
 use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\View as ViewDispatch;
 
+/**
+ * 路由规则基础类
+ */
 abstract class Rule
 {
     /**

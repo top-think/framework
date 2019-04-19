@@ -16,6 +16,9 @@ use Closure;
 use think\exception\ValidateException;
 use think\validate\ValidateRule;
 
+/**
+ * 数据验证类
+ */
 class Validate
 {
     /**

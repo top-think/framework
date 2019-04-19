@@ -18,6 +18,9 @@ use think\Request;
 use think\response\Redirect as RedirectResponse;
 use think\Session;
 
+/**
+ * Session初始化
+ */
 class SessionInit
 {
 

@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+/**
+ * 路由标识管理类
+ */
 class RuleName
 {
     protected $item = [];
