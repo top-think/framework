@@ -396,10 +396,9 @@ abstract class Builder
      */
     protected function parseFieldsAnd(Query $query, $value, string $field, string $logic, array $binds): string
     {
-        $array = explode('&', $field);
-        $item  = [];
+        $item = [];
 
-        foreach ($array as $k) {
+        foreach (explode('&', $field) as $k) {
             $item[] = $this->parseWhereItem($query, $k, $value, $binds);
         }
 
@@ -418,10 +417,9 @@ abstract class Builder
      */
     protected function parseFieldsOr(Query $query, $value, string $field, string $logic, array $binds): string
     {
-        $array = explode('|', $field);
-        $item  = [];
+        $item = [];
 
-        foreach ($array as $k) {
+        foreach (explode('|', $field) as $k) {
             $item[] = $this->parseWhereItem($query, $k, $value, $binds);
         }
 
@@ -462,12 +460,13 @@ abstract class Builder
     protected function parseMultiWhereField(Query $query, $value, $field, string $logic, array $binds): string
     {
         array_unshift($value, $field);
-        $str2 = [];
+
+        $where = [];
         foreach ($value as $item) {
-            $str2[] = $this->parseWhereItem($query, array_shift($item), $item, $binds);
+            $where[] = $this->parseWhereItem($query, array_shift($item), $item, $binds);
         }
 
-        return ' ' . $logic . ' ( ' . implode(' AND ', $str2) . ' )';
+        return ' ' . $logic . ' ( ' . implode(' AND ', $where) . ' )';
     }
 
     /**

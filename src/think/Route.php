@@ -166,16 +166,18 @@ class Route
      */
     protected $showDomain;
 
-    public function __construct(App $app, Cache $cache)
+    public function __construct(App $app)
     {
         $this->app      = $app;
         $this->config   = array_merge($this->config, $app->config->get('route'));
         $this->ruleName = new RuleName();
 
-        if (!empty($this->config['route_cache_option'])) {
-            $this->cache = $cache->connect($this->config['route_cache_option']);
-        } else {
-            $this->cache = $cache->init();
+        if ($this->config['route_check_cache']) {
+            if (!empty($this->config['route_cache_option'])) {
+                $this->cache = $app->cache->connect($this->config['route_cache_option']);
+            } else {
+                $this->cache = $app->cache->init();
+            }
         }
 
         if (is_file($app->getRuntimePath() . 'route.php')) {

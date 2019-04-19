@@ -469,7 +469,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     public function __get($name)
     {
-        return $this->get($name);
+        return $this->make($name);
     }
 
     public function __isset($name): bool
