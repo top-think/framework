@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * Facade管理类
+ */
 class Facade
 {
     /**
@@ -24,9 +27,9 @@ class Facade
      * 创建Facade实例
      * @static
      * @access protected
-     * @param  string    $class          类名或标识
-     * @param  array     $args           变量
-     * @param  bool      $newInstance    是否每次创建新的实例
+     * @param  string $class       类名或标识
+     * @param  array  $args        变量
+     * @param  bool   $newInstance 是否每次创建新的实例
      * @return object
      */
     protected static function createFacade(string $class = '', array $args = [], bool $newInstance = false)
@@ -69,12 +72,12 @@ class Facade
     /**
      * 调用类的实例
      * @access public
-     * @param  string        $class          类名或者标识
-     * @param  array|true    $args           变量
-     * @param  bool          $newInstance    是否每次创建新的实例
+     * @param  string     $class       类名或者标识
+     * @param  array|true $args        变量
+     * @param  bool       $newInstance 是否每次创建新的实例
      * @return object
      */
-    public static function make(string $class, $args = [], $newInstance = false)
+    public static function make(string $class, $args = [], bool $newInstance = false)
     {
         if (__CLASS__ != static::class) {
             return self::__callStatic('make', func_get_args());

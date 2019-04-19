@@ -47,7 +47,7 @@ class Db
      * 数据库配置
      * @var array
      */
-    protected $option = [];
+    protected $config = [];
 
     /**
      * SQL监听
@@ -68,9 +68,7 @@ class Db
      */
     public function __construct(array $config = [])
     {
-        $this->option = $config;
-
-        $this->connect($config);
+        $this->config = $config;
     }
 
     /**
@@ -170,10 +168,10 @@ class Db
     private function parseConfig($config): array
     {
         if (empty($config)) {
-            $config = $this->option;
-        } elseif (is_string($config) && isset($this->option[$config])) {
+            $config = $this->config;
+        } elseif (is_string($config) && isset($this->config[$config])) {
             // 支持读取配置参数
-            $config = $this->option[$config];
+            $config = $this->config[$config];
         }
 
         if (!is_array($config)) {
@@ -191,7 +189,7 @@ class Db
      */
     public function getConfig(string $name = '')
     {
-        return $name ? ($this->option[$name] ?? null) : $this->option;
+        return $name ? ($this->config[$name] ?? null) : $this->config;
     }
 
     /**
@@ -273,6 +271,10 @@ class Db
     protected function newQuery($connection = null)
     {
         /** @var Query $query */
+        if (is_null($connection) && !$this->connection) {
+            $this->connect($this->config);
+        }
+
         $connection = $connection ?: $this->connection;
         $class      = $connection->getQueryClass();
         $query      = new $class($connection);

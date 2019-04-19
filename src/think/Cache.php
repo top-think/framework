@@ -64,8 +64,8 @@ class Cache implements CacheItemPoolInterface
     /**
      * 连接缓存
      * @access public
-     * @param  array    $options  配置数组
-     * @param  bool     $force 强制重新连接
+     * @param  array $options  配置数组
+     * @param  bool  $force 强制重新连接
      * @return Driver
      */
     public function connect(array $options = [], bool $force = false): Driver
@@ -84,14 +84,14 @@ class Cache implements CacheItemPoolInterface
     /**
      * 自动初始化缓存
      * @access public
-     * @param  array         $options  配置数组
-     * @param  bool          $force    强制更新
+     * @param  array $options 配置数组
+     * @param  bool  $force   强制更新
      * @return Driver
      */
     public function init(array $options = [], bool $force = false): Driver
     {
         if (is_null($this->handler) || $force) {
-            if ('complex' == $options['type']) {
+            if (isset($options['type']) && 'complex' == $options['type']) {
                 $default = $options['default'];
                 $options = $options[$default['type']] ?? $default;
             }
@@ -146,7 +146,7 @@ class Cache implements CacheItemPoolInterface
     /**
      * 缓存标签
      * @access public
-     * @param  string|array        $name 标签名
+     * @param  string|array $name 标签名
      * @return Driver
      */
     public function tag($name)
