@@ -348,11 +348,9 @@ if (!function_exists('input')) {
             $method = 'param';
         }
 
-        if (isset($has)) {
-            return request()->has($key, $method, $default);
-        } else {
-            return request()->$method($key, $default, $filter);
-        }
+        return isset($has) ?
+        request()->has($key, $method) :
+        request()->$method($key, $default, $filter);
     }
 }
 
