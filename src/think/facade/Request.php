@@ -71,7 +71,6 @@ use think\Facade;
  * @method string protocol() static 当前请求 SERVER_PROTOCOL
  * @method string remotePort() static 当前请求 REMOTE_PORT
  * @method string contentType() static 当前请求 HTTP_CONTENT_TYPE
- * @method array routeInfo(array $route = []) static 获取当前请求的路由信息
  * @method array dispatch(array $dispatch = null) static 设置或者获取当前请求的调度信息
  * @method mixed app() static 获取当前的应用名
  * @method mixed controller(bool $convert = false) static 获取当前的控制器名

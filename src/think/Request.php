@@ -129,12 +129,6 @@ class Request
     protected $realIP;
 
     /**
-     * 当前路由信息
-     * @var array
-     */
-    protected $routeInfo = [];
-
-    /**
      * 当前调度信息
      * @var Dispatch
      */
@@ -1790,21 +1784,6 @@ class Request
         }
 
         return '';
-    }
-
-    /**
-     * 获取当前请求的路由信息
-     * @access public
-     * @param  array $route 路由名称
-     * @return array
-     */
-    public function routeInfo(array $route = []): array
-    {
-        if (!empty($route)) {
-            $this->routeInfo = $route;
-        }
-
-        return $this->routeInfo;
     }
 
     /**
