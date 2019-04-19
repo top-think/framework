@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\db;
 
+use Closure;
 use PDO;
 use think\Exception;
 
@@ -342,7 +343,7 @@ abstract class Builder
      * @param  string $logic Logic
      * @param  array  $val   查询条件
      * @param  array  $binds 参数绑定
-     * @return string
+     * @return array
      */
     protected function parseWhereLogic(Query $query, string $logic, array $val, array $binds = []): array
     {
