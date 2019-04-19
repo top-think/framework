@@ -657,7 +657,7 @@ abstract class Builder
             throw new Exception('where express error:' . $value);
         }
 
-        return $exp . ' (' . $value . ')';
+        return $exp . ' ( ' . $value . ' )';
     }
 
     /**
