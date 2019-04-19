@@ -303,7 +303,7 @@ abstract class Builder
 
             $binds    = $query->getFieldsBindType();
             $whereStr = $whereStr ? '( ' . $whereStr . ' ) AND ' : '';
-            $whereStr = $whereStr . $this->parseWhereItem($query, $field, $condition, '', $binds);
+            $whereStr = $whereStr . $this->parseWhereItem($query, $field, $condition, $binds);
         }
 
         return empty($whereStr) ? '' : ' WHERE ' . $whereStr;
@@ -335,12 +335,21 @@ abstract class Builder
         return $whereStr;
     }
 
-    protected function parseWhereLogic(Query $query, string $logic, $val, array $binds = [])
+    /**
+     * 不同字段使用相同查询条件（AND）
+     * @access protected
+     * @param  Query  $query 查询对象
+     * @param  string $logic Logic
+     * @param  array  $val   查询条件
+     * @param  array  $binds 参数绑定
+     * @return string
+     */
+    protected function parseWhereLogic(Query $query, string $logic, array $val, array $binds = []): array
     {
-        $str = [];
+        $where = [];
         foreach ($val as $value) {
             if ($value instanceof Raw) {
-                $str[] = ' ' . $logic . ' ( ' . $value->getValue() . ' )';
+                $where[] = ' ' . $logic . ' ( ' . $value->getValue() . ' )';
                 continue;
             }
 
@@ -355,85 +364,132 @@ abstract class Builder
 
             if ($value instanceof \Closure) {
                 // 使用闭包查询
-                $newQuery = $query->newQuery()->setConnection($this->connection);
-                $value($newQuery);
-                $whereClause = $this->buildWhere($query, $newQuery->getOptions('where') ?: []);
-
-                if (!empty($whereClause)) {
-                    $str[] = ' ' . $logic . ' ( ' . $whereClause . ' )';
-                }
+                $where[] = $this->parseClousre($query, $value, $logic);
             } elseif (is_array($field)) {
-                array_unshift($value, $field);
-                $str2 = [];
-                foreach ($value as $item) {
-                    $str2[] = $this->parseWhereItem($query, array_shift($item), $item, $logic, $binds);
-                }
-
-                $str[] = ' ' . $logic . ' ( ' . implode(' AND ', $str2) . ' )';
+                $where[] = $this->parseWhereField($query, $value, $field, $logic, $binds);
             } elseif ($field instanceof Raw) {
-                $str[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $logic, $binds);
+                $where[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $binds);
             } elseif (strpos($field, '|')) {
-                // 不同字段使用相同查询条件（OR）
-                $array = explode('|', $field);
-                $item  = [];
-
-                foreach ($array as $k) {
-                    $item[] = $this->parseWhereItem($query, $k, $value, '', $binds);
-                }
-
-                $str[] = ' ' . $logic . ' ( ' . implode(' OR ', $item) . ' )';
+                $where[] = $this->parseMultiFieldOr($query, $value, $field, $logic, $binds);
             } elseif (strpos($field, '&')) {
-                // 不同字段使用相同查询条件（AND）
-                $array = explode('&', $field);
-                $item  = [];
-
-                foreach ($array as $k) {
-                    $item[] = $this->parseWhereItem($query, $k, $value, '', $binds);
-                }
-
-                $str[] = ' ' . $logic . ' ( ' . implode(' AND ', $item) . ' )';
+                $where[] = $this->parseMultiFieldAnd($query, $value, $field, $logic, $binds);
             } else {
                 // 对字段使用表达式查询
-                $field = is_string($field) ? $field : '';
-                $str[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $logic, $binds);
+                $field   = is_string($field) ? $field : '';
+                $where[] = ' ' . $logic . ' ' . $this->parseWhereItem($query, $field, $value, $binds);
             }
         }
 
-        return $str;
+        return $where;
     }
 
-    // where子单元分析
-    protected function parseWhereItem(Query $query, $field, $val, $rule = '', array $binds = []): string
+    /**
+     * 不同字段使用相同查询条件（AND）
+     * @access protected
+     * @param  Query  $query 查询对象
+     * @param  mixed  $value 查询条件
+     * @param  string $field 查询字段
+     * @param  string $logic Logic
+     * @param  array  $binds 参数绑定
+     * @return string
+     */
+    protected function parseMultiFieldAnd(Query $query, $value, string $field, string $logic, array $binds): string
+    {
+        $array = explode('&', $field);
+        $item  = [];
+
+        foreach ($array as $k) {
+            $item[] = $this->parseWhereItem($query, $k, $value, $binds);
+        }
+
+        return ' ' . $logic . ' ( ' . implode(' AND ', $item) . ' )';
+    }
+
+    /**
+     * 不同字段使用相同查询条件（OR）
+     * @access protected
+     * @param  Query  $query 查询对象
+     * @param  mixed  $value 查询条件
+     * @param  string $field 查询字段
+     * @param  string $logic Logic
+     * @param  array  $binds 参数绑定
+     * @return string
+     */
+    protected function parseMultiFieldOr(Query $query, $value, string $field, string $logic, array $binds): string
+    {
+        $array = explode('|', $field);
+        $item  = [];
+
+        foreach ($array as $k) {
+            $item[] = $this->parseWhereItem($query, $k, $value, $binds);
+        }
+
+        return ' ' . $logic . ' ( ' . implode(' OR ', $item) . ' )';
+    }
+
+    /**
+     * 闭包查询
+     * @access protected
+     * @param  Query   $query 查询对象
+     * @param  Closure $value 查询条件
+     * @param  string  $logic Logic
+     * @return string
+     */
+    protected function parseClousre(Query $query, Closure $value, string $logic): string
+    {
+        $newQuery = $query->newQuery()->setConnection($this->connection);
+        $value($newQuery);
+        $whereClause = $this->buildWhere($query, $newQuery->getOptions('where') ?: []);
+
+        if (!empty($whereClause)) {
+            $where = ' ' . $logic . ' ( ' . $whereClause . ' )';
+        }
+
+        return $where ?? '';
+    }
+
+    /**
+     * 复合条件查询
+     * @access protected
+     * @param  Query  $query 查询对象
+     * @param  mixed  $value 查询条件
+     * @param  string $field 查询字段
+     * @param  string $logic Logic
+     * @param  array  $binds 参数绑定
+     * @return string
+     */
+    protected function parseWhereField(Query $query, $value, $field, $logic, $binds): string
+    {
+        array_unshift($value, $field);
+        $str2 = [];
+        foreach ($value as $item) {
+            $str2[] = $this->parseWhereItem($query, array_shift($item), $item, $binds);
+        }
+
+        return ' ' . $logic . ' ( ' . implode(' AND ', $str2) . ' )';
+    }
+
+    /**
+     * where子单元分析
+     * @access protected
+     * @param  Query  $query 查询对象
+     * @param  string $field 查询字段
+     * @param  array  $value 查询条件
+     * @param  array  $binds 参数绑定
+     * @return string
+     */
+    protected function parseWhereItem(Query $query, $field, array $val, array $binds = []): string
     {
         // 字段分析
         $key = $field ? $this->parseKey($query, $field, true) : '';
 
-        // 查询规则和条件
-        if (!is_array($val)) {
-            $val = is_null($val) ? ['NULL', ''] : ['=', $val];
-        }
-
         list($exp, $value) = $val;
 
-        // 对一个字段使用多个查询条件
-        if (is_array($exp)) {
-            $item = array_pop($val);
-
-            // 传入 or 或者 and
-            if (is_string($item) && in_array($item, ['AND', 'and', 'OR', 'or'])) {
-                $rule = $item;
-            } else {
-                array_push($val, $item);
-            }
-            $str = [];
-            foreach ($val as $k => $item) {
-                $str[] = $this->parseWhereItem($query, $field, $item, $rule, $binds);
-            }
-
-            return '( ' . implode(' ' . $rule . ' ', $str) . ' )';
+        // 检测操作符
+        if (!is_string($exp)) {
+            throw new Exception('where express error:' . var_export($exp, true));
         }
 
-        // 检测操作符
         $exp = strtoupper($exp);
         if (isset($this->exp[$exp])) {
             $exp = $this->exp[$exp];
@@ -443,10 +499,6 @@ abstract class Builder
             $bindType = $binds[$field] ?? PDO::PARAM_STR;
         } else {
             $bindType = PDO::PARAM_STR;
-        }
-
-        if ($value instanceof Expression) {
-            return $value->parse($query, $key, $exp, $field, $bindType);
         }
 
         if ($value instanceof Raw) {
@@ -467,16 +519,11 @@ abstract class Builder
         // 解析查询表达式
         foreach ($this->parser as $fun => $parse) {
             if (in_array($exp, $parse)) {
-                $whereStr = $this->$fun($query, $key, $exp, $value, $field, $bindType, $val[2] ?? 'AND');
-                break;
+                return $this->$fun($query, $key, $exp, $value, $field, $bindType, $val[2] ?? 'AND');
             }
         }
 
-        if (!isset($whereStr)) {
-            throw new Exception('where express error:' . $exp);
-        }
-
-        return $whereStr;
+        throw new Exception('where express error:' . $exp);
     }
 
     /**
