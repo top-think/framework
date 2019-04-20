@@ -914,7 +914,7 @@ abstract class Rule
         }
         array_unshift($args, $method);
 
-        return call_user_func_array([$this, 'option'], $args);
+        return call_user_func_array([$this, 'setOption'], $args);
     }
 
     public function __sleep()
