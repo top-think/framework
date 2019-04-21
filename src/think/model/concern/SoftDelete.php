@@ -101,7 +101,7 @@ trait SoftDelete
      */
     public function delete(): bool
     {
-        if (!$this->isExists() || $this->isEmpty() || false === $this->trigger('before_delete', $this)) {
+        if (!$this->isExists() || $this->isEmpty() || false === $this->trigger('BeforeDelete')) {
             return false;
         }
 
@@ -132,7 +132,7 @@ trait SoftDelete
             $this->autoRelationDelete();
         }
 
-        $this->trigger('after_delete', $this);
+        $this->trigger('AfterDelete');
 
         $this->exists(false);
 
@@ -180,7 +180,7 @@ trait SoftDelete
     {
         $name = $this->getDeleteTimeField();
 
-        if (!$name || false === $this->trigger('before_restore')) {
+        if (!$name || false === $this->trigger('BeforeRestore')) {
             return false;
         }
 
@@ -197,7 +197,7 @@ trait SoftDelete
             ->useSoftDelete($name, $this->getWithTrashedExp())
             ->update([$name => $this->defaultSoftDelete]);
 
-        $this->trigger('after_restore');
+        $this->trigger('AfterRestore');
 
         return true;
     }

@@ -25,6 +25,7 @@ class ModelService extends Service
         Model::maker(function (Model $model) {
             $db = $this->app->db;
             $model->setDb($db);
+            $model->setEvent($this->app->event);
 
             $isAutoWriteTimestamp = $model->getAutoWriteTimestamp();
 

@@ -186,6 +186,17 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
+     * 设置Event对象
+     * @access public
+     * @param Event $event Event对象
+     * @return void
+     */
+    public function setEvent(Event $event)
+    {
+        $this->event = $event;
+    }
+
+    /**
      * 设置Connection信息
      * @access public
      * @param mixed $connection 数据库配置
@@ -267,7 +278,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $model = (new static($data))->exists(true);
         $model->setUpdateWhere($where);
 
-        $model->trigger('after_read');
+        $model->trigger('AfterRead');
 
         return $model;
     }
@@ -511,7 +522,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         // 数据对象赋值
         $this->setAttrs($data);
 
-        if ($this->isEmpty() || false === $this->trigger('before_write')) {
+        if ($this->isEmpty() || false === $this->trigger('BeforeWrite')) {
             return false;
         }
 
@@ -522,7 +533,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 写入回调
-        $this->trigger('after_write');
+        $this->trigger('AfterWrite');
 
         // 重新记录原始数据
         $this->origin   = $this->data;
@@ -581,7 +592,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $this->autoCompleteData($auto);
 
         // 事件回调
-        if (false === $this->trigger('before_update')) {
+        if (false === $this->trigger('BeforeUpdate')) {
             return false;
         }
 
@@ -641,7 +652,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $db->commit();
 
             // 更新回调
-            $this->trigger('after_update');
+            $this->trigger('AfterUpdate');
 
             return true;
         } catch (\Exception $e) {
@@ -674,7 +685,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             }
         }
 
-        if (false === $this->trigger('before_insert')) {
+        if (false === $this->trigger('BeforeInsert')) {
             return false;
         }
 
@@ -714,7 +725,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $this->exists = true;
 
             // 新增回调
-            $this->trigger('after_insert');
+            $this->trigger('AfterInsert');
 
             return true;
         } catch (\Exception $e) {
@@ -789,7 +800,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     public function delete(): bool
     {
-        if (!$this->exists || $this->isEmpty() || false === $this->trigger('before_delete')) {
+        if (!$this->exists || $this->isEmpty() || false === $this->trigger('BeforeDelete')) {
             return false;
         }
 
@@ -810,7 +821,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             $db->commit();
 
-            $this->trigger('after_delete');
+            $this->trigger('AfterDelete');
 
             $this->exists   = false;
             $this->lazySave = false;
