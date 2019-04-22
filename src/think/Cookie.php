@@ -22,8 +22,6 @@ class Cookie
      * @var array
      */
     protected $config = [
-        // cookie 名称前缀
-        'prefix'   => '',
         // cookie 保存时间
         'expire'   => 0,
         // cookie 保存路径
@@ -67,21 +65,6 @@ class Cookie
     }
 
     /**
-     * 设置或者获取cookie作用域（前缀）
-     * @access public
-     * @param  string $prefix
-     * @return string|void
-     */
-    public function prefix(string $prefix = '')
-    {
-        if (empty($prefix)) {
-            return $this->config['prefix'];
-        }
-
-        $this->config['prefix'] = $prefix;
-    }
-
-    /**
      * Cookie 设置
      *
      * @access public
@@ -105,7 +88,7 @@ class Cookie
 
         $expire = !empty($config['expire']) ? time() + intval($config['expire']) : 0;
 
-        $this->setCookie($config['prefix'] . $name, (string) $value, $expire, $config);
+        $this->setCookie($name, (string) $value, $expire, $config);
     }
 
     /**
@@ -146,14 +129,11 @@ class Cookie
      * Cookie删除
      * @access public
      * @param  string      $name cookie名称
-     * @param  string|null $prefix cookie前缀
      * @return void
      */
-    public function delete(string $name, string $prefix = null): void
+    public function delete(string $name): void
     {
-        $prefix = $prefix ?: $this->config['prefix'];
-
-        $this->setCookie($prefix . $name, '', time() - 3600, $this->config);
+        $this->setCookie($name, '', time() - 3600, $this->config);
     }
 
     /**
