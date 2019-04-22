@@ -158,6 +158,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected $db;
 
     /**
+     * Event对象
+     * @var Event
+     */
+    protected $event;
+
+    /**
      * 服务注入
      * @var Closure
      */
