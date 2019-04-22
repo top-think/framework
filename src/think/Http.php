@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
 use think\exception\Handle;
 use think\exception\HttpException;
 use Throwable;
@@ -300,7 +301,7 @@ class Http
                 $name = current(explode('/', $path));
 
                 if (isset($map[$name])) {
-                    $appName = $map[$name];
+                    $appName = $map[$name] instanceof Closure ? call_user_func_array($map[$name], [$this]) : $map[$name];
                 } elseif ($name && false !== array_search($name, $map)) {
                     throw new HttpException(404, 'app not exists:' . $name);
                 } else {
