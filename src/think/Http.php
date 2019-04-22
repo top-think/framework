@@ -301,7 +301,12 @@ class Http
                 $name = current(explode('/', $path));
 
                 if (isset($map[$name])) {
-                    $appName = $map[$name] instanceof Closure ? call_user_func_array($map[$name], [$this]) : $map[$name];
+                    if ($map[$name] instanceof Closure) {
+                        $result  = call_user_func_array($map[$name], [$this]);
+                        $appName = $result ?: $name;
+                    } else {
+                        $appName = $map[$name];
+                    }
                 } elseif ($name && false !== array_search($name, $map)) {
                     throw new HttpException(404, 'app not exists:' . $name);
                 } else {
