@@ -40,6 +40,8 @@ class Lang
         'accept_language' => [
             'zh-hans-cn' => 'zh-cn',
         ],
+        // 是否支持语言分组
+        'allow_group'     => false,
     ];
 
     /**
@@ -104,8 +106,8 @@ class Lang
     /**
      * 加载语言定义(不区分大小写)
      * @access public
-     * @param  string|array  $file   语言文件
-     * @param  string        $range  语言作用域
+     * @param  string|array $file   语言文件
+     * @param  string       $range  语言作用域
      * @return array
      */
     public function load($file, $range = ''): array
@@ -137,13 +139,18 @@ class Lang
     /**
      * 判断是否存在语言定义(不区分大小写)
      * @access public
-     * @param  string|null   $name 语言变量
-     * @param  string        $range 语言作用域
+     * @param  string|null $name 语言变量
+     * @param  string      $range 语言作用域
      * @return bool
      */
     public function has(string $name, string $range = ''): bool
     {
         $range = $range ?: $this->range;
+
+        if ($this->config['allow_group'] && strpos($name, '.')) {
+            list($name1, $name2) = explode('.', $name, 2);
+            return isset($this->lang[$range][strtolower($name1)][$name2]);
+        }
 
         return isset($this->lang[$range][strtolower($name)]);
     }
@@ -151,9 +158,9 @@ class Lang
     /**
      * 获取语言定义(不区分大小写)
      * @access public
-     * @param  string|null   $name 语言变量
-     * @param  array         $vars 变量替换
-     * @param  string        $range 语言作用域
+     * @param  string|null $name 语言变量
+     * @param  array       $vars 变量替换
+     * @param  string      $range 语言作用域
      * @return mixed
      */
     public function get(string $name = null, array $vars = [], string $range = '')
@@ -165,8 +172,13 @@ class Lang
             return $this->lang[$range] ?? [];
         }
 
-        $key   = strtolower($name);
-        $value = $this->lang[$range][$key] ?? $name;
+        if ($this->config['allow_group'] && strpos($name, '.')) {
+            list($name1, $name2) = explode(',', $name, 2);
+
+            $value = $this->lang[$range][strtolower($name1)][$name2] ?? $name;
+        } else {
+            $value = $this->lang[$range][strtolower($name)] ?? $name;
+        }
 
         // 变量解析
         if (!empty($vars) && is_array($vars)) {
