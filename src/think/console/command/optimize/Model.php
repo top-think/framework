@@ -53,7 +53,7 @@ class Model extends Command
         $comment = $reflect->getDocComment();
 
         if (false !== strpos($comment, '@mixin think\Model') && false === strpos($comment, '@property ')) {
-            $fieldType = $class::getFieldType();
+            $fieldType = $class::getFieldsType();
             $item[]    = '@mixin think\Model';
             foreach ($fieldType as $field => $type) {
                 $type   = $this->parseFieldType($type);
