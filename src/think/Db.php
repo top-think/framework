@@ -150,6 +150,16 @@ class Db
     }
 
     /**
+     * 重置查询次数
+     * @access public
+     * @return void
+     */
+    public function clearQueryTimes(): void
+    {
+        $this->queryTimes = 0;
+    }
+
+    /**
      * 获得查询次数
      * @access public
      * @return integer
