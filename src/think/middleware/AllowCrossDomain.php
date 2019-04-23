@@ -43,9 +43,6 @@ class AllowCrossDomain
             return Response::create()->code(204)->header($header);
         }
 
-        /** @var Response $response */
-        $response = $next($request);
-        $response->header($header);
-        return $response;
+        return $next($request)->header($header);
     }
 }
