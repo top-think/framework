@@ -24,13 +24,13 @@ class Collection extends BaseCollection
     /**
      * 延迟预载入关联查询
      * @access public
-     * @param  array $relation 关联
+     * @param  array|string $relation 关联
      * @return $this
      */
-    public function load(array $relation)
+    public function load($relation)
     {
         $item = current($this->items);
-        $item->eagerlyResultSet($this->items, $relation);
+        $item->eagerlyResultSet($this->items, (array) $relation);
 
         return $this;
     }
