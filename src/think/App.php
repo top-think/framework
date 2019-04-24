@@ -29,7 +29,7 @@ class App extends Container
      * 应用调试模式
      * @var bool
      */
-    protected $appDebug = true;
+    protected $appDebug = false;
 
     /**
      * 应用开始时间
