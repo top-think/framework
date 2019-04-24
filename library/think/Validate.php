@@ -1515,6 +1515,8 @@ class Validate
         }
 
         if (empty($scene)) {
+            // 重置为默认场景
+            $this->only = $this->append = $this->remove = [];
             return;
         }
 
