@@ -1604,7 +1604,7 @@ class Query
      * @param bool $procedure 是否为存储过程查询
      * @return $this
      */
-    public function procedure($procedure = true)
+    public function procedure(bool $procedure = true)
     {
         $this->options['procedure'] = $procedure;
         return $this;
@@ -1727,7 +1727,7 @@ class Query
      * @param string            $tag    缓存标签
      * @return $this
      */
-    public function cache($key = true, $expire = null, $tag = null)
+    public function cache($key = true, $expire = null, string $tag = null)
     {
         if (false === $key) {
             return $this;
@@ -1787,10 +1787,10 @@ class Query
     /**
      * 指定distinct查询
      * @access public
-     * @param bool $distinct 是否唯一
+     * @param bool|string $distinct 是否唯一
      * @return $this
      */
-    public function distinct(bool $distinct = true)
+    public function distinct($distinct = true)
     {
         $this->options['distinct'] = $distinct;
         return $this;
@@ -2364,13 +2364,13 @@ class Query
     /**
      * 设置关联查询JOIN预查询
      * @access public
-     * @param array $with 关联方法名称(数组)
+     * @param array|string $with 关联方法名称
      * @return $this
      */
-    public function with(array $with)
+    public function with($with)
     {
         if (!empty($with)) {
-            $this->options['with'] = $with;
+            $this->options['with'] = (array) $with;
         }
 
         return $this;
@@ -2379,11 +2379,11 @@ class Query
     /**
      * 关联预载入 JOIN方式
      * @access protected
-     * @param array  $with     关联方法名
-     * @param string $joinType JOIN方式
+     * @param array|string $with     关联方法名
+     * @param string       $joinType JOIN方式
      * @return $this
      */
-    public function withJoin(array $with, string $joinType = '')
+    public function withJoin($with, string $joinType = '')
     {
         if (empty($with)) {
             return $this;
@@ -2393,7 +2393,7 @@ class Query
 
         /** @var Model $class */
         $class = $this->model;
-        foreach ($with as $key => $relation) {
+        foreach ((array) $with as $key => $relation) {
             $closure = null;
             $field   = true;
 
@@ -2431,26 +2431,17 @@ class Query
     /**
      * 设置数据字段获取器
      * @access public
-     * @param string   $name     字段名
-     * @param callable $callback 闭包获取器
+     * @param string|array $name     字段名
+     * @param callable     $callback 闭包获取器
      * @return $this
      */
-    public function withAttr(string $name, callable $callback)
+    public function withAttr($name, callable $callback)
     {
-        $this->options['with_attr'][$name] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * 设置数据字段获取器
-     * @access public
-     * @param array $attrs 字段获取器
-     * @return $this
-     */
-    public function withAttrs(array $attrs)
-    {
-        $this->options['with_attr'] = $attrs;
+        if (is_array($name)) {
+            $this->options['with_attr'] = $name;
+        } else {
+            $this->options['with_attr'][$name] = $callback;
+        }
 
         return $this;
     }
@@ -2493,10 +2484,6 @@ class Query
      */
     protected function withAggregate($relations, string $aggregate = 'count', $field = '*', bool $subQuery = true)
     {
-        if (is_string($relations)) {
-            $relations = explode(',', $relations);
-        }
-
         if (!$subQuery) {
             $this->options['with_count'][] = [$relations, $aggregate, $field];
         } else {
@@ -2504,7 +2491,7 @@ class Query
                 $this->field('*');
             }
 
-            foreach ($relations as $key => $relation) {
+            foreach ((array) $relations as $key => $relation) {
                 $closure = $aggregateField = null;
 
                 if ($relation instanceof Closure) {
