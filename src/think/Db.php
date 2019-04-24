@@ -210,7 +210,8 @@ class Db
      */
     public function buildQuery($connection = [])
     {
-        return $this->connect($connection)->newQuery();
+        $connection = $this->instance($this->parseConfig($connection));
+        return $this->newQuery($connection);
     }
 
     /**

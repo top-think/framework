@@ -35,7 +35,7 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, array $header = [])
+    public function handle($request, Closure $next, ?array $header = [])
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
@@ -43,6 +43,6 @@ class AllowCrossDomain
             return Response::create()->code(204)->header($header);
         }
 
-        return $next($request);
+        return $next($request)->header($header);
     }
 }

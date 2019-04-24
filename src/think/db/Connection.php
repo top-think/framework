@@ -246,6 +246,8 @@ abstract class Connection
     /**
      * 架构函数 读取数据库配置信息
      * @access public
+     * @param Cache $cache 缓存对象
+     * @param Log   $log 日志对象
      * @param array $config 数据库配置数组
      */
     public function __construct(Cache $cache, Log $log, array $config = [])
