@@ -47,7 +47,7 @@ class SessionInit
     {
         // Session初始化
         $varSessionId = $this->app->config->get('session.var_session_id');
-        $cookieName   = $this->app->config->get('session.name', 'PHPSESSID');
+        $cookieName   = $this->app->config->get('session.name') ?: 'PHPSESSID';
 
         if ($varSessionId && $request->request($varSessionId)) {
             $sessionId = $request->request($varSessionId);
