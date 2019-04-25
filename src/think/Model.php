@@ -80,6 +80,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     private $replace = false;
 
     /**
+     * 数据表后缀
+     * @var string
+     */
+    protected $suffix;
+
+    /**
      * 更新条件
      * @var array
      */
@@ -313,6 +319,28 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
+     * 设置当前模型数据表的后缀
+     * @access public
+     * @param string $suffix 数据表后缀
+     * @return $this
+     */
+    public function setSuffix(string $suffix)
+    {
+        $this->suffix = $suffix;
+        return $this;
+    }
+
+    /**
+     * 获取当前模型的数据表后缀
+     * @access public
+     * @return string
+     */
+    public function getSuffix(): string
+    {
+        return $this->suffix ?: '';
+    }
+
+    /**
      * 获取当前模型的数据库查询对象
      * @access public
      * @param array|false $scope 使用的全局查询范围
@@ -325,7 +353,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $query = $this->queryInstance->removeOption();
         } else {
             $query = $this->db->buildQuery($this->connection)
-                ->name($this->name)
+                ->name($this->name . $this->suffix)
                 ->pk($this->pk);
         }
 
@@ -334,7 +362,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             ->setFieldType($this->schema);
 
         if (!empty($this->table)) {
-            $query->table($this->table);
+            $query->table($this->table . $this->suffix);
         }
 
         // 软删除
@@ -560,7 +588,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
                 $this->field = array_keys($this->schema);
             } else {
                 $query = $this->db();
-                $table = $this->table ?: $query->getTable();
+                $table = $this->table ? $this->table . $this->suffix : $query->getTable();
 
                 $this->field = $query->getConnection()->getTableFields($table);
             }
@@ -1022,6 +1050,20 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $model = new static();
 
         return $model->db($scope);
+    }
+
+    /**
+     * 切换后缀进行查询
+     * @access public
+     * @param string $suffix 切换的表后缀
+     * @return Model
+     */
+    public static function change(string $suffix)
+    {
+        $model = new static();
+        $model->setSuffix($suffix);
+
+        return $model;
     }
 
     public function __call($method, $args)
