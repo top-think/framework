@@ -24,6 +24,7 @@ class RouteList extends Command
         'route'  => 1,
         'method' => 2,
         'name'   => 3,
+        'domain' => 4,
     ];
 
     protected function configure()
@@ -85,7 +86,7 @@ class RouteList extends Command
         $table = new Table();
 
         if ($this->input->hasOption('more')) {
-            $header = ['Rule', 'Route', 'Method', 'Name', 'Option', 'Pattern'];
+            $header = ['Rule', 'Route', 'Method', 'Name', 'Domain', 'Option', 'Pattern'];
         } else {
             $header = ['Rule', 'Route', 'Method', 'Name'];
         }
@@ -99,7 +100,7 @@ class RouteList extends Command
             $item['route'] = $item['route'] instanceof \Closure ? '<Closure>' : $item['route'];
 
             if ($this->input->hasOption('more')) {
-                $item = [$item['rule'], $item['route'], $item['method'], $item['name'], json_encode($item['option']), json_encode($item['pattern'])];
+                $item = [$item['rule'], $item['route'], $item['method'], $item['name'], $item['domain'], json_encode($item['option']), json_encode($item['pattern'])];
             } else {
                 $item = [$item['rule'], $item['route'], $item['method'], $item['name']];
             }
@@ -108,7 +109,7 @@ class RouteList extends Command
         }
 
         if ($this->input->getOption('sort')) {
-            $sort = $this->input->getOption('sort');
+            $sort = strtolower($this->input->getOption('sort'));
 
             if (isset($this->sortBy[$sort])) {
                 $sort = $this->sortBy[$sort];
