@@ -297,6 +297,7 @@ class Http
 
             if (!$this->bindDomain) {
                 $map  = $this->app->config->get('app.app_map', []);
+                $deny = $this->app->config->get('app.deny_app_list', []);
                 $path = $this->app->request->pathinfo();
                 $name = current(explode('/', $path));
 
@@ -307,7 +308,7 @@ class Http
                     } else {
                         $appName = $map[$name];
                     }
-                } elseif ($name && (false !== array_search($name, $map) || in_array($name, $this->app->config->get('app.deny_app_list', [])))) {
+                } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
                     throw new HttpException(404, 'app not exists:' . $name);
                 } else {
                     $appName = $name;
