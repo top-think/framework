@@ -194,7 +194,7 @@ class App extends Container
      */
     public function isDebug(): bool
     {
-        return $this->appDebug;
+        return $this->appDebug ? true : false;
     }
 
     /**
