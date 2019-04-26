@@ -1287,7 +1287,14 @@ class Request
             }
         }
 
-        return $this->filterData($data, $filter, $name, $default);
+        $data = $this->filterData($data, $filter, $name, $default);
+
+        if (isset($type) && $data !== $default) {
+            // 强制类型转换
+            $this->typeCast($data, $type);
+        }
+
+        return $data;
     }
 
     protected function filterData($data, $filter, $name, $default)
@@ -1303,6 +1310,43 @@ class Request
         }
 
         return $data;
+    }
+
+    /**
+     * 强制类型转换
+     * @access public
+     * @param  string $data
+     * @param  string $type
+     * @return mixed
+     */
+    private function typeCast(&$data, string $type)
+    {
+        switch (strtolower($type)) {
+            // 数组
+            case 'a':
+                $data = (array) $data;
+                break;
+            // 数字
+            case 'd':
+                $data = (int) $data;
+                break;
+            // 浮点
+            case 'f':
+                $data = (float) $data;
+                break;
+            // 布尔
+            case 'b':
+                $data = (boolean) $data;
+                break;
+            // 字符串
+            case 's':
+                if (is_scalar($data)) {
+                    $data = (string) $data;
+                } else {
+                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
+                }
+                break;
+        }
     }
 
     /**

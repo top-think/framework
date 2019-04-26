@@ -529,13 +529,13 @@ abstract class Builder
     /**
      * 模糊查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
-     * @param  string    $logic
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  array   $value
+     * @param  string  $field
+     * @param  integer $bindType
+     * @param  string  $logic
      * @return string
      */
     protected function parseLike(Query $query, string $key, string $exp, $value, $field, int $bindType, string $logic): string
@@ -559,12 +559,12 @@ abstract class Builder
     /**
      * 表达式查询
      * @access protected
-     * @param  Query        $query        查询对象
-     * @param  string       $key
-     * @param  string       $exp
-     * @param  Raw          $value
-     * @param  string       $field
-     * @param  integer      $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  array   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseExp(Query $query, string $key, string $exp, Raw $value, string $field, int $bindType): string
@@ -576,12 +576,12 @@ abstract class Builder
     /**
      * 表达式查询
      * @access protected
-     * @param  Query        $query        查询对象
-     * @param  string       $key
-     * @param  string       $exp
-     * @param  array        $value
-     * @param  string       $field
-     * @param  integer      $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  array   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseColumn(Query $query, string $key, $exp, array $value, string $field, int $bindType): string
@@ -599,12 +599,12 @@ abstract class Builder
     /**
      * Null查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseNull(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -616,12 +616,12 @@ abstract class Builder
     /**
      * 范围查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseBetween(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -638,12 +638,12 @@ abstract class Builder
     /**
      * Exists查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseExists(Query $query, string $key, string $exp, $value, string $field, int $bindType): string
@@ -663,12 +663,12 @@ abstract class Builder
     /**
      * 时间比较查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query  查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseTime(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -679,12 +679,12 @@ abstract class Builder
     /**
      * 大小比较查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseCompare(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -704,12 +704,12 @@ abstract class Builder
     /**
      * 时间范围查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query     查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseBetweenTime(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -728,12 +728,12 @@ abstract class Builder
     /**
      * IN查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  string    $exp
-     * @param  mixed     $value
-     * @param  string    $field
-     * @param  integer   $bindType
+     * @param  Query   $query   查询对象
+     * @param  string  $key
+     * @param  string  $exp
+     * @param  mixed   $value
+     * @param  string  $field
+     * @param  integer $bindType
      * @return string
      */
     protected function parseIn(Query $query, string $key, string $exp, $value, $field, int $bindType): string
@@ -762,9 +762,9 @@ abstract class Builder
     /**
      * 闭包子查询
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  \Closure  $call
-     * @param  bool      $show
+     * @param  Query    $query 查询对象
+     * @param  \Closure $call
+     * @param  bool     $show
      * @return string
      */
     protected function parseClosure(Query $query, \Closure $call, bool $show = true): string
@@ -778,10 +778,10 @@ abstract class Builder
     /**
      * 日期时间条件解析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $value
-     * @param  string    $key
-     * @param  integer   $bindType
+     * @param  Query   $query 查询对象
+     * @param  mixed   $value
+     * @param  string  $key
+     * @param  integer $bindType
      * @return string
      */
     protected function parseDateTime(Query $query, $value, string $key, int $bindType): string
@@ -826,8 +826,8 @@ abstract class Builder
     /**
      * limit分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $limit
+     * @param  Query $query 查询对象
+     * @param  mixed $limit
      * @return string
      */
     protected function parseLimit(Query $query, string $limit): string
@@ -838,8 +838,8 @@ abstract class Builder
     /**
      * join分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  array     $join
+     * @param  Query $query 查询对象
+     * @param  array $join
      * @return string
      */
     protected function parseJoin(Query $query, array $join): string
@@ -868,8 +868,8 @@ abstract class Builder
     /**
      * order分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  array     $order
+     * @param  Query $query 查询对象
+     * @param  array $order
      * @return string
      */
     protected function parseOrder(Query $query, array $order): string
@@ -905,7 +905,7 @@ abstract class Builder
     /**
      * 随机排序
      * @access protected
-     * @param  Query     $query        查询对象
+     * @param  Query $query 查询对象
      * @return string
      */
     protected function parseRand(Query $query): string
@@ -916,9 +916,9 @@ abstract class Builder
     /**
      * orderField分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  string    $key
-     * @param  array     $val
+     * @param  Query  $query 查询对象
+     * @param  string $key
+     * @param  array  $val
      * @return string
      */
     protected function parseOrderField(Query $query, string $key, array $val): string
@@ -944,8 +944,8 @@ abstract class Builder
     /**
      * group分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $group
+     * @param  Query $query 查询对象
+     * @param  mixed $group
      * @return string
      */
     protected function parseGroup(Query $query, $group): string
@@ -969,7 +969,7 @@ abstract class Builder
     /**
      * having分析
      * @access protected
-     * @param  Query  $query        查询对象
+     * @param  Query  $query  查询对象
      * @param  string $having
      * @return string
      */
@@ -981,7 +981,7 @@ abstract class Builder
     /**
      * comment分析
      * @access protected
-     * @param  Query  $query        查询对象
+     * @param  Query  $query  查询对象
      * @param  string $comment
      * @return string
      */
@@ -997,8 +997,8 @@ abstract class Builder
     /**
      * distinct分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $distinct
+     * @param  Query $query  查询对象
+     * @param  mixed $distinct
      * @return string
      */
     protected function parseDistinct(Query $query, bool $distinct): string
@@ -1009,8 +1009,8 @@ abstract class Builder
     /**
      * union分析
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  array     $union
+     * @param  Query $query 查询对象
+     * @param  array $union
      * @return string
      */
     protected function parseUnion(Query $query, array $union): string
@@ -1036,8 +1036,8 @@ abstract class Builder
     /**
      * index分析，可在操作链中指定需要强制使用的索引
      * @access protected
-     * @param  Query     $query        查询对象
-     * @param  mixed     $index
+     * @param  Query $query 查询对象
+     * @param  mixed $index
      * @return string
      */
     protected function parseForce(Query $query, $index): string
@@ -1056,8 +1056,8 @@ abstract class Builder
     /**
      * 设置锁机制
      * @access protected
-     * @param  Query         $query        查询对象
-     * @param  bool|string   $lock
+     * @param  Query       $query 查询对象
+     * @param  bool|string $lock
      * @return string
      */
     protected function parseLock(Query $query, $lock = false): string
@@ -1076,8 +1076,8 @@ abstract class Builder
     /**
      * 生成查询SQL
      * @access public
-     * @param  Query  $query  查询对象
-     * @param  bool   $one    是否仅获取一个记录
+     * @param  Query $query 查询对象
+     * @param  bool  $one   是否仅获取一个记录
      * @return string
      */
     public function select(Query $query, bool $one = false): string
@@ -1108,7 +1108,7 @@ abstract class Builder
     /**
      * 生成Insert SQL
      * @access public
-     * @param  Query     $query   查询对象
+     * @param  Query $query 查询对象
      * @return string
      */
     public function insert(Query $query): string
@@ -1140,8 +1140,8 @@ abstract class Builder
     /**
      * 生成insertall SQL
      * @access public
-     * @param  Query     $query   查询对象
-     * @param  array     $dataSet 数据集
+     * @param  Query $query   查询对象
+     * @param  array $dataSet 数据集
      * @return string
      */
     public function insertAll(Query $query, array $dataSet): string
@@ -1190,9 +1190,9 @@ abstract class Builder
     /**
      * 生成slect insert SQL
      * @access public
-     * @param  Query     $query  查询对象
-     * @param  array     $fields 数据
-     * @param  string    $table  数据表
+     * @param  Query  $query  查询对象
+     * @param  array  $fields 数据
+     * @param  string $table  数据表
      * @return string
      */
     public function selectInsert(Query $query, array $fields, string $table): string
@@ -1207,7 +1207,7 @@ abstract class Builder
     /**
      * 生成update SQL
      * @access public
-     * @param  Query     $query  查询对象
+     * @param  Query $query 查询对象
      * @return string
      */
     public function update(Query $query): string
@@ -1244,7 +1244,7 @@ abstract class Builder
     /**
      * 生成delete SQL
      * @access public
-     * @param  Query  $query  查询对象
+     * @param  Query $query 查询对象
      * @return string
      */
     public function delete(Query $query): string
