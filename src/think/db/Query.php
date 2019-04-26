@@ -1787,10 +1787,10 @@ class Query
     /**
      * 指定distinct查询
      * @access public
-     * @param bool|string $distinct 是否唯一
+     * @param bool $distinct 是否唯一
      * @return $this
      */
-    public function distinct($distinct = true)
+    public function distinct(bool $distinct = true)
     {
         $this->options['distinct'] = $distinct;
         return $this;
