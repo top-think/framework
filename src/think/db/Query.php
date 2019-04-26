@@ -3457,4 +3457,14 @@ class Query
         return $options;
     }
 
+    public function __debugInfo()
+    {
+        return [
+            'name'    => $this->name,
+            'pk'      => $this->pk,
+            'prefix'  => $this->prefix,
+            'bind'    => $this->bind,
+            'options' => $this->options,
+        ];
+    }
 }

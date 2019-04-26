@@ -82,7 +82,7 @@ trait ModelEvent
             return true;
         }
 
-        $call  = 'on' . App::parseName($event, 1, false);
+        $call  = 'on' . App::parseName($event, 1);
         $class = static::class;
 
         try {

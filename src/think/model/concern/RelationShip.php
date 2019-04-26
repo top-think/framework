@@ -579,7 +579,7 @@ trait RelationShip
     /**
      * 智能获取关联模型数据
      * @access protected
-     * @param  Relation  $modelRelation 模型关联对象
+     * @param  Relation $modelRelation 模型关联对象
      * @return mixed
      */
     protected function getRelationData(Relation $modelRelation)
@@ -589,7 +589,7 @@ trait RelationShip
         }
 
         // 获取关联数据
-        return $modelRelation->getModel()->getRelation();
+        return $modelRelation->getRelation();
     }
 
     /**
