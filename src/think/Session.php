@@ -458,14 +458,18 @@ class Session
             return;
         }
 
-        $item = $this->get('__flash__');
+        $items = $this->get('__flash__');
 
-        if (!empty($item)) {
-            $time = $item['__time__'];
+        if (!empty($items)) {
+            $time = $items['__time__'];
 
             if ($this->request->time(true) > $time) {
-                unset($item['__time__']);
-                $this->delete($item);
+                unset($items['__time__']);
+
+                foreach ($items as $item) {
+                    $this->delete($item);
+                }
+
                 $this->set('__flash__', []);
             }
         }
