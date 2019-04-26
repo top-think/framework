@@ -8,6 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
+declare (strict_types = 1);
 
 namespace think\db\connector;
 
@@ -15,26 +16,37 @@ use PDO;
 use think\db\Connection;
 
 /**
- * Sqliteæ•°æ®åº“é©±åŠ¨
+ * mysqlÊý¾Ý¿âÇý¶¯
  */
-class Sqlite extends Connection
+class Mysql extends Connection
 {
 
     /**
-     * è§£æžpdoè¿žæŽ¥çš„dsnä¿¡æ¯
+     * ½âÎöpdoÁ¬½ÓµÄdsnÐÅÏ¢
      * @access protected
-     * @param  array $config è¿žæŽ¥ä¿¡æ¯
+     * @param  array $config Á¬½ÓÐÅÏ¢
      * @return string
      */
     protected function parseDsn(array $config): string
     {
-        $dsn = 'sqlite:' . $config['database'];
+        if (!empty($config['socket'])) {
+            $dsn = 'mysql:unix_socket=' . $config['socket'];
+        } elseif (!empty($config['hostport'])) {
+            $dsn = 'mysql:host=' . $config['hostname'] . ';port=' . $config['hostport'];
+        } else {
+            $dsn = 'mysql:host=' . $config['hostname'];
+        }
+        $dsn .= ';dbname=' . $config['database'];
+
+        if (!empty($config['charset'])) {
+            $dsn .= ';charset=' . $config['charset'];
+        }
 
         return $dsn;
     }
 
     /**
-     * å–å¾—æ•°æ®è¡¨çš„å­—æ®µä¿¡æ¯
+     * È¡µÃÊý¾Ý±íµÄ×Ö¶ÎÐÅÏ¢
      * @access public
      * @param  string $tableName
      * @return array
@@ -42,8 +54,15 @@ class Sqlite extends Connection
     public function getFields(string $tableName): array
     {
         list($tableName) = explode(' ', $tableName);
-        $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
 
+        if (false === strpos($tableName, '`')) {
+            if (strpos($tableName, '.')) {
+                $tableName = str_replace('.', '`.`', $tableName);
+            }
+            $tableName = '`' . $tableName . '`';
+        }
+
+        $sql    = 'SHOW COLUMNS FROM ' . $tableName;
         $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
@@ -52,13 +71,13 @@ class Sqlite extends Connection
             foreach ($result as $key => $val) {
                 $val = array_change_key_case($val);
 
-                $info[$val['name']] = [
-                    'name'    => $val['name'],
+                $info[$val['field']] = [
+                    'name'    => $val['field'],
                     'type'    => $val['type'],
-                    'notnull' => 1 === $val['notnull'],
-                    'default' => $val['dflt_value'],
-                    'primary' => '1' == $val['pk'],
-                    'autoinc' => '1' == $val['pk'],
+                    'notnull' => (bool) ('' === $val['null']), // not null is empty, null is yes
+                    'default' => $val['default'],
+                    'primary' => (strtolower($val['key']) == 'pri'),
+                    'autoinc' => (strtolower($val['extra']) == 'auto_increment'),
                 ];
             }
         }
@@ -67,17 +86,14 @@ class Sqlite extends Connection
     }
 
     /**
-     * å–å¾—æ•°æ®åº“çš„è¡¨ä¿¡æ¯
+     * È¡µÃÊý¾Ý¿âµÄ±íÐÅÏ¢
      * @access public
      * @param  string $dbName
      * @return array
      */
     public function getTables(string $dbName = ''): array
     {
-        $sql = "SELECT name FROM sqlite_master WHERE type='table' "
-            . "UNION ALL SELECT name FROM sqlite_temp_master "
-            . "WHERE type='table' ORDER BY name";
-
+        $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
         $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
@@ -90,18 +106,29 @@ class Sqlite extends Connection
     }
 
     /**
-     * SQLæ€§èƒ½åˆ†æž
+     * SQLÐÔÄÜ·ÖÎö
      * @access protected
      * @param  string $sql
      * @return array
      */
     protected function getExplain(string $sql): array
     {
-        return [];
+        $pdo    = $this->linkID->query("EXPLAIN " . $sql);
+        $result = $pdo->fetch(PDO::FETCH_ASSOC);
+        $result = array_change_key_case($result);
+
+        if (isset($result['extra'])) {
+            if (strpos($result['extra'], 'filesort') || strpos($result['extra'], 'temporary')) {
+                $this->log('SQL:' . $this->queryStr . '[' . $result['extra'] . ']', 'warn');
+            }
+        }
+
+        return $result;
     }
 
     protected function supportSavepoint(): bool
     {
         return true;
     }
+
 }
