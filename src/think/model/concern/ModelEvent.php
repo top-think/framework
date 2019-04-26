@@ -25,7 +25,7 @@ trait ModelEvent
      * 模型事件观察
      * @var array
      */
-    protected static $observe = ['AfterRead', 'BeforeWrite', 'AfterWrite', 'BeforeInsert', 'AfterInsert', 'BeforeUpdate', 'AfterUpdate', 'BeforeDelete', 'AfterDelete', 'BeforeRestore', 'AfterRestore'];
+    protected $observe = ['AfterRead', 'BeforeWrite', 'AfterWrite', 'BeforeInsert', 'AfterInsert', 'BeforeUpdate', 'AfterUpdate', 'BeforeDelete', 'AfterDelete', 'BeforeRestore', 'AfterRestore'];
 
     /**
      * 模型事件观察者类名
@@ -45,9 +45,9 @@ trait ModelEvent
      * @param  string $class 观察者类
      * @return void
      */
-    protected static function observe(string $class): void
+    protected function observe(string $class): void
     {
-        foreach (static::$observe as $event) {
+        foreach ($this->observe as $event) {
             $call = 'on' . $event;
 
             if (method_exists($class, $call)) {
