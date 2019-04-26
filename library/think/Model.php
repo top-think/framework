@@ -532,10 +532,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             $field = $this->field;
         } else {
             $field = array_merge($this->field, $append);
-
-            if ($this->autoWriteTimestamp) {
-                array_push($field, $this->createTime, $this->updateTime);
-            }
         }
 
         if ($this->disuse) {
