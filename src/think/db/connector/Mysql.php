@@ -16,15 +16,15 @@ use PDO;
 use think\db\Connection;
 
 /**
- * mysqlÊı¾İ¿âÇı¶¯
+ * mysqlæ•°æ®åº“é©±åŠ¨
  */
 class Mysql extends Connection
 {
 
     /**
-     * ½âÎöpdoÁ¬½ÓµÄdsnĞÅÏ¢
+     * è§£æpdoè¿æ¥çš„dsnä¿¡æ¯
      * @access protected
-     * @param  array $config Á¬½ÓĞÅÏ¢
+     * @param  array $config è¿æ¥ä¿¡æ¯
      * @return string
      */
     protected function parseDsn(array $config): string
@@ -46,7 +46,7 @@ class Mysql extends Connection
     }
 
     /**
-     * È¡µÃÊı¾İ±íµÄ×Ö¶ÎĞÅÏ¢
+     * å–å¾—æ•°æ®è¡¨çš„å­—æ®µä¿¡æ¯
      * @access public
      * @param  string $tableName
      * @return array
@@ -86,7 +86,7 @@ class Mysql extends Connection
     }
 
     /**
-     * È¡µÃÊı¾İ¿âµÄ±íĞÅÏ¢
+     * å–å¾—æ•°æ®åº“çš„è¡¨ä¿¡æ¯
      * @access public
      * @param  string $dbName
      * @return array
@@ -106,7 +106,7 @@ class Mysql extends Connection
     }
 
     /**
-     * SQLĞÔÄÜ·ÖÎö
+     * SQLæ€§èƒ½åˆ†æ
      * @access protected
      * @param  string $sql
      * @return array
