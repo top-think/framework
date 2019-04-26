@@ -14,6 +14,7 @@ namespace think\response;
 use think\Request;
 use think\Response;
 use think\Route;
+use think\Session;
 
 /**
  * Redirect Response
@@ -28,11 +29,12 @@ class Redirect extends Response
     protected $route;
     protected $request;
 
-    public function __construct(Route $route, Request $request, $data = '', int $code = 302)
+    public function __construct(Route $route, Request $request, Session $session, $data = '', int $code = 302)
     {
         parent::__construct($data, $code);
         $this->route   = $route;
         $this->request = $request;
+        $this->session = $session;
 
         $this->cacheControl('no-cache,must-revalidate');
     }
