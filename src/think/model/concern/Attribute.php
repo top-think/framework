@@ -77,6 +77,12 @@ trait Attribute
     protected $json = [];
 
     /**
+     * JSON数据表字段类型
+     * @var array
+     */
+    protected $jsonType = [];
+
+    /**
      * JSON数据取出是否需要转换为数组
      * @var bool
      */

@@ -359,7 +359,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
         $query->model($this)
             ->json($this->json, $this->jsonAssoc)
-            ->setFieldType($this->schema);
+            ->setFieldType(array_merge($this->schema, $this->jsonType));
 
         if (!empty($this->table)) {
             $query->table($this->table . $this->suffix);
@@ -585,7 +585,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         // 检测字段
         if (empty($this->field)) {
             if (!empty($this->schema)) {
-                $this->field = array_keys($this->schema);
+                $this->field = array_keys(array_merge($this->schema, $this->jsonType));
             } else {
                 $query = $this->db();
                 $table = $this->table ? $this->table . $this->suffix : $query->getTable();
