@@ -1128,9 +1128,10 @@ abstract class Connection
      * @param Query  $query   查询对象
      * @param string $field   字段名
      * @param mixed  $default 默认值
+     * @param bool   $one     返回一个值
      * @return mixed
      */
-    public function value(Query $query, string $field, $default = null)
+    public function value(Query $query, string $field, $default = null, bool $one = true)
     {
         $options = $query->parseOptions();
 
@@ -1150,7 +1151,7 @@ abstract class Connection
         }
 
         // 生成查询SQL
-        $sql = $this->builder->select($query, true);
+        $sql = $this->builder->select($query, $one);
 
         if (isset($options['field'])) {
             $query->setOption('field', $options['field']);
@@ -1189,7 +1190,7 @@ abstract class Connection
 
         $field = $aggregate . '(' . (!empty($distinct) ? 'DISTINCT ' : '') . $this->builder->parseKey($query, $field, true) . ') AS tp_' . strtolower($aggregate);
 
-        $result = $this->value($query, $field, 0);
+        $result = $this->value($query, $field, 0, false);
 
         return $force ? (float) $result : $result;
     }
