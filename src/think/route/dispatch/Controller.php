@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\route\dispatch;
 
 use ReflectionClass;
+use ReflectionException;
 use ReflectionMethod;
 use think\App;
 use think\exception\ClassNotFoundException;
@@ -71,13 +72,19 @@ class Controller extends Dispatch
             $action = $this->actionName . $this->rule->config('action_suffix');
 
             if (is_callable([$instance, $action])) {
-                // 严格获取当前操作方法名
-                $reflect    = new ReflectionMethod($instance, $action);
-                $actionName = $reflect->getName();
-                $this->request->setAction($actionName);
-
                 // 自动获取请求变量
                 $vars = array_merge($this->request->param(), $this->param);
+
+                try {
+                    $reflect = new ReflectionMethod($instance, $action);
+                    // 严格获取当前操作方法名
+                    $actionName = $reflect->getName();
+                    $this->request->setAction($actionName);
+                } catch (ReflectionException $e) {
+                    $reflect = new ReflectionMethod($instance, '__call');
+                    $vars    = [$action, $vars];
+                    $this->request->setAction($action);
+                }
             } else {
                 // 操作不存在
                 throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
