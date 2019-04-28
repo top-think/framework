@@ -1454,6 +1454,10 @@ class Request
      */
     public function has(string $name, string $type = 'param', bool $checkEmpty = false): bool
     {
+        if (!in_array($type, ['param', 'get', 'post', 'put', 'patch', 'route', 'delete', 'cookie', 'session', 'env', 'request', 'server', 'header', 'file'])) {
+            return false;
+        }
+
         $param = empty($this->$type) ? $this->$type() : $this->$type;
 
         if (is_object($param)) {
