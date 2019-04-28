@@ -12,8 +12,8 @@ declare (strict_types = 1);
 
 namespace think\session\driver;
 
+use think\contract\SessionHandlerInterface;
 use think\Exception;
-use think\session\SessionHandlerInterface;
 
 /**
  * Session Memcache驱动

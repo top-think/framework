@@ -9,7 +9,7 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
-namespace think\cache;
+namespace think\contract;
 
 /**
  * 缓存驱动接口

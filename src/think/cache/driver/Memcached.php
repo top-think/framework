@@ -12,11 +12,12 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Memcached缓存类
  */
-class Memcached extends Driver
+class Memcached extends Driver implements CacheHandlerInterface
 {
     /**
      * 配置参数
@@ -219,6 +220,12 @@ class Memcached extends Driver
         return $this->handler->flush();
     }
 
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  string $tag 缓存标签名
+     * @return void
+     */
     public function clearTag(string $tag): void
     {
         // 指定标签清除

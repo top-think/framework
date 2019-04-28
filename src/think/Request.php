@@ -702,14 +702,14 @@ class Request
     /**
      * 当前请求的资源类型
      * @access public
-     * @return false|string
+     * @return string
      */
-    public function type()
+    public function type(): string
     {
         $accept = $this->server('HTTP_ACCEPT');
 
         if (empty($accept)) {
-            return false;
+            return '';
         }
 
         foreach ($this->mimeType as $key => $val) {
@@ -721,7 +721,7 @@ class Request
             }
         }
 
-        return false;
+        return '';
     }
 
     /**
@@ -1549,8 +1549,9 @@ class Request
     public function isJson(): bool
     {
         $contentType = $this->contentType();
+        $acceptType  = $this->type();
 
-        return false !== strpos($contentType, 'json');
+        return false !== strpos($contentType, 'json') || false !== strpos($acceptType, 'json');
     }
 
     /**

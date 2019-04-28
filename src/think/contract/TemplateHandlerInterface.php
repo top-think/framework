@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think\view;
+namespace think\contract;
 
 /**
  * 视图驱动接口

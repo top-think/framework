@@ -12,11 +12,12 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Wincache缓存驱动
  */
-class Wincache extends Driver
+class Wincache extends Driver implements CacheHandlerInterface
 {
     /**
      * 配置参数
@@ -172,6 +173,12 @@ class Wincache extends Driver
         return wincache_ucache_clear();
     }
 
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  string $tag 缓存标签名
+     * @return void
+     */
     public function clearTag(string $tag): void
     {
         $keys = $this->getTagItems($tag);

@@ -12,6 +12,7 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
@@ -20,7 +21,7 @@ use think\cache\Driver;
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
-class Redis extends Driver
+class Redis extends Driver implements CacheHandlerInterface
 {
     /**
      * 配置参数
@@ -220,6 +221,12 @@ class Redis extends Driver
         return true;
     }
 
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  string $tag 缓存标签名
+     * @return void
+     */
     public function clearTag(string $tag): void
     {
         // 指定标签清除

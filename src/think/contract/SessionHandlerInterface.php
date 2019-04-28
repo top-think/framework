@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace think\session;
+namespace think\contract;
 
 /**
  * Session驱动接口

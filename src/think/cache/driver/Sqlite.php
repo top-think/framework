@@ -12,11 +12,12 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Sqlite缓存驱动
  */
-class Sqlite extends Driver
+class Sqlite extends Driver implements CacheHandlerInterface
 {
     /**
      * 配置参数
@@ -234,6 +235,12 @@ class Sqlite extends Driver
         return true;
     }
 
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  string $tag 缓存标签名
+     * @return void
+     */
     public function clearTag(string $tag): void
     {
         $name = sqlite_escape_string($this->getTagKey($tag));

@@ -14,11 +14,12 @@ namespace think\cache\driver;
 
 use think\App;
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * 文件缓存类
  */
-class File extends Driver
+class File extends Driver implements CacheHandlerInterface
 {
     /**
      * 配置参数
@@ -279,7 +280,13 @@ class File extends Driver
         return true;
     }
 
-    public function clearTag(string $tag)
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  string $tag 缓存标签名
+     * @return void
+     */
+    public function clearTag(string $tag): void
     {
         $keys = $this->getTagItems($tag);
 

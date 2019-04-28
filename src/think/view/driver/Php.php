@@ -13,12 +13,13 @@ declare (strict_types = 1);
 namespace think\view\driver;
 
 use think\App;
+use think\contract\TemplateHandlerInterface;
 use think\template\exception\TemplateNotFoundException;
 
 /**
  * PHP原生模板驱动
  */
-class Php
+class Php implements TemplateHandlerInterface
 {
     protected $template;
     protected $content;
@@ -63,8 +64,8 @@ class Php
     /**
      * 渲染模板文件
      * @access public
-     * @param  string    $template 模板文件
-     * @param  array     $data 模板变量
+     * @param  string $template 模板文件
+     * @param  array  $data 模板变量
      * @return void
      */
     public function fetch(string $template, array $data = []): void
@@ -93,8 +94,8 @@ class Php
     /**
      * 渲染模板内容
      * @access public
-     * @param  string    $content 模板内容
-     * @param  array     $data 模板变量
+     * @param  string $content 模板内容
+     * @param  array  $data 模板变量
      * @return void
      */
     public function display(string $content, array $data = []): void
@@ -157,7 +158,7 @@ class Php
     /**
      * 配置模板引擎
      * @access private
-     * @param  array  $config 参数
+     * @param  array $config 参数
      * @return void
      */
     public function config(array $config): void
@@ -168,8 +169,8 @@ class Php
     /**
      * 获取模板引擎配置
      * @access public
-     * @param  string  $name 参数名
-     * @return void
+     * @param  string $name 参数名
+     * @return mixed
      */
     public function getConfig(string $name)
     {

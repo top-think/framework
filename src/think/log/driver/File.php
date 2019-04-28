@@ -13,11 +13,12 @@ declare (strict_types = 1);
 namespace think\log\driver;
 
 use think\App;
+use think\contract\LogHandlerInterface;
 
 /**
  * 本地化调试输出到文件
  */
-class File
+class File implements LogHandlerInterface
 {
     /**
      * 配置参数

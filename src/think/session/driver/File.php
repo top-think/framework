@@ -13,7 +13,7 @@ declare (strict_types = 1);
 namespace think\session\driver;
 
 use think\App;
-use think\session\SessionHandlerInterface;
+use think\contract\SessionHandlerInterface;
 
 /**
  * Session 文件驱动

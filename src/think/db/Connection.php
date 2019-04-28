@@ -300,13 +300,11 @@ abstract class Connection
      * 设置当前的数据库Builder对象
      * @access protected
      * @param Builder $builder
-     * @return $this
+     * @return void
      */
-    protected function setBuilder(Builder $builder)
+    protected function setBuilder(Builder $builder): void
     {
         $this->builder = $builder;
-
-        return $this;
     }
 
     /**
@@ -323,13 +321,11 @@ abstract class Connection
      * 设置当前的数据库Db对象
      * @access public
      * @param Db $db
-     * @return $this
+     * @return void
      */
-    public function setDb(Db $db)
+    public function setDb(Db $db): void
     {
         $this->db = $db;
-
-        return $this;
     }
 
     /**

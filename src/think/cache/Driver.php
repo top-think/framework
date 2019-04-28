@@ -100,9 +100,9 @@ abstract class Driver extends SimpleCache
     /**
      * 如果不存在则写入缓存
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  mixed     $value  存储数据
-     * @param  int       $expire  有效时间 0为永久
+     * @param  string $name 缓存变量名
+     * @param  mixed  $value  存储数据
+     * @param  int    $expire  有效时间 0为永久
      * @return mixed
      */
     public function remember(string $name, $value, $expire = null)
@@ -143,7 +143,7 @@ abstract class Driver extends SimpleCache
     /**
      * 缓存标签
      * @access public
-     * @param  string|array        $name 标签名
+     * @param  string|array $name 标签名
      * @return $this
      */
     public function tag($name)
@@ -199,13 +199,15 @@ abstract class Driver extends SimpleCache
         $key   = $this->getTagkey($tag);
         $value = $this->get($key);
 
-        if ($value) {
-            return array_filter(explode(',', $value));
-        } else {
-            return [];
-        }
+        return $value ? array_filter(explode(',', $value)) : [];
     }
 
+    /**
+     * 获取实际标签名
+     * @access protected
+     * @param  string $tag 标签名
+     * @return string
+     */
     protected function getTagKey(string $tag): string
     {
         return $this->options['tag_prefix'] . md5($tag);
@@ -214,7 +216,7 @@ abstract class Driver extends SimpleCache
     /**
      * 序列化数据
      * @access protected
-     * @param  mixed $data
+     * @param  mixed $data 缓存数据
      * @return string
      */
     protected function serialize($data)
@@ -231,7 +233,7 @@ abstract class Driver extends SimpleCache
     /**
      * 反序列化数据
      * @access protected
-     * @param  string $data
+     * @param  string $data 缓存数据
      * @return mixed
      */
     protected function unserialize($data)
@@ -247,9 +249,9 @@ abstract class Driver extends SimpleCache
     /**
      * 注册序列化机制
      * @access public
-     * @param  callable $serialize      序列化方法
-     * @param  callable $unserialize    反序列化方法
-     * @param  string   $prefix         序列化前缀标识
+     * @param  callable $serialize   序列化方法
+     * @param  callable $unserialize 反序列化方法
+     * @param  string   $prefix      序列化前缀标识
      * @return void
      */
     public static function registerSerialize(callable $serialize, callable $unserialize, string $prefix = 'think_serialize:'): void
@@ -268,11 +270,21 @@ abstract class Driver extends SimpleCache
         return $this->handler;
     }
 
+    /**
+     * 返回缓存读取次数
+     * @access public
+     * @return int
+     */
     public function getReadTimes(): int
     {
         return $this->readTimes;
     }
 
+    /**
+     * 返回缓存写入次数
+     * @access public
+     * @return int
+     */
     public function getWriteTimes(): int
     {
         return $this->writeTimes;
