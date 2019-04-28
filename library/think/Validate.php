@@ -1557,7 +1557,8 @@ class Validate
      * @access protected
      * @return array
      */
-    protected function getRules(){
+    protected function getRules()
+    {
         return $this->rule;
     }
 }
