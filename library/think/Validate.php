@@ -399,7 +399,7 @@ class Validate
 
         if (empty($rules)) {
             // 读取验证规则
-            $rules = $this->rule;
+            $rules = $this->getRules();
         }
 
         // 获取场景定义
@@ -1550,5 +1550,14 @@ class Validate
         array_push($args, lcfirst($method));
 
         return call_user_func_array([$this, 'is'], $args);
+    }
+    
+    /**
+     * 获取当前的验证规则
+     * @access protected
+     * @return array
+     */
+    protected function getRules(){
+        return $this->rule;
     }
 }
