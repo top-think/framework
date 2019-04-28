@@ -2,9 +2,8 @@
 
 namespace {%namespace%};
 
-use think\Controller;
 
-class {%className%} extends Controller
+class {%className%}
 {
     //
 }
