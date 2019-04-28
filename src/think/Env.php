@@ -114,6 +114,17 @@ class Env implements ArrayAccess
     }
 
     /**
+     * 检测是否存在环境变量
+     * @access public
+     * @param string $name 参数名
+     * @return bool
+     */
+    public function has(string $name): bool
+    {
+        return !is_null($this->get($name));
+    }
+
+    /**
      * 设置环境变量
      * @access public
      * @param string $name  参数名
@@ -143,7 +154,7 @@ class Env implements ArrayAccess
      */
     public function __isset(string $name): bool
     {
-        return !is_null($this->get($name));
+        return $this->has($name);
     }
 
     // ArrayAccess

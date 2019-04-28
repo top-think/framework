@@ -1456,6 +1456,10 @@ class Request
     {
         $param = empty($this->$type) ? $this->$type() : $this->$type;
 
+        if (is_object($param)) {
+            return $param->has($name);
+        }
+
         // 按.拆分成多维数组进行判断
         foreach (explode('.', $name) as $val) {
             if (isset($param[$val])) {
