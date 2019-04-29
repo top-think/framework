@@ -219,12 +219,8 @@ abstract class Driver extends SimpleCache
      * @param  mixed $data 缓存数据
      * @return string
      */
-    protected function serialize($data)
+    protected function serialize($data): string
     {
-        if (is_scalar($data) || !$this->options['serialize']) {
-            return $data;
-        }
-
         $serialize = self::$serialize[0];
 
         return self::$serialize[2] . $serialize($data);
@@ -236,14 +232,10 @@ abstract class Driver extends SimpleCache
      * @param  string $data 缓存数据
      * @return mixed
      */
-    protected function unserialize($data)
+    protected function unserialize(string $data)
     {
-        if ($this->options['serialize'] && 0 === strpos($data, self::$serialize[2])) {
-            $unserialize = self::$serialize[1];
-            return $unserialize(substr($data, self::$serialize[3]));
-        }
-
-        return $data;
+        $unserialize = self::$serialize[1];
+        return $unserialize(substr($data, self::$serialize[3]));
     }
 
     /**
