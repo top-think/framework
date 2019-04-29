@@ -56,7 +56,6 @@ class Cache implements CacheItemPoolInterface
     public function __construct(array $config = [])
     {
         $this->config = $config;
-        $this->init($config);
     }
 
     public static function __make(Config $config)
@@ -86,14 +85,16 @@ class Cache implements CacheItemPoolInterface
 
     /**
      * 自动初始化缓存
-     * @access public
+     * @access protected
      * @param  array $options 配置数组
      * @param  bool  $force   强制更新
      * @return Driver
      */
-    public function init(array $options = [], bool $force = false): Driver
+    protected function init(array $options = [], bool $force = false): Driver
     {
         if (is_null($this->handler) || $force) {
+            $options = !empty($options) ? $options : $this->config;
+
             if (isset($options['type']) && 'complex' == $options['type']) {
                 $default = $options['default'];
                 $options = $options[$default['type']] ?? $default;
@@ -105,7 +106,13 @@ class Cache implements CacheItemPoolInterface
         return $this->handler;
     }
 
-    public function setConfig(array $config): void
+    /**
+     * 设置配置
+     * @access public
+     * @param  array $config 配置参数
+     * @return void
+     */
+    public function config(array $config): void
     {
         $this->config = array_merge($this->config, $config);
     }
@@ -113,17 +120,17 @@ class Cache implements CacheItemPoolInterface
     /**
      * 切换缓存类型 需要配置 cache.type 为 complex
      * @access public
-     * @param  string $name 缓存标识
-     * @param  bool          $force    强制更新
+     * @param  string $name  缓存标识
+     * @param  bool   $force 强制更新
      * @return Driver
      */
-    public function store(string $name = '', $force = false): Driver
+    public function store(string $name = '', bool $force = false): Driver
     {
         if ('' !== $name && 'complex' == $this->config['type']) {
             return $this->connect($this->config[$name], $force);
         }
 
-        return $this->init();
+        return $this->init([], $force);
     }
 
     public function get(string $key)
