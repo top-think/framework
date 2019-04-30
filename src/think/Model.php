@@ -638,7 +638,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
                 $this->autoRelationUpdate();
             }
 
-            return false;
+            return true;
         }
 
         if ($this->autoWriteTimestamp && $this->updateTime && !isset($data[$this->updateTime])) {
