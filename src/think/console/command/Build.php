@@ -13,7 +13,7 @@ namespace think\console\command;
 
 use think\console\Command;
 use think\console\Input;
-use think\console\input\Option;
+use think\console\input\Argument;
 use think\console\Output;
 
 class Build extends Command
@@ -26,73 +26,45 @@ class Build extends Command
     protected $basePath;
 
     /**
-     * 应用目录
-     * @var string
-     */
-    protected $appPath;
-
-    /**
      * {@inheritdoc}
      */
     protected function configure()
     {
         $this->setName('build')
-            ->setDefinition([
-                new Option('config', null, Option::VALUE_OPTIONAL, "build.php path"),
-                new Option('app', null, Option::VALUE_OPTIONAL, "app name"),
-            ])
+            ->addArgument('app', Argument::OPTIONAL, 'app name .')
             ->setDescription('Build Application Dirs');
     }
 
     protected function execute(Input $input, Output $output)
     {
         $this->basePath = $this->app->getBasePath();
-        $this->appPath  = $this->app->getAppPath();
+        $app            = $input->getArgument('app') ?: '';
 
-        if ($input->hasOption('app')) {
-            $this->buildApp($input->getOption('app'));
-            $output->writeln("Successed");
+        if (empty($app) && !is_dir($this->basePath . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
+        }
+
+        $list = include $this->basePath . 'build.php';
+
+        if (empty($list)) {
+            $output->writeln("Build file Is Empty");
             return;
         }
 
-        if ($input->hasOption('config')) {
-            $build = include $input->getOption('config');
-        } else {
-            $build = include $this->appPath . 'build.php';
-        }
-
-        if (empty($build)) {
-            $output->writeln("Build Config Is Empty");
-            return;
-        }
-
-        $this->build($build);
+        $this->buildApp($app, $list);
         $output->writeln("Successed");
-    }
 
-    /**
-     * 根据配置文件创建应用和文件
-     * @access protected
-     * @param  array  $config 配置列表
-     * @return void
-     */
-    protected function build(array $config): void
-    {
-        // 创建子目录和文件
-        foreach ($config as $app => $list) {
-            $this->buildApp(is_numeric($app) ? '' : $app, $list);
-        }
     }
 
     /**
      * 创建应用
      * @access protected
      * @param  string $name 应用名
-     * @param  array  $list 文件列表
-     * @param  string $rootNamespace 应用类库命名空间
+     * @param  array  $list 应用目录结构
      * @return void
      */
-    protected function buildApp(string $app, array $list = [], string $rootNamespace = 'app'): void
+    protected function buildApp(string $app, array $list = []): void
     {
         if (!is_dir($this->basePath . $app)) {
             // 创建应用目录
@@ -100,7 +72,7 @@ class Build extends Command
         }
 
         $appPath   = $this->basePath . ($app ? $app . DIRECTORY_SEPARATOR : '');
-        $namespace = $rootNamespace . ($app ? '\\' . $app : '');
+        $namespace = 'app' . ($app ? '\\' . $app : '');
 
         // 创建配置文件和公共文件
         $this->buildCommon($app);
@@ -117,7 +89,7 @@ class Build extends Command
                 // 生成（空白）文件
                 foreach ($file as $name) {
                     if (!is_file($appPath . $name)) {
-                        file_put_contents($appPath . $name, 'php' == pathinfo($name, PATHINFO_EXTENSION) ? "<?php\n" : '');
+                        file_put_contents($appPath . $name, 'php' == pathinfo($name, PATHINFO_EXTENSION) ? '<?php' . PHP_EOL : '');
                     }
                 }
             } else {
@@ -133,10 +105,10 @@ class Build extends Command
                                 $filename = $appPath . $path . DIRECTORY_SEPARATOR . $val . 'Controller.php';
                                 $class    = $val . 'Controller';
                             }
-                            $content = "<?php\nnamespace {$space};\n\nuse think\Controller;\n\nclass {$class} extends Controller\n{\n\n}";
+                            $content = "<?php" . PHP_EOL . "namespace {$space};" . PHP_EOL . PHP_EOL . "class {$class}" . PHP_EOL . "{" . PHP_EOL . PHP_EOL . "}";
                             break;
                         case 'model': // 模型
-                            $content = "<?php\nnamespace {$space};\n\nuse think\Model;\n\nclass {$class} extends Model\n{\n\n}";
+                            $content = "<?php" . PHP_EOL . "namespace {$space};" . PHP_EOL . PHP_EOL . "use think\Model;" . PHP_EOL . PHP_EOL . "class {$class} extends Model" . PHP_EOL . "{" . PHP_EOL . PHP_EOL . "}";
                             break;
                         case 'view': // 视图
                             $filename = $appPath . $path . DIRECTORY_SEPARATOR . $val . '.html';
@@ -145,7 +117,7 @@ class Build extends Command
                             break;
                         default:
                             // 其他文件
-                            $content = "<?php\nnamespace {$space};\n\nclass {$class}\n{\n\n}";
+                            $content = "<?php" . PHP_EOL . "namespace {$space};" . PHP_EOL . PHP_EOL . "class {$class}" . PHP_EOL . "{" . PHP_EOL . PHP_EOL . "}";
                     }
 
                     if (!is_file($filename)) {
@@ -167,9 +139,10 @@ class Build extends Command
     {
         $suffix   = $this->app->config->get('route.controller_suffix') ? 'Controller' : '';
         $filename = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . $suffix . '.php';
+
         if (!is_file($filename)) {
             $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
-            $content = str_replace(['{$app}', '{layer}', '{$suffix}'], [$namespace, 'controller', $suffix], $content);
+            $content = str_replace(['{%name%}', '{%app%}', '{%layer%}', '{%suffix%}'], [$appName, $namespace, 'controller', $suffix], $content);
             $this->checkDirBuild(dirname($filename));
 
             file_put_contents($filename, $content);
@@ -184,10 +157,16 @@ class Build extends Command
      */
     protected function buildCommon(string $appName): void
     {
-        $filename = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . 'common.php';
+        $appPath = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '');
 
-        if (!is_file($filename)) {
-            file_put_contents($filename, "<?php\n");
+        if (!is_file($appPath . 'common.php')) {
+            file_put_contents($appPath . 'common.php', "<?php" . PHP_EOL . "// 这是系统自动生成的{$appName}应用公共文件" . PHP_EOL);
+        }
+
+        foreach (['event', 'middleware', 'provider'] as $name) {
+            if (!is_file($appPath . $name . '.php')) {
+                file_put_contents($appPath . $name . '.php', "<?php" . PHP_EOL . "// 这是系统自动生成的{$appName}应用{$name}定义文件" . PHP_EOL . "return [" . PHP_EOL . PHP_EOL . "];" . PHP_EOL);
+            }
         }
     }
 
