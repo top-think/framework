@@ -133,22 +133,49 @@ class Cache implements CacheItemPoolInterface
         return $this->init([], $force);
     }
 
-    public function get(string $key)
+    /**
+     * 读取缓存
+     * @access public
+     * @param  string $key 缓存变量名
+     * @param  mixed  $default 默认值
+     * @return mixed
+     */
+    public function get(string $key, $default = false)
     {
-        return $this->init()->get($key);
+        return $this->init()->get($key, $default);
     }
 
-    public function set(string $name, $value, $expire = null)
+    /**
+     * 写入缓存
+     * @access public
+     * @param  string        $name 缓存变量名
+     * @param  mixed         $value  存储数据
+     * @param  int|\DateTime $expire  有效时间 0为永久
+     * @return bool
+     */
+    public function set(string $name, $value, $expire = null): bool
     {
         return $this->init()->set($name, $value, $expire);
     }
 
-    public function delete(string $key)
+    /**
+     * 删除缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return bool
+     */
+    public function delete(string $key): bool
     {
         return $this->init()->rm($key);
     }
 
-    public function has(string $key)
+    /**
+     * 判断缓存是否存在
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return bool
+     */
+    public function has(string $key): bool
     {
         return $this->init()->has($key);
     }
