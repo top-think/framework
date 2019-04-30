@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think;
 
+use DateTimeInterface;
+
 /**
  * Cookie管理类
  */
@@ -77,7 +79,7 @@ class Cookie
     {
         // 参数设置(会覆盖黙认设置)
         if (!is_null($option)) {
-            if (is_numeric($option)) {
+            if (is_numeric($option) || $option instanceof DateTimeInterface) {
                 $option = ['expire' => $option];
             }
 
@@ -86,9 +88,13 @@ class Cookie
             $config = $this->config;
         }
 
-        $expire = !empty($config['expire']) ? time() + intval($config['expire']) : 0;
+        if ($config['expire'] instanceof DateTimeInterface) {
+            $expire = $config['expire']->getTimestamp();
+        } else {
+            $expire = !empty($config['expire']) ? time() + intval($config['expire']) : 0;
+        }
 
-        $this->setCookie($name, (string) $value, $expire, $config);
+        $this->setCookie($name, $value, $expire, $config);
     }
 
     /**
