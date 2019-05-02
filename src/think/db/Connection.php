@@ -816,7 +816,7 @@ abstract class Connection
 
     protected function queryPDOStatement(Query $query, string $sql, array $bind = []): PDOStatement
     {
-        $options   = $query->parseOptions();
+        $options   = $query->getOptions();
         $master    = !empty($options['master']) ? true : false;
         $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
 
@@ -1036,6 +1036,8 @@ abstract class Connection
     public function selectInsert(Query $query, array $fields, string $table): int
     {
         // 分析查询表达式
+        $query->parseOptions();
+
         $sql = $this->builder->selectInsert($query, $fields, $table);
 
         return $this->execute($query, $sql, $query->getBind());

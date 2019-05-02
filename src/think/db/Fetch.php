@@ -233,6 +233,7 @@ class Fetch
     public function selectInsert(array $fields, string $table): string
     {
         $this->query->parseOptions();
+
         $sql = $this->builder->selectInsert($this->query, $fields, $table);
 
         return $this->fetch($sql);
