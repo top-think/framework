@@ -26,7 +26,6 @@ class Wincache extends Driver implements CacheHandlerInterface
     protected $options = [
         'prefix'     => '',
         'expire'     => 0,
-        'serialize'  => true,
         'tag_prefix' => 'tag_',
     ];
 

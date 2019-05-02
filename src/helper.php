@@ -108,7 +108,7 @@ if (!function_exists('cache')) {
         if (is_array($options)) {
             $expire = $options['expire'] ?? null; //修复查询缓存无法设置过期时间
         } else {
-            $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
+            $expire = $options;
         }
 
         if (is_null($tag)) {

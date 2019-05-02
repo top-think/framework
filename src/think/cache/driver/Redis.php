@@ -36,7 +36,6 @@ class Redis extends Driver implements CacheHandlerInterface
         'expire'     => 0,
         'persistent' => false,
         'prefix'     => '',
-        'serialize'  => true,
         'tag_prefix' => 'tag_',
     ];
 

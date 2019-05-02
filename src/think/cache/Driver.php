@@ -53,7 +53,7 @@ abstract class Driver extends SimpleCache
      * 序列化方法
      * @var array
      */
-    protected static $serialize = ['\think\App::serialize', '\think\App::unserialize', 'think_serialize:', 16];
+    protected static $serialize = ['\think\App::serialize', '\think\App::unserialize'];
 
     /**
      * 获取有效期
@@ -223,7 +223,7 @@ abstract class Driver extends SimpleCache
     {
         $serialize = self::$serialize[0];
 
-        return self::$serialize[2] . $serialize($data);
+        return $serialize($data);
     }
 
     /**
@@ -235,7 +235,8 @@ abstract class Driver extends SimpleCache
     protected function unserialize(string $data)
     {
         $unserialize = self::$serialize[1];
-        return $unserialize(substr($data, self::$serialize[3]));
+
+        return $unserialize($data);
     }
 
     /**
@@ -243,12 +244,11 @@ abstract class Driver extends SimpleCache
      * @access public
      * @param  callable $serialize   序列化方法
      * @param  callable $unserialize 反序列化方法
-     * @param  string   $prefix      序列化前缀标识
      * @return void
      */
-    public static function registerSerialize(callable $serialize, callable $unserialize, string $prefix = 'think_serialize:'): void
+    public function registerSerialize(callable $serialize, callable $unserialize): void
     {
-        self::$serialize = [$serialize, $unserialize, $prefix, strlen($prefix)];
+        self::$serialize = [$serialize, $unserialize];
     }
 
     /**
