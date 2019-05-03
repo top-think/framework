@@ -404,7 +404,7 @@ class Route
     public function getDomainBind(string $domain = null)
     {
         if (is_null($domain)) {
-            $domain = '-';
+            $domain = $this->host;
         } elseif (false === strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }
@@ -840,9 +840,9 @@ class Route
                 $domain3 = array_pop($domain);
             }
 
-            if ($subDomain && isset($this->domains[$subDomain])) {
+            if (isset($this->domains[$this->host])) {
                 // 子域名配置
-                $item = $this->domains[$subDomain];
+                $item = $this->domains[$this->host];
             } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
                 $item      = $this->domains['*.' . $domain2];
