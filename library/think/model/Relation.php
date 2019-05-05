@@ -59,6 +59,16 @@ abstract class Relation
     }
 
     /**
+     * 获取当前的关联模型类的实例
+     * @access public
+     * @return Query
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
      * 设置当前关联为自关联
      * @access public
      * @param  bool $self 是否自关联
