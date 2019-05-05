@@ -50,12 +50,6 @@ abstract class Driver extends SimpleCache
     protected $tag;
 
     /**
-     * 序列化方法
-     * @var array
-     */
-    protected static $serialize = ['\think\App::serialize', '\think\App::unserialize'];
-
-    /**
      * 获取有效期
      * @access protected
      * @param  integer|\DateTimeInterface $expire 有效期
@@ -221,7 +215,7 @@ abstract class Driver extends SimpleCache
      */
     protected function serialize($data): string
     {
-        $serialize = self::$serialize[0];
+        $serialize = $this->options['serialize'][0] ?? '\think\App::serialize';
 
         return $serialize($data);
     }
@@ -234,21 +228,9 @@ abstract class Driver extends SimpleCache
      */
     protected function unserialize(string $data)
     {
-        $unserialize = self::$serialize[1];
+        $unserialize = $this->options['serialize'][1] ?? '\think\App::unserialize';
 
         return $unserialize($data);
-    }
-
-    /**
-     * 注册序列化机制
-     * @access public
-     * @param  callable $serialize   序列化方法
-     * @param  callable $unserialize 反序列化方法
-     * @return void
-     */
-    public function registerSerialize(callable $serialize, callable $unserialize): void
-    {
-        self::$serialize = [$serialize, $unserialize];
     }
 
     /**
