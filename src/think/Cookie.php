@@ -43,27 +43,47 @@ class Cookie
     protected $cookie = [];
 
     /**
+     * 当前Request对象
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * 构造方法
      * @access public
      */
-    public function __construct(array $config = [])
+    public function __construct(Request $request, array $config = [])
     {
-        $this->config = array_merge($this->config, array_change_key_case($config));
+        $this->request = $request;
+        $this->config  = array_merge($this->config, array_change_key_case($config));
     }
 
-    public static function __make(Config $config)
+    public static function __make(Request $request, Config $config)
     {
-        return new static($config->get('cookie'));
+        return new static($request, $config->get('cookie'));
     }
 
     /**
-     * 获取cookie保存数据
+     * 获取cookie
      * @access public
-     * @return array
+     * @param  mixed  $name 数据名称
+     * @param  string $default 默认值
+     * @return mixed
      */
-    public function getCookie(): array
+    public function get(string $name = '', $default = null)
     {
-        return $this->cookie;
+        return $this->request->cookie($name, $default);
+    }
+
+    /**
+     * 是否存在Cookie参数
+     * @access public
+     * @param  string $name 变量名
+     * @return bool
+     */
+    public function has(string $name): bool
+    {
+        return $this->request->has($name, 'cookie');
     }
 
     /**
@@ -102,7 +122,7 @@ class Cookie
      *
      * @access public
      * @param  string $name  cookie名称
-     * @param  mixed  $value cookie值
+     * @param  string $value cookie值
      * @param  int    $expire 有效期
      * @param  array  $option 可选参数
      * @return void
@@ -134,12 +154,22 @@ class Cookie
     /**
      * Cookie删除
      * @access public
-     * @param  string      $name cookie名称
+     * @param  string $name cookie名称
      * @return void
      */
     public function delete(string $name): void
     {
         $this->setCookie($name, '', time() - 3600, $this->config);
+    }
+
+    /**
+     * 获取cookie保存数据
+     * @access public
+     * @return array
+     */
+    public function getCookie(): array
+    {
+        return $this->cookie;
     }
 
     /**
