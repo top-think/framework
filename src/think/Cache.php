@@ -159,6 +159,43 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
+     * 追加缓存
+     * @access public
+     * @param  string        $name 缓存变量名
+     * @param  mixed         $value  存储数据
+     * @param  int|\DateTime $expire  有效时间 0为永久
+     * @return array
+     */
+    public function push(string $name, $value, $expire = null): array
+    {
+        return $this->init()->push($name, $value, $expire);
+    }
+
+    /**
+     * 读取并删除缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return mixed
+     */
+    public function pull(string $name)
+    {
+        return $this->init()->pull($name);
+    }
+
+    /**
+     * 如果不存在则写入缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @param  mixed  $value  存储数据
+     * @param  int    $expire  有效时间 0为永久
+     * @return mixed
+     */
+    public function remember(string $name, $value, $expire = null)
+    {
+        return $this->init()->remember($name, $value, $expire);
+    }
+
+    /**
      * 删除缓存
      * @access public
      * @param  string $name 缓存变量名
@@ -189,6 +226,17 @@ class Cache implements CacheItemPoolInterface
     public function tag($name)
     {
         return $this->init()->tag($name);
+    }
+
+    /**
+     * 返回句柄对象，可执行其它高级方法
+     *
+     * @access public
+     * @return object
+     */
+    public function handler()
+    {
+        return $this->init()->handler();
     }
 
     /**

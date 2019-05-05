@@ -30,6 +30,7 @@ class Sqlite extends Driver implements CacheHandlerInterface
         'expire'     => 0,
         'persistent' => false,
         'tag_prefix' => 'tag_',
+        'serialize'  => [],
     ];
 
     /**

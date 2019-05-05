@@ -27,6 +27,7 @@ class Wincache extends Driver implements CacheHandlerInterface
         'prefix'     => '',
         'expire'     => 0,
         'tag_prefix' => 'tag_',
+        'serialize'  => [],
     ];
 
     /**

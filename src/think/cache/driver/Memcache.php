@@ -31,6 +31,7 @@ class Memcache extends Driver implements CacheHandlerInterface
         'persistent' => true,
         'prefix'     => '',
         'tag_prefix' => 'tag_',
+        'serialize'  => [],
     ];
 
     /**

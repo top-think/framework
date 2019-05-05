@@ -33,6 +33,7 @@ class Memcached extends Driver implements CacheHandlerInterface
         'password'   => '', //密码
         'option'     => [],
         'tag_prefix' => 'tag_',
+        'serialize'  => [],
     ];
 
     /**

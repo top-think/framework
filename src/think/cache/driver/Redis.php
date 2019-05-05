@@ -37,6 +37,7 @@ class Redis extends Driver implements CacheHandlerInterface
         'persistent' => false,
         'prefix'     => '',
         'tag_prefix' => 'tag_',
+        'serialize'  => [],
     ];
 
     /**
@@ -264,11 +265,7 @@ class Redis extends Driver implements CacheHandlerInterface
     public function getTagItems(string $tag): array
     {
         $tagName = $this->getTagKey($tag);
-        $keys    = $this->handler->sMembers($tagName);
-
-        return array_map(function ($key) {
-            return $this->getCacheKey($key);
-        }, $keys);
+        return $this->handler->sMembers($tagName);
     }
 
 }
