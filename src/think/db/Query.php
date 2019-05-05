@@ -3065,16 +3065,16 @@ class Query
                 continue;
             }
 
-            $result[$name] = json_decode($result[$name], $assoc);
+            $result[$name] = json_decode($result[$name], true);
 
-            if (!isset($withRelationAttr[$name])) {
-                continue;
+            if (isset($withRelationAttr[$name])) {
+                foreach ($withRelationAttr[$name] as $key => $closure) {
+                    $result[$name][$key] = $closure($result[$name][$key] ?? null, $result[$name]);
+                }
             }
 
-            foreach ($withRelationAttr[$name] as $key => $closure) {
-                $data = get_object_vars($result[$name]);
-
-                $result[$name]->$key = $closure($result[$name]->$key ?? null, $data);
+            if (!$assoc) {
+                $result[$name] = (object) $result[$name];
             }
         }
     }

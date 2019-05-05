@@ -1058,6 +1058,7 @@ abstract class Connection
         if (isset($options['cache'])) {
             $cacheItem = $this->parseCache($query, $options['cache']);
             $key       = $cacheItem->getKey();
+            $tag       = $cacheItem->getTag();
         }
 
         // 生成UPDATE SQL语句
@@ -1067,8 +1068,8 @@ abstract class Connection
         if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
             $this->cache->delete($key);
-        } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $this->cache->tag($cacheItem->getTag())->clear();
+        } elseif (!empty($tag)) {
+            $this->cache->tag($tag)->clear();
         }
 
         // 执行操作
@@ -1097,6 +1098,7 @@ abstract class Connection
         if (isset($options['cache'])) {
             $cacheItem = $this->parseCache($query, $options['cache']);
             $key       = $cacheItem->getKey();
+            $tag       = $cacheItem->getTag();
         }
 
         // 生成删除SQL语句
@@ -1106,8 +1108,8 @@ abstract class Connection
         if (isset($key) && $this->cache->get($key)) {
             // 删除缓存
             $this->cache->delete($key);
-        } elseif (isset($cacheItem) && $cacheItem->getTag()) {
-            $this->cache->tag($cacheItem->getTag())->clear();
+        } elseif (!empty($tag)) {
+            $this->cache->tag($tag)->clear();
         }
 
         // 执行操作
