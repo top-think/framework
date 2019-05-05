@@ -2435,7 +2435,7 @@ class Query
      * @param callable     $callback 闭包获取器
      * @return $this
      */
-    public function withAttr($name, callable $callback)
+    public function withAttr($name, callable $callback = null)
     {
         if (is_array($name)) {
             $this->options['with_attr'] = $name;

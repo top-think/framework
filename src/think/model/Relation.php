@@ -77,6 +77,16 @@ abstract class Relation
     }
 
     /**
+     * 获取当前的关联模型类的Query实例
+     * @access public
+     * @return Query
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
      * 获取当前的关联模型类的实例
      * @access public
      * @return Model

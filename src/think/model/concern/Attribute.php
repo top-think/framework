@@ -510,6 +510,13 @@ trait Attribute
         return $value;
     }
 
+    /**
+     * 获取JSON字段属性值
+     * @access protected
+     * @param  string $name  属性名
+     * @param  mixed  $value JSON数据
+     * @return mixed
+     */
     protected function getJsonValue($name, $value)
     {
         foreach ($this->withAttr[$name] as $key => $closure) {
@@ -519,8 +526,10 @@ trait Attribute
                 $value->$key = $closure($value->$key, $value);
             }
         }
+
         return $value;
     }
+
     /**
      * 获取关联属性值
      * @access protected

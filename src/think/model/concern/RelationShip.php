@@ -232,7 +232,7 @@ trait RelationShip
             $relationResult = $this->$relation();
 
             if (isset($withRelationAttr[$relationName])) {
-                $relationResult->withAttr($withRelationAttr[$relationName]);
+                $relationResult->getQuery()->withAttr($withRelationAttr[$relationName]);
             }
 
             $relationResult->eagerlyResultSet($resultSet, $relation, $subRelation, $closure, $join);
@@ -274,7 +274,7 @@ trait RelationShip
             $relationResult = $this->$relation();
 
             if (isset($withRelationAttr[$relationName])) {
-                $relationResult->withAttr($withRelationAttr[$relationName]);
+                $relationResult->getQuery()->withAttr($withRelationAttr[$relationName]);
             }
 
             $relationResult->eagerlyResult($result, $relation, $subRelation, $closure, $join);
