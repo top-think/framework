@@ -109,7 +109,10 @@ abstract class Driver extends SimpleCache
         }
 
         $item[] = $value;
-        $item   = array_unique($item);
+        if (count($item) > 1000) {
+            array_shift($item);
+        }
+        $item = array_unique($item);
 
         $this->set($name, $item, $expire);
         return $item;
@@ -186,16 +189,8 @@ abstract class Driver extends SimpleCache
             $this->tag = null;
 
             foreach ($tags as $tag) {
-                $value   = $this->getTagItems($tag);
-                $value[] = $name;
-
-                if (count($value) > 1000) {
-                    array_shift($value);
-                }
-
-                $value = array_unique($value);
-
-                $this->set($key, $value, 0);
+                $key   = $this->getTagkey($tag);
+                $value = $this->push($key, $name, 0);
             }
         }
     }
