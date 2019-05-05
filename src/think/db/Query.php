@@ -3127,7 +3127,7 @@ class Query
 
         // 关联查询
         if (!empty($options['relation'])) {
-            $result->relationQuery($options['relation']);
+            $result->relationQuery($options['relation'], $withRelationAttr);
         }
 
         // 预载入查询
