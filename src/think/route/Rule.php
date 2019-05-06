@@ -405,6 +405,17 @@ abstract class Rule
     }
 
     /**
+     * 表单令牌验证
+     * @access public
+     * @param  string $token 表单令牌token名称
+     * @return $this
+     */
+    public function token(string $token = '__token__')
+    {
+        return $this->middleware('\think\middleware\FormTokenCheck', $token);
+    }
+
+    /**
      * 设置路由缓存
      * @access public
      * @param  array|string $cache 缓存

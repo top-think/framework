@@ -1969,7 +1969,7 @@ class Request
      * @param  mixed  $type 令牌生成方法
      * @return string
      */
-    public function token(string $name = '__token__', $type = 'md5'): string
+    public function buildToken(string $name = '__token__', $type = 'md5'): string
     {
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
@@ -1981,6 +1981,36 @@ class Request
         $this->session->set($name, $token);
 
         return $token;
+    }
+
+    /**
+     * 检查请求令牌
+     * @access public
+     * @param  string $name 令牌名称
+     * @param  array  $data 表单数据
+     * @return bool
+     */
+    public function checkToken(string $token = '__token__', array $data = []): bool
+    {
+        if (empty($data)) {
+            $data = $this->post();
+        }
+
+        if (!isset($data[$token]) || !$this->session->has($token)) {
+            // 令牌数据无效
+            return false;
+        }
+
+        // 令牌验证
+        if (isset($data[$token]) && $this->session->get($token) === $data[$token]) {
+            // 防止重复提交
+            $this->session->delete($token); // 验证完成销毁session
+            return true;
+        }
+
+        // 开启TOKEN重置
+        $this->session->delete($token);
+        return false;
     }
 
     /**

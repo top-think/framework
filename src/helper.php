@@ -627,7 +627,7 @@ if (!function_exists('token')) {
      */
     function token(string $name = '__token__', string $type = 'md5'): string
     {
-        $token = Request::token($name, $type);
+        $token = Request::buildToken($name, $type);
 
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
     }

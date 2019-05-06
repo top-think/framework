@@ -207,6 +207,12 @@ class Validate
     protected $lang;
 
     /**
+     * 请求对象
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * @var Closure
      */
     protected static $maker;
@@ -242,6 +248,17 @@ class Validate
     public function setDb(Db $db)
     {
         $this->db = $db;
+    }
+
+    /**
+     * 设置Request对象
+     * @access public
+     * @param  Request $request Request对象
+     * @return void
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
     }
 
     /**
@@ -835,6 +852,9 @@ class Validate
             case 'image':
                 $result = $value instanceof File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]);
                 break;
+            case 'token':
+                $result = $this->token($value, '__token__', $data);
+                break;
             default:
                 if (isset($this->type[$rule])) {
                     // 注册的验证规则
@@ -868,6 +888,20 @@ class Validate
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * 验证表单令牌
+     * @access public
+     * @param  mixed     $value  字段值
+     * @param  mixed     $rule  验证规则
+     * @param  array     $data  数据
+     * @return bool
+     */
+    public function token($value, string $rule, array $data): bool
+    {
+        $rule = !empty($rule) ? $rule : '__token__';
+        return $this->request->checkToken($rule, $data);
     }
 
     /**
