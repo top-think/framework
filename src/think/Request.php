@@ -1992,6 +1992,10 @@ class Request
      */
     public function checkToken(string $token = '__token__', array $data = []): bool
     {
+        if (in_array($this->method(), ['GET', 'HEAD', 'OPTIONS'], true)) {
+            return true;
+        }
+
         if (empty($data)) {
             $data = $this->post();
         }
