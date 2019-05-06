@@ -63,8 +63,7 @@ class File extends Response
 
         $this->lastModified(gmdate('D, d M Y H:i:s', time()) . ' GMT');
 
-        $data = $this->isContent ? $data : file_get_contents($data);
-        return $data;
+        return $this->isContent ? $data : file_get_contents($data);
     }
 
     /**
