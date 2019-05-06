@@ -161,7 +161,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->name = substr($this->name, 0, -strlen($suffix));
             }
         }
-
+        
+        // 执行初始化操作
+        $this->initialize();
+        
         if (is_null($this->autoWriteTimestamp)) {
             // 自动写入时间戳
             $this->autoWriteTimestamp = $this->getQuery()->getConfig('auto_timestamp');
@@ -175,8 +178,6 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         if (is_null($this->resultSetType)) {
             $this->resultSetType = $this->getQuery()->getConfig('resultset_type');
         }
-        // 执行初始化操作
-        $this->initialize();
     }
 
     /**
