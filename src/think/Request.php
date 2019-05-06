@@ -1974,10 +1974,6 @@ class Request
         $type  = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
 
-        if ($this->isAjax()) {
-            header($name . ': ' . $token);
-        }
-
         $this->session->set($name, $token);
 
         return $token;
@@ -1996,13 +1992,20 @@ class Request
             return true;
         }
 
-        if (empty($data)) {
-            $data = $this->post();
-        }
-
-        if (!isset($data[$token]) || !$this->session->has($token)) {
+        if (!$this->session->has($token)) {
             // 令牌数据无效
             return false;
+        }
+
+        // Header验证
+        if ($this->header('X-CSRF-TOKEN') && $this->session->get($token) === $this->header('X-CSRF-TOKEN')) {
+            // 防止重复提交
+            $this->session->delete($token); // 验证完成销毁session
+            return true;
+        }
+
+        if (empty($data)) {
+            $data = $this->post();
         }
 
         // 令牌验证
