@@ -109,9 +109,11 @@ abstract class Driver extends SimpleCache
         }
 
         $item[] = $value;
+
         if (count($item) > 1000) {
             array_shift($item);
         }
+
         $item = array_unique($item);
 
         $this->set($name, $item, $expire);

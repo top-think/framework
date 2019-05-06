@@ -23,7 +23,7 @@ class RunServer extends Command
     {
         $this->setName('run')
             ->addOption('host', 'H', Option::VALUE_OPTIONAL,
-                'The host to server the application on', '127.0.0.1')
+                'The host to server the application on', '0.0.0.0')
             ->addOption('port', 'p', Option::VALUE_OPTIONAL,
                 'The port to server the application on', 8000)
             ->addOption('root', 'r', Option::VALUE_OPTIONAL,
