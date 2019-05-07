@@ -22,10 +22,10 @@ use think\Response;
 class AllowCrossDomain
 {
     protected $header = [
-        'Access-Control-Allow-Origin'  => '*',
+        'Access-Control-Allow-Origin'      => '*',
         'Access-Control-Allow-Credentials' => 'true',
-        'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-        'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+        'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE',
+        'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
     ];
 
     /**
@@ -40,12 +40,12 @@ class AllowCrossDomain
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
-        $http_origin = $request->header('origin');
+        $httpOrigin = $request->header('origin');
 
-        if ($http_origin && preg_match('/.*?'.config('cookie.domain').'/i', $http_origin)) {
-            $header['Access-Control-Allow-Origin'] = $http_origin;
+        if ($httpOrigin && preg_match('/.*?' . config('cookie.domain') . '/i', $httpOrigin)) {
+            $header['Access-Control-Allow-Origin'] = $httpOrigin;
         }
-        
+
         if ($request->method(true) == 'OPTIONS') {
             return Response::create()->code(204)->header($header);
         }
