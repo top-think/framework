@@ -289,7 +289,7 @@ trait Attribute
                     return 1;
                 }
 
-                return is_object($a) || $a != $b ? 1 : 0;
+                return is_object($a) || $a !== $b ? 1 : 0;
             });
         }
 
