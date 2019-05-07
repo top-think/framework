@@ -44,7 +44,7 @@ class CheckRequestCache
             if ($cache) {
                 list($key, $expire, $tag) = $cache;
 
-                if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE')) + $expire > $request->server('REQUEST_TIME')) {
+                if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '')) + $expire > $request->server('REQUEST_TIME')) {
                     // 读取缓存
                     return Response::create()->code(304);
                 } elseif ($this->cache->has($key)) {
