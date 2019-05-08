@@ -62,7 +62,7 @@ class Mysql extends Connection
             $tableName = '`' . $tableName . '`';
         }
 
-        $sql    = 'SHOW COLUMNS FROM ' . $tableName;
+        $sql    = 'SHOW FULL COLUMNS FROM ' . $tableName;
         $pdo    = $this->getPDOStatement($sql);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
         $info   = [];
@@ -78,6 +78,7 @@ class Mysql extends Connection
                     'default' => $val['default'],
                     'primary' => (strtolower($val['key']) == 'pri'),
                     'autoinc' => (strtolower($val['extra']) == 'auto_increment'),
+                    'comment' => $val['comment'],
                 ];
             }
         }

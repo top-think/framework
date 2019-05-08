@@ -319,6 +319,16 @@ class Query
     }
 
     /**
+     * 获取详细字段类型信息
+     * @access public
+     * @return array
+     */
+    public function getFields(): array
+    {
+        return $this->connection->getFields($this->getTable());
+    }
+
+    /**
      * 获取字段类型信息
      * @access public
      * @return array
