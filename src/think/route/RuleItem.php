@@ -267,7 +267,7 @@ class RuleItem extends Rule
     }
 
     /**
-     * 设置路由所属分组
+     * 设置路由所属分组（用于注解路由）
      * @access public
      * @param  string $name 分组名称或者标识
      * @return $this
@@ -278,6 +278,8 @@ class RuleItem extends Rule
 
         if ($group) {
             $group->addRuleItem($this);
+            $this->parent = $group;
+            $this->setRule($this->rule);
         }
 
         return $this;

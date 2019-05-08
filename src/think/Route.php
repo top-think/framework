@@ -261,7 +261,7 @@ class Route
     }
 
     /**
-     * 设置当前域名
+     * 设置当前分组
      * @access public
      * @param RuleGroup $group 域名
      * @return void
@@ -272,13 +272,13 @@ class Route
     }
 
     /**
-     * 获取当前分组
+     * 获取指定标识的路由分组 不指定则获取当前分组
      * @access public
      * @return RuleGroup
      */
-    public function getGroup(): RuleGroup
+    public function getGroup(string $name = null)
     {
-        return $this->group;
+        return $name ? $this->ruleName->getGroup($name) : $this->group;
     }
 
     /**
