@@ -30,6 +30,7 @@ use think\console\command\make\Subscribe;
 use think\console\command\make\Validate;
 use think\console\command\optimize\Config;
 use think\console\command\optimize\Facade;
+use think\console\command\optimize\Model as OptimizeModel;
 use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
 use think\console\command\RouteBuild;
@@ -81,6 +82,7 @@ class Console
         'optimize:schema'  => Schema::class,
         'optimize:route'   => Route::class,
         'optimize:facade'  => Facade::class,
+        'optimize:model'   => OptimizeModel::class,
         'run'              => RunServer::class,
         'version'          => Version::class,
         'route:list'       => RouteList::class,

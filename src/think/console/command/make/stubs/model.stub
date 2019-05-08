@@ -4,6 +4,9 @@ namespace {%namespace%};
 
 use think\Model;
 
+/**
+ * @mixin think\Model
+ */
 class {%className%} extends Model
 {
     //
