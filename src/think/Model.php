@@ -110,24 +110,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     protected $table;
 
     /**
-     * 写入自动完成定义
-     * @var array
-     */
-    protected $auto = [];
-
-    /**
-     * 新增自动完成定义
-     * @var array
-     */
-    protected $insert = [];
-
-    /**
-     * 更新自动完成定义
-     * @var array
-     */
-    protected $update = [];
-
-    /**
      * 初始化过的模型.
      * @var array
      */
@@ -389,10 +371,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     private function initialize(): void
     {
         if (!isset(static::$initialized[static::class])) {
-            if ($this->observerClass) {
-                // 注册模型观察者
-                $this->observe($this->observerClass);
-            }
             static::$initialized[static::class] = true;
             static::init();
         }
@@ -405,30 +383,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected static function init()
     {}
-
-    /**
-     * 数据自动完成
-     * @access protected
-     * @param array $auto 要自动更新的字段列表
-     * @return void
-     */
-    protected function autoCompleteData(array $auto = []): void
-    {
-        foreach ($auto as $field => $value) {
-            if (is_integer($field)) {
-                $field = $value;
-                $value = null;
-            }
-
-            if (!isset($this->data[$field])) {
-                $default = null;
-            } else {
-                $default = $this->data[$field];
-            }
-
-            $this->setAttr($field, !is_null($value) ? $value : $default);
-        }
-    }
 
     protected function checkData(): void
     {}
@@ -577,10 +531,9 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 检查数据是否允许写入
      * @access protected
-     * @param array $append 自动完成的字段列表
      * @return array
      */
-    protected function checkAllowFields(array $append = []): array
+    protected function checkAllowFields(): array
     {
         // 检测字段
         if (empty($this->field)) {
@@ -596,7 +549,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
             return $this->field;
         }
 
-        $field = array_merge($this->field, $append);
+        $field = $this->field;
 
         if ($this->autoWriteTimestamp) {
             array_push($field, $this->createTime, $this->updateTime);
@@ -617,11 +570,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function updateData(): bool
     {
-        // 自动更新
-        $auto = array_merge($this->auto, $this->update);
-
-        $this->autoCompleteData($auto);
-
         // 事件回调
         if (false === $this->trigger('BeforeUpdate')) {
             return false;
@@ -648,7 +596,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 检查允许字段
-        $allowFields = $this->checkAllowFields($auto);
+        $allowFields = $this->checkAllowFields();
 
         foreach ($this->relationWrite as $name => $val) {
             if (!is_array($val)) {
@@ -700,11 +648,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
      */
     protected function insertData(string $sequence = null): bool
     {
-        // 自动写入
-        $auto = array_merge($this->auto, $this->insert);
-
-        $this->autoCompleteData($auto);
-
         // 时间戳自动写入
         if ($this->autoWriteTimestamp) {
             if ($this->createTime && !isset($this->data[$this->createTime])) {
@@ -723,7 +666,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
         $this->checkData();
 
         // 检查允许字段
-        $allowFields = $this->checkAllowFields($auto);
+        $allowFields = $this->checkAllowFields();
 
         $db = $this->db();
         $db->startTrans();
@@ -862,19 +805,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $db->rollback();
             throw $e;
         }
-    }
-
-    /**
-     * 设置自动完成的字段（ 规则通过修改器定义）
-     * @access public
-     * @param array $fields 需要自动完成的字段
-     * @return $this
-     */
-    public function auto(array $fields)
-    {
-        $this->auto = $fields;
-
-        return $this;
     }
 
     /**

@@ -21,42 +21,12 @@ use think\exception\ModelEventException;
  */
 trait ModelEvent
 {
-    /**
-     * 模型事件观察
-     * @var array
-     */
-    protected $observe = ['AfterRead', 'BeforeWrite', 'AfterWrite', 'BeforeInsert', 'AfterInsert', 'BeforeUpdate', 'AfterUpdate', 'BeforeDelete', 'AfterDelete', 'BeforeRestore', 'AfterRestore'];
-
-    /**
-     * 模型事件观察者类名
-     * @var string
-     */
-    protected $observerClass;
 
     /**
      * 是否需要事件响应
      * @var bool
      */
     protected $withEvent = true;
-
-    /**
-     * 注册一个模型观察者
-     *
-     * @param  string $class 观察者类
-     * @return void
-     */
-    protected function observe(string $class): void
-    {
-        foreach ($this->observe as $event) {
-            $call = 'on' . $event;
-
-            if (method_exists($class, $call)) {
-                $instance = Container::getInstance()->invokeClass($class);
-
-                $this->event->listen(static::class . '.' . $event, [$instance, $call]);
-            }
-        }
-    }
 
     /**
      * 当前操作的事件响应
@@ -82,15 +52,13 @@ trait ModelEvent
             return true;
         }
 
-        $call  = 'on' . App::parseName($event, 1);
-        $class = static::class;
+        $call = 'on' . App::parseName($event, 1);
 
         try {
-            if (method_exists($class, $call)) {
-                $result = Container::getInstance()->invoke([$class, $call], [$this]);
+            if (method_exists(static::class, $call)) {
+                $result = Container::getInstance()->invoke([static::class, $call], [$this]);
             } else {
-                $result = $this->event->trigger($class . '.' . $event, $this);
-                $result = empty($result) ? true : end($result);
+                $result = true;
             }
 
             return false === $result ? false : true;
