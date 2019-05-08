@@ -69,10 +69,10 @@ trait TimeStamp
     /**
      * 设置时间字段格式化
      * @access public
-     * @param  string $format
+     * @param  string|false $format
      * @return $this
      */
-    public function setDateFormat(string $format)
+    public function setDateFormat($format)
     {
         $this->dateFormat = $format;
 
@@ -82,7 +82,7 @@ trait TimeStamp
     /**
      * 获取自动写入时间字段
      * @access public
-     * @return string
+     * @return string|false
      */
     public function getDateFormat()
     {
