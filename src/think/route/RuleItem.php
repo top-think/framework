@@ -277,7 +277,6 @@ class RuleItem extends Rule
         $group = $this->router->getRuleName()->getGroup($name);
 
         if ($group) {
-            $group->addRuleItem($this);
             $this->parent = $group;
             $this->setRule($this->rule);
         }
