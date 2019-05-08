@@ -266,4 +266,20 @@ class RuleItem extends Rule
         return $var;
     }
 
+    /**
+     * 设置路由所属分组
+     * @access public
+     * @param  string $name 分组名称或者标识
+     * @return $this
+     */
+    public function group(string $name)
+    {
+        $group = $this->router->getRuleName()->getGroup($name);
+
+        if ($group) {
+            $group->addRuleItem($this);
+        }
+
+        return $this;
+    }
 }

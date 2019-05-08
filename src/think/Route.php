@@ -360,9 +360,9 @@ class Route
     }
 
     /**
-     * 获取域名
+     * 获取RuleName对象
      * @access public
-     * @return array
+     * @return RuleName
      */
     public function getRuleName(): RuleName
     {

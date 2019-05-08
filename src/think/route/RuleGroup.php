@@ -25,7 +25,10 @@ use think\route\dispatch\Response as ResponseDispatch;
  */
 class RuleGroup extends Rule
 {
-    // 分组路由（包括子分组）
+    /**
+     * 分组路由（包括子分组）
+     * @var array
+     */
     protected $rules = [
         '*'       => [],
         'get'     => [],
@@ -37,6 +40,10 @@ class RuleGroup extends Rule
         'options' => [],
     ];
 
+    /**
+     * 分组路由规则
+     * @var mixed
+     */
     protected $rule;
 
     /**
@@ -45,11 +52,23 @@ class RuleGroup extends Rule
      */
     protected $miss;
 
-    // 完整名称
+    /**
+     * 完整名称
+     * @var string
+     */
     protected $fullName;
 
-    // 所在域名
+    /**
+     * 所在域名
+     * @var string
+     */
     protected $domain;
+
+    /**
+     * 分组别名
+     * @var string
+     */
+    protected $alias;
 
     /**
      * 架构函数
@@ -94,6 +113,10 @@ class RuleGroup extends Rule
         } else {
             $this->fullName = $this->name;
         }
+
+        if ($this->name) {
+            $this->router->getRuleName()->setGroup($this->name, $this);
+        }
     }
 
     /**
@@ -104,6 +127,16 @@ class RuleGroup extends Rule
     public function getDomain(): string
     {
         return $this->domain ?: '-';
+    }
+
+    /**
+     * 获取分组别名
+     * @access public
+     * @return string
+     */
+    public function getAlias(): string
+    {
+        return $this->alias ?: '';
     }
 
     /**
@@ -207,6 +240,20 @@ class RuleGroup extends Rule
         }
 
         return true;
+    }
+
+    /**
+     * 设置路由分组别名
+     * @access public
+     * @param  string $alias 路由分组别名
+     * @return $this
+     */
+    public function alias(string $alias)
+    {
+        $this->alias = $alias;
+        $this->router->getRuleName()->setGroup($alias, $this);
+
+        return $this;
     }
 
     /**
