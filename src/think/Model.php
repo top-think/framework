@@ -52,6 +52,17 @@ use think\db\Query;
  * @method Model findOrEmpty(mixed $data = null) static 查询单个记录 不存在返回空模型
  * @method \think\model\Collection select(mixed $data = null) static 查询多个记录
  * @method Model withAttr(array $name, \Closure $closure) 动态定义获取器
+ * @method void onAfterRead(Model $model) static after_read事件定义
+ * @method mixed onBeforeInsert(Model $model) static before_insert事件定义
+ * @method void onAfterInsert(Model $model) static after_insert事件定义
+ * @method mixed onBeforeUpdate(Model $model) static before_update事件定义
+ * @method void onAfterUpdate(Model $model) static after_update事件定义
+ * @method mixed onBeforeWrite(Model $model) static before_write事件定义
+ * @method void onAfterWrite(Model $model) static after_write事件定义
+ * @method mixed onBeforeDelete(Model $model) static before_write事件定义
+ * @method void onAfterDelete(Model $model) static after_delete事件定义
+ * @method void onBeforeRestore(Model $model) static before_restore事件定义
+ * @method void onAfterRestore(Model $model) static after_restore事件定义
  */
 abstract class Model implements JsonSerializable, ArrayAccess
 {
