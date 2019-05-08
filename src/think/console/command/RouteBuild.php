@@ -125,16 +125,18 @@ class RouteBuild extends Command
             $comment = $this->parseRouteComment($comment);
             $comment = preg_replace('/route\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::resource(\1,\'' . $controller . '\')', $comment);
             $content .= PHP_EOL . $comment;
-        } elseif (false !== strpos($comment, '@alias(')) {
-            $comment = $this->parseRouteComment($comment, '@alias(');
-            $comment = preg_replace('/alias\(\s?([\'\"][\-\_\/\w]+[\'\"])\s?\)/is', 'Route::alias(\1,\'' . $controller . '\')', $comment);
+        } elseif (false !== strpos($comment, '@group(')) {
+            $comment = $this->parseRouteComment($comment, '@group(');
+            $comment = preg_replace('/group\(\s?([\'\"][\-\_\/\w]+[\'\"])\s?\)/is', 'Route::group(\1)', $comment);
             $content .= PHP_EOL . $comment;
+            preg_match('/group\(\s?[\'\"]([\-\_\/\w]+)[\'\"]\s?\)/is', $comment, $matches);
+            $group = $matches[1];
         }
 
         $methods = $class->getMethods(ReflectionMethod::IS_PUBLIC);
 
         foreach ($methods as $method) {
-            $comment = $this->getMethodRouteComment($controller, $method);
+            $comment = $this->getMethodRouteComment($controller, $method, $group ?? null);
             if ($comment) {
                 $content .= PHP_EOL . $comment;
             }
@@ -174,25 +176,27 @@ class RouteBuild extends Command
     /**
      * 获取方法的路由注释
      * @access protected
-     * @param  string             $controller 控制器名
-     * @param  ReflectionMethod   $reflectMethod
+     * @param  string           $controller 控制器名
+     * @param  ReflectionMethod $reflectMethod
+     * @param  string           $group
      * @return string|void
      */
-    protected function getMethodRouteComment(string $controller, ReflectionMethod $reflectMethod)
+    protected function getMethodRouteComment(string $controller, ReflectionMethod $reflectMethod, string $group = null)
     {
         $comment = $reflectMethod->getDocComment() ?: '';
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
             $action  = $reflectMethod->getName();
+            $group   = $group ? '->group(\'' . $group . '\')' : '';
 
             if ($suffix = $this->app->route->config('action_suffix')) {
                 $action = substr($action, 0, -strlen($suffix));
             }
 
             $route   = $controller . '/' . $action;
-            $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\,?\s?[\'\"]?(\w+?)[\'\"]?\s?\)/is', 'Route::\2(\1,\'' . $route . '\')', $comment);
-            $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::rule(\1,\'' . $route . '\')', $comment);
+            $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\,?\s?[\'\"]?(\w+?)[\'\"]?\s?\)/is', 'Route::\2(\1,\'' . $route . '\')' . $group, $comment);
+            $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::rule(\1,\'' . $route . '\')' . $group, $comment);
 
             return $comment;
         }
