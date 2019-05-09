@@ -38,7 +38,7 @@ class Collection extends BaseCollection
     /**
      * 设置需要隐藏的输出属性
      * @access public
-     * @param  array $hidden   属性列表
+     * @param  array $hidden 属性列表
      * @return $this
      */
     public function hidden(array $hidden)
@@ -68,7 +68,7 @@ class Collection extends BaseCollection
     /**
      * 设置需要追加的输出属性
      * @access public
-     * @param  array $append   属性列表
+     * @param  array $append 属性列表
      * @return $this
      */
     public function append(array $append)
@@ -99,12 +99,12 @@ class Collection extends BaseCollection
     /**
      * 绑定（一对一）关联属性到当前模型
      * @access protected
-     * @param  string   $relation    关联名称
-     * @param  array    $attrs       绑定属性
+     * @param  string $relation 关联名称
+     * @param  array  $attrs    绑定属性
      * @return $this
      * @throws Exception
      */
-    public function bindAttr($relation, $attrs = [])
+    public function bindAttr(string $relation, array $attrs = [])
     {
         $this->each(function (Model $model) use ($relation, $attrs) {
             $model->bindAttr($relation, $attrs);
@@ -117,8 +117,8 @@ class Collection extends BaseCollection
      * 按指定键整理数据
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 键名
      * @return array
      */
     public function dictionary($items = null, string &$indexKey = null)
@@ -144,8 +144,8 @@ class Collection extends BaseCollection
      * 比较数据集，返回差集
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   指定比较的键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 指定比较的键名
      * @return static
      */
     public function diff($items, string $indexKey = null)
@@ -172,8 +172,8 @@ class Collection extends BaseCollection
      * 比较数据集，返回交集
      *
      * @access public
-     * @param  mixed    $items      数据
-     * @param  string   $indexKey   指定比较的键名
+     * @param  mixed  $items    数据
+     * @param  string $indexKey 指定比较的键名
      * @return static
      */
     public function intersect($items, string $indexKey = null)

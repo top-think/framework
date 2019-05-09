@@ -80,8 +80,8 @@ class MorphTo extends Relation
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包查询条件
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包查询条件
      * @return Model
      */
     public function getRelation(array $subRelation = [], Closure $closure = null)
@@ -111,7 +111,7 @@ class MorphTo extends Relation
      * @param  integer $count    个数
      * @param  string  $id       关联表的统计字段
      * @param  string  $joinType JOIN类型
-     * @return \think\db\Query
+     * @return Query
      */
     public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = '')
     {
@@ -121,8 +121,9 @@ class MorphTo extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  mixed     $where 查询条件（数组或者闭包）
-     * @param  mixed     $fields 字段
+     * @param  mixed  $where 查询条件（数组或者闭包）
+     * @param  mixed  $fields 字段
+     * @param  string $joinType JOIN类型
      * @return Query
      */
     public function hasWhere($where = [], $fields = null, string $joinType = '')
@@ -178,10 +179,10 @@ class MorphTo extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param  array    $resultSet   数据集
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  array   $resultSet   数据集
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      * @throws Exception
      */
@@ -236,10 +237,10 @@ class MorphTo extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param  Model    $result      数据对象
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  Model   $result      数据对象
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
@@ -253,10 +254,10 @@ class MorphTo extends Relation
     /**
      * 关联统计
      * @access public
-     * @param  Model    $result  数据对象
-     * @param  \Closure $closure 闭包
-     * @param  string   $aggregate 聚合查询方法
-     * @param  string   $field 字段
+     * @param  Model   $result  数据对象
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
      * @return integer
      */
     public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
@@ -288,8 +289,8 @@ class MorphTo extends Relation
     /**
      * 添加关联数据
      * @access public
-     * @param  Model     $model  关联模型对象
-     * @param  string    $type   多态类型
+     * @param  Model  $model  关联模型对象
+     * @param  string $type   多态类型
      * @return Model
      */
     public function associate(Model $model, string $type = ''): Model

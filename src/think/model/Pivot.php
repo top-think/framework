@@ -35,9 +35,9 @@ class Pivot extends Model
     /**
      * 架构函数
      * @access public
-     * @param  array    $data 数据
-     * @param  Model    $parent 上级模型
-     * @param  string   $table 中间数据表名
+     * @param  array  $data 数据
+     * @param  Model  $parent 上级模型
+     * @param  string $table 中间数据表名
      */
     public function __construct(array $data = [], Model $parent = null, string $table = '')
     {

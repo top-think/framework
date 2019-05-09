@@ -63,8 +63,8 @@ class MorphOne extends Relation
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包查询条件
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包查询条件
      * @return Model
      */
     public function getRelation(array $subRelation = [], Closure $closure = null)
@@ -101,8 +101,9 @@ class MorphOne extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  mixed     $where 查询条件（数组或者闭包）
-     * @param  mixed     $fields 字段
+     * @param  mixed  $where 查询条件（数组或者闭包）
+     * @param  mixed  $fields 字段
+     * @param  string $joinType JOIN类型
      * @return Query
      */
     public function hasWhere($where = [], $fields = null, string $joinType = '')
@@ -113,10 +114,10 @@ class MorphOne extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param  array    $resultSet   数据集
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  array   $resultSet   数据集
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void
@@ -161,10 +162,10 @@ class MorphOne extends Relation
     /**
      * 预载入关联查询
      * @access public
-     * @param  Model    $result      数据对象
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
+     * @param  Model   $result      数据对象
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
@@ -193,10 +194,10 @@ class MorphOne extends Relation
     /**
      * 多态一对一 关联模型预查询
      * @access protected
-     * @param  array        $where       关联预查询条件
-     * @param  string       $relation    关联名
-     * @param  array        $subRelation 子关联
-     * @param  \Closure     $closure     闭包
+     * @param  array   $where       关联预查询条件
+     * @param  string  $relation    关联名
+     * @param  array   $subRelation 子关联
+     * @param  Closure $closure     闭包
      * @return array
      */
     protected function eagerlyMorphToOne(array $where, string $relation, array $subRelation = [], $closure = null): array

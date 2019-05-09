@@ -200,9 +200,9 @@ class BelongsToMany extends Relation
     /**
      * 重载paginate方法
      * @access public
-     * @param  int|array    $listRows
-     * @param  int|bool     $simple
-     * @param  array        $config
+     * @param  int|array $listRows
+     * @param  int|bool  $simple
+     * @param  array     $config
      * @return Paginator
      */
     public function paginate($listRows = null, $simple = false, $config = []): Paginator
@@ -269,12 +269,13 @@ class BelongsToMany extends Relation
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  mixed     $where 查询条件（数组或者闭包）
-     * @param  mixed     $fields 字段
+     * @param  mixed  $where 查询条件（数组或者闭包）
+     * @param  mixed  $fields 字段
+     * @param  string $joinType JOIN类型
      * @return Query
      * @throws Exception
      */
-    public function hasWhere($where = [], $fields = null)
+    public function hasWhere($where = [], $fields = null, string $joinType = '')
     {
         throw new Exception('relation not support: hasWhere');
     }
@@ -282,9 +283,9 @@ class BelongsToMany extends Relation
     /**
      * 设置中间表的查询条件
      * @access public
-     * @param  string    $field
-     * @param  string    $op
-     * @param  mixed     $condition
+     * @param  string $field
+     * @param  string $op
+     * @param  mixed  $condition
      * @return $this
      */
     public function wherePivot($field, $op = null, $condition = null)
@@ -296,10 +297,10 @@ class BelongsToMany extends Relation
     /**
      * 预载入关联查询（数据集）
      * @access public
-     * @param  array    $resultSet   数据集
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  Closure  $closure     闭包
+     * @param  array   $resultSet   数据集
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation, Closure $closure = null): void
@@ -338,10 +339,10 @@ class BelongsToMany extends Relation
     /**
      * 预载入关联查询（单个数据）
      * @access public
-     * @param  Model    $result      数据对象
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  Closure  $closure     闭包
+     * @param  Model   $result      数据对象
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation, Closure $closure = null): void
@@ -367,11 +368,11 @@ class BelongsToMany extends Relation
     /**
      * 关联统计
      * @access public
-     * @param  Model    $result  数据对象
-     * @param  Closure  $closure 闭包
-     * @param  string   $aggregate 聚合查询方法
-     * @param  string   $field 字段
-     * @param  string   $name 统计字段别名
+     * @param  Model   $result  数据对象
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
+     * @param  string  $name 统计字段别名
      * @return integer
      */
     public function relationCount(Model $result, Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): float
@@ -396,10 +397,10 @@ class BelongsToMany extends Relation
     /**
      * 获取关联统计子查询
      * @access public
-     * @param  Closure  $closure 闭包
-     * @param  string   $aggregate 聚合查询方法
-     * @param  string   $field 字段
-     * @param  string   $name 统计字段别名
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
+     * @param  string  $name 统计字段别名
      * @return string
      */
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
@@ -422,10 +423,10 @@ class BelongsToMany extends Relation
     /**
      * 多对多 关联模型预查询
      * @access protected
-     * @param  array    $where       关联预查询条件
-     * @param  string   $relation    关联名
-     * @param  array    $subRelation 子关联
-     * @param  Closure  $closure     闭包
+     * @param  array   $where       关联预查询条件
+     * @param  string  $relation    关联名
+     * @param  array   $subRelation 子关联
+     * @param  Closure $closure     闭包
      * @return array
      */
     protected function eagerlyManyToMany(array $where, string $relation, array $subRelation = [], Closure $closure = null): array
@@ -464,9 +465,9 @@ class BelongsToMany extends Relation
     /**
      * BELONGS TO MANY 关联查询
      * @access protected
-     * @param  string   $foreignKey 关联模型关联键
-     * @param  string   $localKey   当前模型关联键
-     * @param  array    $condition  关联查询条件
+     * @param  string $foreignKey 关联模型关联键
+     * @param  string $localKey   当前模型关联键
+     * @param  array  $condition  关联查询条件
      * @return Query
      */
     protected function belongsToManyQuery(string $foreignKey, string $localKey, array $condition = []): Query
@@ -583,7 +584,7 @@ class BelongsToMany extends Relation
     /**
      * 判断是否存在关联数据
      * @access public
-     * @param  mixed $data  数据 可以使用关联模型对象 或者 关联对象的主键
+     * @param  mixed $data 数据 可以使用关联模型对象 或者 关联对象的主键
      * @return Pivot|false
      */
     public function attached($data)

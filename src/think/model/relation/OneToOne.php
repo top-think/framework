@@ -57,12 +57,12 @@ abstract class OneToOne extends Relation
     /**
      * 预载入关联查询（JOIN方式）
      * @access public
-     * @param  Query    $query       查询对象
-     * @param  string   $relation    关联名
-     * @param  mixed    $field       关联字段
-     * @param  string   $joinType    JOIN方式
-     * @param  \Closure $closure     闭包条件
-     * @param  bool     $first
+     * @param  Query   $query       查询对象
+     * @param  string  $relation    关联名
+     * @param  mixed   $field       关联字段
+     * @param  string  $joinType    JOIN方式
+     * @param  Closure $closure     闭包条件
+     * @param  bool    $first
      * @return void
      */
     public function eagerly(Query $query, string $relation, $field = true, string $joinType = '', Closure $closure = null, bool $first = false): void
@@ -114,10 +114,10 @@ abstract class OneToOne extends Relation
     /**
      *  预载入关联查询（数据集）
      * @access protected
-     * @param  array    $resultSet
-     * @param  string   $relation
-     * @param  array    $subRelation
-     * @param  \Closure $closure
+     * @param  array   $resultSet
+     * @param  string  $relation
+     * @param  array   $subRelation
+     * @param  Closure $closure
      * @return mixed
      */
     abstract protected function eagerlySet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null);
@@ -125,10 +125,10 @@ abstract class OneToOne extends Relation
     /**
      * 预载入关联查询（数据）
      * @access protected
-     * @param  Model    $result
-     * @param  string   $relation
-     * @param  array    $subRelation
-     * @param  \Closure $closure
+     * @param  Model   $result
+     * @param  string  $relation
+     * @param  array   $subRelation
+     * @param  Closure $closure
      * @return mixed
      */
     abstract protected function eagerlyOne(Model $result, string $relation, array $subRelation = [], Closure $closure = null);
@@ -136,11 +136,11 @@ abstract class OneToOne extends Relation
     /**
      * 预载入关联查询（数据集）
      * @access public
-     * @param  array    $resultSet   数据集
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
-     * @param  bool     $join        是否为JOIN方式
+     * @param  array   $resultSet   数据集
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
+     * @param  bool    $join        是否为JOIN方式
      * @return void
      */
     public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
@@ -159,11 +159,11 @@ abstract class OneToOne extends Relation
     /**
      * 预载入关联查询（数据）
      * @access public
-     * @param  Model    $result      数据对象
-     * @param  string   $relation    当前关联名
-     * @param  array    $subRelation 子关联名
-     * @param  \Closure $closure     闭包
-     * @param  bool     $join        是否为JOIN方式
+     * @param  Model   $result      数据对象
+     * @param  string  $relation    当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包
+     * @param  bool    $join        是否为JOIN方式
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null, bool $join = false): void
@@ -265,8 +265,8 @@ abstract class OneToOne extends Relation
     /**
      * 绑定关联属性到父模型
      * @access protected
-     * @param  Model $model    关联模型对象
-     * @param  Model $result   父模型对象
+     * @param  Model $model  关联模型对象
+     * @param  Model $result 父模型对象
      * @return void
      * @throws Exception
      */
@@ -286,11 +286,11 @@ abstract class OneToOne extends Relation
     /**
      * 一对一 关联模型预查询（IN方式）
      * @access public
-     * @param  array        $where       关联预查询条件
-     * @param  string       $key         关联键名
-     * @param  string       $relation    关联名
-     * @param  array        $subRelation 子关联
-     * @param  \Closure     $closure
+     * @param  array   $where       关联预查询条件
+     * @param  string  $key         关联键名
+     * @param  string  $relation    关联名
+     * @param  array   $subRelation 子关联
+     * @param  Closure $closure
      * @return array
      */
     protected function eagerlyWhere(array $where, string $key, string $relation, array $subRelation = [], Closure $closure = null)
