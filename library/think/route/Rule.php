@@ -644,13 +644,20 @@ abstract class Rule
         if (!empty($this->option['cross_domain'])) {
 
             $header = [
-                'Access-Control-Allow-Origin'  => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+                'Access-Control-Allow-Origin'      => '*',
+                'Access-Control-Allow-Credentials' => 'true',
+                'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE',
+                'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
             ];
 
             if (!empty($this->option['header'])) {
                 $header = array_merge($header, $this->option['header']);
+            }
+
+            $httpOrigin = $request->header('origin');
+
+            if ($httpOrigin && preg_match('/.*?' . config('cookie.domain') . '/i', $httpOrigin)) {
+                $header['Access-Control-Allow-Origin'] = $httpOrigin;
             }
 
             $this->option['header'] = $header;
