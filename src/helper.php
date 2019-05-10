@@ -61,9 +61,9 @@ if (!function_exists('app')) {
      * @param bool   $newInstance 是否每次创建新的实例
      * @return object|App
      */
-    function app(string $name = App::class, array $args = [], bool $newInstance = false)
+    function app(string $name = '', array $args = [], bool $newInstance = false)
     {
-        return Container::pull($name, $args, $newInstance);
+        return Container::getInstance()->make($name ?: App::class, $args, $newInstance);
     }
 }
 
