@@ -285,9 +285,9 @@ if (!function_exists('error')) {
      * @param  mixed   $data 返回的数据
      * @param  integer $wait 跳转等待时间
      * @param  array   $header 发送的Header信息
-     * @return void
+     * @return Response
      */
-    function error($msg = '', string $url = null, $data = '', int $wait = 3, array $header = []): void
+    function error($msg = '', string $url = null, $data = '', int $wait = 3, array $header = []): Response
     {
         if (is_null($url)) {
             $url = request()->isAjax() ? '' : 'javascript:history.back(-1);';
@@ -310,7 +310,15 @@ if (!function_exists('error')) {
 
         $response = Response::create($result, $type)->header($header)->options(['jump_template' => app('config')->get('app.dispatch_error_tmpl')]);
 
-        throw new HttpResponseException($response);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+
+        foreach ($trace as $call) {
+            if ('__construct' == $call['function']) {
+                throw new HttpResponseException($response);
+            }
+        }
+
+        return $response;
     }
 }
 
@@ -536,9 +544,9 @@ if (!function_exists('result')) {
      * @param  mixed   $msg 提示信息
      * @param  string  $type 返回数据格式
      * @param  array   $header 发送的Header信息
-     * @return void
+     * @return Response
      */
-    function result($data, int $code = 0, $msg = '', string $type = '', array $header = []): void
+    function result($data, int $code = 0, $msg = '', string $type = '', array $header = []): Response
     {
         $result = [
             'code' => $code,
@@ -550,7 +558,15 @@ if (!function_exists('result')) {
         $type     = $type ?: 'json';
         $response = Response::create($result, $type)->header($header);
 
-        throw new HttpResponseException($response);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+
+        foreach ($trace as $call) {
+            if ('__construct' == $call['function']) {
+                throw new HttpResponseException($response);
+            }
+        }
+
+        return $response;
     }
 }
 
@@ -601,9 +617,9 @@ if (!function_exists('success')) {
      * @param  mixed     $data 返回的数据
      * @param  integer   $wait 跳转等待时间
      * @param  array     $header 发送的Header信息
-     * @return void
+     * @return Response
      */
-    function success($msg = '', string $url = null, $data = '', int $wait = 3, array $header = []): void
+    function success($msg = '', string $url = null, $data = '', int $wait = 3, array $header = []): Response
     {
         if (is_null($url) && isset($_SERVER["HTTP_REFERER"])) {
             $url = $_SERVER["HTTP_REFERER"];
@@ -627,7 +643,15 @@ if (!function_exists('success')) {
 
         $response = Response::create($result, $type)->header($header)->options(['jump_template' => app('config')->get('app.dispatch_success_tmpl')]);
 
-        throw new HttpResponseException($response);
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+
+        foreach ($trace as $call) {
+            if ('__construct' == $call['function']) {
+                throw new HttpResponseException($response);
+            }
+        }
+
+        return $response;
     }
 }
 
