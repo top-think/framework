@@ -955,7 +955,7 @@ abstract class Connection
 
         if ($result) {
             $sequence  = $options['sequence'] ?? null;
-            $lastInsId = $this->getLastInsID($sequence);
+            $lastInsId = $query->getLastInsID($sequence);
 
             $data = $options['data'];
 

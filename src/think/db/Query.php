@@ -412,11 +412,25 @@ class Query
      * 获取最近插入的ID
      * @access public
      * @param string $sequence 自增序列名
-     * @return string
+     * @return mixed
      */
-    public function getLastInsID(string $sequence = null): string
+    public function getLastInsID(string $sequence = null)
     {
-        return $this->connection->getLastInsID($sequence);
+        $insertId = $this->connection->getLastInsID($sequence);
+
+        $pk = $this->getPk();
+
+        if (is_string($pk)) {
+            $type = $this->getFieldBindType($pk);
+
+            if (PDO::PARAM_INT == $type) {
+                $insertId = (int) $insertId;
+            } elseif (Connection::PARAM_FLOAT == $type) {
+                $insertId = (float) $insertId;
+            }
+        }
+
+        return $insertId;
     }
 
     /**
