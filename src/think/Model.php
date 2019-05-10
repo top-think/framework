@@ -990,14 +990,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
         return call_user_func_array([$model->db(), $method], $args);
     }
 
-    public function __sleep(){
-        return ['data','relation'];
-    }
-
-    public function __wakeup(){
-        $this->db = 
-    }
-
     /**
      * 析构方法
      * @access public
