@@ -212,8 +212,9 @@ abstract class Dispatch
         } else {
             // 调用验证器
             /** @var Validate $class */
-            $class = $this->app->parseClass('validate', $validate);
-            $v     = new $class();
+            $class = false !== strpos($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
+
+            $v = new $class();
 
             if (!empty($scene)) {
                 $v->scene($scene);

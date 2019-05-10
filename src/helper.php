@@ -745,8 +745,9 @@ if (!function_exists('validate')) {
                 list($validate, $scene) = explode('.', $validate);
             }
 
-            $class = app()->parseClass('validate', $validate);
-            $v     = new $class();
+            $class = false !== strpos($validate, '\\') ? $validate : app()->parseClass('validate', $validate);
+
+            $v = new $class();
 
             if (!empty($scene)) {
                 $v->scene($scene);
