@@ -807,12 +807,12 @@ class Validate
     /**
      * 验证字段值是否为有效格式
      * @access public
-     * @param  mixed $value  字段值
-     * @param  mixed $rule  验证规则
-     * @param  array $data  数据
+     * @param  mixed  $value  字段值
+     * @param  string $rule  验证规则
+     * @param  array  $data  数据
      * @return bool
      */
-    public function is($value, $rule, array $data = []): bool
+    public function is($value, string $rule, array $data = []): bool
     {
         switch (App::parseName($rule, 1, false)) {
             case 'require':
