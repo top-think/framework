@@ -46,8 +46,8 @@ class Request
         'proxy_server_ip_header' => ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'],
         // URL伪静态后缀
         'url_html_suffix'        => 'html',
-        // 是否开启请求缓存 true自动缓存 支持设置请求缓存规则
-        'request_cache'          => false,
+        // 请求缓存规则 true为自动规则
+        'request_cache_key'      => true,
         // 请求缓存有效期
         'request_cache_expire'   => null,
         // 全局请求缓存排除规则
@@ -2031,7 +2031,7 @@ class Request
      */
     public function cache($key = null, int $expire = null, string $tag = null, array $except = [])
     {
-        $key    = $key ?: $this->config['request_cache'];
+        $key    = $key ?: $this->config['request_cache_key'];
         $expire = $expire ?: $this->config['request_cache_expire'];
         $except = !empty($except) ? $except : $this->config['request_cache_except'];
         $tag    = $tag ?: $this->config['request_cache_tag'];
