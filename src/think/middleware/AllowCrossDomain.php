@@ -22,7 +22,6 @@ use think\Response;
 class AllowCrossDomain
 {
     protected $header = [
-        'Access-Control-Allow-Origin'      => '*',
         'Access-Control-Allow-Credentials' => 'true',
         'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE',
         'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
@@ -36,14 +35,12 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, ?array $header = [])
+    public function handle($request, Closure $next,  ? array $header = [])
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
-        $httpOrigin = $request->header('origin');
-
-        if ($httpOrigin && preg_match('/.*?' . config('cookie.domain') . '/i', $httpOrigin)) {
-            $header['Access-Control-Allow-Origin'] = $httpOrigin;
+        if (!isset($header['Access-Control-Allow-Origin'])) {
+            $header['Access-Control-Allow-Origin'] = $request->header('origin') ?: '*';
         }
 
         if ($request->method(true) == 'OPTIONS') {
