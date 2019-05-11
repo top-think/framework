@@ -512,12 +512,12 @@ class Session
      * 反序列化数据
      * @access protected
      * @param  string $data
-     * @return mixed
+     * @return array
      */
-    protected function unserialize(string $data)
+    protected function unserialize(string $data): array
     {
         $unserialize = $this->config['serialize'][1] ?? 'unserialize';
 
-        return $unserialize($data);
+        return (array) $unserialize($data);
     }
 }
