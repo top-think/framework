@@ -33,16 +33,23 @@ class CheckRequestCache
      * 设置当前地址的请求缓存
      * @access public
      * @param Request $request
-     * @param         $next
+     * @param Closure $next
+     * @param mixed   $cache
      * @return Response
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, $cache = null)
     {
-        if ($request->config('request_cache') && $request->isGet()) {
-            $cache = $request->cache();
+        if ($request->isGet()) {
+            $cache = $cache ?: $request->cache();
 
             if ($cache) {
-                list($key, $expire, $tag) = $cache;
+                if (is_array($cache)) {
+                    list($key, $expire, $tag) = $cache;
+                } else {
+                    $key    = str_replace('|', '/', $request->url());
+                    $expire = $cache;
+                    $tag    = null;
+                }
 
                 if (strtotime($request->server('HTTP_IF_MODIFIED_SINCE', '')) + $expire > $request->server('REQUEST_TIME')) {
                     // 读取缓存

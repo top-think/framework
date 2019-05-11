@@ -132,6 +132,8 @@ class Http
      */
     public function run(Request $request = null): Response
     {
+        $this->initialize();
+
         //自动创建request对象
         $request = $request ?? $this->app->make('request', [], true);
         $this->app->instance('request', $request);
@@ -164,8 +166,6 @@ class Http
      */
     protected function runWithRequest(Request $request)
     {
-        $this->initialize();
-
         // 加载全局中间件
         if (is_file($this->app->getBasePath() . 'middleware.php')) {
             $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');

@@ -423,7 +423,7 @@ abstract class Rule
      */
     public function cache($cache)
     {
-        return $this->setOption('cache', $cache);
+        return $this->middleware('\think\middleware\CheckRequestCache', $cache);
     }
 
     /**

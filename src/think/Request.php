@@ -2036,7 +2036,7 @@ class Request
         $except = !empty($except) ? $except : $this->config['request_cache_except'];
         $tag    = $tag ?: $this->config['request_cache_tag'];
 
-        if ($this->isCheckCache) {
+        if (false === $key || $this->isCheckCache) {
             // 关闭当前缓存
             return;
         }
