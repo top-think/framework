@@ -28,8 +28,6 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
-use think\Model;
-use think\model\Collection as ModelCollection;
 use think\Response;
 use think\Validate;
 
@@ -211,39 +209,27 @@ if (!function_exists('download')) {
 if (!function_exists('dump')) {
     /**
      * 浏览器友好的变量输出
-     * @param  mixed  $var   变量
-     * @param  bool   $echo  是否输出 默认为true 如果为false 则返回输出字符串
-     * @param  string $label 标签 默认为空
-     * @return void|string
+     * @param  mixed  $vars 要输出的变量
+     * @return void
      */
-    function dump($var, bool $echo = true, string $label = null)
+    function dump(...$vars)
     {
-        $label = (null === $label) ? '' : rtrim($label) . ':';
-        if ($var instanceof Model || $var instanceof ModelCollection) {
-            $var = $var->toArray();
-        }
-
         ob_start();
-        var_dump($var);
+        var_dump(...$vars);
 
         $output = ob_get_clean();
         $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
 
         if (PHP_SAPI == 'cli') {
-            $output = PHP_EOL . $label . $output . PHP_EOL;
+            $output = PHP_EOL . $output . PHP_EOL;
         } else {
             if (!extension_loaded('xdebug')) {
                 $output = htmlspecialchars($output, ENT_SUBSTITUTE);
             }
-            $output = '<pre>' . $label . $output . '</pre>';
+            $output = '<pre>' . $output . '</pre>';
         }
 
-        if ($echo) {
-            echo $output;
-            return;
-        }
-
-        return $output;
+        echo $output;
     }
 }
 
