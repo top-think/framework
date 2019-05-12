@@ -263,11 +263,11 @@ if (!function_exists('event')) {
 if (!function_exists('halt')) {
     /**
      * 调试变量并且中断输出
-     * @param mixed $var 调试变量或者信息
+     * @param mixed $vars 调试变量或者信息
      */
-    function halt($var)
+    function halt(...$vars)
     {
-        dump($var);
+        dump(...$vars);
 
         throw new HttpResponseException(new Response);
     }
