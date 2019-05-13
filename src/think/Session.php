@@ -119,27 +119,7 @@ class Session
 
         $this->handler = App::factory($type, '\\think\\session\\driver\\', $this->config);
 
-        if (!empty($this->config['auto_start'])) {
-            $this->start();
-        } else {
-            $this->init = false;
-        }
-    }
-
-    /**
-     * session自动启动或者初始化
-     * @access public
-     * @return void
-     */
-    public function boot(): void
-    {
-        if (is_null($this->init)) {
-            $this->init();
-        }
-
-        if (false === $this->init) {
-            $this->start();
-        }
+        $this->start();
     }
 
     /**
@@ -198,7 +178,7 @@ class Session
      */
     public function set(string $name, $value): void
     {
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         if (strpos($name, '.')) {
             // 二维数组赋值
@@ -219,7 +199,7 @@ class Session
      */
     public function get(string $name = '', $default = null)
     {
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         $sessionId = $this->getId();
 
@@ -261,7 +241,7 @@ class Session
      */
     public function delete(string $name): bool
     {
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         $sessionId = $this->getId(false);
 
@@ -306,7 +286,7 @@ class Session
      */
     public function clear(): void
     {
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         $sessionId = $this->getId(false);
 
@@ -323,7 +303,7 @@ class Session
      */
     public function has(string $name): bool
     {
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         $sessionId = $this->getId(false);
 
