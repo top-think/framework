@@ -61,7 +61,7 @@ class CheckRequestCache
     public function handle($request, Closure $next, $cache = null)
     {
         if ($request->isGet() && false !== $cache) {
-            $cache = $cache ?: $this->getRequestCache();
+            $cache = $cache ?: $this->getRequestCache($request);
 
             if ($cache) {
                 if (is_array($cache)) {
