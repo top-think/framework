@@ -744,7 +744,7 @@ class Route
                 $dispatch = $checkCallback();
             }
         } else {
-            $dispatch = $this->url($request->path());
+            $dispatch = $this->url($this->path());
         }
 
         $dispatch->init($this->app);
@@ -788,7 +788,7 @@ class Route
     public function check(): Dispatch
     {
         // 自动检测域名路由
-        $url = str_replace($this->config['pathinfo_depr'], '|', $this->request->path());
+        $url = str_replace($this->config['pathinfo_depr'], '|', $this->path());
 
         $completeMatch = $this->config['route_complete_match'];
 
@@ -806,6 +806,30 @@ class Route
         }
 
         return $this->url($url);
+    }
+
+    /**
+     * 获取当前请求URL的pathinfo信息(不含URL后缀)
+     * @access protected
+     * @return string
+     */
+    protected function path(): string
+    {
+        $suffix   = $this->config['url_html_suffix'];
+        $pathinfo = $this->request->pathinfo();
+
+        if (false === $suffix) {
+            // 禁止伪静态访问
+            $path = $pathinfo;
+        } elseif ($suffix) {
+            // 去除正常的URL后缀
+            $path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
+        } else {
+            // 允许任何后缀访问
+            $path = preg_replace('/\.' . $this->request->ext() . '$/i', '', $pathinfo);
+        }
+
+        return $path;
     }
 
     /**

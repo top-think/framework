@@ -20,41 +20,58 @@ use think\route\Dispatch;
 class Request
 {
     /**
-     * 配置
+     * 兼容PATH_INFO获取
      * @var array
      */
-    protected $config = [
-        // PATHINFO变量名 用于兼容模式
-        'var_pathinfo'           => 's',
-        // 兼容PATH_INFO获取
-        'pathinfo_fetch'         => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
-        // 表单请求类型伪装变量
-        'var_method'             => '_method',
-        // 表单ajax伪装变量
-        'var_ajax'               => '_ajax',
-        // 表单pjax伪装变量
-        'var_pjax'               => '_pjax',
-        // 默认全局过滤方法 用逗号分隔多个
-        'default_filter'         => '',
-        // 域名根，如thinkphp.cn
-        'url_domain_root'        => '',
-        // HTTPS代理标识
-        'https_agent_name'       => '',
-        // 前端代理服务器IP
-        'proxy_server_ip'        => [],
-        // 前端代理服务器真实IP头
-        'proxy_server_ip_header' => ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'],
-        // URL伪静态后缀
-        'url_html_suffix'        => 'html',
-        // 请求缓存规则 true为自动规则
-        'request_cache_key'      => true,
-        // 请求缓存有效期
-        'request_cache_expire'   => null,
-        // 全局请求缓存排除规则
-        'request_cache_except'   => [],
-        // 请求缓存的Tag
-        'request_cache_tag'      => '',
-    ];
+    protected $pathinfoFetch = ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'];
+
+    /**
+     * PATHINFO变量名 用于兼容模式
+     * @var string
+     */
+    protected $varPathinfo = 's';
+
+    /**
+     * 请求类型
+     * @var string
+     */
+    protected $varMethod = '_method';
+
+    /**
+     * 表单ajax伪装变量
+     * @var string
+     */
+    protected $varAjax = '_ajax';
+
+    /**
+     * 表单pjax伪装变量
+     * @var string
+     */
+    protected $varPjax = '_pjax';
+
+    /**
+     * 域名根
+     * @var string
+     */
+    protected $rootDomain = '';
+
+    /**
+     * HTTPS代理标识
+     * @var string
+     */
+    protected $httpsAgentName = '';
+
+    /**
+     * 前端代理服务器IP
+     * @var array
+     */
+    protected $proxyServerIp = [];
+
+    /**
+     * 前端代理服务器真实IP头
+     * @var array
+     */
+    protected $proxyServerIpHeader = ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'];
 
     /**
      * 请求类型
@@ -295,37 +312,16 @@ class Request
     /**
      * 架构函数
      * @access public
-     * @param  array  $options 参数
      */
-    public function __construct(array $options = [])
+    public function __construct()
     {
-        $this->init($options);
-
         // 保存 php://input
         $this->input = file_get_contents('php://input');
     }
 
-    public function init(array $options = []): void
+    public static function __make(App $app)
     {
-        $this->config = array_merge($this->config, $options);
-
-        if (is_null($this->filter) && !empty($this->config['default_filter'])) {
-            $this->filter = $this->config['default_filter'];
-        }
-    }
-
-    public function config($name = null)
-    {
-        if (is_null($name)) {
-            return $this->config;
-        }
-
-        return $this->config[$name] ?? null;
-    }
-
-    public static function __make(App $app, Config $config)
-    {
-        $request = new static($config->get('route'));
+        $request = new static();
 
         $request->server  = $_SERVER;
         $request->env     = $app->env;
@@ -390,7 +386,7 @@ class Request
      */
     public function rootDomain(): string
     {
-        $root = $this->config['url_domain_root'];
+        $root = $this->rootDomain;
 
         if (!$root) {
             $item  = explode('.', $this->host());
@@ -422,7 +418,7 @@ class Request
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
-            $rootDomain = $this->config['url_domain_root'];
+            $rootDomain = $this->urlDdomainRoot;
 
             if ($rootDomain) {
                 // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
@@ -622,10 +618,10 @@ class Request
     public function pathinfo(): string
     {
         if (is_null($this->pathinfo)) {
-            if (isset($_GET[$this->config['var_pathinfo']])) {
+            if (isset($_GET[$this->varPathinfo])) {
                 // 判断URL里面是否有兼容模式参数
-                $pathinfo = $_GET[$this->config['var_pathinfo']];
-                unset($_GET[$this->config['var_pathinfo']]);
+                $pathinfo = $_GET[$this->varPathinfo];
+                unset($_GET[$this->varPathinfo]);
             } elseif ($this->server('PATH_INFO')) {
                 $pathinfo = $this->server('PATH_INFO');
             } elseif ($this->server('REQUEST_URI')) {
@@ -640,7 +636,7 @@ class Request
 
             // 分析PATHINFO信息
             if (!isset($pathinfo)) {
-                foreach ($this->config['pathinfo_fetch'] as $type) {
+                foreach ($this->pathinfoFetch as $type) {
                     if ($this->server($type)) {
                         $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
                         substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
@@ -652,30 +648,6 @@ class Request
         }
 
         return $this->pathinfo;
-    }
-
-    /**
-     * 获取当前请求URL的pathinfo信息(不含URL后缀)
-     * @access public
-     * @return string
-     */
-    public function path(): string
-    {
-        $suffix   = $this->config['url_html_suffix'];
-        $pathinfo = $this->pathinfo();
-
-        if (false === $suffix) {
-            // 禁止伪静态访问
-            $path = $pathinfo;
-        } elseif ($suffix) {
-            // 去除正常的URL后缀
-            $path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
-        } else {
-            // 允许任何后缀访问
-            $path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
-        }
-
-        return $path;
     }
 
     /**
@@ -764,15 +736,15 @@ class Request
             // 获取原始请求类型
             return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
-            if (isset($_POST[$this->config['var_method']])) {
-                $method = strtolower($_POST[$this->config['var_method']]);
+            if (isset($_POST[$this->varMethod])) {
+                $method = strtolower($_POST[$this->varMethod]);
                 if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
                     $this->method    = strtoupper($method);
                     $this->{$method} = $_POST;
                 } else {
                     $this->method = 'POST';
                 }
-                unset($_POST[$this->config['var_method']]);
+                unset($_POST[$this->varMethod]);
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
@@ -1130,7 +1102,7 @@ class Request
      * @param  string $default 默认值
      * @return mixed
      */
-    public function server(string $name = '', string $default = null)
+    public function server(string $name = '', string $default = '')
     {
         if (empty($name)) {
             return $this->server;
@@ -1542,7 +1514,7 @@ class Request
             return true;
         } elseif ('https' == $this->server('HTTP_X_FORWARDED_PROTO')) {
             return true;
-        } elseif ($this->config['https_agent_name'] && $this->server($this->config['https_agent_name'])) {
+        } elseif ($this->httpsAgentName && $this->server($this->httpsAgentName)) {
             return true;
         }
 
@@ -1577,7 +1549,7 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_ajax']) ? true : $result;
+        return $this->param($this->varAjax) ? true : $result;
     }
 
     /**
@@ -1594,7 +1566,7 @@ class Request
             return $result;
         }
 
-        return $this->param($this->config['var_pjax']) ? true : $result;
+        return $this->param($this->varPjax) ? true : $result;
     }
 
     /**
@@ -1612,8 +1584,8 @@ class Request
 
         // 如果指定了前端代理服务器IP以及其会发送的IP头
         // 则尝试获取前端代理服务器发送过来的真实IP
-        $proxyIp       = $this->config('proxy_server_ip');
-        $proxyIpHeader = $this->config('proxy_server_ip_header');
+        $proxyIp       = $this->proxyServerIp;
+        $proxyIpHeader = $this->proxyServerIpHeader;
 
         if (count($proxyIp) > 0 && count($proxyIpHeader) > 0) {
             // 从指定的HTTP头中依次尝试获取IP地址
@@ -2018,84 +1990,6 @@ class Request
         // 开启TOKEN重置
         $this->session->delete($token);
         return false;
-    }
-
-    /**
-     * 设置当前地址的请求缓存
-     * @access public
-     * @param  mixed  $key 缓存标识，支持变量规则 ，例如 item/:name/:id
-     * @param  int   $expire 缓存有效期
-     * @param  string $tag    缓存标签
-     * @param  array  $except 缓存排除
-     * @return mixed
-     */
-    public function cache($key = null, int $expire = null, string $tag = null, array $except = [])
-    {
-        $key    = $key ?: $this->config['request_cache_key'];
-        $expire = $expire ?: $this->config['request_cache_expire'];
-        $except = !empty($except) ? $except : $this->config['request_cache_except'];
-        $tag    = $tag ?: $this->config['request_cache_tag'];
-
-        if (false === $key || $this->isCheckCache) {
-            // 关闭当前缓存
-            return;
-        }
-
-        // 标记请求缓存检查
-        $this->isCheckCache = true;
-
-        foreach ($except as $rule) {
-            if (0 === stripos($this->url(), $rule)) {
-                return;
-            }
-        }
-
-        if ($key instanceof \Closure) {
-            $key = call_user_func_array($key, [$this]);
-        } elseif (true === $key) {
-            // 自动缓存功能
-            $key = '__URL__';
-        } elseif (strpos($key, '|')) {
-            list($key, $fun) = explode('|', $key);
-        }
-
-        // 特殊规则替换
-        if (false !== strpos($key, '__')) {
-            $key = str_replace(['__APP__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$this->app, $this->controller, $this->action, md5($this->url(true))], $key);
-        }
-
-        if (false !== strpos($key, ':')) {
-            $param = $this->param();
-            foreach ($param as $item => $val) {
-                if (is_string($val) && false !== strpos($key, ':' . $item)) {
-                    $key = str_replace(':' . $item, $val, $key);
-                }
-            }
-        } elseif (strpos($key, ']')) {
-            if ('[' . $this->ext() . ']' == $key) {
-                // 缓存某个后缀的请求
-                $key = md5($this->url());
-            } else {
-                return;
-            }
-        }
-
-        if (isset($fun)) {
-            $key = $fun($key);
-        }
-
-        $this->cache = [$key, $expire, $tag];
-        return $this->cache;
-    }
-
-    /**
-     * 读取请求缓存设置
-     * @access public
-     * @return array|null
-     */
-    public function getCache()
-    {
-        return $this->cache;
     }
 
     /**

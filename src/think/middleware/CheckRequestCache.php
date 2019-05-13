@@ -14,6 +14,7 @@ namespace think\middleware;
 
 use Closure;
 use think\Cache;
+use think\Config;
 use think\Request;
 use think\Response;
 
@@ -22,11 +23,31 @@ use think\Response;
  */
 class CheckRequestCache
 {
+    /**
+     * 缓存对象
+     * @var Cache
+     */
     protected $cache;
 
-    public function __construct(Cache $cache)
+    /**
+     * 配置参数
+     * @var array
+     */
+    protected $config = [
+        // 请求缓存规则 true为自动规则
+        'request_cache_key'    => true,
+        // 请求缓存有效期
+        'request_cache_expire' => null,
+        // 全局请求缓存排除规则
+        'request_cache_except' => [],
+        // 请求缓存的Tag
+        'request_cache_tag'    => '',
+    ];
+
+    public function __construct(Cache $cache, Config $config)
     {
-        $this->cache = $cache;
+        $this->cache  = $cache;
+        $this->config = array_merge($this->config, $config->get('route'));
     }
 
     /**
@@ -40,7 +61,7 @@ class CheckRequestCache
     public function handle($request, Closure $next, $cache = null)
     {
         if ($request->isGet() && false !== $cache) {
-            $cache = $cache ?: $request->cache();
+            $cache = $cache ?: $this->getRequestCache();
 
             if ($cache) {
                 if (is_array($cache)) {
@@ -74,5 +95,66 @@ class CheckRequestCache
         }
 
         return $response;
+    }
+
+    /**
+     * 读取当前地址的请求缓存信息
+     * @access protected
+     * @param Request $request
+     * @return mixed
+     */
+    protected function getRequestCache($request)
+    {
+        $key    = $this->config['request_cache_key'];
+        $expire = $this->config['request_cache_expire'];
+        $except = $this->config['request_cache_except'];
+        $tag    = $this->config['request_cache_tag'];
+
+        if (false === $key) {
+            // 关闭当前缓存
+            return;
+        }
+
+        foreach ($except as $rule) {
+            if (0 === stripos($request->url(), $rule)) {
+                return;
+            }
+        }
+
+        if ($key instanceof \Closure) {
+            $key = call_user_func($key);
+        } elseif (true === $key) {
+            // 自动缓存功能
+            $key = '__URL__';
+        } elseif (strpos($key, '|')) {
+            list($key, $fun) = explode('|', $key);
+        }
+
+        // 特殊规则替换
+        if (false !== strpos($key, '__')) {
+            $key = str_replace(['__APP__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$request->app(), $request->controller(), $request->action(), md5($request->url(true))], $key);
+        }
+
+        if (false !== strpos($key, ':')) {
+            $param = $request->param();
+            foreach ($param as $item => $val) {
+                if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                    $key = str_replace(':' . $item, $val, $key);
+                }
+            }
+        } elseif (strpos($key, ']')) {
+            if ('[' . $request->ext() . ']' == $key) {
+                // 缓存某个后缀的请求
+                $key = md5($request->url());
+            } else {
+                return;
+            }
+        }
+
+        if (isset($fun)) {
+            $key = $fun($key);
+        }
+
+        return [$key, $expire, $tag];
     }
 }
