@@ -113,6 +113,10 @@ class App extends Container
         $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
 
+        if (is_file($this->appPath . 'provider.php')) {
+            $this->bind(include $this->appPath . 'provider.php');
+        }
+
         static::setInstance($this);
 
         $this->instance('app', $this);
@@ -429,10 +433,6 @@ class App extends Container
 
         if (is_file($appPath . 'event.php')) {
             $this->loadEvent(include $appPath . 'event.php');
-        }
-
-        if (is_file($appPath . 'provider.php')) {
-            $this->bind(include $appPath . 'provider.php');
         }
 
         if (is_file($appPath . 'service.php')) {
