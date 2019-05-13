@@ -103,7 +103,6 @@ class File extends SplFileObject
     /**
      * 获取上传文件的信息
      * @access public
-     * @param  string   $name
      * @return array
      */
     public function getInfo(): array
