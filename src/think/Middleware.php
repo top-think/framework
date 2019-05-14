@@ -181,10 +181,6 @@ class Middleware
             return [];
         }
 
-        if (strpos($middleware, ':')) {
-            list($middleware, $param) = explode(':', $middleware, 2);
-        }
-
         return [[$middleware, 'handle'], $param ?? null];
     }
 
