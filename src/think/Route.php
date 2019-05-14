@@ -1087,7 +1087,7 @@ class Route
 
             $url = $controller . '/' . $action;
 
-            if ($app) {
+            if ($app && $this->app->config->get('app.auto_multi_app')) {
                 $bind = $this->app->config->get('app.domain_bind', []);
                 if ($key = array_search($app, $bind)) {
                     $domain = true === $domain ? $key : $domain;
