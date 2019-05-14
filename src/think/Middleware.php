@@ -31,9 +31,7 @@ class Middleware
      * 配置
      * @var array
      */
-    protected $config = [
-        'default_namespace' => 'app\\http\\middleware\\',
-    ];
+    protected $config = [];
 
     /**
      * 应用对象
@@ -174,12 +172,8 @@ class Middleware
             throw new InvalidArgumentException('The middleware is invalid');
         }
 
-        if (false === strpos($middleware, '\\')) {
-            if (isset($this->config[$middleware])) {
-                $middleware = $this->config[$middleware];
-            } else {
-                $middleware = $this->config['default_namespace'] . $middleware;
-            }
+        if (isset($this->config[$middleware])) {
+            $middleware = $this->config[$middleware];
         }
 
         if (is_array($middleware)) {

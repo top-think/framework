@@ -31,6 +31,6 @@ class Middleware extends Make
 
     protected function getNamespace(string $app): string
     {
-        return 'app\\http\\middleware';
+        return 'app\\middleware';
     }
 }
