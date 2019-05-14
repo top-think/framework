@@ -967,7 +967,7 @@ class Route
                 $suffix = $match[2];
             }
 
-            if ($this->request->app() && !$this->app->http->isBindDomain()) {
+            if ($this->request->app() && $this->app->config->get('app.auto_multi_app') && !$this->app->http->isBindDomain()) {
                 $url = $this->request->app() . '/' . $url;
             }
         } elseif (!empty($rule) && isset($name)) {
