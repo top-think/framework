@@ -305,7 +305,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     /**
      * 获取当前模型的数据库查询对象
      * @access public
-     * @param array|false $scope 使用的全局查询范围
+     * @param array $scope 设置不使用的全局查询范围
      * @return Query
      */
     public function db($scope = []): Query
@@ -333,9 +333,8 @@ abstract class Model implements JsonSerializable, ArrayAccess
         }
 
         // 全局作用域
-        $globalScope = is_array($scope) && !empty($scope) ? $scope : $this->globalScope;
-
-        if (!empty($globalScope) && false !== $scope) {
+        if (is_array($scope)) {
+            $globalScope = array_diff($this->globalScope, $scope);
             $query->scope($globalScope);
         }
 
@@ -948,12 +947,12 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 设置使用的全局查询范围
+     * 设置不使用的全局查询范围
      * @access public
-     * @param array|false $scope 启用的全局查询范围
+     * @param array $scope 不启用的全局查询范围
      * @return Query
      */
-    public static function useGlobalScope($scope)
+    public static function withoutGlobalScope(array $scope = null)
     {
         $model = new static();
 
