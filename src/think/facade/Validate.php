@@ -58,6 +58,35 @@ use think\Facade;
  * @method bool unique(mixed $value, mixed $rule, array $data = [], string $field = '') static 验证是否唯一
  * @method bool check(array $data, mixed $rules = []) static 数据自动验证
  * @method bool checkRule(mixed $data, mixed $rules = []) static 数据手动验证
+ * @method bool isNumber(mixed $data) static 验证是否为纯数字（不包含负数和小数点）
+ * @method bool isAlpha(mixed $data) static 验证是否为纯字母
+ * @method bool isAlphaNum(mixed $data) static 验证是否为字母和数字
+ * @method bool isAlphaDash(mixed $data) static 验证是否为字母和数字，以及下划线_和破折号-
+ * @method bool isChs(mixed $data) static 验证是否为中文
+ * @method bool isChsAlpha(mixed $data) static 验证是否为中文和字母
+ * @method bool isChsAlphaNum(mixed $data) static 验证是否为字母和数字
+ * @method bool isChsDash(mixed $data) static 验证是否为中文，以及下划线_和破折号-
+ * @method bool isCntrl(mixed $data) static 验证是否为控制字符（换行、缩进、空格）
+ * @method bool isGraph(mixed $data) static 验证是否为可打印字符（空格除外）
+ * @method bool isPrint(mixed $data) static 验证是否为可打印字符（包括空格）
+ * @method bool isLower(mixed $data) static 验证是否为小写字符
+ * @method bool isUpper(mixed $data) static 验证是否为大写字符
+ * @method bool isSpace(mixed $data) static 验证是否为空白字符（包括缩进，垂直制表符，换行符，回车和换页字符）
+ * @method bool isInteger(mixed $data) static 验证是否为整数
+ * @method bool isFloat(mixed $data) static 验证是否为浮点数
+ * @method bool isBool(mixed $data) static 验证是否为布尔值
+ * @method bool isEmail(mixed $data) static 验证是否为邮箱地址
+ * @method bool isArray(mixed $data) static 验证是否为数组
+ * @method bool isAccepted(mixed $data) static 验证是否为yes, on, 或是 1
+ * @method bool isDate(mixed $data) static 验证是否为日期格式
+ * @method bool isXdigit(mixed $data) static 验证是否为十六进制字符串
+ * @method bool isActiveUrl(mixed $data) static 验证是否为有效的域名或者IP
+ * @method bool isUrl(mixed $data) static 验证是否为有效的URL地址
+ * @method bool isMobile(mixed $data) static 验证是否为有效的手机
+ * @method bool isIp(mixed $data) static 验证是否为有效的IP
+ * @method bool isIdCard(mixed $data) static 验证是否为有效的身份证号码
+ * @method bool isMacAddr(mixed $data) static 验证是否为有效的MAC地址
+ * @method bool isZip(mixed $data) static 验证是否为有效的邮编
  * @method mixed getError() static 获取错误信息
  */
 class Validate extends Facade
