@@ -155,7 +155,7 @@ class Config
                 }
                 break;
             case 'ini':
-                $config = parse_ini_file($file, true) ?: [];
+                $config = parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [];
                 break;
             case 'json':
                 $config = json_decode(file_get_contents($file), true);
