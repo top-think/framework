@@ -310,6 +310,8 @@ class Http
                     }
                 } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
                     throw new HttpException(404, 'app not exists:' . $name);
+                } elseif ($name && isset($map['*'])) {
+                    $appName = $map['*'];
                 } else {
                     $appName = $name;
                 }
