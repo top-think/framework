@@ -754,16 +754,12 @@ class Query
     }
 
     /**
-     * 指定查询字段 支持字段排除和指定数据表
+     * 指定查询字段
      * @access public
-     * @param mixed   $field     字段信息
-     * @param boolean $except    是否排除
-     * @param string  $tableName 数据表名
-     * @param string  $prefix    字段前缀
-     * @param string  $alias     别名前缀
+     * @param mixed $field 字段信息
      * @return $this
      */
-    public function field($field, bool $except = false, string $tableName = '', string $prefix = '', string $alias = '')
+    public function field($field)
     {
         if (empty($field)) {
             return $this;
@@ -782,24 +778,81 @@ class Query
 
         if (true === $field) {
             // 获取全部字段
-            $fields = $this->getTableFields($tableName);
+            $fields = $this->getTableFields();
             $field  = $fields ?: ['*'];
-        } elseif ($except) {
-            // 字段排除
-            $fields = $this->getTableFields($tableName);
-            $field  = $fields ? array_diff($fields, $field) : $field;
         }
 
-        if ($tableName) {
-            // 添加统一的前缀
-            $prefix = $prefix ?: $tableName;
-            foreach ($field as $key => &$val) {
-                if (is_numeric($key) && $alias) {
-                    $field[$prefix . '.' . $val] = $alias . $val;
-                    unset($field[$key]);
-                } elseif (is_numeric($key)) {
-                    $val = $prefix . '.' . $val;
-                }
+        if (isset($this->options['field'])) {
+            $field = array_merge((array) $this->options['field'], $field);
+        }
+
+        $this->options['field'] = array_unique($field);
+
+        return $this;
+    }
+
+    /**
+     * 指定要排除的查询字段
+     * @access public
+     * @param array|string $field 要排除的字段
+     * @return $this
+     */
+    public function withoutField($field)
+    {
+        if (empty($field)) {
+            return $this;
+        }
+
+        if (is_string($field)) {
+            $field = array_map('trim', explode(',', $field));
+        }
+
+        // 字段排除
+        $fields = $this->getTableFields();
+        $field  = $fields ? array_diff($fields, $field) : $field;
+
+        if (isset($this->options['field'])) {
+            $field = array_merge((array) $this->options['field'], $field);
+        }
+
+        $this->options['field'] = array_unique($field);
+
+        return $this;
+    }
+
+    /**
+     * 指定其它数据表的查询字段
+     * @access public
+     * @param mixed   $field     字段信息
+     * @param string  $tableName 数据表名
+     * @param string  $prefix    字段前缀
+     * @param string  $alias     别名前缀
+     * @return $this
+     */
+    public function tableField($field, string $tableName, string $prefix = '', string $alias = '')
+    {
+        if (empty($field)) {
+            return $this;
+        }
+
+        if (is_string($field)) {
+            $field = array_map('trim', explode(',', $field));
+        }
+
+        if (true === $field) {
+            // 获取全部字段
+            $fields = $this->getTableFields($tableName);
+            $field  = $fields ?: ['*'];
+        }
+
+        // 添加统一的前缀
+        $prefix = $prefix ?: $tableName;
+        foreach ($field as $key => &$val) {
+            if (is_numeric($key) && $alias) {
+                $field[$prefix . '.' . $val] = $alias . $val;
+                unset($field[$key]);
+            } elseif (is_numeric($key)) {
+                $val = $prefix . '.' . $val;
             }
         }
 
