@@ -120,6 +120,10 @@ class Http
      */
     public function path(string $path)
     {
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
+        }
+
         $this->path = $path;
         return $this;
     }
