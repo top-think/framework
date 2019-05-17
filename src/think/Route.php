@@ -158,7 +158,7 @@ class Route
      * （分组）路由规则是否合并解析
      * @var bool
      */
-    protected $mergeRuleRegex = true;
+    protected $mergeRuleRegex = false;
 
     /**
      * 显示域名

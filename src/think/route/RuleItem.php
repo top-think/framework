@@ -72,9 +72,7 @@ class RuleItem extends Rule
         // 生成路由标识的快捷访问
         $this->setRuleName();
 
-        if ($this->router->isTest()) {
-            $this->router->setRule($this->rule, $this);
-        }
+        $this->router->setRule($this->rule, $this);
     }
 
     /**
