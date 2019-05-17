@@ -624,14 +624,8 @@ class Request
                 unset($_GET[$this->varPathinfo]);
             } elseif ($this->server('PATH_INFO')) {
                 $pathinfo = $this->server('PATH_INFO');
-            } elseif ($this->server('REQUEST_URI')) {
+            } elseif ('cli-server' == PHP_SAPI) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
-                if (0 === strpos($pathinfo, $this->server('SCRIPT_NAME'))) {
-                    $pathinfo = substr($pathinfo, strlen($this->server('SCRIPT_NAME')));
-                }
-            } elseif (isset($_SERVER['argv'][1])) {
-                // CLI模式下 index.php controller/action/params/...
-                $pathinfo = $_SERVER['argv'][1];
             }
 
             // 分析PATHINFO信息
