@@ -1013,6 +1013,7 @@ class Query
     {
         if ($field instanceof $this) {
             $this->options['where'] = $field->getOptions('where');
+            $this->bind($field->getBind(false));
             return $this;
         }
 
