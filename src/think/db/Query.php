@@ -2185,17 +2185,18 @@ class Query
 
     /**
      * 查询某个时间间隔数据
-     * @access protected
+     * @access public
      * @param string $field    日期字段名
      * @param string $start    开始时间
-     * @param string $interval 时间间隔单位 day month year week hour
+     * @param string $interval 时间间隔单位 day/month/year/week/hour/minute/second
+     * @param int    $step     间隔
      * @param string $logic    AND OR
      * @return $this
      */
-    protected function whereTimeInterval(string $field, string $start, string $interval = 'day', string $logic = 'AND')
+    public function whereTimeInterval(string $field, string $start, string $interval = 'day', int $step = 1, string $logic = 'AND')
     {
         $startTime = strtotime($start);
-        $endTime   = strtotime('+1 ' . $interval, $startTime);
+        $endTime   = strtotime(($step > 0 ? '+' : '-') . abs($step) . ' ' . $interval . (abs($step) > 1 ? 's' : ''), $startTime);
 
         return $this->whereTime($field, 'between', [$startTime, $endTime], $logic);
     }
@@ -2205,16 +2206,17 @@ class Query
      * @access public
      * @param string $field 日期字段名
      * @param string $month 月份信息
+     * @param int    $step  间隔
      * @param string $logic AND OR
      * @return $this
      */
-    public function whereMonth(string $field, string $month = 'this month', string $logic = 'AND')
+    public function whereMonth(string $field, string $month = 'this month', int $step = 1, string $logic = 'AND')
     {
         if (in_array($month, ['this month', 'last month'])) {
             $month = date('Y-m', strtotime($month));
         }
 
-        return $this->whereTimeInterval($field, $month, 'month', $logic);
+        return $this->whereTimeInterval($field, $month, 'month', $step, $logic);
     }
 
     /**
@@ -2222,16 +2224,17 @@ class Query
      * @access public
      * @param string $field 日期字段名
      * @param string $week  周信息
+     * @param int    $step  间隔
      * @param string $logic AND OR
      * @return $this
      */
-    public function whereWeek(string $field, string $week = 'this week', string $logic = 'AND')
+    public function whereWeek(string $field, string $week = 'this week', int $step = 1, string $logic = 'AND')
     {
         if (in_array($week, ['this week', 'last week'])) {
             $week = date('Y-m-d', strtotime($week));
         }
 
-        return $this->whereTimeInterval($field, $week, 'week', $logic);
+        return $this->whereTimeInterval($field, $week, 'week', $step, $logic);
     }
 
     /**
@@ -2239,16 +2242,17 @@ class Query
      * @access public
      * @param string $field 日期字段名
      * @param string $year  年份信息
+     * @param int    $step     间隔
      * @param string $logic AND OR
      * @return $this
      */
-    public function whereYear(string $field, string $year = 'this year', string $logic = 'AND')
+    public function whereYear(string $field, string $year = 'this year', int $step = 1, string $logic = 'AND')
     {
         if (in_array($year, ['this year', 'last year'])) {
             $year = date('Y', strtotime($year));
         }
 
-        return $this->whereTimeInterval($field, $year . '-1-1', 'year', $logic);
+        return $this->whereTimeInterval($field, $year . '-1-1', 'year', $step, $logic);
     }
 
     /**
@@ -2256,16 +2260,17 @@ class Query
      * @access public
      * @param string $field 日期字段名
      * @param string $day   日期信息
+     * @param int    $step     间隔
      * @param string $logic AND OR
      * @return $this
      */
-    public function whereDay(string $field, string $day = 'today', string $logic = 'AND')
+    public function whereDay(string $field, string $day = 'today', int $step = 1, string $logic = 'AND')
     {
         if (in_array($day, ['today', 'yesterday'])) {
             $day = date('Y-m-d', strtotime($day));
         }
 
-        return $this->whereTimeInterval($field, $day, 'day', $logic);
+        return $this->whereTimeInterval($field, $day, 'day', $step, $logic);
     }
 
     /**
