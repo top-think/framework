@@ -2188,7 +2188,7 @@ class Query
      * @access protected
      * @param string $field    日期字段名
      * @param string $start    开始时间
-     * @param string $interval 时间间隔单位
+     * @param string $interval 时间间隔单位 day month year week hour
      * @param string $logic    AND OR
      * @return $this
      */
@@ -2215,6 +2215,23 @@ class Query
         }
 
         return $this->whereTimeInterval($field, $month, 'month', $logic);
+    }
+
+    /**
+     * 查询周数据 whereWeek('time_field', '2018-1-1') 从2018-1-1开始的一周数据
+     * @access public
+     * @param string $field 日期字段名
+     * @param string $week  周信息
+     * @param string $logic AND OR
+     * @return $this
+     */
+    public function whereWeek(string $field, string $week = 'this week', string $logic = 'AND')
+    {
+        if (in_array($week, ['this week', 'last week'])) {
+            $week = date('Y-m-d', strtotime($week));
+        }
+
+        return $this->whereTimeInterval($field, $week, 'week', $logic);
     }
 
     /**
