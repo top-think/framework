@@ -601,7 +601,7 @@ class Validate
 
         if (isset($this->append[$field])) {
             // 追加额外的验证规则
-            $rules = array_unique(array_merge($rules, $this->append[$field]));
+            $rules = array_unique(array_merge($rules, $this->append[$field]), SORT_REGULAR);
         }
 
         $i = 0;
@@ -671,6 +671,10 @@ class Validate
     {
         // 判断验证类型
         if (!is_numeric($key)) {
+            if (isset($this->alias[$key])) {
+                // 判断别名
+                $key = $this->alias[$key];
+            }
             return [$key, $rule, $key];
         }
 
