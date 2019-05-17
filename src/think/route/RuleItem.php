@@ -21,6 +21,8 @@ use think\Route;
  */
 class RuleItem extends Rule
 {
+    protected $miss;
+
     /**
      * 架构函数
      * @access public
@@ -40,6 +42,28 @@ class RuleItem extends Rule
         $this->method = $method;
 
         $this->setRule($rule);
+
+        $this->router->setRule($this->rule, $this);
+    }
+
+    /**
+     * 设置当前路由规则为MISS路由
+     * @access public
+     * @return void
+     */
+    public function setMiss(): void
+    {
+        $this->miss = true;
+    }
+
+    /**
+     * 判断当前路由规则是否为MISS路由
+     * @access public
+     * @return bool
+     */
+    public function isMiss(): bool
+    {
+        return $this->miss ? true : false;
     }
 
     /**
@@ -71,8 +95,6 @@ class RuleItem extends Rule
 
         // 生成路由标识的快捷访问
         $this->setRuleName();
-
-        $this->router->setRule($this->rule, $this);
     }
 
     /**

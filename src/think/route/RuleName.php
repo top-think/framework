@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use Closure;
+
 /**
  * 路由标识管理类
  */
@@ -69,12 +71,18 @@ class RuleName
      * 注册路由规则
      * @access public
      * @param  string   $rule  路由规则
-     * @param  RuleItem $route 路由
+     * @param  RuleItem $ruleItem 路由
      * @return void
      */
-    public function setRule(string $rule, RuleItem $route): void
+    public function setRule(string $rule, RuleItem $ruleItem): void
     {
-        $this->rule[$rule][$route->getRoute()] = $route;
+        $route = $ruleItem->getRoute();
+
+        if ($route instanceof Closure) {
+            $this->rule[$rule][] = $ruleItem;
+        } else {
+            $this->rule[$rule][$ruleItem->getRoute()] = $ruleItem;
+        }
     }
 
     /**
@@ -126,6 +134,10 @@ class RuleName
                 foreach (['method', 'rule', 'name', 'route', 'domain', 'pattern', 'option'] as $param) {
                     $call        = 'get' . $param;
                     $val[$param] = $item->$call();
+                }
+
+                if ($item->isMiss()) {
+                    $val['rule'] .= '<MISS>';
                 }
 
                 $list[] = $val;

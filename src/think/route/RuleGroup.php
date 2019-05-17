@@ -415,6 +415,7 @@ class RuleGroup extends Rule
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
 
+        $ruleItem->setMiss();
         $this->miss = $ruleItem;
 
         return $ruleItem;

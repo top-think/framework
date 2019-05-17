@@ -401,4 +401,14 @@ class Http
         // 写入Session
         $this->app->session->save();
     }
+
+    public function __debugInfo()
+    {
+        return [
+            'path'       => $this->path,
+            'multi'      => $this->multi,
+            'bindDomain' => $this->bindDomain,
+            'name'       => $this->name,
+        ];
+    }
 }
