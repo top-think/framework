@@ -54,6 +54,8 @@ class RouteList extends Command
 
         if (is_file($filename)) {
             unlink($filename);
+        } elseif (!is_dir(dirname($filename))) {
+            mkdir(dirname($filename), 0755);
         }
 
         $content = $this->getRouteList($app);
