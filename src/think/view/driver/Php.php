@@ -171,7 +171,7 @@ class Php implements TemplateHandlerInterface
      */
     public function config(array $config): void
     {
-        $this->config = array_merge($this->config, $name);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
