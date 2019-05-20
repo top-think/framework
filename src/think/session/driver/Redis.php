@@ -71,6 +71,10 @@ class Redis implements SessionHandlerInterface
                 }
             }
             $this->handler = new \Predis\Client($this->config, $params);
+
+            if (0 != $this->config['select']) {
+                $this->handler->select($this->config['select']);
+            }
         } else {
             throw new \BadFunctionCallException('not support: redis');
         }

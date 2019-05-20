@@ -82,6 +82,10 @@ class Redis extends Driver implements CacheHandlerInterface
 
             $this->handler = new \Predis\Client($this->options, $params);
 
+            if (0 != $this->options['select']) {
+                $this->handler->select($this->options['select']);
+            }
+
             $this->options['prefix'] = '';
         } else {
             throw new \BadFunctionCallException('not support: redis');
