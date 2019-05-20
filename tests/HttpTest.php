@@ -150,7 +150,7 @@ class HttpTest extends TestCase
 
         $this->assertTrue($this->http->isMulti());
 
-        if ($name === null) {
+        if (null === $name) {
             $this->http->shouldReceive('reportException')->once();
 
             $this->http->shouldReceive('renderException')->once()->andReturn($response);
@@ -166,15 +166,15 @@ class HttpTest extends TestCase
 
         $this->assertEquals($response, $this->http->run($request));
 
-        if ($name !== null) {
+        if (null !== $name) {
             $this->assertEquals($name, $this->http->getName());
         }
 
-        if ($name === 'app1' || $name === 'app2') {
+        if ('app1' === $name || 'app2' === $name) {
             $this->assertTrue($this->http->isBindDomain());
         }
         if ($path) {
-            $this->assertEquals($path, $this->app->getAppPath());
+            $this->assertEquals(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR, $this->app->getAppPath());
         }
     }
 
