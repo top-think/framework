@@ -62,7 +62,7 @@ use think\Facade;
  * @method bool isSsl() static 当前是否ssl
  * @method bool isAjax(bool $ajax = false) static 当前是否Ajax请求
  * @method bool isPjax(bool $pjax = false) static 当前是否Pjax请求
- * @method mixed ip(int $type = 0, bool $adv = true) static 获取客户端IP地址
+ * @method mixed ip() static 获取客户端IP地址
  * @method bool isMobile() static 检测是否使用手机访问
  * @method string scheme() static 当前URL地址中的scheme参数
  * @method string query() static 当前请求URL地址中的query参数
@@ -78,12 +78,10 @@ use think\Facade;
  * @method mixed setApp(string $app = null) static 设置当前的应用名
  * @method mixed setController(string $controller) static 设置当前的控制器名
  * @method mixed setAction(string $action) static 设置当前的操作名
- * @method mixed langset(string $lang = null) static 设置或者获取当前的语言
  * @method string getContent() static 设置或者获取当前请求的content
  * @method string getInput() static 获取当前请求的php://input
- * @method string token(string $name = '__token__', mixed $type = 'md5') static 生成请求令牌
- * @method string cache(string $key, mixed $expire = null, array $except = [], string $tag = null) static 设置当前地址的请求缓存
- * @method string getCache() static 读取请求缓存设置
+ * @method string buildToken(string $name = '__token__', mixed $type = 'md5') static 生成请求令牌
+ * @method string checkToken(string $name = '__token__', array $data) static 检查请求令牌
  */
 class Request extends Facade
 {
