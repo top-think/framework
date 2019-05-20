@@ -172,6 +172,8 @@ class Route
         $this->config   = array_merge($this->config, $app->config->get('route'));
         $this->ruleName = new RuleName();
 
+        $this->lazy($this->config['url_lazy_route']);
+
         if ($this->config['route_check_cache']) {
             if (!empty($this->config['route_cache_option'])) {
                 $this->cache = $app->cache->connect($this->config['route_cache_option']);
