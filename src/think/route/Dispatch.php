@@ -81,6 +81,10 @@ abstract class Dispatch
     public function init(App $app)
     {
         $this->app = $app;
+
+        // 记录当前请求的路由规则
+        $this->request->setRule($this->rule);
+
         // 执行路由后置操作
         $this->doRouteAfter();
     }
