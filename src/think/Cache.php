@@ -85,12 +85,12 @@ class Cache implements CacheItemPoolInterface
 
     /**
      * 自动初始化缓存
-     * @access protected
+     * @access public
      * @param  array $options 配置数组
      * @param  bool  $force   强制更新
      * @return Driver
      */
-    protected function init(array $options = [], bool $force = false): Driver
+    public function init(array $options = [], bool $force = false): Driver
     {
         if (is_null($this->handler) || $force) {
             $options = !empty($options) ? $options : $this->config;
