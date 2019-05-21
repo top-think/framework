@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think;
 
-use Yaconf;
-
 /**
  * 配置管理类
  */
@@ -38,20 +36,13 @@ class Config
     protected $ext;
 
     /**
-     * 是否支持Yaconf
-     * @var bool|string
-     */
-    protected $yaconf;
-
-    /**
      * 构造方法
      * @access public
      */
     public function __construct(string $path = null, string $ext = '.php')
     {
-        $this->path   = $path ?: '';
-        $this->ext    = $ext;
-        $this->yaconf = class_exists('Yaconf');
+        $this->path = $path ?: '';
+        $this->ext  = $ext;
     }
 
     public static function __make(App $app)
@@ -60,52 +51,6 @@ class Config
         $ext  = $app->getConfigExt();
 
         return new static($path, $ext);
-    }
-
-    /**
-     * 设置开启Yaconf 或者指定配置文件名
-     * @access public
-     * @param  bool|string $yaconf 是否使用Yaconf
-     * @return void
-     */
-    public function setYaconf($yaconf): void
-    {
-        $this->yaconf = $yaconf;
-    }
-
-    /**
-     * 获取实际的yaconf配置参数名
-     * @access protected
-     * @param  string $name 配置参数名
-     * @return string
-     */
-    protected function getYaconfName(string $name)
-    {
-        if ($this->yaconf && is_string($this->yaconf)) {
-            return $this->yaconf . '.' . $name;
-        }
-
-        return $name;
-    }
-
-    /**
-     * 获取yaconf配置
-     * @access public
-     * @param  string $name 配置参数名
-     * @param  mixed  $default   默认值
-     * @return mixed
-     */
-    public function yaconf(string $name, $default = null)
-    {
-        if ($this->yaconf) {
-            $yaconfName = $this->getYaconfName($name);
-
-            if (Yaconf::has($yaconfName)) {
-                return Yaconf::get($yaconfName);
-            }
-        }
-
-        return $default;
     }
 
     /**
@@ -125,10 +70,6 @@ class Config
 
         if (isset($filename)) {
             return $this->parse($filename, $name);
-        }
-
-        if ($this->yaconf && Yaconf::has($file)) {
-            return $this->set(Yaconf::get($file), $name);
         }
 
         return $this->config;
@@ -186,15 +127,6 @@ class Config
     {
         $name = strtolower($name);
 
-        if ($this->yaconf) {
-            $yaconfName = $this->getYaconfName($name);
-
-            if (Yaconf::has($yaconfName)) {
-                $config = Yaconf::get($yaconfName);
-                return isset($this->config[$name]) ? array_merge($this->config[$name], $config) : $config;
-            }
-        }
-
         return $this->config[$name] ?? [];
     }
 
@@ -214,14 +146,6 @@ class Config
 
         if (false === strpos($name, '.')) {
             return $this->pull($name);
-        }
-
-        if ($this->yaconf) {
-            $yaconfName = $this->getYaconfName($name);
-
-            if (Yaconf::has($yaconfName)) {
-                return Yaconf::get($yaconfName);
-            }
         }
 
         $name    = explode('.', $name);
@@ -262,38 +186,6 @@ class Config
         }
 
         return $result;
-    }
-
-    /**
-     * 移除配置
-     * @access public
-     * @param  string $name 配置参数名（支持三级配置 .号分割）
-     * @return void
-     */
-    public function remove(string $name): void
-    {
-        $name = explode('.', $name, 3);
-
-        if (count($name) == 2) {
-            unset($this->config[strtolower($name[0])][$name[1]]);
-        } else {
-            unset($this->config[strtolower($name[0])][$name[1]][$name[2]]);
-        }
-    }
-
-    /**
-     * 重置配置参数
-     * @access public
-     * @param  string $name 配置名
-     * @return void
-     */
-    public function reset(string $name = ''): void
-    {
-        if ('' === $name) {
-            $this->config = [];
-        } else {
-            $this->config[$name] = [];
-        }
     }
 
     /**

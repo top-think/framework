@@ -617,17 +617,3 @@ if (!function_exists('xml')) {
         return Response::create($data, 'xml', $code)->header($header)->options($options);
     }
 }
-
-if (!function_exists('yaconf')) {
-    /**
-     * 获取yaconf配置
-     *
-     * @param  string $name    配置参数名
-     * @param  mixed  $default 默认值
-     * @return mixed
-     */
-    function yaconf(string $name, $default = null)
-    {
-        return Config::yaconf($name, $default);
-    }
-}
