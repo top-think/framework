@@ -2198,7 +2198,7 @@ class Query
         $startTime = strtotime($start);
         $endTime   = strtotime(($step > 0 ? '+' : '-') . abs($step) . ' ' . $interval . (abs($step) > 1 ? 's' : ''), $startTime);
 
-        return $this->whereTime($field, 'between', [$startTime, $endTime], $logic);
+        return $this->whereTime($field, 'between', $step > 0 ? [$startTime, $endTime] : [$endTime, $startTime], $logic);
     }
 
     /**
