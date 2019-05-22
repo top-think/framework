@@ -272,11 +272,17 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * 设置当前模型的数据库查询对象
      * @access public
      * @param Query $query 查询对象实例
+     * @param bool  $clear 是否需要清空查询条件
      * @return $this
      */
-    public function setQuery(Query $query)
+    public function setQuery(Query $query, bool $clear = true)
     {
         $this->queryInstance = clone $query;
+
+        if ($clear) {
+            $this->queryInstance->removeOption();
+        }
+
         return $this;
     }
 
@@ -312,7 +318,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     {
         /** @var Query $query */
         if ($this->queryInstance) {
-            $query = $this->queryInstance->removeOption();
+            $query = $this->queryInstance;
         } else {
             $query = $this->db->buildQuery($this->connection)
                 ->name($this->name . $this->suffix)

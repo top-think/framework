@@ -181,10 +181,9 @@ abstract class Relation
             // 执行基础查询
             $this->baseQuery();
 
-            $result = call_user_func_array([$this->query->getModel(), $method], $args);
-            $class  = get_class($this->query);
+            $result = call_user_func_array([$this->query->getModel(false), $method], $args);
 
-            return $result instanceof $class ? $this : $result;
+            return $result === $this->query ? $this : $result;
         }
 
         throw new Exception('method not exists:' . __CLASS__ . '->' . $method);

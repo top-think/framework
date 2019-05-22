@@ -234,11 +234,12 @@ class Query
     /**
      * 获取当前的模型对象
      * @access public
+     * @param bool $clear 是否需要清空查询条件
      * @return Model|null
      */
-    public function getModel()
+    public function getModel(bool $clear = true)
     {
-        return $this->model ? $this->model->setQuery($this) : null;
+        return $this->model ? $this->model->setQuery($this, $clear) : null;
     }
 
     /**
