@@ -51,7 +51,7 @@ class Handle
      * @param  Throwable $exception
      * @return void
      */
-    public function report(Throwable $exception)
+    public function report(Throwable $exception): void
     {
         if (!$this->isIgnoreReport($exception)) {
             // 收集异常数据
@@ -79,7 +79,7 @@ class Handle
         }
     }
 
-    protected function isIgnoreReport(Throwable $exception)
+    protected function isIgnoreReport(Throwable $exception): bool
     {
         foreach ($this->ignoreReport as $class) {
             if ($exception instanceof $class) {
@@ -98,7 +98,7 @@ class Handle
      * @param Throwable $e
      * @return Response
      */
-    public function render($request, Throwable $e)
+    public function render($request, Throwable $e): Response
     {
         $this->isJson = $request->isJson();
         if ($e instanceof HttpException) {
@@ -113,7 +113,7 @@ class Handle
      * @param  Output    $output
      * @param  Throwable $e
      */
-    public function renderForConsole(Output $output, Throwable $e)
+    public function renderForConsole(Output $output, Throwable $e): void
     {
         if ($this->app->isDebug()) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
@@ -127,7 +127,7 @@ class Handle
      * @param  HttpException $e
      * @return Response
      */
-    protected function renderHttpException(HttpException $e)
+    protected function renderHttpException(HttpException $e): Response
     {
         $status   = $e->getStatusCode();
         $template = $this->app->config->get('app.http_exception_template');
@@ -144,7 +144,7 @@ class Handle
      * @param Throwable $exception
      * @return array
      */
-    protected function convertExceptionToArray(Throwable $exception)
+    protected function convertExceptionToArray(Throwable $exception): array
     {
         if ($this->app->isDebug()) {
             // 调试模式，获取详细的错误信息
@@ -189,7 +189,7 @@ class Handle
      * @param  Throwable $exception
      * @return Response
      */
-    protected function convertExceptionToResponse(Throwable $exception)
+    protected function convertExceptionToResponse(Throwable $exception): Response
     {
         $data = $this->convertExceptionToArray($exception);
 
@@ -245,7 +245,7 @@ class Handle
      * @param  Throwable $exception
      * @return string                错误信息
      */
-    protected function getMessage(Throwable $exception)
+    protected function getMessage(Throwable $exception): string
     {
         $message = $exception->getMessage();
 
@@ -275,7 +275,7 @@ class Handle
      * @param  Throwable $exception
      * @return array                 错误文件内容
      */
-    protected function getSourceCode(Throwable $exception)
+    protected function getSourceCode(Throwable $exception): array
     {
         // 读取前9行和后9行
         $line  = $exception->getLine();
@@ -301,7 +301,7 @@ class Handle
      * @param  Throwable $exception
      * @return array                 异常类定义的扩展数据
      */
-    protected function getExtendData(Throwable $exception)
+    protected function getExtendData(Throwable $exception): array
     {
         $data = [];
 
@@ -317,7 +317,7 @@ class Handle
      * @access private
      * @return array 常量列表
      */
-    private static function getConst()
+    private static function getConst(): array
     {
         $const = get_defined_constants(true);
 
