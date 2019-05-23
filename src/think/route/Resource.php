@@ -19,11 +19,22 @@ use think\Route;
  */
 class Resource extends RuleGroup
 {
-    // 资源路由名称
+    /**
+     * 资源路由名称
+     * @var string
+     */
     protected $resource;
-    // 资源路由地址
+
+    /**
+     * 资源路由地址
+     * @var string
+     */
     protected $route;
-    // REST路由方法定义
+
+    /**
+     * REST方法定义
+     * @var array
+     */
     protected $rest = [];
 
     /**

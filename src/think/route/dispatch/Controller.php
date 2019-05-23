@@ -26,7 +26,16 @@ use think\route\Dispatch;
  */
 class Controller extends Dispatch
 {
+    /**
+     * 控制器名
+     * @var string
+     */
     protected $controller;
+
+    /**
+     * 操作名
+     * @var string
+     */
     protected $actionName;
 
     public function init(App $app)

@@ -321,10 +321,6 @@ class Route
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
 
-        if ('*' != $domainName && false === strpos($domainName, '.')) {
-            $domainName .= '.' . $this->request->rootDomain();
-        }
-
         if (!isset($this->domains[$domainName])) {
             $domain = (new Domain($this, $domainName, $rule))
                 ->lazy($this->lazy)
@@ -337,12 +333,7 @@ class Route
         }
 
         if (is_array($name) && !empty($name)) {
-            $root = $this->request->rootDomain();
             foreach ($name as $item) {
-                if (false === strpos($item, '.')) {
-                    $item .= '.' . $root;
-                }
-
                 $this->domains[$item] = $domainName;
             }
         }
@@ -869,6 +860,8 @@ class Route
             if (isset($this->domains[$this->host])) {
                 // 子域名配置
                 $item = $this->domains[$this->host];
+            } elseif (isset($this->domains[$subDomain])) {
+                $item = $this->domains[$subDomain];
             } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
                 $item      = $this->domains['*.' . $domain2];

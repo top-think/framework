@@ -21,6 +21,10 @@ use think\Route;
  */
 class RuleItem extends Rule
 {
+    /**
+     * 是否为MISS规则
+     * @var bool
+     */
     protected $miss;
 
     /**
