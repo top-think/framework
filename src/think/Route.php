@@ -852,14 +852,14 @@ class Route
      */
     protected function checkDomain(): Domain
     {
-        // 获取当前子域名
-        $subDomain = $this->request->subDomain();
-
         $item = false;
 
-        if ($subDomain && count($this->domains) > 1) {
-            $domain  = explode('.', $subDomain);
-            $domain2 = array_pop($domain);
+        if (count($this->domains) > 1) {
+            // 获取当前子域名
+            $subDomain = $this->request->subDomain();
+
+            $domain  = $subDomain ? explode('.', $subDomain) : [];
+            $domain2 = $domain ? array_pop($domain) : '';
 
             if ($domain) {
                 // 存在三级域名
