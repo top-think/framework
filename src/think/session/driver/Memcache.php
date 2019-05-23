@@ -62,8 +62,8 @@ class Memcache implements SessionHandlerInterface
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->config['timeout'] > 0 ?
-            $this->handler->addServer($host, $port, $this->config['persistent'], 1, $this->config['timeout']) :
-            $this->handler->addServer($host, $port, $this->config['persistent'], 1);
+            $this->handler->addServer($host, (int) $port, $this->config['persistent'], 1, $this->config['timeout']) :
+            $this->handler->addServer($host, (int) $port, $this->config['persistent'], 1);
         }
 
         return true;

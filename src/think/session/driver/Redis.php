@@ -53,7 +53,7 @@ class Redis implements SessionHandlerInterface
 
             // 建立连接
             $func = $this->config['persistent'] ? 'pconnect' : 'connect';
-            $this->handler->$func($this->config['host'], $this->config['port'], $this->config['timeout']);
+            $this->handler->$func($this->config['host'], (int) $this->config['port'], $this->config['timeout']);
 
             if ('' != $this->config['password']) {
                 $this->handler->auth($this->config['password']);
