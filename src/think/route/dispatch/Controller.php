@@ -125,9 +125,13 @@ class Controller extends Dispatch
 
             foreach ($middlewares as $key => $val) {
                 if (!is_int($key)) {
-                    if (isset($val['only']) && !in_array($this->request->action(), $val['only'])) {
+                    if (isset($val['only']) && !in_array($this->request->action(true), array_map(function ($item) {
+                        return strtolower($item);
+                    }, $val['only']))) {
                         continue;
-                    } elseif (isset($val['except']) && in_array($this->request->action(), $val['except'])) {
+                    } elseif (isset($val['except']) && in_array($this->request->action(true), array_map(function ($item) {
+                        return strtolower($item);
+                    }, $val['except']))) {
                         continue;
                     } else {
                         $val = $key;
