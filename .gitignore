@@ -6,3 +6,6 @@ Thumbs.db
 /phpunit.xml
 /.idea
 /.vscode
+/.settings
+.buildpath
+.project

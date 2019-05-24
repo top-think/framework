@@ -724,10 +724,10 @@ class Request
                 $this->path = $pathinfo;
             } elseif ($suffix) {
                 // 去除正常的URL后缀
-                $this->path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
+                $this->path = preg_replace('/\.(' . preg_quote(ltrim($suffix, '.')) . ')$/i', '', $pathinfo);
             } else {
                 // 允许任何后缀访问
-                $this->path = preg_replace('/\.' . $this->ext() . '$/i', '', $pathinfo);
+                $this->path = preg_replace('/\.' . preg_quote($this->ext()) . '$/i', '', $pathinfo);
             }
         }
 
