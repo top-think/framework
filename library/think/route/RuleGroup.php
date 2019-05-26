@@ -118,6 +118,11 @@ class RuleGroup extends Rule
      */
     public function check($request, $url, $completeMatch = false)
     {
+        // 跨域OPTIONS请求
+        if ($dispatch = $this->checkCrossDomain($request)) {
+            return $dispatch;
+        }
+
         // 检查分组有效性
         if (!$this->checkOption($this->option, $request) || !$this->checkUrl($url)) {
             return false;
