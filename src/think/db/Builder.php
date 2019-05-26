@@ -799,19 +799,18 @@ abstract class Builder
             $table = $options['table'];
         }
 
-        $type = $this->connection->getTableInfo($table, 'type');
+        $type = $query->getFieldType($key);
 
-        if (isset($type[$key])) {
-            $info = $type[$key];
+        if ($type) {
             if (is_string($value)) {
                 $value = strtotime($value) ?: $value;
             }
 
             if (is_int($value)) {
-                if (preg_match('/(datetime|timestamp)/is', $info)) {
+                if (preg_match('/(datetime|timestamp)/is', $type)) {
                     // 日期及时间戳类型
                     $value = date('Y-m-d H:i:s', $value);
-                } elseif (preg_match('/(date)/is', $info)) {
+                } elseif (preg_match('/(date)/is', $type)) {
                     // 日期及时间戳类型
                     $value = date('Y-m-d', $value);
                 }
@@ -1148,15 +1147,16 @@ abstract class Builder
     {
         $options = $query->getOptions();
 
+        // 获取绑定信息
+        $bind = $query->getFieldsBindType();
+
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $allowFields = $this->connection->getTableFields($options['table']);
+            $allowFields = array_keys($bind);
         } else {
             $allowFields = $options['field'];
         }
 
-        // 获取绑定信息
-        $bind   = $query->getFieldsBindType();
         $fields = [];
         $values = [];
 
