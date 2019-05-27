@@ -446,9 +446,9 @@ class Console
     public function getNamespaces(): array
     {
         $namespaces = [];
-        foreach ($this->commands as $command) {
+        foreach ($this->commands as $key => $command) {
             if (is_string($command)) {
-                $namespaces[] = $command;
+                $namespaces = array_merge($namespaces, $this->extractAllNamespaces($key));
             } else {
                 $namespaces = array_merge($namespaces, $this->extractAllNamespaces($command->getName()));
 

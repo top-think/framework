@@ -448,14 +448,14 @@ class Route
     /**
      * 注册路由标识
      * @access public
-     * @param string       $name  路由标识
-     * @param string|array $value 路由规则
-     * @param bool         $first 是否置顶
+     * @param string   $name  路由标识
+     * @param RuleItem $ruleItem 路由规则
+     * @param bool     $first 是否优先
      * @return void
      */
-    public function setName(string $name, $value, bool $first = false): void
+    public function setName(string $name, RuleItem $ruleItem, bool $first = false): void
     {
-        $this->ruleName->setName($name, $value, $first);
+        $this->ruleName->setName($name, $ruleItem, $first);
     }
 
     /**
@@ -1179,6 +1179,35 @@ class Route
     }
 
     /**
+     * 分析路由规则中的变量
+     * @access protected
+     * @param  string $rule 路由规则
+     * @return array
+     */
+    protected function parseVar(string $rule): array
+    {
+        // 提取路由规则中的变量
+        $var = [];
+
+        if (preg_match_all('/<\w+\??>/', $rule, $matches)) {
+            foreach ($matches[0] as $name) {
+                $optional = false;
+
+                if (strpos($name, '?')) {
+                    $name     = substr($name, 1, -2);
+                    $optional = true;
+                } else {
+                    $name = substr($name, 1, -1);
+                }
+
+                $var[$name] = $optional ? 2 : 1;
+            }
+        }
+
+        return $var;
+    }
+
+    /**
      * 匹配路由地址
      * @access public
      * @param  array $rule 路由规则
@@ -1189,7 +1218,10 @@ class Route
     public function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
     {
         foreach ($rule as $item) {
-            list($url, $pattern, $domain, $suffix) = $item;
+            $url     = $item->getRule();
+            $pattern = $this->parseVar($url);
+            $domain  = $item->getDomain();
+            $suffix  = $item->getSuffix();
 
             if ('-' == $domain) {
                 $domain = $this->host;

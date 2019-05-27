@@ -883,35 +883,6 @@ abstract class Rule
     }
 
     /**
-     * 分析路由规则中的变量
-     * @access protected
-     * @param  string $rule 路由规则
-     * @return array
-     */
-    protected function parseVar(string $rule): array
-    {
-        // 提取路由规则中的变量
-        $var = [];
-
-        if (preg_match_all('/<\w+\??>/', $rule, $matches)) {
-            foreach ($matches[0] as $name) {
-                $optional = false;
-
-                if (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
-                    $optional = true;
-                } else {
-                    $name = substr($name, 1, -1);
-                }
-
-                $var[$name] = $optional ? 2 : 1;
-            }
-        }
-
-        return $var;
-    }
-
-    /**
      * 设置路由参数
      * @access public
      * @param  string $method 方法名

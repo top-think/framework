@@ -71,6 +71,24 @@ class RuleItem extends Rule
     }
 
     /**
+     * 获取当前路由的URL后缀
+     * @access public
+     * @return string|null
+     */
+    public function getSuffix()
+    {
+        if (isset($this->option['ext'])) {
+            $suffix = $this->option['ext'];
+        } elseif ($this->parent->getOption('ext')) {
+            $suffix = $this->parent->getOption('ext');
+        } else {
+            $suffix = null;
+        }
+
+        return $suffix;
+    }
+
+    /**
      * 路由规则预处理
      * @access public
      * @param  string      $rule     路由规则
@@ -102,20 +120,6 @@ class RuleItem extends Rule
     }
 
     /**
-     * 检查后缀
-     * @access public
-     * @param  string     $ext
-     * @return $this
-     */
-    public function ext(string $ext = '')
-    {
-        $this->setOption('ext', $ext);
-        $this->setRuleName(true);
-
-        return $this;
-    }
-
-    /**
      * 设置别名
      * @access public
      * @param  string     $name
@@ -132,25 +136,13 @@ class RuleItem extends Rule
     /**
      * 设置路由标识 用于URL反解生成
      * @access protected
-     * @param  bool     $first   是否插入开头
+     * @param  bool $first 是否插入开头
      * @return void
      */
     protected function setRuleName(bool $first = false): void
     {
         if ($this->name) {
-            $vars = $this->parseVar($this->rule);
-
-            if (isset($this->option['ext'])) {
-                $suffix = $this->option['ext'];
-            } elseif ($this->parent->getOption('ext')) {
-                $suffix = $this->parent->getOption('ext');
-            } else {
-                $suffix = null;
-            }
-
-            $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix, $this->method];
-
-            $this->router->setName($this->name, $value, $first);
+            $this->router->setName($this->name, $this, $first);
         }
     }
 
