@@ -151,7 +151,7 @@ abstract class Builder
             if ($val instanceof Raw) {
                 $result[$item] = $val->getValue();
                 continue;
-            } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $this->connection->getFieldsType($options['table'], $key))) {
+            } elseif (!is_scalar($val) && (in_array($key, (array) $query->getOptions('json')) || 'json' == $query->getFieldType($key))) {
                 $val = json_encode($val);
             }
 

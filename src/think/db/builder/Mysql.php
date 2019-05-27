@@ -152,15 +152,16 @@ class Mysql extends Builder
     {
         $options = $query->getOptions();
 
+        // 获取绑定信息
+        $bind = $query->getFieldsBindType();
+
         // 获取合法的字段
         if ('*' == $options['field']) {
-            $allowFields = $this->connection->getTableFields($options['table']);
+            $allowFields = array_keys($bind);
         } else {
             $allowFields = $options['field'];
         }
 
-        // 获取绑定信息
-        $bind   = $this->connection->getFieldsBind($options['table']);
         $fields = [];
         $values = [];
 
