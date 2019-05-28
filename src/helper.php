@@ -29,6 +29,7 @@ use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
 use think\Response;
+use think\route\Url as UrlBuild;
 use think\Validate;
 
 if (!function_exists('abort')) {
@@ -546,11 +547,11 @@ if (!function_exists('url')) {
      * @param array       $vars   变量
      * @param bool|string $suffix 生成的URL后缀
      * @param bool|string $domain 域名
-     * @return string
+     * @return UrlBuild
      */
-    function url(string $url = '', array $vars = [], $suffix = true, $domain = false): string
+    function url(string $url = '', array $vars = [], $suffix = true, $domain = false): UrlBuild
     {
-        return Route::buildUrl($url, $vars, $suffix, $domain);
+        return Route::buildUrl($url, $vars)->suffix($suffix)->domain($domain);
     }
 }
 
