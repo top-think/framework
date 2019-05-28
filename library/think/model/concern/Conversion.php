@@ -164,7 +164,7 @@ trait Conversion
         foreach ($data as $key => $val) {
             if ($val instanceof Model || $val instanceof ModelCollection) {
                 // 关联模型对象
-                if (isset($this->visible[$key])) {
+                if (isset($this->visible[$key]) && is_array($this->visible[$key])) {
                     $val->visible($this->visible[$key]);
                 } elseif (isset($this->hidden[$key]) && is_array($this->hidden[$key])) {
                     $val->hidden($this->hidden[$key]);
