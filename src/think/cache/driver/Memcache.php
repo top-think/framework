@@ -166,11 +166,11 @@ class Memcache extends Driver implements CacheHandlerInterface
     /**
      * 删除缓存
      * @access public
-     * @param  string       $name 缓存变量名
-     * @param  bool|false   $ttl
+     * @param  string     $name 缓存变量名
+     * @param  bool|false $ttl
      * @return bool
      */
-    public function rm(string $name, $ttl = false): bool
+    public function delete($name, $ttl = false): bool
     {
         $this->writeTimes++;
 

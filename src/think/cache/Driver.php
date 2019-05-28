@@ -87,7 +87,7 @@ abstract class Driver extends SimpleCache
         $result = $this->get($name, false);
 
         if ($result) {
-            $this->rm($name);
+            $this->delete($name);
             return $result;
         }
     }
@@ -152,9 +152,9 @@ abstract class Driver extends SimpleCache
             $this->set($name, $value, $expire);
 
             // 解锁
-            $this->rm($name . '_lock');
+            $this->delete($name . '_lock');
         } catch (\Exception | \throwable $e) {
-            $this->rm($name . '_lock');
+            $this->delete($name . '_lock');
             throw $e;
         }
 
@@ -164,11 +164,10 @@ abstract class Driver extends SimpleCache
     /**
      * 缓存标签
      * @access public
-     * @param  string        $name 标签名
-     * @param  int|\DateTime $expire  有效时间 0为永久
+     * @param  string $name 标签名
      * @return $this
      */
-    public function tag($name, $expire = null)
+    public function tag(string $name)
     {
         if (!isset($this->tag[$name])) {
             $key = $this->getTagKey($name);

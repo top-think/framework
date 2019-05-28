@@ -67,7 +67,7 @@ interface CacheHandlerInterface
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function rm(string $name): bool;
+    public function delete($name): bool;
 
     /**
      * 清除缓存

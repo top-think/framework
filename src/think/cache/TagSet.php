@@ -69,7 +69,7 @@ class TagSet
         $keys = $this->handler->getTagItems($this->key);
 
         $this->handler->clearTag($keys);
-        $this->handler->rm($this->key);
+        $this->handler->delete($this->key);
         return true;
     }
 }

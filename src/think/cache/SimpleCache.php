@@ -26,7 +26,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  string $name 缓存变量名
      * @return bool
      */
-    abstract public function has($name);
+    abstract public function has($name): bool;
 
     /**
      * 读取缓存
@@ -45,7 +45,7 @@ abstract class SimpleCache implements CacheInterface
      * @param  null|int|\DateInterval $expire  有效时间 0为永久
      * @return bool
      */
-    abstract public function set($name, $value, $expire = null);
+    abstract public function set($name, $value, $expire = null): bool;
 
     /**
      * 自增缓存（针对数值缓存）
@@ -71,25 +71,14 @@ abstract class SimpleCache implements CacheInterface
      * @param  string $name 缓存变量名
      * @return bool
      */
-    abstract public function rm(string $name);
+    abstract public function delete($name): bool;
 
     /**
      * 清除缓存
      * @access public
      * @return bool
      */
-    abstract public function clear();
-
-    /**
-     * 删除缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return bool
-     */
-    public function delete($key): bool
-    {
-        return $this->rm($key);
-    }
+    abstract public function clear(): bool;
 
     /**
      * 读取缓存

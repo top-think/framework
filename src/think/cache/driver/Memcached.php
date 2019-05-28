@@ -184,7 +184,7 @@ class Memcached extends Driver implements CacheHandlerInterface
      * @param  bool|false   $ttl
      * @return bool
      */
-    public function rm(string $name, $ttl = false): bool
+    public function delete($name, $ttl = false): bool
     {
         $this->writeTimes++;
 

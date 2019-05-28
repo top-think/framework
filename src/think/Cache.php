@@ -161,14 +161,13 @@ class Cache implements CacheItemPoolInterface
     /**
      * 追加缓存
      * @access public
-     * @param  string        $name 缓存变量名
-     * @param  mixed         $value  存储数据
-     * @param  int|\DateTime $expire  有效时间 0为永久
-     * @return array
+     * @param  string $name 缓存变量名
+     * @param  mixed  $value  存储数据
+     * @return void
      */
-    public function push(string $name, $value, $expire = null): array
+    public function push(string $name, $value): void
     {
-        return $this->init()->push($name, $value, $expire);
+        $this->init()->push($name, $value);
     }
 
     /**
@@ -203,7 +202,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function delete(string $key): bool
     {
-        return $this->init()->rm($key);
+        return $this->init()->delete($key);
     }
 
     /**
@@ -220,7 +219,7 @@ class Cache implements CacheItemPoolInterface
     /**
      * 缓存标签
      * @access public
-     * @param  string|array $name 标签名
+     * @param  string $name 标签名
      * @return Driver
      */
     public function tag($name)

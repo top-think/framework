@@ -143,7 +143,7 @@ class Wincache extends Driver implements CacheHandlerInterface
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function rm(string $name): bool
+    public function delete($name): bool
     {
         $this->writeTimes++;
 
