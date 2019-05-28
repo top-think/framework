@@ -83,9 +83,10 @@ trait RelationShip
      * 获取当前模型的关联模型数据
      * @access public
      * @param  string $name 关联方法名
+     * @param  bool   $auto 不存在是否自动获取
      * @return mixed
      */
-    public function getRelation(string $name = null)
+    public function getRelation(string $name = null, bool $auto = false)
     {
         if (is_null($name)) {
             return $this->relation;
@@ -93,6 +94,9 @@ trait RelationShip
 
         if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
+        } elseif ($auto) {
+            $method = App::parseName($name, 1, false);
+            return $this->$method()->getRelation();
         }
     }
 
@@ -641,7 +645,7 @@ trait RelationShip
             if ($val instanceof Model) {
                 $val->exists(true)->save();
             } else {
-                $model = $this->getRelation($name);
+                $model = $this->getRelation($name, true);
 
                 if ($model instanceof Model) {
                     $model->exists(true)->save($val);
@@ -672,7 +676,7 @@ trait RelationShip
     {
         foreach ($this->relationWrite as $key => $name) {
             $name   = is_numeric($key) ? $name : $key;
-            $result = $this->getRelation($name);
+            $result = $this->getRelation($name, true);
 
             if ($result instanceof Model) {
                 $result->delete();
