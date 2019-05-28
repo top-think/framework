@@ -48,7 +48,7 @@ abstract class Driver extends SimpleCache
      * 缓存标签
      * @var array
      */
-    protected $tag;
+    protected $tag = [];
 
     /**
      * 获取有效期
@@ -67,11 +67,11 @@ abstract class Driver extends SimpleCache
 
     /**
      * 获取实际的缓存标识
-     * @access protected
+     * @access public
      * @param  string $name 缓存名
      * @return string
      */
-    protected function getCacheKey(string $name): string
+    public function getCacheKey(string $name): string
     {
         return $this->options['prefix'] . $name;
     }
@@ -95,12 +95,11 @@ abstract class Driver extends SimpleCache
     /**
      * 追加（数组）缓存
      * @access public
-     * @param  string        $name 缓存变量名
-     * @param  mixed         $value  存储数据
-     * @param  int|\DateTime $expire  有效时间 0为永久
-     * @return array
+     * @param  string $name 缓存变量名
+     * @param  mixed  $value  存储数据
+     * @return void
      */
-    public function push($name, $value, $expire = null): array
+    public function push(string $name, $value): void
     {
         $item = $this->get($name, []);
 
@@ -116,8 +115,7 @@ abstract class Driver extends SimpleCache
 
         $item = array_unique($item);
 
-        $this->set($name, $item, $expire);
-        return $item;
+        $this->set($name, $item);
     }
 
     /**
@@ -166,47 +164,30 @@ abstract class Driver extends SimpleCache
     /**
      * 缓存标签
      * @access public
-     * @param  string|array $name 标签名
+     * @param  string        $name 标签名
+     * @param  int|\DateTime $expire  有效时间 0为永久
      * @return $this
      */
-    public function tag($name)
+    public function tag($name, $expire = null)
     {
-        if ($name) {
-            $this->tag = (array) $name;
+        if (!isset($this->tag[$name])) {
+            $key = $this->getTagKey($name);
+
+            $this->tag[$name] = new TagSet($key, $this);
         }
 
-        return $this;
-    }
-
-    /**
-     * 更新标签
-     * @access protected
-     * @param  string $name 缓存标识
-     * @return void
-     */
-    protected function setTagItem(string $name): void
-    {
-        if (!empty($this->tag)) {
-            $tags      = $this->tag;
-            $this->tag = null;
-
-            foreach ($tags as $tag) {
-                $key   = $this->getTagkey($tag);
-                $value = $this->push($key, $name, 0);
-            }
-        }
+        return $this->tag[$name];
     }
 
     /**
      * 获取标签包含的缓存标识
-     * @access protected
-     * @param  string $tag 缓存标签
+     * @access public
+     * @param  string $tag 标签标识
      * @return array
      */
-    protected function getTagItems(string $tag): array
+    public function getTagItems(string $tag): array
     {
-        $key = $this->getTagkey($tag);
-        return $this->get($key, []);
+        return $this->get($tag, []);
     }
 
     /**

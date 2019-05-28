@@ -98,12 +98,7 @@ class Wincache extends Driver implements CacheHandlerInterface
         $expire = $this->getExpireTime($expire);
         $value  = $this->serialize($value);
 
-        if (!empty($this->tag) && !$this->has($name)) {
-            $first = true;
-        }
-
         if (wincache_ucache_set($key, $value, $expire)) {
-            isset($first) && $this->setTagItem($key);
             return true;
         }
 
@@ -162,13 +157,6 @@ class Wincache extends Driver implements CacheHandlerInterface
      */
     public function clear(): bool
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $this->clearTag($tag);
-            }
-            return true;
-        }
-
         $this->writeTimes++;
         return wincache_ucache_clear();
     }
@@ -176,17 +164,12 @@ class Wincache extends Driver implements CacheHandlerInterface
     /**
      * 删除缓存标签
      * @access public
-     * @param  string $tag 缓存标签名
+     * @param  array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(string $tag): void
+    public function clearTag(array $keys): void
     {
-        $keys = $this->getTagItems($tag);
-
         wincache_ucache_delete($keys);
-
-        $tagName = $this->getTagkey($tag);
-        $this->rm($tagName);
     }
 
 }

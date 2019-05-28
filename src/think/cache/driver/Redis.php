@@ -212,13 +212,6 @@ class Redis extends Driver implements CacheHandlerInterface
      */
     public function clear(): bool
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $this->clearTag($tag);
-            }
-            return true;
-        }
-
         $this->writeTimes++;
 
         $this->handler->flushDB();
@@ -228,36 +221,25 @@ class Redis extends Driver implements CacheHandlerInterface
     /**
      * 删除缓存标签
      * @access public
-     * @param  string $tag 缓存标签名
+     * @param  array  $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(string $tag): void
+    public function clearTag(array $keys): void
     {
         // 指定标签清除
-        $keys = $this->getTagItems($tag);
-
         $this->handler->del($keys);
-
-        $tagName = $this->getTagKey($tag);
-        $this->handler->del($tagName);
     }
 
     /**
-     * 更新标签
-     * @access protected
+     * 追加（数组）缓存数据
+     * @access public
      * @param  string $name 缓存标识
+     * @param  mixed  $value 数据
      * @return void
      */
-    protected function setTagItem(string $name): void
+    public function push(string $name, $value): void
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $tagName = $this->getTagKey($tag);
-                $this->handler->sAdd($tagName, $name);
-            }
-
-            $this->tag = null;
-        }
+        $this->handler->sAdd($name, $value);
     }
 
     /**
@@ -268,8 +250,7 @@ class Redis extends Driver implements CacheHandlerInterface
      */
     public function getTagItems(string $tag): array
     {
-        $tagName = $this->getTagKey($tag);
-        return $this->handler->sMembers($tagName);
+        return $this->handler->sMembers($tag);
     }
 
 }

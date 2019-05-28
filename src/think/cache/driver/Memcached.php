@@ -128,16 +128,11 @@ class Memcached extends Driver implements CacheHandlerInterface
             $expire = $this->options['expire'];
         }
 
-        if (!empty($this->tag) && !$this->has($name)) {
-            $first = true;
-        }
-
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
         $value  = $this->serialize($value);
 
         if ($this->handler->set($key, $value, $expire)) {
-            isset($first) && $this->setTagItem($key);
             return true;
         }
 
@@ -207,14 +202,6 @@ class Memcached extends Driver implements CacheHandlerInterface
      */
     public function clear(): bool
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $this->clearTag($tag);
-            }
-
-            return true;
-        }
-
         $this->writeTimes++;
 
         return $this->handler->flush();
@@ -223,51 +210,12 @@ class Memcached extends Driver implements CacheHandlerInterface
     /**
      * 删除缓存标签
      * @access public
-     * @param  string $tag 缓存标签名
+     * @param  array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(string $tag): void
+    public function clearTag(array $keys): void
     {
-        // 指定标签清除
-        $keys = $this->getTagItems($tag);
-
         $this->handler->deleteMulti($keys);
-
-        $tagName = $this->getTagKey($tag);
-        $this->rm($tagName);
     }
 
-    /**
-     * 更新标签
-     * @access protected
-     * @param  string $name 缓存标识
-     * @return void
-     */
-    protected function setTagItem(string $name): void
-    {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $tagName = $this->getTagKey($tag);
-                if ($this->handler->has($tagName)) {
-                    $this->handler->append($tagName, ',' . $name);
-                } else {
-                    $this->handler->set($tagName, $name);
-                }
-            }
-
-            $this->tag = null;
-        }
-    }
-
-    /**
-     * 获取标签包含的缓存标识
-     * @access public
-     * @param  string $tag 缓存标签
-     * @return array
-     */
-    public function getTagItems(string $tag): array
-    {
-        $tagName = $this->getTagKey($tag);
-        return explode(',', $this->handler->get($tagName));
-    }
 }
