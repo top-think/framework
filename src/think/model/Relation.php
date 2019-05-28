@@ -64,7 +64,7 @@ abstract class Relation
      * 是否为自关联
      * @var bool
      */
-    protected $selfRelation;
+    protected $selfRelation = false;
 
     /**
      * 获取关联的所属模型
