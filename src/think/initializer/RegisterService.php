@@ -40,7 +40,9 @@ class RegisterService
         }
 
         foreach ($services as $service) {
-            $app->register($service);
+            if (class_exists($service)) {
+                $app->register($service);
+            }
         }
     }
 }
