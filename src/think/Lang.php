@@ -26,8 +26,6 @@ class Lang
         'default_lang'    => 'zh-cn',
         // 允许的语言列表
         'allow_lang_list' => [],
-        // 自动侦测和切换
-        'auto_detect'     => false,
         // 是否使用Cookie记录
         'use_cookie'      => true,
         // 扩展语言包
