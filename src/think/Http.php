@@ -384,6 +384,10 @@ class Http
             }
         }
 
+        // 加载应用默认语言包
+        $this->app->loadLangPack($this->app->lang->defaultLangSet());
+
+        // 设置应用命名空间
         $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: 'app\\' . $appName);
     }
 

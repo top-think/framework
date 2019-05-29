@@ -370,6 +370,14 @@ class App extends Container
 
         $this->debugModeInit();
 
+        // 加载框架默认语言包
+        $langSet = $this->lang->defaultLangSet();
+
+        $this->lang->load($this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $langSet . '.php');
+
+        // 加载应用默认语言包
+        $this->loadLangPack($langSet);
+
         // 监听AppInit
         $this->event->trigger('AppInit');
 
@@ -390,6 +398,30 @@ class App extends Container
     public function initialized()
     {
         return $this->initialized;
+    }
+
+    /**
+     * 加载语言包
+     * @param string $langset 语言
+     * @return void
+     */
+    public function loadLangPack($langset)
+    {
+        if (empty($langset)) {
+            return;
+        }
+
+        // 加载系统语言包
+        $this->lang->load([
+            $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
+        ]);
+
+        // 加载扩展（自定义）语言包
+        $list = $this->config->get('lang.extend_list', []);
+
+        if (isset($list[$langset])) {
+            $this->lang->load($list[$langset]);
+        }
     }
 
     /**

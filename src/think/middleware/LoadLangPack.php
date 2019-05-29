@@ -46,17 +46,13 @@ class LoadLangPack
         // 当前语言
         $langset = $this->lang->getLangSet();
 
-        // 加载系统语言包
-        $this->lang->load([
-            $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
-            $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
-        ]);
+        if ($this->lang->defaultLangSet() != $langset) {
+            // 加载系统语言包
+            $this->lang->load([
+                $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
+            ]);
 
-        // 加载扩展（自定义）语言包
-        $list = $this->app->config->get('lang.extend_list', []);
-
-        if (isset($list[$langset])) {
-            $this->lang->load($list[$langset]);
+            $this->app->LoadLangPack($langset);
         }
 
         $this->lang->saveToCookie($this->app->cookie);

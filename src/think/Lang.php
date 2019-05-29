@@ -104,6 +104,16 @@ class Lang
     }
 
     /**
+     * 获取默认语言
+     * @access public
+     * @return string
+     */
+    public function defaultLangSet()
+    {
+        return $this->config['default_lang'];
+    }
+
+    /**
      * 加载语言定义(不区分大小写)
      * @access public
      * @param  string|array $file   语言文件
