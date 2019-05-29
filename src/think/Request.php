@@ -737,15 +737,15 @@ class Request
             // 获取原始请求类型
             return $this->server('REQUEST_METHOD') ?: 'GET';
         } elseif (!$this->method) {
-            if (isset($_POST[$this->varMethod])) {
-                $method = strtolower($_POST[$this->varMethod]);
+            if (isset($this->post[$this->varMethod])) {
+                $method = strtolower($this->post[$this->varMethod]);
                 if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
                     $this->method    = strtoupper($method);
-                    $this->{$method} = $_POST;
+                    $this->{$method} = $this->post;
                 } else {
                     $this->method = 'POST';
                 }
-                unset($_POST[$this->varMethod]);
+                unset($this->post[$this->varMethod]);
             } elseif ($this->server('HTTP_X_HTTP_METHOD_OVERRIDE')) {
                 $this->method = strtoupper($this->server('HTTP_X_HTTP_METHOD_OVERRIDE'));
             } else {
