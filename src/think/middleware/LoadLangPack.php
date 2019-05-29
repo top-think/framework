@@ -43,8 +43,8 @@ class LoadLangPack
      */
     public function handle($request, Closure $next)
     {
-        // 当前语言
-        $langset = $this->lang->getLangSet();
+        // 自动侦测当前语言
+        $langset = $this->lang->detect();
 
         if ($this->lang->defaultLangSet() != $langset) {
             // 加载系统语言包

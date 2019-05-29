@@ -71,10 +71,6 @@ class Lang
         $this->request = $request;
         $this->config  = array_merge($this->config, array_change_key_case($config));
         $this->range   = $this->config['default_lang'];
-
-        if ($this->config['auto_detect']) {
-            $this->detect();
-        }
     }
 
     public static function __make(Request $request, Config $config)
@@ -216,10 +212,10 @@ class Lang
 
     /**
      * 自动侦测设置获取语言选择
-     * @access protected
-     * @return void
+     * @access public
+     * @return string
      */
-    protected function detect(): void
+    public function detect(): string
     {
         // 自动侦测设置获取语言选择
         $langSet = '';
@@ -244,6 +240,8 @@ class Lang
             // 合法的语言
             $this->range = $langSet;
         }
+
+        return $this->range;
     }
 
     /**
