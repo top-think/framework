@@ -264,6 +264,7 @@ abstract class Dispatch
             'dispatch' => $this->dispatch,
             'param'    => $this->param,
             'code'     => $this->code,
+            'rule'     => $this->rule,
         ];
     }
 }

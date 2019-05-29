@@ -880,10 +880,13 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
     public function __debugInfo()
     {
-        return [
-            'data'     => $this->data,
-            'relation' => $this->relation,
-        ];
+        $attrs = get_object_vars($this);
+
+        foreach (['db', 'queryInstance', 'event'] as $name) {
+            unset($attrs[$name]);
+        }
+
+        return $attrs;
     }
 
     /**
