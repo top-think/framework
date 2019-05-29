@@ -63,10 +63,6 @@ class Redis extends Driver implements CacheHandlerInterface
             if ('' != $this->options['password']) {
                 $this->handler->auth($this->options['password']);
             }
-
-            if (0 != $this->options['select']) {
-                $this->handler->select($this->options['select']);
-            }
         } elseif (class_exists('\Predis\Client')) {
             $params = [];
             foreach ($this->options as $key => $val) {
@@ -82,13 +78,13 @@ class Redis extends Driver implements CacheHandlerInterface
 
             $this->handler = new \Predis\Client($this->options, $params);
 
-            if (0 != $this->options['select']) {
-                $this->handler->select($this->options['select']);
-            }
-
             $this->options['prefix'] = '';
         } else {
             throw new \BadFunctionCallException('not support: redis');
+        }
+
+        if (0 != $this->options['select']) {
+            $this->handler->select($this->options['select']);
         }
     }
 

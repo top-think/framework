@@ -50,17 +50,12 @@ class Redis implements SessionHandlerInterface
     {
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
-
             // 建立连接
             $func = $this->config['persistent'] ? 'pconnect' : 'connect';
             $this->handler->$func($this->config['host'], (int) $this->config['port'], $this->config['timeout']);
 
             if ('' != $this->config['password']) {
                 $this->handler->auth($this->config['password']);
-            }
-
-            if (0 != $this->config['select']) {
-                $this->handler->select($this->config['select']);
             }
         } elseif (class_exists('\Predis\Client')) {
             $params = [];
@@ -70,13 +65,14 @@ class Redis implements SessionHandlerInterface
                     unset($this->config[$key]);
                 }
             }
-            $this->handler = new \Predis\Client($this->config, $params);
 
-            if (0 != $this->config['select']) {
-                $this->handler->select($this->config['select']);
-            }
+            $this->handler = new \Predis\Client($this->config, $params);
         } else {
             throw new \BadFunctionCallException('not support: redis');
+        }
+
+        if (0 != $this->config['select']) {
+            $this->handler->select($this->config['select']);
         }
 
         return true;
