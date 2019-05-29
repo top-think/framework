@@ -139,22 +139,15 @@ class Redis extends Driver implements CacheHandlerInterface
             $expire = $this->options['expire'];
         }
 
-        if (!empty($this->tag) && !$this->has($name)) {
-            $first = true;
-        }
-
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-
-        $value = $this->serialize($value);
+        $value  = $this->serialize($value);
 
         if ($expire) {
             $this->handler->setex($key, $expire, $value);
         } else {
             $this->handler->set($key, $value);
         }
-
-        isset($first) && $this->setTagItem($key);
 
         return true;
     }
