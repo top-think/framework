@@ -381,6 +381,13 @@ class Http
                 if (is_file($appPath . 'provider.php')) {
                     $this->app->bind(include $appPath . 'provider.php');
                 }
+
+                if (is_file($appPath . 'service.php')) {
+                    $services = include $appPath . 'service.php';
+                    foreach ($services as $service) {
+                        $this->app->register($service);
+                    }
+                }
             }
         }
 
