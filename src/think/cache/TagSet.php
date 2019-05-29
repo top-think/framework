@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think\cache;
 
+use think\Container;
+
 /**
  * 标签集合
  */
@@ -56,6 +58,69 @@ class TagSet
         isset($first) && $this->handler->push($this->key, $key);
 
         return true;
+    }
+
+    /**
+     * 写入缓存
+     * @access public
+     * @param  iterable               $values 缓存数据
+     * @param  null|int|\DateInterval $ttl    有效时间 0为永久
+     * @return bool
+     */
+    public function setMultiple($values, $ttl = null): bool
+    {
+        foreach ($values as $key => $val) {
+            $result = $this->set($key, $val, $ttl);
+
+            if (false === $result) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 如果不存在则写入缓存
+     * @access public
+     * @param  string $name 缓存变量名
+     * @param  mixed  $value  存储数据
+     * @param  int    $expire  有效时间 0为永久
+     * @return mixed
+     */
+    public function remember(string $name, $value, $expire = null)
+    {
+        if ($this->handler->has($name)) {
+            return $this->handler->get($name);
+        }
+
+        $time = time();
+
+        while ($time + 5 > time() && $this->handler->has($name . '_lock')) {
+            // 存在锁定则等待
+            usleep(200000);
+        }
+
+        try {
+            // 锁定
+            $this->handler->set($name . '_lock', true);
+
+            if ($value instanceof \Closure) {
+                // 获取缓存数据
+                $value = Container::getInstance()->invokeFunction($value);
+            }
+
+            // 缓存数据
+            $this->set($name, $value, $expire);
+
+            // 解锁
+            $this->handler->delete($name . '_lock');
+        } catch (\Exception | \throwable $e) {
+            $this->handler->delete($name . '_lock');
+            throw $e;
+        }
+
+        return $value;
     }
 
     /**

@@ -16,6 +16,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use think\cache\CacheItem;
 use think\cache\Driver;
+use think\cache\TagSet;
 use think\exception\InvalidArgumentException;
 
 /**
@@ -220,9 +221,9 @@ class Cache implements CacheItemPoolInterface
      * 缓存标签
      * @access public
      * @param  string $name 标签名
-     * @return Driver
+     * @return TagSet
      */
-    public function tag($name)
+    public function tag(string $name): TagSet
     {
         return $this->init()->tag($name);
     }

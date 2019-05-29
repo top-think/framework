@@ -12,13 +12,14 @@ declare (strict_types = 1);
 
 namespace think\cache;
 
+use Psr\SimpleCache\CacheInterface;
 use think\Container;
 use think\exception\InvalidArgumentException;
 
 /**
  * 缓存基础类
  */
-abstract class Driver extends SimpleCache
+abstract class Driver implements CacheInterface
 {
     /**
      * 驱动句柄
@@ -255,6 +256,65 @@ abstract class Driver extends SimpleCache
     public function getWriteTimes(): int
     {
         return $this->writeTimes;
+    }
+
+    /**
+     * 读取缓存
+     * @access public
+     * @param  iterable $keys 缓存变量名
+     * @param  mixed    $default 默认值
+     * @return iterable
+     * @throws InvalidArgumentException
+     */
+    public function getMultiple($keys, $default = null): iterable
+    {
+        $result = [];
+
+        foreach ($keys as $key) {
+            $result[$key] = $this->get($key, $default);
+        }
+
+        return $result;
+    }
+
+    /**
+     * 写入缓存
+     * @access public
+     * @param  iterable               $values 缓存数据
+     * @param  null|int|\DateInterval $ttl    有效时间 0为永久
+     * @return bool
+     */
+    public function setMultiple($values, $ttl = null): bool
+    {
+        foreach ($values as $key => $val) {
+            $result = $this->set($key, $val, $ttl);
+
+            if (false === $result) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 删除缓存
+     * @access public
+     * @param iterable $keys 缓存变量名
+     * @return bool
+     * @throws InvalidArgumentException
+     */
+    public function deleteMultiple($keys): bool
+    {
+        foreach ($keys as $key) {
+            $result = $this->delete($key);
+
+            if (false === $result) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function __call($method, $args)

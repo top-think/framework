@@ -97,7 +97,7 @@ if (!function_exists('cache')) {
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
-            return Cache::rm($name);
+            return Cache::delete($name);
         }
 
         // 缓存数据
