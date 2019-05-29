@@ -508,4 +508,14 @@ class Url
     {
         return $this->build();
     }
+
+    public function __debugInfo()
+    {
+        return [
+            'url'    => $this->url,
+            'vars'   => $this->vars,
+            'suffix' => $this->suffix,
+            'domain' => $this->domain,
+        ];
+    }
 }
