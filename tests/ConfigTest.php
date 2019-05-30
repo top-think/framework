@@ -31,15 +31,15 @@ class ConfigTest extends TestCase
         $config->set([
             'key1' => 'value1',
             'key2' => [
-                'key1' => 'value1-2',
+                'key3' => 'value3',
             ],
         ], 'test');
 
         $this->assertTrue($config->has('test.key1'));
         $this->assertEquals('value1', $config->get('test.key1'));
-        $this->assertEquals('value1-2', $config->get('test.key2.key1'));
+        $this->assertEquals('value3', $config->get('test.key2.key3'));
 
-        $this->assertEquals(['key1' => 'value1-2'], $config->get('test.key2'));
+        $this->assertEquals(['key3' => 'value3'], $config->get('test.key2'));
         $this->assertFalse($config->has('test.key3'));
         $this->assertEquals('none', $config->get('test.key3', 'none'));
     }
