@@ -32,7 +32,7 @@ class File extends Driver implements CacheHandlerInterface
         'path'          => '',
         'hash_type'     => 'md5',
         'data_compress' => false,
-        'tag_prefix'    => 'tag_',
+        'tag_prefix'    => 'tag:',
         'serialize'     => [],
     ];
 

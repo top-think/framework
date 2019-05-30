@@ -30,7 +30,7 @@ class Memcache extends Driver implements CacheHandlerInterface
         'timeout'    => 0, // 超时时间（单位：毫秒）
         'persistent' => true,
         'prefix'     => '',
-        'tag_prefix' => 'tag_',
+        'tag_prefix' => 'tag:',
         'serialize'  => [],
     ];
 
