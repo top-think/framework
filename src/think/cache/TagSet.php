@@ -58,7 +58,7 @@ class TagSet
      * @param  string $name 缓存变量名
      * @return void
      */
-    protected function append(string $name): void
+    public function append(string $name): void
     {
         $name = $this->handler->getCacheKey($name);
 
