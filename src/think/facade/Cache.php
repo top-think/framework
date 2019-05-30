@@ -28,7 +28,8 @@ use think\Facade;
  * @method mixed dec(string $name, int $step = 1) static 自减缓存（针对数值缓存）
  * @method bool delete(string $name) static 删除缓存
  * @method bool clear() static 清除缓存
- * @method \think\cache\TagSet tag(string $name) static 缓存标签
+ * @method \think\cache\TagSet tag(mixed $name) static 缓存标签
+ * @method array getTagItems(string $name) static 获取标签下的缓存标识
  * @method object handler() static 返回句柄对象，可执行其它高级方法
  */
 class Cache extends Facade

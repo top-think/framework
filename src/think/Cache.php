@@ -220,10 +220,10 @@ class Cache implements CacheItemPoolInterface
     /**
      * 缓存标签
      * @access public
-     * @param  string $name 标签名
+     * @param  string|array $name 标签名
      * @return TagSet
      */
-    public function tag(string $name): TagSet
+    public function tag($name): TagSet
     {
         return $this->init()->tag($name);
     }

@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think\cache;
 
-use think\Container;
-
 /**
  * 标签集合
  */
@@ -21,9 +19,9 @@ class TagSet
 {
     /**
      * 标签的缓存Key
-     * @var string
+     * @var array
      */
-    protected $key;
+    protected $tag;
 
     /**
      * 缓存句柄
@@ -31,9 +29,9 @@ class TagSet
      */
     protected $handler;
 
-    public function __construct(string $key, Driver $cache)
+    public function __construct(array $tag, Driver $cache)
     {
-        $this->key     = $key;
+        $this->tag     = $tag;
         $this->handler = $cache;
     }
 
@@ -47,17 +45,26 @@ class TagSet
      */
     public function set($name, $value, $expire = null): bool
     {
-        if (!$this->handler->has($name)) {
-            $first = true;
-        }
-
         $this->handler->set($name, $value, $expire);
 
-        $key = $this->handler->getCacheKey($name);
-
-        isset($first) && $this->handler->push($this->key, $key);
+        $this->append($name);
 
         return true;
+    }
+
+    /**
+     * 追加缓存标识到标签
+     * @access public
+     * @param  string $name 缓存变量名
+     * @return void
+     */
+    protected function append(string $name): void
+    {
+        $name = $this->handler->getCacheKey($name);
+
+        foreach ($this->tag as $tag) {
+            $this->handler->push($tag, $name);
+        }
     }
 
     /**
@@ -90,37 +97,11 @@ class TagSet
      */
     public function remember(string $name, $value, $expire = null)
     {
-        if ($this->handler->has($name)) {
-            return $this->handler->get($name);
-        }
+        $result = $this->handler->remember($name, $value, $expire);
 
-        $time = time();
+        $this->append($name);
 
-        while ($time + 5 > time() && $this->handler->has($name . '_lock')) {
-            // 存在锁定则等待
-            usleep(200000);
-        }
-
-        try {
-            // 锁定
-            $this->handler->set($name . '_lock', true);
-
-            if ($value instanceof \Closure) {
-                // 获取缓存数据
-                $value = Container::getInstance()->invokeFunction($value);
-            }
-
-            // 缓存数据
-            $this->set($name, $value, $expire);
-
-            // 解锁
-            $this->handler->delete($name . '_lock');
-        } catch (\Exception | \throwable $e) {
-            $this->handler->delete($name . '_lock');
-            throw $e;
-        }
-
-        return $value;
+        return $result;
     }
 
     /**
@@ -131,10 +112,13 @@ class TagSet
     public function clear(): bool
     {
         // 指定标签清除
-        $keys = $this->handler->getTagItems($this->key);
+        foreach ($this->tag as $tag) {
+            $names = $this->handler->getTagItems($tag);
 
-        $this->handler->clearTag($keys);
-        $this->handler->delete($this->key);
+            $this->handler->clearTag($names);
+            $this->handler->delete($tag);
+        }
+
         return true;
     }
 }
