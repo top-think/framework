@@ -188,26 +188,4 @@ class Config
         return $result;
     }
 
-    /**
-     * 获取配置参数
-     * @access public
-     * @param  string $name 参数名
-     * @return mixed
-     */
-    public function __get($name)
-    {
-        return $this->get($name);
-    }
-
-    /**
-     * 检测是否存在参数
-     * @access public
-     * @param  string $name 参数名
-     * @return bool
-     */
-    public function __isset($name)
-    {
-        return $this->has($name);
-    }
-
 }
