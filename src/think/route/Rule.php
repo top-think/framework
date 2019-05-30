@@ -624,7 +624,7 @@ abstract class Rule
         $url   = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams(implode('|', $url), $matches);
 
-        $request->setRoute($matches);
+        $this->vars = $matches;
 
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
@@ -644,14 +644,14 @@ abstract class Rule
             $result = $route;
         } elseif ($route instanceof \Closure) {
             // 执行闭包
-            $result = new CallbackDispatch($request, $this, $route);
+            $result = new CallbackDispatch($request, $this, $route, $this->vars);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($request, $this, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : []);
+            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : $this->vars);
         } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
             // 路由到重定向地址
-            $result = new RedirectDispatch($request, $this, $route, [], $option['status'] ?? 301);
+            $result = new RedirectDispatch($request, $this, $route, $this->vars, $option['status'] ?? 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到类的方法
             $result = $this->dispatchMethod($request, $route);
@@ -672,12 +672,12 @@ abstract class Rule
      */
     protected function dispatchMethod(Request $request, string $route): CallbackDispatch
     {
-        list($path, $var) = $this->parseUrlPath($route);
+        $path = $this->parseUrlPath($route);
 
         $route  = str_replace('/', '@', implode('/', $path));
         $method = strpos($route, '@') ? explode('@', $route) : $route;
 
-        return new CallbackDispatch($request, $this, $method, $var);
+        return new CallbackDispatch($request, $this, $method, $this->vars);
     }
 
     /**
@@ -689,13 +689,13 @@ abstract class Rule
      */
     protected function dispatchController(Request $request, string $route): ControllerDispatch
     {
-        list($path, $var) = $this->parseUrlPath($route);
+        $path = $this->parseUrlPath($route);
 
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
 
         // 路由到模块/控制器/操作
-        return new ControllerDispatch($request, $this, [$controller, $action], $var);
+        return new ControllerDispatch($request, $this, [$controller, $action], $this->vars);
     }
 
     /**
@@ -770,7 +770,7 @@ abstract class Rule
     }
 
     /**
-     * 解析URL的pathinfo参数和变量
+     * 解析URL的pathinfo参数
      * @access public
      * @param  string $url URL地址
      * @return array
@@ -780,25 +780,15 @@ abstract class Rule
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
         $url = trim($url, '/');
-        $var = [];
 
-        if (false !== strpos($url, '?')) {
-            // [控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
+        if (strpos($url, '/')) {
             // [控制器/操作]
             $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
-            $path = [];
         } else {
             $path = [$url];
         }
 
-        return [$path, $var];
+        return $path;
     }
 
     /**

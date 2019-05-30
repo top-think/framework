@@ -30,7 +30,7 @@ class Url extends Controller
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
-        parent::__construct($request, $rule, $dispatch, $param, $code);
+        parent::__construct($request, $rule, $dispatch, $this->param, $code);
     }
 
     /**
@@ -50,7 +50,7 @@ class Url extends Controller
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
 
-        list($path, $var) = $this->rule->parseUrlPath($url);
+        $path = $this->rule->parseUrlPath($url);
         if (empty($path)) {
             return [null, null];
         }
@@ -79,7 +79,7 @@ class Url extends Controller
         }
 
         // 设置当前请求的参数
-        $this->request->setRoute($var);
+        $this->param = $var;
 
         // 封装路由
         $route = [$controller, $action];
