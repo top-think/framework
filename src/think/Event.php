@@ -213,7 +213,8 @@ class Event
         $events = array_keys($this->listener);
 
         foreach ($events as $event) {
-            $method = 'on' . substr(strrchr($event, '\\'), 1);
+            $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
+            $method = 'on' . $name;
 
             if (method_exists($observer, $method)) {
                 $this->listen($event, [$observer, $method]);
