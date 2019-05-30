@@ -1195,6 +1195,25 @@ class Validate
     }
 
     /**
+     * 验证某个字段没有值的情况下必须
+     * @access public
+     * @param  mixed $value  字段值
+     * @param  mixed $rule  验证规则
+     * @param  array $data  数据
+     * @return bool
+     */
+    public function requireWithout($value, $rule, array $data = []): bool
+    {
+        $val = $this->getDataValue($data, $rule);
+
+        if (empty($val)) {
+            return !empty($value) || '0' == $value;
+        }
+
+        return true;
+    }
+
+    /**
      * 验证是否在范围内
      * @access public
      * @param  mixed $value  字段值
