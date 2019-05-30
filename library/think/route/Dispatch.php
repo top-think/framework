@@ -11,9 +11,9 @@
 
 namespace think\route;
 
+use think\App;
 use think\Container;
 use think\exception\ValidateException;
-use think\App;
 use think\Request;
 use think\Response;
 
@@ -183,7 +183,7 @@ abstract class Dispatch
         } else {
             $data     = ob_get_clean();
             $content  = false === $data ? '' : $data;
-            $status   = '' === $content && $this->request->isAjax() ? 204 : 200;
+            $status   = false === $data ? 204 : 200;
             $response = Response::create($content, '', $status);
         }
 

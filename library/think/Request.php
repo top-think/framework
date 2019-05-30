@@ -1039,7 +1039,7 @@ class Request
 
     protected function getInputData($content)
     {
-        if (false !== strpos($this->contentType(), 'application/json') || 0 === strpos($content, '{"')) {
+        if ($this->isJson()) {
             return (array) json_decode($content, true);
         } elseif (strpos($content, '=')) {
             parse_str($content, $data);
@@ -1629,6 +1629,19 @@ class Request
         }
 
         return false;
+    }
+
+    /**
+     * 当前是否JSON请求
+     * @access public
+     * @return bool
+     */
+    public function isJson()
+    {
+        $contentType = $this->contentType();
+        $acceptType  = $this->type();
+
+        return false !== strpos($contentType, 'json') || false !== strpos($acceptType, 'json');
     }
 
     /**
