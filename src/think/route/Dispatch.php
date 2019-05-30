@@ -123,7 +123,7 @@ abstract class Dispatch
             $data = ob_get_clean();
 
             $content  = false === $data ? '' : $data;
-            $status   = false === $data ? 204 : 200;
+            $status   = '' === $content && $this->request->isJson() ? 204 : 200;
             $response = Response::create($content, '', $status);
         }
 
