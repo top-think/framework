@@ -412,9 +412,8 @@ class App extends Container
         }
 
         // 加载系统语言包
-        $this->lang->load([
-            $this->appPath . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
-        ]);
+        $files = glob($this->appPath . 'lang' . DIRECTORY_SEPARATOR . $langset . '.*');
+        $this->lang->load($files);
 
         // 加载扩展（自定义）语言包
         $list = $this->config->get('lang.extend_list', []);

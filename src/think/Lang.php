@@ -125,11 +125,8 @@ class Lang
 
         foreach ((array) $file as $_file) {
             if (is_file($_file)) {
-                // 记录加载信息
-                $_lang = include $_file;
-                if (is_array($_lang)) {
-                    $lang = array_change_key_case($_lang) + $lang;
-                }
+                $result = $this->parse($_file);
+                $lang   = array_change_key_case($result) + $lang;
             }
         }
 
@@ -138,6 +135,31 @@ class Lang
         }
 
         return $this->lang[$range];
+    }
+
+    /**
+     * 解析语言文件
+     * @access protected
+     * @param  string $file 语言文件名
+     * @return array
+     */
+    protected function parse(string $file): array
+    {
+        $type = pathinfo($file, PATHINFO_EXTENSION);
+
+        switch ($type) {
+            case 'php':
+                $result = include $file;
+                break;
+            case 'yml':
+            case 'yaml':
+                if (function_exists('yaml_parse_file')) {
+                    $result = yaml_parse_file($file);
+                }
+                break;
+        }
+
+        return isset($result) && is_array($result) ? $result : [];
     }
 
     /**

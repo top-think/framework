@@ -90,6 +90,7 @@ class Config
             case 'php':
                 $config = include $file;
                 break;
+            case 'yml':
             case 'yaml':
                 if (function_exists('yaml_parse_file')) {
                     $config = yaml_parse_file($file);
