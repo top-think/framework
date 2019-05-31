@@ -735,7 +735,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
 
             foreach ($dataSet as $key => $data) {
                 if ($this->exists || (!empty($auto) && isset($data[$pk]))) {
-                    $result[$key] = self::update($data, $this->field);
+                    $result[$key] = self::update($data);
                 } else {
                     $result[$key] = self::create($data, $this->field, $this->replace);
                 }
