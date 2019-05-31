@@ -698,6 +698,10 @@ abstract class Builder
             $value = $this->parseClosure($query, $value);
         }
 
+        if ('=' == $exp && is_null($value)) {
+            return $key . ' IS NULL';
+        }
+
         return $key . ' ' . $exp . ' ' . $value;
     }
 
