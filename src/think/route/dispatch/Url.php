@@ -64,6 +64,7 @@ class Url extends Controller
 
         // 解析操作
         $action = !empty($path) ? array_shift($path) : null;
+        $var    = [];
 
         // 解析额外参数
         if ($path) {
