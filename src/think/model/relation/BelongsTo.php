@@ -277,10 +277,7 @@ class BelongsTo extends OneToOne
      */
     public function associate(Model $model): Model
     {
-        $foreignKey = $this->foreignKey;
-        $pk         = $model->getPk();
-
-        $this->parent->setAttr($foreignKey, $model->$pk);
+        $this->parent->setAttr($this->foreignKey, $model->getKey());
         $this->parent->save();
 
         return $this->parent->setRelation($this->relation, $model);
