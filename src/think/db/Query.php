@@ -322,11 +322,12 @@ class Query
     /**
      * 获取详细字段类型信息
      * @access public
+     * @param string $tableName 数据表名称
      * @return array
      */
-    public function getFields(): array
+    public function getFields(string $tableName = ''): array
     {
-        return $this->connection->getFields($this->getTable());
+        return $this->connection->getFields($tableName ?: $this->getTable());
     }
 
     /**
