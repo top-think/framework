@@ -40,7 +40,7 @@ use think\Facade;
  * @method \think\Route rest(string $name, array $resource = []) static rest方法定义和修改
  * @method \think\route\RuleItem miss(string|\Closure $route, string $method = '*', array $option = []) static 注册未匹配路由规则后的处理
  * @method \think\route\Dispatch check(string $url, string $depr = '/', bool $must = false, bool $completeMatch = false) static 检测URL路由
- * @method string buildUrl(string $url = '', array $vars = [], $suffix = true, $domain = false) static 生成URL地址
+ * @method \think\route\Url buildUrl(string $url = '', array $vars = []) static URL生成
  */
 class Route extends Facade
 {
