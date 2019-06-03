@@ -1102,7 +1102,7 @@ class Request
     public function session($name = '', $default = null)
     {
         if (empty($this->session)) {
-            $this->session = Session::get();
+            $this->session = app('session')->get();
         }
 
         if ('' === $name) {
@@ -2031,7 +2031,7 @@ class Request
             header($name . ': ' . $token);
         }
 
-        facade\Session::set($name, $token);
+        app('session')->set($name, $token);
 
         return $token;
     }
