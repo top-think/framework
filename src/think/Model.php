@@ -974,7 +974,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
      * @param string $suffix 切换的表后缀
      * @return Model
      */
-    function switch (string $suffix) {
+    public function switch(string $suffix) {
             $model = new static();
             $model->setSuffix($suffix);
 
