@@ -544,7 +544,7 @@ trait Attribute
         $relation = $this->isRelationAttr($name);
 
         if (false === $relation) {
-            return;
+            throw new InvalidArgumentException('relation property not exists:' . static::class . '->' . $name);
         }
 
         $modelRelation = $this->$relation();
@@ -561,10 +561,6 @@ trait Attribute
     protected function getRelationAttribute(string $name)
     {
         $value = $this->getRelationValue($name);
-
-        if (!$value) {
-            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
-        }
 
         // 保存关联对象值
         $this->relation[$name] = $value;

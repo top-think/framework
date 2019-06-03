@@ -60,6 +60,7 @@ class Facade
     /**
      * 带参数实例化当前Facade类
      * @access public
+     * @param  array $args 变量
      * @return object
      */
     public static function instance(...$args)
