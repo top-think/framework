@@ -123,7 +123,7 @@ class HasManyThrough extends Relation
      * @param  string $joinType JOIN类型
      * @return Query
      */
-    public function hasWhere($where = [], $fields = null, $joinType = '')
+    public function hasWhere($where = [], $fields = null, $joinType = ''): Query
     {
         $model        = App::parseName(App::classBaseName($this->parent));
         $throughTable = $this->through->getTable();
@@ -232,7 +232,7 @@ class HasManyThrough extends Relation
      * @param  Closure $closure
      * @return array
      */
-    protected function eagerlyWhere(array $where, string $key, string $relation, array $subRelation = [], Closure $closure = null)
+    protected function eagerlyWhere(array $where, string $key, string $relation, array $subRelation = [], Closure $closure = null): array
     {
         // 预载入关联查询 支持嵌套预载入
         $throughList = $this->through->where($where)->select();
@@ -263,7 +263,7 @@ class HasManyThrough extends Relation
      * @param  string  $aggregate 聚合查询方法
      * @param  string  $field 字段
      * @param  string  $name 统计字段别名
-     * @return integer
+     * @return mixed
      */
     public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
     {
