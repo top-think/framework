@@ -117,6 +117,21 @@ class Collection extends BaseCollection
     }
 
     /**
+     * 设置父模型
+     * @access public
+     * @param  Model $parent 父模型
+     * @return $this
+     */
+    public function setParent(Model $parent)
+    {
+        $this->each(function (Model $model) use ($parent) {
+            $model->setParent($parent);
+        });
+
+        return $this;
+    }
+
+    /**
      * 设置数据字段获取器
      * @access public
      * @param  string|array $name       字段名

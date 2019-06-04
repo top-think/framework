@@ -30,8 +30,14 @@ class HasOneThrough extends Relation
     protected $throughKey;
 
     /**
-     * 中间表模型
+     * 中间主键
      * @var string
+     */
+    protected $throughPk;
+
+    /**
+     * 中间表查询对象
+     * @var Query
      */
     protected $through;
 
@@ -44,15 +50,17 @@ class HasOneThrough extends Relation
      * @param  string $foreignKey 关联外键
      * @param  string $throughKey 关联外键
      * @param  string $localKey   当前主键
+     * @param  string $throughPk  中间表主键
      */
-    public function __construct(Model $parent, string $model, string $through, string $foreignKey, string $throughKey, string $localKey)
+    public function __construct(Model $parent, string $model, string $through, string $foreignKey, string $throughKey, string $localKey, string $throughPk)
     {
         $this->parent     = $parent;
         $this->model      = $model;
-        $this->through    = $through;
+        $this->through    = (new $through)->db();
         $this->foreignKey = $foreignKey;
         $this->throughKey = $throughKey;
         $this->localKey   = $localKey;
+        $this->throughPk  = $throughPk;
         $this->query      = (new $model)->db();
     }
 
@@ -71,7 +79,13 @@ class HasOneThrough extends Relation
 
         $this->baseQuery();
 
-        return $this->query->relation($subRelation)->find();
+        $relationModel = $this->query->relation($subRelation)->find();
+
+        if ($relationModel) {
+            $relationModel->setParent(clone $this->parent);
+        }
+
+        return $relationModel;
     }
 
     /**
@@ -102,20 +116,57 @@ class HasOneThrough extends Relation
     }
 
     /**
-     * 预载入关联查询
-     * @access public
+     * 预载入关联查询（数据集）
+     * @access protected
      * @param  array   $resultSet   数据集
      * @param  string  $relation    当前关联名
      * @param  array   $subRelation 子关联名
      * @param  Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure): void
-    {}
+    public function eagerlyResultSet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null): void
+    {
+        $localKey   = $this->localKey;
+        $foreignKey = $this->foreignKey;
+
+        $range = [];
+        foreach ($resultSet as $result) {
+            // 获取关联外键列表
+            if (isset($result->$localKey)) {
+                $range[] = $result->$localKey;
+            }
+        }
+
+        if (!empty($range)) {
+            $this->query->removeWhereField($foreignKey);
+
+            $data = $this->eagerlyWhere([
+                [$this->foreignKey, 'in', $range],
+            ], $foreignKey, $relation, $subRelation, $closure);
+
+            // 关联属性名
+            $attr = App::parseName($relation);
+
+            // 关联数据封装
+            foreach ($resultSet as $result) {
+                // 关联模型
+                if (!isset($data[$result->$localKey])) {
+                    $relationModel = null;
+                } else {
+                    $relationModel = $data[$result->$localKey];
+                    $relationModel->setParent(clone $result);
+                    $relationModel->exists(true);
+                }
+
+                // 设置关联属性
+                $result->setRelation($attr, $relationModel);
+            }
+        }
+    }
 
     /**
-     * 预载入关联查询 返回模型对象
-     * @access public
+     * 预载入关联查询（数据）
+     * @access protected
      * @param  Model   $result      数据对象
      * @param  string  $relation    当前关联名
      * @param  array   $subRelation 子关联名
@@ -123,7 +174,59 @@ class HasOneThrough extends Relation
      * @return void
      */
     public function eagerlyResult(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
-    {}
+    {
+        $localKey   = $this->localKey;
+        $foreignKey = $this->foreignKey;
+
+        $this->query->removeWhereField($foreignKey);
+
+        $data = $this->eagerlyWhere([
+            [$foreignKey, '=', $result->$localKey],
+        ], $foreignKey, $relation, $subRelation, $closure);
+
+        // 关联模型
+        if (!isset($data[$result->$localKey])) {
+            $relationModel = null;
+        } else {
+            $relationModel = $data[$result->$localKey];
+            $relationModel->setParent(clone $result);
+            $relationModel->exists(true);
+        }
+
+        $result->setRelation(App::parseName($relation), $relationModel);
+    }
+
+    /**
+     * 关联模型预查询
+     * @access public
+     * @param  array   $where       关联预查询条件
+     * @param  string  $key         关联键名
+     * @param  string  $relation    关联名
+     * @param  array   $subRelation 子关联
+     * @param  Closure $closure
+     * @return array
+     */
+    protected function eagerlyWhere(array $where, string $key, string $relation, array $subRelation = [], Closure $closure = null)
+    {
+        // 预载入关联查询 支持嵌套预载入
+        $keys = $this->through->where($where)->column($this->throughPk, $this->foreignKey);
+
+        if ($closure) {
+            $closure($this->query);
+        }
+
+        $list = $this->query->where($this->throughKey, 'in', $keys)->select();
+
+        // 组装模型数据
+        $data = [];
+        $keys = array_flip($keys);
+
+        foreach ($list as $set) {
+            $data[$keys[$set->{$this->throughKey}]] = $set;
+        }
+
+        return $data;
+    }
 
     /**
      * 关联统计

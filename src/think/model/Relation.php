@@ -110,11 +110,12 @@ abstract class Relation
      * 封装关联数据集
      * @access public
      * @param  array $resultSet 数据集
+     * @param  Model $parent 父模型
      * @return mixed
      */
-    protected function resultSetBuild(array $resultSet)
+    protected function resultSetBuild(array $resultSet, Model $parent = null)
     {
-        return (new $this->model)->toCollection($resultSet);
+        return (new $this->model)->toCollection($resultSet)->setParent($parent);
     }
 
     protected function getQueryFields(string $model)

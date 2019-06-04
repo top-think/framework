@@ -177,7 +177,11 @@ class BelongsToMany extends Relation
             $closure($this->query);
         }
 
-        $result = $this->buildQuery()->relation($subRelation)->select();
+        $result = $this->buildQuery()
+            ->relation($subRelation)
+            ->select()
+            ->setParent(clone $this->parent);
+
         $this->hydratePivot($result);
 
         return $result;
@@ -331,7 +335,7 @@ class BelongsToMany extends Relation
                     $data[$result->$pk] = [];
                 }
 
-                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
+                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk], clone $this->parent));
             }
         }
     }
@@ -361,7 +365,7 @@ class BelongsToMany extends Relation
                 $data[$pk] = [];
             }
 
-            $result->setRelation(App::parseName($relation), $this->resultSetBuild($data[$pk]));
+            $result->setRelation(App::parseName($relation), $this->resultSetBuild($data[$pk], clone $this->parent));
         }
     }
 

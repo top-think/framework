@@ -417,9 +417,10 @@ trait RelationShip
      * @param  string $foreignKey 关联外键
      * @param  string $throughKey 关联外键
      * @param  string $localKey   当前主键
+     * @param  string $throughPk  中间表主键
      * @return HasManyThrough
      */
-    public function hasManyThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = ''): HasManyThrough
+    public function hasManyThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = '', string $throughPk = ''): HasManyThrough
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -427,8 +428,9 @@ trait RelationShip
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
         $throughKey = $throughKey ?: $this->getForeignKey((new $through)->getName());
+        $throughPk  = $throughPk ?: (new $through)->getPk();
 
-        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
+        return new HasManyThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $throughPk);
     }
 
     /**
@@ -439,9 +441,10 @@ trait RelationShip
      * @param  string $foreignKey 关联外键
      * @param  string $throughKey 关联外键
      * @param  string $localKey   当前主键
+     * @param  string $throughPk  中间表主键
      * @return HasOneThrough
      */
-    public function hasOneThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = ''): HasOneThrough
+    public function hasOneThrough(string $model, string $through, string $foreignKey = '', string $throughKey = '', string $localKey = '', string $throughPk = ''): HasOneThrough
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
@@ -449,8 +452,9 @@ trait RelationShip
         $localKey   = $localKey ?: $this->getPk();
         $foreignKey = $foreignKey ?: $this->getForeignKey($this->name);
         $throughKey = $throughKey ?: $this->getForeignKey((new $through)->getName());
+        $throughPk  = $throughPk ?: (new $through)->getPk();
 
-        return new HasOneThrough($this, $model, $through, $foreignKey, $throughKey, $localKey);
+        return new HasOneThrough($this, $model, $through, $foreignKey, $throughKey, $localKey, $throughPk);
     }
 
     /**
