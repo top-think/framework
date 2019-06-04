@@ -12,7 +12,6 @@
 namespace think\model\relation;
 
 use think\db\Query;
-use think\Exception;
 use think\Loader;
 use think\Model;
 use think\model\Relation;
@@ -81,7 +80,24 @@ class HasManyThrough extends Relation
      */
     public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
-        return $this->parent;
+        $model         = App::parseName(App::classBaseName($this->parent));
+        $throughTable  = $this->through->getTable();
+        $pk            = $this->throughPk;
+        $throughKey    = $this->throughKey;
+        $relation      = (new $this->model)->db();
+        $relationTable = $relation->getTable();
+
+        if ('*' != $id) {
+            $id = $relationTable . '.' . $relation->getPk();
+        }
+
+        return $this->parent->db()
+            ->alias($model)
+            ->field($model . '.*')
+            ->join($throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey)
+            ->join($relationTable, $relationTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
+            ->group($relationTable . '.' . $this->throughKey)
+            ->having('count(' . $id . ')' . $operator . $count);
     }
 
     /**
@@ -93,7 +109,25 @@ class HasManyThrough extends Relation
      */
     public function hasWhere($where = [], $fields = null)
     {
-        throw new Exception('relation not support: hasWhere');
+        $model        = App::parseName(App::classBaseName($this->parent));
+        $throughTable = $this->through->getTable();
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
+        $modelTable   = (new $this->model)->db()->getTable();
+
+        if (is_array($where)) {
+            $this->getQueryWhere($where, $modelTable);
+        }
+
+        $fields = $this->getRelationQueryFields($fields, $model);
+
+        return $this->parent->db()
+            ->alias($model)
+            ->join($throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey)
+            ->join($modelTable, $modelTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
+            ->group($modelTable . '.' . $this->throughKey)
+            ->where($where)
+            ->field($fields);
     }
 
     /**
