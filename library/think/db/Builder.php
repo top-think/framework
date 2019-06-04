@@ -655,7 +655,6 @@ abstract class Builder
             $value = $value->getValue();
         } else {
             $value = array_unique(is_array($value) ? $value : explode(',', $value));
-
             $array = [];
 
             foreach ($value as $k => $v) {
@@ -663,9 +662,12 @@ abstract class Builder
                 $array[] = ':' . $name;
             }
 
-            $zone = implode(',', $array);
-
-            $value = empty($zone) ? "''" : $zone;
+            if (count($array) == 1) {
+                return $key . ' = ' . $array[0];
+            } else {
+                $zone  = implode(',', $array);
+                $value = empty($zone) ? "''" : $zone;
+            }
         }
 
         return $key . ' ' . $exp . ' (' . $value . ')';
