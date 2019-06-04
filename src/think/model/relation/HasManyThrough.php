@@ -71,7 +71,7 @@ class HasManyThrough extends Relation
      * @param  Closure $closure     闭包查询条件
      * @return Collection
      */
-    public function getRelation(array $subRelation = [], \Closure $closure = null): Collection
+    public function getRelation(array $subRelation = [], \Closure $closure = null)
     {
         if ($closure) {
             $closure($this->query);
@@ -133,6 +133,8 @@ class HasManyThrough extends Relation
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $modelTable);
+        } elseif ($where instanceof Query) {
+            $where->via($modelTable);
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

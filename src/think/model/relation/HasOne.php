@@ -162,6 +162,8 @@ class HasOne extends OneToOne
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);
+        } elseif ($where instanceof Query) {
+            $where->via($relation);
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

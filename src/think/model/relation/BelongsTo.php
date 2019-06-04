@@ -14,6 +14,7 @@ namespace think\model\relation;
 
 use Closure;
 use think\App;
+use think\db\Query;
 use think\Model;
 
 /**
@@ -162,6 +163,8 @@ class BelongsTo extends OneToOne
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);
+        } elseif ($where instanceof Query) {
+            $where->via($relation);
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

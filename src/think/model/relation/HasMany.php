@@ -307,6 +307,8 @@ class HasMany extends Relation
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);
+        } elseif ($where instanceof Query) {
+            $where->via($relation);
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

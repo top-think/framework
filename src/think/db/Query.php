@@ -1014,14 +1014,37 @@ class Query
     public function where($field, $op = null, $condition = null)
     {
         if ($field instanceof $this) {
-            $this->options['where'] = $field->getOptions('where');
-            $this->bind($field->getBind(false));
+            $this->parseQueryWhere($field);
             return $this;
         }
 
         $param = func_get_args();
         array_shift($param);
         return $this->parseWhereExp('AND', $field, $op, $condition, $param);
+    }
+
+    /**
+     * 解析Query对象查询条件
+     * @access public
+     * @param Query $query 查询对象
+     * @return void
+     */
+    protected function parseQueryWhere(Query $query): void
+    {
+        $this->options['where'] = $query->getOptions('where');
+
+        if ($query->getOptions('via')) {
+            $via = $query->getOptions('via');
+            foreach ($this->options['where'] as $logic => &$where) {
+                foreach ($where as $key => &$val) {
+                    if (is_array($val) && !strpos($val[0], '.')) {
+                        $val[0] = $via . '.' . $val[0];
+                    }
+                }
+            }
+        }
+
+        $this->bind($query->getBind(false));
     }
 
     /**
