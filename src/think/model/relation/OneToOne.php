@@ -275,11 +275,12 @@ abstract class OneToOne extends Relation
         foreach ($this->bindAttr as $key => $attr) {
             $key   = is_numeric($key) ? $attr : $key;
             $value = $result->getOrigin($key);
+
             if (!is_null($value)) {
                 throw new Exception('bind attr has exists:' . $key);
-            } else {
-                $result->setAttr($key, $model ? $model->$attr : null);
             }
+
+            $result->setAttr($key, $model ? $model->$attr : null);
         }
     }
 

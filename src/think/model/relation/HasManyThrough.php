@@ -226,10 +226,72 @@ class HasManyThrough extends Relation
      * @param  Closure $closure 闭包
      * @param  string  $aggregate 聚合查询方法
      * @param  string  $field 字段
+     * @param  string  $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
-    {}
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
+    {
+        $localKey = $this->localKey;
+
+        if (!isset($result->$localKey)) {
+            return 0;
+        }
+
+        if ($closure) {
+            $closure($this->query, $name);
+        }
+
+        $alias        = App::parseName(App::classBaseName($this->model));
+        $throughTable = $this->through->getTable();
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
+        $modelTable   = $this->parent->getTable();
+
+        if (false === strpos($field, '.')) {
+            $field = $alias . '.' . $field;
+        }
+
+        return $this->query
+            ->alias($alias)
+            ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+            ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+            ->where($throughTable . '.' . $this->foreignKey, $result->$localKey)
+            ->$aggregate($field);
+    }
+
+    /**
+     * 创建关联统计子查询
+     * @access public
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
+     * @param  string  $name 统计字段别名
+     * @return string
+     */
+    public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
+    {
+        if ($closure) {
+            $closure($this->query, $name);
+        }
+
+        $alias        = App::parseName(App::classBaseName($this->model));
+        $throughTable = $this->through->getTable();
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
+        $modelTable   = $this->parent->getTable();
+
+        if (false === strpos($field, '.')) {
+            $field = $alias . '.' . $field;
+        }
+
+        return $this->query
+            ->alias($alias)
+            ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
+            ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)
+            ->whereExp($throughTable . '.' . $this->foreignKey, '=' . $this->parent->getTable() . '.' . $this->localKey)
+            ->fetchSql()
+            ->$aggregate($field);
+    }
 
     /**
      * 执行基础查询（仅执行一次）
