@@ -279,12 +279,16 @@ class HasMany extends Relation
         $model    = App::classBaseName($this->parent);
         $relation = App::classBaseName($this->model);
 
+        if ('*' != $id) {
+            $id = $relation . '.' . (new $this->model)->getPk();
+        }
+
         return $this->parent->db()
             ->alias($model)
             ->field($model . '.*')
             ->join([$table => $relation], $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType)
             ->group($relation . '.' . $this->foreignKey)
-            ->having('count(' . $relation . '.' . $id . ')' . $operator . $count);
+            ->having('count(' . $id . ')' . $operator . $count);
     }
 
     /**

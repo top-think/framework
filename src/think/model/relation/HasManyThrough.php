@@ -89,25 +89,30 @@ class HasManyThrough extends Relation
      * @access public
      * @param  string  $operator 比较操作符
      * @param  integer $count    个数
-     * @param  string  $field    关联表的统计字段
+     * @param  string  $id       关联表的统计字段
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', int $count = 1, string $field = '*', $joinType = ''): Query
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = ''): Query
     {
-        $model        = App::parseName(App::classBaseName($this->parent));
-        $throughTable = $this->through->getTable();
-        $pk           = $this->throughPk;
-        $throughKey   = $this->throughKey;
-        $modelTable   = (new $this->model)->getTable();
+        $model         = App::parseName(App::classBaseName($this->parent));
+        $throughTable  = $this->through->getTable();
+        $pk            = $this->throughPk;
+        $throughKey    = $this->throughKey;
+        $relation      = new $this->model;
+        $relationTable = $relation->getTable();
+
+        if ('*' != $id) {
+            $id = $relationTable . '.' . $relation->getPk();
+        }
 
         return $this->parent->db()
             ->alias($model)
             ->field($model . '.*')
             ->join($throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey)
-            ->join($modelTable, $modelTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
-            ->group($modelTable . '.' . $this->throughKey)
-            ->having('count(' . $modelTable . '.' . $field . ')' . $operator . $count);
+            ->join($relationTable, $relationTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
+            ->group($relationTable . '.' . $this->throughKey)
+            ->having('count(' . $id . ')' . $operator . $count);
     }
 
     /**
