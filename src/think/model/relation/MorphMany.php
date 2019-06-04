@@ -189,7 +189,7 @@ class MorphMany extends Relation
      * @param  string  $aggregate 聚合查询方法
      * @param  string  $field 字段
      * @param  string  $name 统计字段别名
-     * @return integer
+     * @return mixed
      */
     public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
     {

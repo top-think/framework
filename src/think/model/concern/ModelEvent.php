@@ -56,7 +56,8 @@ trait ModelEvent
 
         try {
             if (method_exists(static::class, $call)) {
-                $result = Container::getInstance()->invoke([static::class, $call], [$this]);
+                $result = Container::getInstance()
+                    ->invoke([static::class, $call], [$this]);
             } else {
                 $result = true;
             }

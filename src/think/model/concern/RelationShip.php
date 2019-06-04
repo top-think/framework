@@ -312,9 +312,9 @@ trait RelationShip
 
             if (!is_null($value)) {
                 throw new Exception('bind attr has exists:' . $key);
-            } else {
-                $this->set($key, $relation ? $relation->$attr : null);
             }
+
+            $this->set($key, $relation ? $relation->$attr : null);
         }
 
         return $this;

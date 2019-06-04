@@ -84,9 +84,9 @@ trait Conversion
                 $key = is_numeric($key) ? $attr : $key;
                 if (isset($this->data[$key])) {
                     throw new Exception('bind attr has exists:' . $key);
-                } else {
-                    $this->data[$key] = $model->$attr;
                 }
+
+                $this->data[$key] = $model->$attr;
             }
         }
 
