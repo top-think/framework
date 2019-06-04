@@ -756,8 +756,12 @@ abstract class Builder
                 $array[] = ':' . $name;
             }
 
-            $zone  = implode(',', $array);
-            $value = empty($zone) ? "''" : $zone;
+            if (count($array) == 1) {
+                return $key . ' = ' . $array[0];
+            } else {
+                $zone  = implode(',', $array);
+                $value = empty($zone) ? "''" : $zone;
+            }
         }
 
         return $key . ' ' . $exp . ' (' . $value . ')';
