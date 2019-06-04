@@ -15,7 +15,6 @@ use Closure;
 use think\App;
 use think\Collection;
 use think\db\Query;
-use think\Exception;
 use think\Model;
 use think\model\Relation;
 
@@ -46,12 +45,12 @@ class HasManyThrough extends Relation
      * 架构函数
      * @access public
      * @param  Model  $parent     上级模型对象
-     * @param  string $model      模型名
+     * @param  string $model      关联模型名
      * @param  string $through    中间模型名
      * @param  string $foreignKey 关联外键
-     * @param  string $throughKey 关联外键
-     * @param  string $localKey   当前主键
-     * @param  string $throughPk  中间表主键
+     * @param  string $throughKey 中间关联外键
+     * @param  string $localKey   当前模型主键
+     * @param  string $throughPk  中间模型主键
      */
     public function __construct(Model $parent, string $model, string $through, string $foreignKey, string $throughKey, string $localKey, string $throughPk)
     {
@@ -90,13 +89,25 @@ class HasManyThrough extends Relation
      * @access public
      * @param  string  $operator 比较操作符
      * @param  integer $count    个数
-     * @param  string  $id       关联表的统计字段
+     * @param  string  $field    关联表的统计字段
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', int $count = 1, string $id = '*', $joinType = '')
+    public function has(string $operator = '>=', int $count = 1, string $field = '*', $joinType = ''): Query
     {
-        return $this->parent;
+        $model        = App::parseName(App::classBaseName($this->parent));
+        $throughTable = $this->through->getTable();
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
+        $modelTable   = (new $this->model)->getTable();
+
+        return $this->parent->db()
+            ->alias($model)
+            ->field($model . '.*')
+            ->join($throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey)
+            ->join($modelTable, $modelTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
+            ->group($modelTable . '.' . $this->throughKey)
+            ->having('count(' . $modelTable . '.' . $field . ')' . $operator . $count);
     }
 
     /**
@@ -109,7 +120,25 @@ class HasManyThrough extends Relation
      */
     public function hasWhere($where = [], $fields = null, $joinType = '')
     {
-        throw new Exception('relation not support: hasWhere');
+        $model        = App::parseName(App::classBaseName($this->parent));
+        $throughTable = $this->through->getTable();
+        $pk           = $this->throughPk;
+        $throughKey   = $this->throughKey;
+        $modelTable   = (new $this->model)->getTable();
+
+        if (is_array($where)) {
+            $this->getQueryWhere($where, $modelTable);
+        }
+
+        $fields = $this->getRelationQueryFields($fields, $model);
+
+        return $this->parent->db()
+            ->alias($model)
+            ->join($throughTable, $throughTable . '.' . $this->foreignKey . '=' . $model . '.' . $this->localKey)
+            ->join($modelTable, $modelTable . '.' . $throughKey . '=' . $throughTable . '.' . $this->throughPk)
+            ->group($modelTable . '.' . $this->throughKey)
+            ->where($where)
+            ->field($fields);
     }
 
     /**

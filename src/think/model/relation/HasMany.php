@@ -284,7 +284,7 @@ class HasMany extends Relation
             ->field($model . '.*')
             ->join([$table => $relation], $model . '.' . $this->localKey . '=' . $relation . '.' . $this->foreignKey, $joinType)
             ->group($relation . '.' . $this->foreignKey)
-            ->having('count(' . $id . ')' . $operator . $count);
+            ->having('count(' . $relation . '.' . $id . ')' . $operator . $count);
     }
 
     /**
