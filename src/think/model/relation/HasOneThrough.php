@@ -13,9 +13,7 @@ namespace think\model\relation;
 
 use Closure;
 use think\App;
-use think\db\Query;
 use think\Model;
-use think\model\Relation;
 
 /**
  * 远程一对一关联类
