@@ -462,7 +462,7 @@ trait Attribute
             $relation = false;
             $value    = $this->getData($name);
         } catch (InvalidArgumentException $e) {
-            $relation = true;
+            $relation = $this->isRelationAttr($name);
             $value    = null;
         }
 
@@ -472,13 +472,13 @@ trait Attribute
     /**
      * 获取经过获取器处理后的数据对象的值
      * @access protected
-     * @param  string $name 字段名称
-     * @param  mixed  $value 字段值
-     * @param  bool   $relation 是否为关联属性
+     * @param  string      $name 字段名称
+     * @param  mixed       $value 字段值
+     * @param  bool|string $relation 是否为关联属性或者关联名
      * @return mixed
      * @throws InvalidArgumentException
      */
-    protected function getValue(string $name, $value, bool $relation = false)
+    protected function getValue(string $name, $value, $relation = false)
     {
         // 检测属性获取器
         $fieldName = $this->getRealFieldName($name);
@@ -486,7 +486,7 @@ trait Attribute
 
         if (isset($this->withAttr[$fieldName])) {
             if ($relation) {
-                $value = $this->getRelationValue($name);
+                $value = $this->getRelationValue($name, $relation);
             }
 
             if (in_array($fieldName, $this->json) && is_array($this->withAttr[$fieldName])) {
@@ -497,7 +497,7 @@ trait Attribute
             }
         } elseif (method_exists($this, $method)) {
             if ($relation) {
-                $value = $this->getRelationValue($name);
+                $value = $this->getRelationValue($name, $relation);
             }
 
             $value = $this->$method($value, $this->data);
@@ -507,7 +507,9 @@ trait Attribute
         } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
             $value = $this->getTimestampValue($value);
         } elseif ($relation) {
-            $value = $this->getRelationAttribute($name);
+            $value = $this->getRelationValue($name, $relation);
+            // 保存关联对象值
+            $this->relation[$name] = $value;
         }
 
         return $value;
@@ -536,36 +538,15 @@ trait Attribute
     /**
      * 获取关联属性值
      * @access protected
-     * @param  string   $name  属性名
+     * @param  string $name     属性名
+     * @param  string $relation 关联名
      * @return mixed
      */
-    protected function getRelationValue(string $name)
+    protected function getRelationValue(string $name, string $relation)
     {
-        $relation = $this->isRelationAttr($name);
-
-        if (false === $relation) {
-            throw new InvalidArgumentException('relation property not exists:' . static::class . '->' . $name);
-        }
-
         $modelRelation = $this->$relation();
 
         return $modelRelation instanceof Relation ? $this->getRelationData($modelRelation) : null;
-    }
-
-    /**
-     * 获取并保存关联属性值
-     * @access protected
-     * @param  string   $name  属性名
-     * @return mixed
-     */
-    protected function getRelationAttribute(string $name)
-    {
-        $value = $this->getRelationValue($name);
-
-        // 保存关联对象值
-        $this->relation[$name] = $value;
-
-        return $value;
     }
 
     /**
