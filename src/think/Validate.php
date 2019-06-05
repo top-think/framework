@@ -1288,7 +1288,7 @@ class Validate
             $length = mb_strlen((string) $value);
         }
 
-        if (strpos($rule, ',')) {
+        if (is_string($rule) && strpos($rule, ',')) {
             // 长度区间
             list($min, $max) = explode(',', $rule);
             return $length >= $min && $length <= $max;
@@ -1457,7 +1457,7 @@ class Validate
             $rule = $this->defaultRegex[$rule];
         }
 
-        if (0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
+        if (is_string($rule) && 0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
@@ -1482,7 +1482,7 @@ class Validate
     {
         if (is_numeric($key)) {
             $value = $key;
-        } elseif (strpos($key, '.')) {
+        } elseif (is_string($key) && strpos($key, '.')) {
             // 支持多维数组验证
             foreach (explode('.', $key) as $key) {
                 if (!isset($data[$key])) {
