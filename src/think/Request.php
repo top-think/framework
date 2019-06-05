@@ -425,16 +425,8 @@ class Request
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
-            $rootDomain = $this->urlDdomainRoot;
-
-            if ($rootDomain) {
-                // 配置域名根 例如 thinkphp.cn 163.com.cn 如果是国家级域名 com.cn net.cn 之类的域名需要配置
-                $domain = explode('.', rtrim(stristr($this->host(), $rootDomain, true), '.'));
-            } else {
-                $domain = explode('.', $this->host(), -2);
-            }
-
-            $this->subDomain = implode('.', $domain);
+            $rootDomain      = $this->rootDomain();
+            $this->subDomain = rtrim(stristr($this->host(), $rootDomain, true), '.');
         }
 
         return $this->subDomain;
