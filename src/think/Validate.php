@@ -218,6 +218,39 @@ class Validate
     protected static $maker;
 
     /**
+     * @var array
+     */
+    protected static $extend = [];
+
+    /**
+     * 构造方法
+     * @access public
+     */
+    public function __construct()
+    {
+        if (static::$maker) {
+            call_user_func(static::$maker, $this);
+        }
+
+        if (!empty(static::$extend)) {
+            foreach (static::$extend as $extend) {
+                call_user_func($extend, $this);
+            }
+        }
+    }
+
+    /**
+     * 设置扩展注入
+     * @access public
+     * @param  Closure $extend
+     * @return void
+     */
+    public static function extend(Closure $extend)
+    {
+        static::$extend[] = $extend;
+    }
+
+    /**
      * 设置服务注入
      * @access public
      * @param  Closure $maker
@@ -283,14 +316,14 @@ class Validate
     }
 
     /**
-     * 注册扩展验证（类型）规则
+     * 注册验证（类型）规则
      * @access public
      * @param  string   $type  验证规则类型
      * @param  callable $callback callback方法(或闭包)
      * @param  string   $message  验证失败提示信息
      * @return $this
      */
-    public function extend(string $type, callable $callback = null, string $message = null)
+    public function register(string $type, callable $callback = null, string $message = null)
     {
         $this->type[$type] = $callback;
 
@@ -455,10 +488,6 @@ class Validate
      */
     public function check(array $data, array $rules = []): bool
     {
-        if (static::$maker && !$this->lang) {
-            call_user_func(static::$maker, $this);
-        }
-
         $this->error = [];
 
         if (empty($rules)) {
@@ -540,10 +569,6 @@ class Validate
      */
     public function checkRule($value, $rules): bool
     {
-        if (static::$maker && !$this->lang) {
-            call_user_func(static::$maker, $this);
-        }
-
         if ($rules instanceof \Closure) {
             return call_user_func_array($rules, [$value]);
         } elseif ($rules instanceof ValidateRule) {
