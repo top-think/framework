@@ -425,8 +425,13 @@ class Request
     {
         if (is_null($this->subDomain)) {
             // 获取当前主域名
-            $rootDomain      = $this->rootDomain();
-            $this->subDomain = rtrim(stristr($this->host(), $rootDomain, true), '.');
+            $rootDomain = $this->rootDomain();
+
+            if ($rootDomain) {
+                $this->subDomain = rtrim(stristr($this->host(), $rootDomain, true), '.');
+            } else {
+                $this->subDomain = '';
+            }
         }
 
         return $this->subDomain;
