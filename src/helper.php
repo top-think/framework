@@ -604,6 +604,21 @@ if (!function_exists('view')) {
     }
 }
 
+if (!function_exists('display')) {
+    /**
+     * 渲染模板输出
+     * @param string    $content 渲染内容
+     * @param array     $vars 模板变量
+     * @param int       $code 状态码
+     * @param callable  $filter 内容过滤
+     * @return \think\response\View
+     */
+    function display(string $content, $vars = [], $code = 200, $filter = null)
+    {
+        return Response::create($template, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
+    }
+}
+
 if (!function_exists('xml')) {
     /**
      * 获取\think\response\Xml对象实例

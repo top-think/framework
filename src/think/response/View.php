@@ -19,17 +19,58 @@ use think\View as BaseView;
  */
 class View extends Response
 {
-    // 输出参数
+    /**
+     * 输出参数
+     * @var array
+     */
     protected $options = [];
-    protected $vars    = [];
+
+    /**
+     * 输出变量
+     * @var array
+     */
+    protected $vars = [];
+
+    /**
+     * 输出过滤
+     * @var mixed
+     */
     protected $filter;
+
+    /**
+     * 输出type
+     * @var string
+     */
     protected $contentType = 'text/html';
+
+    /**
+     * View对象
+     * @var BaseView
+     */
     protected $view;
+
+    /**
+     * 是否内容渲染
+     * @var bool
+     */
+    protected $isContent = false;
 
     public function __construct(BaseView $view, $data = '', int $code = 200)
     {
         parent::__construct($data, $code);
         $this->view = $view;
+    }
+
+    /**
+     * 设置是否为内容渲染
+     * @access public
+     * @param  bool $content
+     * @return $this
+     */
+    public function isContent(bool $content = true)
+    {
+        $this->isContent = $content;
+        return $this;
     }
 
     /**
@@ -43,7 +84,7 @@ class View extends Response
         // 渲染模板输出
         return $this->view->filter($this->filter)
             ->assign($this->vars)
-            ->fetch($data);
+            ->fetch($data, $this->isContent);
     }
 
     /**
