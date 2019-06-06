@@ -164,25 +164,28 @@ class Route
     public function __construct(App $app)
     {
         $this->app      = $app;
-        $this->config   = array_merge($this->config, $app->config->get('route'));
         $this->ruleName = new RuleName();
+        $this->setDefaultDomain();
+    }
+
+    protected function init()
+    {
+        $this->config = array_merge($this->config, $this->app->config->get('route'));
 
         $this->lazy($this->config['url_lazy_route']);
 
         if ($this->config['route_check_cache']) {
             if (!empty($this->config['route_cache_option'])) {
-                $this->cache = $app->cache->connect($this->config['route_cache_option']);
+                $this->cache = $this->app->cache->connect($this->config['route_cache_option']);
             } else {
-                $this->cache = $app->cache->init();
+                $this->cache = $this->app->cache->init();
             }
         }
 
-        if (is_file($app->getRuntimePath() . 'route.php')) {
+        if (is_file($this->app->getRuntimePath() . 'route.php')) {
             // 读取路由映射文件
-            $this->import(include $app->getRuntimePath() . 'route.php');
+            $this->import(include $this->app->getRuntimePath() . 'route.php');
         }
-
-        $this->setDefaultDomain();
     }
 
     public function config(string $name = null)
@@ -716,6 +719,7 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
+        $this->init();
 
         if ($withRoute) {
             $checkCallback = function () use ($request, $withRoute) {
