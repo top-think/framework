@@ -407,7 +407,7 @@ abstract class Builder
             $jsonType = $query->getJsonFieldType($field);
             $bindType = $this->connection->getFieldBindType($jsonType);
         } else {
-            $bindType = isset($binds[$field]) ? $binds[$field] : PDO::PARAM_STR;
+            $bindType = isset($binds[$field]) && 'LIKE' != $exp ? $binds[$field] : PDO::PARAM_STR;
         }
 
         if (is_scalar($value) && !in_array($exp, ['EXP', 'NOT NULL', 'NULL', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']) && strpos($exp, 'TIME') === false) {
@@ -450,7 +450,7 @@ abstract class Builder
         // 模糊匹配
         if (is_array($value)) {
             foreach ($value as $item) {
-                $name    = $query->bind($item, $bindType);
+                $name    = $query->bind($item, PDO::PARAM_STR);
                 $array[] = $key . ' ' . $exp . ' :' . $name;
             }
 
