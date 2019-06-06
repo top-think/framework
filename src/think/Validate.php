@@ -215,12 +215,7 @@ class Validate
     /**
      * @var Closure
      */
-    protected static $maker;
-
-    /**
-     * @var array
-     */
-    protected static $extend = [];
+    protected static $maker = [];
 
     /**
      * 构造方法
@@ -228,26 +223,11 @@ class Validate
      */
     public function __construct()
     {
-        if (static::$maker) {
-            call_user_func(static::$maker, $this);
-        }
-
-        if (!empty(static::$extend)) {
-            foreach (static::$extend as $extend) {
-                call_user_func($extend, $this);
+        if (!empty(static::$maker)) {
+            foreach (static::$maker as $maker) {
+                call_user_func($maker, $this);
             }
         }
-    }
-
-    /**
-     * 设置扩展注入
-     * @access public
-     * @param  Closure $extend
-     * @return void
-     */
-    public static function extend(Closure $extend)
-    {
-        static::$extend[] = $extend;
     }
 
     /**
@@ -258,7 +238,7 @@ class Validate
      */
     public static function maker(Closure $maker)
     {
-        static::$maker = $maker;
+        static::$maker[] = $maker;
     }
 
     /**
@@ -323,7 +303,7 @@ class Validate
      * @param  string   $message  验证失败提示信息
      * @return $this
      */
-    public function register(string $type, callable $callback = null, string $message = null)
+    public function extend(string $type, callable $callback = null, string $message = null)
     {
         $this->type[$type] = $callback;
 
