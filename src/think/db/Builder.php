@@ -495,7 +495,7 @@ abstract class Builder
             $exp = $this->exp[$exp];
         }
 
-        if (is_string($field)) {
+        if (is_string($field) && 'LIKE' != $exp) {
             $bindType = $binds[$field] ?? PDO::PARAM_STR;
         } else {
             $bindType = PDO::PARAM_STR;
@@ -544,7 +544,7 @@ abstract class Builder
         if (is_array($value)) {
             $array = [];
             foreach ($value as $item) {
-                $name    = $query->bindValue($item, $bindType);
+                $name    = $query->bindValue($item, PDO::PARAM_STR);
                 $array[] = $key . ' ' . $exp . ' :' . $name;
             }
 
