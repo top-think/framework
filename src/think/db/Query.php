@@ -1960,18 +1960,6 @@ class Query
     }
 
     /**
-     * 设置是否返回数据集对象
-     * @access public
-     * @param bool|string $collection 是否返回数据集对象
-     * @return $this
-     */
-    public function fetchCollection($collection = true)
-    {
-        $this->options['collection'] = $collection;
-        return $this;
-    }
-
-    /**
      * 设置是否返回数组
      * @access public
      * @param bool $asArray 是否返回数组
@@ -3030,7 +3018,7 @@ class Query
             }
         }
 
-        if (!empty($this->options['collection'])) {
+        if (empty($this->options['array'])) {
             // 返回Collection对象
             $resultSet = new Collection($resultSet);
         }

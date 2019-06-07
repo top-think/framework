@@ -247,9 +247,9 @@ class Event
             $event = $this->bind[$event];
         }
 
+        $result    = [];
         $listeners = $this->listener[$event] ?? [];
 
-        $result = [];
         foreach ($listeners as $key => $listener) {
             $result[$key] = $this->dispatch($listener, $params);
 
