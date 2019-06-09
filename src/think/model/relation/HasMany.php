@@ -55,7 +55,7 @@ class HasMany extends Relation
     public function getRelation(array $subRelation = [], Closure $closure = null): Collection
     {
         if ($closure) {
-            $closure($this->query);
+            $closure($this);
         }
 
         return $this->query
@@ -153,7 +153,7 @@ class HasMany extends Relation
         }
 
         if ($closure) {
-            $closure($this->query, $name);
+            $closure($this, $name);
         }
 
         return $this->query
@@ -173,7 +173,7 @@ class HasMany extends Relation
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
     {
         if ($closure) {
-            $closure($this->query, $name);
+            $closure($this, $name);
         }
 
         return $this->query->alias($aggregate . '_table')
@@ -199,7 +199,7 @@ class HasMany extends Relation
 
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
-            $closure($this->query);
+            $closure($this);
         }
 
         $list = $this->query->where($where)->with($subRelation)->select();
@@ -208,7 +208,13 @@ class HasMany extends Relation
         $data = [];
 
         foreach ($list as $set) {
-            $data[$set->$foreignKey][] = $set;
+            $key = $set->$foreignKey;
+
+            if ($this->withLimit && isset($data[$key]) && count($data[$key]) >= $this->withLimit) {
+                continue;
+            }
+
+            $data[$key][] = $set;
         }
 
         return $data;

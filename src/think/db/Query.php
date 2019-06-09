@@ -2695,24 +2695,6 @@ class Query
     }
 
     /**
-     * 关联预加载中 获取关联指定字段值
-     * example:
-     * Model::with(['relation' => function($query){
-     *     $query->withField("id,name");
-     * }])
-     *
-     * @access public
-     * @param string|array $field 指定获取的字段
-     * @return $this
-     */
-    public function withField($field)
-    {
-        $this->options['with_field'] = $field;
-
-        return $this;
-    }
-
-    /**
      * 设置当前字段添加的表别名
      * @access public
      * @param string $via 临时表别名

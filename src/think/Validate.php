@@ -503,7 +503,7 @@ class Validate
             $value = $this->getDataValue($data, $key);
 
             // 字段验证
-            if ($rule instanceof \Closure) {
+            if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
             } elseif ($rule instanceof ValidateRule) {
                 //  验证因子
@@ -549,7 +549,7 @@ class Validate
      */
     public function checkRule($value, $rules): bool
     {
-        if ($rules instanceof \Closure) {
+        if ($rules instanceof Closure) {
             return call_user_func_array($rules, [$value]);
         } elseif ($rules instanceof ValidateRule) {
             $rules = $rules->getRule();
@@ -558,7 +558,7 @@ class Validate
         }
 
         foreach ($rules as $key => $rule) {
-            if ($rule instanceof \Closure) {
+            if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value]);
             } else {
                 // 判断验证类型
@@ -611,7 +611,7 @@ class Validate
 
         $i = 0;
         foreach ($rules as $key => $rule) {
-            if ($rule instanceof \Closure) {
+            if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
                 $info   = is_numeric($key) ? '' : $key;
             } else {

@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\model\concern;
 
+use Closure;
 use think\App;
 use think\Collection;
 use think\db\Query;
@@ -136,7 +137,7 @@ trait RelationShip
             $subRelation = '';
             $closure     = null;
 
-            if ($relation instanceof \Closure) {
+            if ($relation instanceof Closure) {
                 // 支持闭包查询过滤关联条件
                 $closure  = $relation;
                 $relation = $key;
@@ -225,7 +226,7 @@ trait RelationShip
             $subRelation = [];
             $closure     = null;
 
-            if ($relation instanceof \Closure) {
+            if ($relation instanceof Closure) {
                 $closure  = $relation;
                 $relation = $key;
             }
@@ -267,7 +268,7 @@ trait RelationShip
             $subRelation = [];
             $closure     = null;
 
-            if ($relation instanceof \Closure) {
+            if ($relation instanceof Closure) {
                 $closure  = $relation;
                 $relation = $key;
             }
@@ -334,7 +335,7 @@ trait RelationShip
         foreach ($relations as $key => $relation) {
             $closure = $name = null;
 
-            if ($relation instanceof \Closure) {
+            if ($relation instanceof Closure) {
                 $closure  = $relation;
                 $relation = $key;
             } elseif (is_string($key)) {

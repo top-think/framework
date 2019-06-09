@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use Closure;
 use think\Container;
 use think\Request;
 use think\Response;
@@ -53,7 +54,7 @@ abstract class Rule
 
     /**
      * 路由地址
-     * @var string|\Closure
+     * @var string|Closure
      */
     protected $route;
 
@@ -324,14 +325,14 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param  array|string|\Closure $var  路由变量名 多个使用 & 分割
-     * @param  string|\Closure       $model 绑定模型类
+     * @param  array|string|Closure $var  路由变量名 多个使用 & 分割
+     * @param  string|Closure       $model 绑定模型类
      * @param  bool                  $exception 是否抛出异常
      * @return $this
      */
     public function model($var, $model = null, bool $exception = true)
     {
-        if ($var instanceof \Closure) {
+        if ($var instanceof Closure) {
             $this->option['model'][] = $var;
         } elseif (is_array($var)) {
             $this->option['model'] = $var;
@@ -376,8 +377,8 @@ abstract class Rule
     /**
      * 指定路由中间件
      * @access public
-     * @param  string|array|\Closure $middleware 中间件
-     * @param  mixed                 $param 参数
+     * @param  string|array|Closure $middleware 中间件
+     * @param  mixed                $param 参数
      * @return $this
      */
     public function middleware($middleware, $param = null)
@@ -642,7 +643,7 @@ abstract class Rule
     {
         if ($route instanceof Dispatch) {
             $result = $route;
-        } elseif ($route instanceof \Closure) {
+        } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
         } elseif ($route instanceof Response) {

@@ -71,10 +71,10 @@ class HasManyThrough extends Relation
      * @param  Closure $closure     闭包查询条件
      * @return Collection
      */
-    public function getRelation(array $subRelation = [], \Closure $closure = null)
+    public function getRelation(array $subRelation = [], Closure $closure = null)
     {
         if ($closure) {
-            $closure($this->query);
+            $closure($this);
         }
 
         $this->baseQuery();
@@ -239,7 +239,7 @@ class HasManyThrough extends Relation
         $keys        = $throughList->column($this->throughPk, $this->throughPk);
 
         if ($closure) {
-            $closure($this->query);
+            $closure($this);
         }
 
         $list = $this->query->where($this->throughKey, 'in', $keys)->select();
@@ -249,7 +249,13 @@ class HasManyThrough extends Relation
         $keys = $throughList->column($this->foreignKey, $this->throughPk);
 
         foreach ($list as $set) {
-            $data[$keys[$set->{$this->throughKey}]][] = $set;
+            $key = $keys[$set->{$this->throughKey}];
+
+            if ($this->withLimit && isset($data[$key]) && count($data[$key]) >= $this->withLimit) {
+                continue;
+            }
+
+            $data[$key][] = $set;
         }
 
         return $data;
@@ -274,7 +280,7 @@ class HasManyThrough extends Relation
         }
 
         if ($closure) {
-            $closure($this->query, $name);
+            $closure($this, $name);
         }
 
         $alias        = App::parseName(App::classBaseName($this->model));
@@ -307,7 +313,7 @@ class HasManyThrough extends Relation
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null): string
     {
         if ($closure) {
-            $closure($this->query, $name);
+            $closure($this, $name);
         }
 
         $alias        = App::parseName(App::classBaseName($this->model));
