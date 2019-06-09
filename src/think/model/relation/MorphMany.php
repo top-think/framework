@@ -76,6 +76,10 @@ class MorphMany extends Relation
 
         $this->baseQuery();
 
+        if ($this->withLimit) {
+            $this->query->limit($this->withLimit);
+        }
+
         return $this->query->relation($subRelation)
             ->select()
             ->setParent(clone $this->parent);

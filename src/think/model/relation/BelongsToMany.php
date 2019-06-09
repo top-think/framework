@@ -483,6 +483,10 @@ class BelongsToMany extends Relation
         $table     = $this->pivot->db()->getTable();
         $fields    = $this->getQueryFields($tableName);
 
+        if ($this->withLimit) {
+            $this->query->limit($this->withLimit);
+        }
+
         $query = $this->query
             ->field($fields)
             ->tableField(true, $table, 'pivot', 'pivot__');

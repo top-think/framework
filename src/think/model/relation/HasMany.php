@@ -58,6 +58,10 @@ class HasMany extends Relation
             $closure($this);
         }
 
+        if ($this->withLimit) {
+            $this->query->limit($this->withLimit);
+        }
+
         return $this->query
             ->where($this->foreignKey, $this->parent->{$this->localKey})
             ->relation($subRelation)
