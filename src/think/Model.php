@@ -287,6 +287,16 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
+     * 获取当前模型的数据库查询对象
+     * @access public
+     * @return Query|null
+     */
+    public function getQuery()
+    {
+        return $this->queryInstance;
+    }
+
+    /**
      * 设置当前模型数据表的后缀
      * @access public
      * @param string $suffix 数据表后缀

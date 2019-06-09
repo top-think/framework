@@ -193,8 +193,10 @@ abstract class Relation
             // 执行基础查询
             $this->baseQuery();
 
-            $result = call_user_func_array([$this->query->getModel(false), $method], $args);
+            $model  = $this->query->getModel(false);
+            $result = call_user_func_array([$model, $method], $args);
 
+            $this->query = $model->getQuery();
             return $result === $this->query ? $this : $result;
         }
 
