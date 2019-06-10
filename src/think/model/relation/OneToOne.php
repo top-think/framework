@@ -313,7 +313,9 @@ abstract class OneToOne extends Relation
         $data = [];
 
         foreach ($list as $set) {
-            $data[$set->$key] = $set;
+            if (!isset($data[$set->$key])) {
+                $data[$set->$key] = $set;
+            }
         }
 
         return $data;
