@@ -303,7 +303,12 @@ abstract class OneToOne extends Relation
             }
         }
 
-        $list = $this->query->where($where)->with($subRelation)->select();
+        if (1 == $this->withLimit) {
+            $pk   = $this->query->getPk();
+            $list = $this->query->where($where)->with($subRelation)->group($key)->order($pk, 'desc')->select();
+        } else {
+            $list = $this->query->where($where)->with($subRelation)->select();
+        }
 
         // 组装模型数据
         $data = [];
