@@ -428,7 +428,7 @@ abstract class Model implements JsonSerializable, ArrayAccess
     public function refresh(bool $relation = false)
     {
         if ($this->exists) {
-            $this->data   = $this->db()->fetchArray()->find($this->getKey());
+            $this->data   = $this->db()->find($this->getKey())->getData();
             $this->origin = $this->data;
 
             if ($relation) {
