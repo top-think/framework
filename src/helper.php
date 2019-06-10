@@ -294,6 +294,9 @@ if (!function_exists('input')) {
             $method = substr($key, 0, $pos);
             if (in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'route', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
                 $key = substr($key, $pos + 1);
+                if ('server' == $method && is_null($default)) {
+                    $default = '';
+                }
             } else {
                 $method = 'param';
             }
