@@ -63,6 +63,13 @@ abstract class Driver implements CacheInterface
             $expire = $expire->getTimestamp() - time();
         }
 
+        if ($expire instanceof \DateInterval) {
+            $dateTime = new \DateTime();
+            $now = $dateTime->getTimestamp();
+            $dateTime->add($expire);
+            $expire = $dateTime->getTimestamp() - $now;
+        }
+
         return (int) $expire;
     }
 
