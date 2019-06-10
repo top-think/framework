@@ -297,18 +297,17 @@ abstract class OneToOne extends Relation
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
             $closure($this);
-
-            if ($this->withField) {
-                $this->query->field($this->withField);
-            }
         }
 
-        if (1 == $this->withLimit) {
-            $pk   = $this->query->getPk();
-            $list = $this->query->where($where)->with($subRelation)->group($key)->order($pk, 'desc')->select();
-        } else {
-            $list = $this->query->where($where)->with($subRelation)->select();
+        if ($this->withField) {
+            $this->query->field($this->withField);
         }
+
+        if ($this->query->getOptions('order')) {
+            $this->query->group($key);
+        }
+
+        $list = $this->query->where($where)->with($subRelation)->select();
 
         // 组装模型数据
         $data = [];
