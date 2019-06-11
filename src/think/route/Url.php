@@ -63,12 +63,6 @@ class Url
     protected $domain = false;
 
     /**
-     * 显示域名
-     * @var bool
-     */
-    protected $showDomain;
-
-    /**
      * 架构函数
      * @access public
      * @param  string $url URL地址
@@ -187,7 +181,7 @@ class Url
             $scheme = $request->isSsl() ? 'https://' : 'http://';
         }
 
-        return $request->host() == $domain && !$this->showDomain ? '' : $scheme . $domain;
+        return $scheme . $domain;
     }
 
     /**
@@ -395,8 +389,6 @@ class Url
             }
         }
 
-        $this->showDomain = false === $domain ? false : true;
-
         if ($url) {
             $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
@@ -416,7 +408,7 @@ class Url
             // 匹配路由命名标识
             $url = $match[0];
 
-            if (!empty($match[1])) {
+            if ($domain && !empty($match[1])) {
                 $domain = $match[1];
             }
 
