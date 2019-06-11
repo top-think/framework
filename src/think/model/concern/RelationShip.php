@@ -97,8 +97,8 @@ trait RelationShip
         if (array_key_exists($name, $this->relation)) {
             return $this->relation[$name];
         } elseif ($auto) {
-            $method = App::parseName($name, 1, false);
-            return $this->$method()->getRelation();
+            $relation = App::parseName($name, 1, false);
+            return $this->getRelationValue($relation);
         }
     }
 

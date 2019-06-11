@@ -486,7 +486,7 @@ trait Attribute
 
         if (isset($this->withAttr[$fieldName])) {
             if ($relation) {
-                $value = $this->getRelationValue($name, $relation);
+                $value = $this->getRelationValue($relation);
             }
 
             if (in_array($fieldName, $this->json) && is_array($this->withAttr[$fieldName])) {
@@ -497,7 +497,7 @@ trait Attribute
             }
         } elseif (method_exists($this, $method)) {
             if ($relation) {
-                $value = $this->getRelationValue($name, $relation);
+                $value = $this->getRelationValue($relation);
             }
 
             $value = $this->$method($value, $this->data);
@@ -507,7 +507,7 @@ trait Attribute
         } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
             $value = $this->getTimestampValue($value);
         } elseif ($relation) {
-            $value = $this->getRelationValue($name, $relation);
+            $value = $this->getRelationValue($relation);
             // 保存关联对象值
             $this->relation[$name] = $value;
         }
@@ -538,11 +538,10 @@ trait Attribute
     /**
      * 获取关联属性值
      * @access protected
-     * @param  string $name     属性名
      * @param  string $relation 关联名
      * @return mixed
      */
-    protected function getRelationValue(string $name, string $relation)
+    protected function getRelationValue(string $relation)
     {
         $modelRelation = $this->$relation();
 
