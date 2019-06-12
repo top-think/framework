@@ -2883,12 +2883,12 @@ class Query
      * 查找记录
      * @access public
      * @param mixed $data 数据
-     * @return Collection|array|ModelCollection
+     * @return Collection|ModelCollection
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    public function select($data = null)
+    public function select($data = null): Collection
     {
         if (!is_null($data)) {
             // 主键条件分析
@@ -3015,7 +3015,7 @@ class Query
             return $this->resultToEmpty();
         }
 
-        if (!empty($this->model) && empty($this->options['array'])) {
+        if (!empty($this->model)) {
             // 返回模型对象
             $this->resultToModel($result, $this->options);
         } else {
@@ -3049,9 +3049,7 @@ class Query
         if (!empty($this->options['fail'])) {
             $this->throwNotFound();
         } elseif (!empty($this->options['allow_empty'])) {
-            return !empty($this->model) && empty($this->options['array']) ? $this->model->newInstance()->setQuery($this) : [];
-        } elseif (!empty($this->options['array'])) {
-            return [];
+            return !empty($this->model) ? $this->model->newInstance()->setQuery($this) : [];
         }
     }
 
@@ -3251,7 +3249,7 @@ class Query
      * 查找多条记录 如果不存在则抛出异常
      * @access public
      * @param array|string|Query|Closure $data 数据
-     * @return array|PDOStatement|string|Model
+     * @return array|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
@@ -3265,7 +3263,7 @@ class Query
      * 查找单条记录 如果不存在则抛出异常
      * @access public
      * @param array|string|Query|Closure $data 数据
-     * @return array|PDOStatement|string|Model
+     * @return array|Model
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
