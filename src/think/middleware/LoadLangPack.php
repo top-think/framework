@@ -22,40 +22,31 @@ use think\Request;
  */
 class LoadLangPack
 {
-    /** @var Lang */
-    protected $lang;
-
-    /** @var App */
-    protected $app;
-
-    public function __construct(Lang $lang, App $app)
-    {
-        $this->lang = $lang;
-        $this->app  = $app;
-    }
 
     /**
      * 路由初始化（路由规则注册）
      * @access public
      * @param Request $request
      * @param Closure $next
-     * @return void
+     * @param Lang    $lang
+     * @param App     $app
+     * @return Response
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, Lang $lang, App $app)
     {
         // 自动侦测当前语言
-        $langset = $this->lang->detect();
+        $langset = $lang->detect();
 
-        if ($this->lang->defaultLangSet() != $langset) {
+        if ($lang->defaultLangSet() != $langset) {
             // 加载系统语言包
-            $this->lang->load([
-                $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
+            $lang->load([
+                $app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
             ]);
 
-            $this->app->LoadLangPack($langset);
+            $app->LoadLangPack($langset);
         }
 
-        $this->lang->saveToCookie($this->app->cookie);
+        $lang->saveToCookie($app->cookie);
 
         return $next($request);
     }

@@ -24,30 +24,20 @@ use think\Session;
 class SessionInit
 {
 
-    /** @var Session */
-    protected $session;
-
-    /** @var App */
-    protected $app;
-
-    public function __construct(App $app, Session $session)
-    {
-        $this->app     = $app;
-        $this->session = $session;
-    }
-
     /**
      * Session初始化
      * @access public
      * @param Request $request
      * @param Closure $next
+     * @param App     $app
+     * @param Session $session
      * @return void
      */
-    public function handle($request, Closure $next)
+    public function handle($request, Closure $next, App $app, Session $session)
     {
         // Session初始化
-        $varSessionId = $this->app->config->get('session.var_session_id');
-        $cookieName   = $this->app->config->get('session.name') ?: 'PHPSESSID';
+        $varSessionId = $app->config->get('session.var_session_id');
+        $cookieName   = $app->config->get('session.name') ?: 'PHPSESSID';
 
         if ($varSessionId && $request->request($varSessionId)) {
             $sessionId = $request->request($varSessionId);
@@ -55,17 +45,17 @@ class SessionInit
             $sessionId = $request->cookie($cookieName) ?: '';
         }
 
-        $this->session->setId($sessionId);
+        $session->setId($sessionId);
 
-        $request->withSession($this->session);
+        $request->withSession($session);
 
-        $response = $next($request)->setSession($this->session);
+        $response = $next($request)->setSession($session);
 
-        $this->app->cookie->set($cookieName, $this->session->getId());
+        $app->cookie->set($cookieName, $session->getId());
 
         // 清空当次请求有效的数据
         if (!($response instanceof RedirectResponse)) {
-            $this->session->flush();
+            $session->flush();
         }
 
         return $response;
