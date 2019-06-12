@@ -3222,7 +3222,7 @@ class Query
         // 关联统计
         if (!empty($options['with_count'])) {
             foreach ($options['with_count'] as $val) {
-                $result->relationCount($result, $val[0], $val[1], $val[2]);
+                $result->relationCount($result, (array) $val[0], $val[1], $val[2]);
             }
         }
     }

@@ -260,7 +260,7 @@ class MorphTo extends Relation
      * @param  string  $field 字段
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*')
+    public function relationCount(Model $result, Closure $closure = null, string $aggregate = 'count', string $field = '*')
     {}
 
     /**
