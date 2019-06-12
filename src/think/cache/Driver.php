@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think\cache;
 
+use DateInterval;
+use DateTime;
+use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
 use think\Container;
 use think\exception\InvalidArgumentException;
@@ -54,13 +57,17 @@ abstract class Driver implements CacheInterface
     /**
      * 获取有效期
      * @access protected
-     * @param  integer|\DateTimeInterface $expire 有效期
+     * @param  integer|DateTimeInterface|DateInterval $expire 有效期
      * @return int
      */
     protected function getExpireTime($expire): int
     {
-        if ($expire instanceof \DateTimeInterface) {
+        if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
+        } elseif ($expire instanceof DateInterval) {
+            $expire = DateTime::createFromFormat('U', time())
+                ->add($expire)
+                ->format('U');
         }
 
         return (int) $expire;
