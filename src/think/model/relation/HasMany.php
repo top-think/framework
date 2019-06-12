@@ -91,10 +91,9 @@ class HasMany extends Relation
         }
 
         if (!empty($range)) {
-            $where = [
+            $data = $this->eagerlyOneToMany([
                 [$this->foreignKey, 'in', $range],
-            ];
-            $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
+            ], $relation, $subRelation, $closure);
 
             // 关联属性名
             $attr = App::parseName($relation);
@@ -125,9 +124,10 @@ class HasMany extends Relation
         $localKey = $this->localKey;
 
         if (isset($result->$localKey)) {
-            $pk    = $result->$localKey;
-            $where = [$this->foreignKey, '=', $pk];
-            $data  = $this->eagerlyOneToMany([$where], $relation, $subRelation, $closure);
+            $pk   = $result->$localKey;
+            $data = $this->eagerlyOneToMany([
+                [$this->foreignKey, '=', $pk],
+            ], $relation, $subRelation, $closure);
 
             // 关联数据封装
             if (!isset($data[$pk])) {

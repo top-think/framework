@@ -101,11 +101,12 @@ abstract class Relation
     /**
      * 获取当前的关联模型类的实例
      * @access public
+     * @param bool $clear 是否需要清空查询条件
      * @return Model
      */
-    public function getModel(): Model
+    public function getModel(bool $clear = true): Model
     {
-        return $this->query->getModel();
+        return $this->query->getModel($clear);
     }
 
     /**

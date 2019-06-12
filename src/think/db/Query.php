@@ -558,7 +558,10 @@ class Query
         if (!empty($this->options['group'])) {
             // 支持GROUP
             $options = $this->getOptions();
-            $subSql  = $this->options($options)->field('count(' . $field . ') AS think_count')->bind($this->bind)->buildSql();
+            $subSql  = $this->options($options)
+                ->field('count(' . $field . ') AS think_count')
+                ->bind($this->bind)
+                ->buildSql();
 
             $query = $this->newQuery()->table([$subSql => '_group_count_']);
 
@@ -1429,12 +1432,11 @@ class Query
      */
     protected function whereEq(string $field, $value): array
     {
-        $where = [$field, '=', $value];
         if ($this->getPk() == $field) {
             $this->options['key'] = $value;
         }
 
-        return $where;
+        return [$field, '=', $value];
     }
 
     /**
@@ -1461,7 +1463,8 @@ class Query
         }
 
         if (!empty($where)) {
-            $this->options['where'][$logic] = isset($this->options['where'][$logic]) ? array_merge($this->options['where'][$logic], $where) : $where;
+            $this->options['where'][$logic] = isset($this->options['where'][$logic]) ?
+            array_merge($this->options['where'][$logic], $where) : $where;
         }
 
         return $this;
@@ -1836,7 +1839,7 @@ class Query
             return $this;
         }
 
-        if ($key instanceof \DateTimeInterface || (is_int($key) && is_null($expire))) {
+        if ($key instanceof \DateTimeInterface || $key instanceof \DateInterval || (is_int($key) && is_null($expire))) {
             $expire = $key;
             $key    = true;
         }
@@ -2335,13 +2338,11 @@ class Query
      */
     public function getPk()
     {
-        if (!empty($this->pk)) {
-            $pk = $this->pk;
-        } else {
-            $this->pk = $pk = $this->connection->getPk($this->getTable());
+        if (empty($this->pk)) {
+            $this->pk = $this->connection->getPk($this->getTable());
         }
 
-        return $pk;
+        return $this->pk;
     }
 
     /**
@@ -2605,13 +2606,15 @@ class Query
 
                 $relation = App::parseName($relation, 1, false);
 
-                $count = '(' . $this->model->$relation()->getRelationCountQuery($closure, $aggregate, $field, $aggregateField) . ')';
+                $count = $this->model
+                    ->$relation()
+                    ->getRelationCountQuery($closure, $aggregate, $field, $aggregateField);
 
                 if (empty($aggregateField)) {
                     $aggregateField = App::parseName($relation) . '_' . $aggregate;
                 }
 
-                $this->field([$count => $aggregateField]);
+                $this->field(['(' . $count . ')' => $aggregateField]);
             }
         }
 
@@ -3186,7 +3189,9 @@ class Query
             $this->jsonResult($result, $options['json'], $options['json_assoc'], $withRelationAttr);
         }
 
-        $result = $this->model->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options))->setQuery($this);
+        $result = $this->model
+            ->newInstance($result, $resultSet ? null : $this->getModelUpdateCondition($options))
+            ->setQuery($this);
 
         // 动态获取器
         if (!empty($options['with_attr'])) {
@@ -3310,10 +3315,6 @@ class Query
         $resultSet = $query->order($column, $order)->select();
 
         while (count($resultSet) > 0) {
-            if ($resultSet instanceof Collection) {
-                $resultSet = $resultSet->all();
-            }
-
             if (false === call_user_func($callback, $resultSet)) {
                 return false;
             }
@@ -3425,7 +3426,6 @@ class Query
             unset($data[$pk]);
             $isUpdate = true;
         } elseif (is_array($pk)) {
-            // 增加复合主键支持
             foreach ($pk as $field) {
                 if (isset($data[$field])) {
                     $this->where($field, '=', $data[$field]);
@@ -3526,7 +3526,7 @@ class Query
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
             $page                  = $page > 0 ? $page : 1;
-            $listRows              = $listRows ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $listRows              = $listRows ?: (is_numeric($options['limit']) ? $options['limit'] : 20);
             $offset                = $listRows * ($page - 1);
             $options['limit']      = $offset . ',' . $listRows;
         }
