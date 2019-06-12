@@ -128,31 +128,28 @@ class File implements SessionHandlerInterface
     {
         $filename = $this->getFileName($sessID);
 
-        if (!is_file($filename)) {
+        $content = is_file($filename) ? file_get_contents($filename) : false;
+
+        if (false === $content) {
             return '';
         }
 
-        $content = file_get_contents($filename);
+        $expire = (int) substr($content, 8, 12);
 
-        if (false !== $content) {
-            $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && time() > filemtime($filename) + $expire) {
-                //缓存过期删除缓存文件
-                $this->unlink($filename);
-                return '';
-            }
-
-            $content = substr($content, 32);
-
-            if ($this->config['data_compress'] && function_exists('gzcompress')) {
-                //启用数据压缩
-                $content = gzuncompress($content);
-            }
-
-            return $content;
-        } else {
+        if (0 != $expire && time() > filemtime($filename) + $expire) {
+            //缓存过期删除缓存文件
+            $this->unlink($filename);
             return '';
         }
+
+        $content = substr($content, 32);
+
+        if ($this->config['data_compress'] && function_exists('gzcompress')) {
+            //启用数据压缩
+            $content = gzuncompress($content);
+        }
+
+        return $content;
     }
 
     /**
