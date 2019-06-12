@@ -663,7 +663,7 @@ abstract class Builder
             }
 
             if (count($array) == 1) {
-                return $key . ' = ' . $array[0];
+                return $key . ('IN' == $exp ? ' = ' : ' <> ') . $array[0];
             } else {
                 $zone  = implode(',', $array);
                 $value = empty($zone) ? "''" : $zone;
