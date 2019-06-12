@@ -1960,6 +1960,18 @@ class Query
     }
 
     /**
+     * 设置是否返回数组
+     * @access public
+     * @param bool $asArray 是否返回数组
+     * @return $this
+     */
+    public function fetchArray(bool $asArray = true)
+    {
+        $this->options['array'] = $asArray;
+        return $this;
+    }
+
+    /**
      * 设置从主服务器读取数据
      * @access public
      * @param bool $readMaster 是否从主服务器读取
@@ -2903,7 +2915,7 @@ class Query
         }
 
         // 数据列表读取后的处理
-        if (!empty($this->model)) {
+        if (!empty($this->model) && empty($this->options['array'])) {
             // 生成模型对象
             $resultSet = $this->resultSetToModelCollection($resultSet);
         } else {
@@ -2988,8 +3000,10 @@ class Query
             }
         }
 
-        // 返回Collection对象
-        $resultSet = new Collection($resultSet);
+        if (empty($this->options['array'])) {
+            // 返回Collection对象
+            $resultSet = new Collection($resultSet);
+        }
     }
 
     /**
