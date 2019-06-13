@@ -361,12 +361,7 @@ class App extends Container
         $this->configExt = $this->env->get('config_ext', '.php');
 
         // 加载全局初始化文件
-        if (is_file($this->getRuntimePath() . 'init.php')) {
-            //直接加载缓存
-            include $this->getRuntimePath() . 'init.php';
-        } else {
-            $this->load();
-        }
+        $this->load();
 
         $this->debugModeInit();
 
@@ -445,7 +440,7 @@ class App extends Container
         $appPath = $this->getAppPath();
 
         if (is_file($appPath . 'common.php')) {
-            include_once $appPath . 'common.php';
+            include $appPath . 'common.php';
         }
 
         include $this->thinkPath . 'helper.php';
