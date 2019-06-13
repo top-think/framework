@@ -672,22 +672,22 @@ abstract class Connection
      * 执行查询 返回数据集
      * @access public
      * @param Query  $query 查询对象
-     * @param string $sql   sql指令
+     * @param mixed  $sql   sql指令
      * @param array  $bind  参数绑定
-     * @param bool   $cache 是否支持缓存
      * @return array
      * @throws BindParamException
      * @throws \PDOException
      * @throws \Exception
      * @throws \Throwable
      */
-    public function query(Query $query, string $sql, array $bind = [], bool $cache = false): array
+    public function query(Query $query, $sql, array $bind = []): array
     {
         // 分析查询表达式
-        $options = $query->parseOptions();
+        $query->parseOptions();
 
-        if ($cache && !empty($options['cache'])) {
-            $cacheItem = $this->parseCache($query, $options['cache']);
+        if ($query->getOptions('cache')) {
+            // 检查查询缓存
+            $cacheItem = $this->parseCache($query, $query->getOptions('cache'));
             $resultSet = $this->cache->get($cacheItem->getKey());
 
             if (false !== $resultSet) {
@@ -695,8 +695,13 @@ abstract class Connection
             }
         }
 
-        $master    = !empty($options['master']) ? true : false;
-        $procedure = !empty($options['procedure']) ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
+        if ($sql instanceof \Closure) {
+            $sql  = $sql($query);
+            $bind = $query->getBind();
+        }
+
+        $master    = $query->getOptions('master') ? true : false;
+        $procedure = $query->getOptions('procedure') ? true : in_array(strtolower(substr(trim($sql), 0, 4)), ['call', 'exec']);
 
         $this->getPDOStatement($sql, $bind, $master, $procedure);
 
@@ -799,6 +804,10 @@ abstract class Connection
      */
     public function execute(Query $query, string $sql, array $bind = [], bool $origin = false): int
     {
+        if ($origin) {
+            $query->parseOptions();
+        }
+
         $this->queryPDOStatement($query->master(true), $sql, $bind);
 
         if (!$origin && !empty($this->config['deploy']) && !empty($this->config['read_master'])) {
@@ -806,6 +815,19 @@ abstract class Connection
         }
 
         $this->numRows = $this->PDOStatement->rowCount();
+
+        if ($query->getOptions('cache')) {
+            // 清理缓存数据
+            $cacheItem = $this->parseCache($query, $query->getOptions('cache'), $sql);
+            $key       = $cacheItem->getKey();
+            $tag       = $cacheItem->getTag();
+
+            if (isset($key) && $this->cache->get($key)) {
+                $this->cache->delete($key);
+            } elseif (!empty($tag)) {
+                $this->cache->tag($tag)->clear();
+            }
+        }
 
         return $this->numRows;
     }
@@ -830,40 +852,16 @@ abstract class Connection
      */
     public function find(Query $query): array
     {
-        // 分析查询表达式
-        $options = $query->parseOptions();
-
-        if (!empty($options['cache'])) {
-            // 判断查询缓存
-            $cacheItem = $this->parseCache($query, $options['cache']);
-            $key       = $cacheItem->getKey();
-        }
-
-        if (isset($key)) {
-            $result = $this->cache->get($key);
-
-            if (false !== $result) {
-                return $result;
-            }
-        }
-
-        // 生成查询SQL
-        $sql = $this->builder->select($query, true);
-
         // 事件回调
         $result = $this->db->trigger('before_find', $query);
 
         if (!$result) {
             // 执行查询
-            $resultSet = $this->query($query, $sql, $query->getBind());
+            $resultSet = $this->query($query, function ($query) {
+                return $this->builder->select($query, true);
+            });
 
             $result = $resultSet[0] ?? [];
-        }
-
-        if (isset($cacheItem) && $result) {
-            // 缓存数据
-            $cacheItem->set($result);
-            $this->cacheData($cacheItem);
         }
 
         return $result;
@@ -900,32 +898,13 @@ abstract class Connection
      */
     public function select(Query $query): array
     {
-        // 分析查询表达式
-        $options = $query->parseOptions();
-
-        if (!empty($options['cache'])) {
-            $cacheItem = $this->parseCache($query, $options['cache']);
-            $resultSet = $this->getCacheData($cacheItem);
-
-            if (false !== $resultSet) {
-                return $resultSet;
-            }
-        }
-
-        // 生成查询SQL
-        $sql = $this->builder->select($query);
-
         $resultSet = $this->db->trigger('before_select', $query);
 
         if (!$resultSet) {
             // 执行查询操作
-            $resultSet = $this->query($query, $sql, $query->getBind());
-        }
-
-        if (isset($cacheItem) && false !== $resultSet) {
-            // 缓存数据集
-            $cacheItem->set($resultSet);
-            $this->cacheData($cacheItem);
+            $resultSet = $this->query($query, function ($query) {
+                return $this->builder->select($query);
+            });
         }
 
         return $resultSet;
@@ -1049,24 +1028,10 @@ abstract class Connection
      */
     public function update(Query $query): int
     {
-        $options = $query->parseOptions();
-
-        if (isset($options['cache'])) {
-            $cacheItem = $this->parseCache($query, $options['cache']);
-            $key       = $cacheItem->getKey();
-            $tag       = $cacheItem->getTag();
-        }
+        $query->parseOptions();
 
         // 生成UPDATE SQL语句
         $sql = $this->builder->update($query);
-
-        // 检测缓存
-        if (isset($key) && $this->cache->get($key)) {
-            // 删除缓存
-            $this->cache->delete($key);
-        } elseif (!empty($tag)) {
-            $this->cache->tag($tag)->clear();
-        }
 
         // 执行操作
         $result = '' == $sql ? 0 : $this->execute($query, $sql, $query->getBind());
@@ -1089,24 +1054,10 @@ abstract class Connection
     public function delete(Query $query): int
     {
         // 分析查询表达式
-        $options = $query->parseOptions();
-
-        if (isset($options['cache'])) {
-            $cacheItem = $this->parseCache($query, $options['cache']);
-            $key       = $cacheItem->getKey();
-            $tag       = $cacheItem->getTag();
-        }
+        $query->parseOptions();
 
         // 生成删除SQL语句
         $sql = $this->builder->delete($query);
-
-        // 检测缓存
-        if (isset($key) && $this->cache->get($key)) {
-            // 删除缓存
-            $this->cache->delete($key);
-        } elseif (!empty($tag)) {
-            $this->cache->tag($tag)->clear();
-        }
 
         // 执行操作
         $result = $this->execute($query, $sql, $query->getBind());
@@ -1139,7 +1090,7 @@ abstract class Connection
 
         if (!empty($options['cache'])) {
             $cacheItem = $this->parseCache($query, $options['cache']);
-            $result    = $this->getCacheData($cacheItem);
+            $result    = $this->cache->get($cacheItem->getKey());
 
             if (false !== $result) {
                 return $result;
@@ -1220,7 +1171,7 @@ abstract class Connection
         if (!empty($options['cache'])) {
             // 判断查询缓存
             $cacheItem = $this->parseCache($query, $options['cache']);
-            $result    = $this->getCacheData($cacheItem);
+            $result    = $this->cache->get($cacheItem->getKey());
 
             if (false !== $result) {
                 return $result;
@@ -1840,17 +1791,12 @@ abstract class Connection
     }
 
     /**
-     * 获取缓存数据
+     * 分析缓存
      * @access protected
-     * @param CacheItem $cacheItem
-     * @return mixed
+     * @param Query $query 查询对象
+     * @param array $cache 缓存信息
+     * @return CacheItem
      */
-    protected function getCacheData(CacheItem $cacheItem)
-    {
-        // 判断查询缓存
-        return $this->cache->get($cacheItem->getKey());
-    }
-
     protected function parseCache(Query $query, array $cache): CacheItem
     {
         list($key, $expire, $tag) = $cache;

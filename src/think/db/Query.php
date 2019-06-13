@@ -393,7 +393,7 @@ class Query
      */
     public function query(string $sql, array $bind = []): array
     {
-        return $this->connection->query($this, $sql, $bind, true);
+        return $this->connection->query($this, $sql, $bind);
     }
 
     /**
