@@ -321,7 +321,7 @@ class Http
                 }
 
                 if ($name) {
-                    $this->app->request->setRoot($name);
+                    $this->app->request->setRoot('/' . $name);
                     $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
                 }
             }
