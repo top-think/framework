@@ -65,9 +65,9 @@ abstract class Driver implements CacheInterface
         if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
         } elseif ($expire instanceof DateInterval) {
-            $expire = DateTime::createFromFormat('U', time())
+            $expire = DateTime::createFromFormat('U', (string) time())
                 ->add($expire)
-                ->format('U');
+                ->format('U') - time();
         }
 
         return (int) $expire;

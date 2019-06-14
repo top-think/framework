@@ -197,7 +197,7 @@ class CacheItem implements CacheItemInterface
     public function expiresAfter($timeInterval)
     {
         if ($timeInterval instanceof DateInterval) {
-            $this->expire = (int) DateTime::createFromFormat('U', time())->add($timeInterval)->format('U');
+            $this->expire = (int) DateTime::createFromFormat('U', (string) time())->add($timeInterval)->format('U');
         } elseif (is_numeric($timeInterval)) {
             $this->expire = $timeInterval + time();
         } else {
