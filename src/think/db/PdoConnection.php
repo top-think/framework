@@ -17,16 +17,14 @@ use PDOStatement;
 use think\Cache;
 use think\cache\CacheItem;
 use think\Container;
-use think\Db;
 use think\db\exception\BindParamException;
 use think\Exception;
 use think\exception\PDOException;
-use think\Log;
 
 /**
  * 数据库连接基础类
  */
-abstract class PDOConnection extends Connection
+abstract class PdoConnection extends Connection
 {
     const PARAM_FLOAT = 21;
 
