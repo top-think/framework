@@ -85,8 +85,12 @@ if (!function_exists('cache')) {
      * @param  string $tag     缓存标签
      * @return mixed
      */
-    function cache(string $name, $value = '', $options = null, $tag = null)
+    function cache(string $name = null, $value = '', $options = null, $tag = null)
     {
+        if (is_null($name)) {
+            return app('cache');
+        }
+
         if ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
