@@ -16,7 +16,6 @@ use InvalidArgumentException;
 use think\db\Connection;
 use think\db\Query;
 use think\db\Raw;
-use think\exception\DbException;
 
 /**
  * Class Db
@@ -69,6 +68,7 @@ class Db
     public function __construct(array $config = [])
     {
         $this->config = $config;
+
     }
 
     /**
@@ -93,10 +93,33 @@ class Db
      * @param bool|string $name   连接标识 true 强制重新连接
      * @return $this
      */
-    public function connect($config = [], $name = false)
+    public function connect($config = '', $name = false)
     {
         $this->connection = $this->instance($this->parseConfig($config), $name);
         return $this;
+    }
+
+    /**
+     * 数据库连接参数解析
+     * @access private
+     * @param mixed $config
+     * @return array
+     */
+    private function parseConfig($config): array
+    {
+        $defaultConnector = $this->config['default'] ?? 'mysql';
+
+        if (empty($config)) {
+            $config = $this->config['connections'][$defaultConnector];
+        } elseif (is_string($config)) {
+            $config = $this->config['connections'][$config] ?? $this->config['connections'][$defaultConnector];
+        }
+
+        if (!is_array($config)) {
+            throw new DbException('database config error:' . $config);
+        }
+
+        return $config;
     }
 
     /**
@@ -167,39 +190,6 @@ class Db
     public function getQueryTimes(): int
     {
         return $this->queryTimes;
-    }
-
-    /**
-     * 数据库连接参数解析
-     * @access private
-     * @param mixed $config
-     * @return array
-     */
-    private function parseConfig($config): array
-    {
-        if (empty($config)) {
-            $config = $this->config;
-        } elseif (is_string($config) && isset($this->config[$config])) {
-            // 支持读取配置参数
-            $config = $this->config[$config];
-        }
-
-        if (!is_array($config)) {
-            throw new DbException('database config error:' . $config);
-        }
-
-        return $config;
-    }
-
-    /**
-     * 获取数据库的配置参数
-     * @access public
-     * @param string $name 参数名称
-     * @return mixed
-     */
-    public function getConfig(string $name = '')
-    {
-        return $name ? ($this->config[$name] ?? null) : $this->config;
     }
 
     /**

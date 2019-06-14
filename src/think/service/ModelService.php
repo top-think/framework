@@ -23,7 +23,8 @@ class ModelService extends Service
     public function boot()
     {
         Model::maker(function (Model $model) {
-            $db = $this->app->db;
+            $db     = $this->app->db;
+            $config = $this->app->config;
             $model->setDb($db);
             $model->setEvent($this->app->event);
 
@@ -31,21 +32,14 @@ class ModelService extends Service
 
             if (is_null($isAutoWriteTimestamp)) {
                 // 自动写入时间戳
-                $model->isAutoWriteTimestamp($db->getConfig('auto_timestamp'));
+                $model->isAutoWriteTimestamp($config->get('database.auto_timestamp'));
             }
 
             $dateFormat = $model->getDateFormat();
 
             if (is_null($dateFormat)) {
                 // 设置时间戳格式
-                $model->setDateFormat($db->getConfig('datetime_format'));
-            }
-
-            $connection = $model->getConnection();
-
-            if (!empty($connection) && is_array($connection)) {
-                // 设置模型的数据库连接
-                $model->setConnection(array_merge($db->getConfig(), $connection));
+                $model->setDateFormat($config->get('database.datetime_format'));
             }
 
         });

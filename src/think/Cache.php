@@ -85,22 +85,15 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
-     * 自动初始化缓存
+     * 用默认方式自动初始化缓存
      * @access public
-     * @param  array $options 配置数组
      * @param  bool  $force   强制更新
      * @return Driver
      */
-    public function init(array $options = [], bool $force = false): Driver
+    public function init(bool $force = false): Driver
     {
         if (is_null($this->handler) || $force) {
-            $options = !empty($options) ? $options : $this->config;
-
-            if (isset($options['type']) && 'complex' == $options['type']) {
-                $default = $options['default'];
-                $options = $options[$default['type']] ?? $default;
-            }
-
+            $options       = $this->config['stores'][$this->config['default'] ?? 'file'];
             $this->handler = $this->connect($options);
         }
 
@@ -119,19 +112,17 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
-     * 切换缓存类型 需要配置 cache.type 为 complex
+     * 切换缓存类型
      * @access public
      * @param  string $name  缓存标识
      * @param  bool   $force 强制更新
      * @return Driver
      */
-    public function store(string $name = '', bool $force = false): Driver
+    public function store(string $name, bool $force = false): Driver
     {
-        if ('' !== $name && 'complex' == $this->config['type']) {
-            return $this->connect($this->config[$name], $force);
-        }
+        $options = $this->config['stores'][$name] ?? $this->config['stores'][$this->config['default'] ?? 'file'];
 
-        return $this->init([], $force);
+        return $this->connect($options, $force);
     }
 
     /**
