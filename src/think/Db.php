@@ -273,7 +273,7 @@ class Db
     {
         /** @var Query $query */
         if (is_null($connection) && !$this->connection) {
-            $this->connect($this->config);
+            $this->connect();
         }
 
         $connection = $connection ?: $this->connection;
