@@ -427,7 +427,7 @@ class Query
 
             if (PDO::PARAM_INT == $type) {
                 $insertId = (int) $insertId;
-            } elseif (Connection::PARAM_FLOAT == $type) {
+            } elseif (PDOConnection::PARAM_FLOAT == $type) {
                 $insertId = (float) $insertId;
             }
         }
