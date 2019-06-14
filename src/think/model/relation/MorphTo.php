@@ -67,9 +67,10 @@ class MorphTo extends Relation
     /**
      * 获取当前的关联模型类的实例
      * @access public
+     * @param bool $clear 是否需要清空查询条件
      * @return Model
      */
-    public function getModel(): Model
+    public function getModel(bool $clear = true): Model
     {
         $morphType = $this->morphType;
         $model     = $this->parseModel($this->parent->$morphType);
