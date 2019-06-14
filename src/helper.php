@@ -87,11 +87,6 @@ if (!function_exists('cache')) {
      */
     function cache($name, $value = '', $options = null, $tag = null)
     {
-        if (is_array($name)) {
-            // 缓存初始化
-            return Cache::connect($name);
-        }
-
         if ('' === $value) {
             // 获取缓存
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
