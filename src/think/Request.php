@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\file\UploadedFile;
 use think\route\Dispatch;
 use think\route\Rule;
 
@@ -1137,7 +1138,7 @@ class Request
      * 获取上传的文件信息
      * @access public
      * @param  string $name 名称
-     * @return null|array|\think\File
+     * @return null|array|\think\file\UploadedFile
      */
     public function file(string $name = '')
     {
@@ -1160,8 +1161,6 @@ class Request
                 return $array[$name];
             }
         }
-
-        return;
     }
 
     protected function dealUploadFile($files, $name)
@@ -1188,7 +1187,7 @@ class Request
                         $temp[$_key] = $file[$_key][$i];
                     }
 
-                    $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
+                    $item[] = new UploadedFile($temp['tmp_name'], $temp['name'], $temp['type'], $temp['error']);
                 }
 
                 $array[$key] = $item;
@@ -1204,7 +1203,7 @@ class Request
                         }
                     }
 
-                    $array[$key] = (new File($file['tmp_name']))->setUploadInfo($file);
+                    $array[$key] = new UploadedFile($file['tmp_name'], $file['name'], $file['type'], $file['error']);
                 }
             }
         }
