@@ -16,11 +16,11 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use think\cache\CacheItem;
 use think\cache\Driver;
-use think\cache\TagSet;
 use think\exception\InvalidArgumentException;
 
 /**
  * 缓存管理类
+ * @mixin Driver
  */
 class Cache implements CacheItemPoolInterface
 {
@@ -49,11 +49,11 @@ class Cache implements CacheItemPoolInterface
     protected $config = [];
 
     /**
-     * 操作句柄
-     * @var object
+     * 架构函数
+     * @access public
+     * @param  array $config  配置参数
+     * @return void
      */
-    protected $handler;
-
     public function __construct(array $config = [])
     {
         $this->config = $config;
@@ -65,15 +65,19 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
-     * 连接缓存
+     * 连接或者切换缓存
      * @access public
-     * @param  array $options  配置数组
-     * @param  bool  $force 强制重新连接
+     * @param  string $name  连接配置名
+     * @param  bool   $force 强制重新连接
      * @return Driver
      */
-    public function connect(array $options = [], bool $force = false): Driver
+    public function store(string $name = '', bool $force = false): Driver
     {
-        $name = md5(serialize($options));
+        if ('' == $name) {
+            $name = $this->config['default'] ?? 'file';
+        }
+
+        $options = $this->config['stores'][$name];
 
         if ($force || !isset($this->instance[$name])) {
             $type = !empty($options['type']) ? $options['type'] : 'File';
@@ -85,22 +89,6 @@ class Cache implements CacheItemPoolInterface
     }
 
     /**
-     * 用默认方式自动初始化缓存
-     * @access public
-     * @param  bool  $force   强制更新
-     * @return Driver
-     */
-    public function init(bool $force = false): Driver
-    {
-        if (is_null($this->handler) || $force) {
-            $options       = $this->config['stores'][$this->config['default'] ?? 'file'];
-            $this->handler = $this->connect($options);
-        }
-
-        return $this->handler;
-    }
-
-    /**
      * 设置配置
      * @access public
      * @param  array $config 配置参数
@@ -109,125 +97,6 @@ class Cache implements CacheItemPoolInterface
     public function config(array $config): void
     {
         $this->config = array_merge($this->config, $config);
-    }
-
-    /**
-     * 切换缓存类型
-     * @access public
-     * @param  string $name  缓存标识
-     * @param  bool   $force 强制更新
-     * @return Driver
-     */
-    public function store(string $name, bool $force = false): Driver
-    {
-        $options = $this->config['stores'][$name] ?? $this->config['stores'][$this->config['default'] ?? 'file'];
-
-        return $this->connect($options, $force);
-    }
-
-    /**
-     * 读取缓存
-     * @access public
-     * @param  string $key 缓存变量名
-     * @param  mixed  $default 默认值
-     * @return mixed
-     */
-    public function get(string $key, $default = false)
-    {
-        return $this->init()->get($key, $default);
-    }
-
-    /**
-     * 写入缓存
-     * @access public
-     * @param  string        $name 缓存变量名
-     * @param  mixed         $value  存储数据
-     * @param  int|\DateTime $expire  有效时间 0为永久
-     * @return bool
-     */
-    public function set(string $name, $value, $expire = null): bool
-    {
-        return $this->init()->set($name, $value, $expire);
-    }
-
-    /**
-     * 追加缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $value  存储数据
-     * @return void
-     */
-    public function push(string $name, $value): void
-    {
-        $this->init()->push($name, $value);
-    }
-
-    /**
-     * 读取并删除缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return mixed
-     */
-    public function pull(string $name)
-    {
-        return $this->init()->pull($name);
-    }
-
-    /**
-     * 如果不存在则写入缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $value  存储数据
-     * @param  int    $expire  有效时间 0为永久
-     * @return mixed
-     */
-    public function remember(string $name, $value, $expire = null)
-    {
-        return $this->init()->remember($name, $value, $expire);
-    }
-
-    /**
-     * 删除缓存
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return bool
-     */
-    public function delete(string $key): bool
-    {
-        return $this->init()->delete($key);
-    }
-
-    /**
-     * 判断缓存是否存在
-     * @access public
-     * @param  string $name 缓存变量名
-     * @return bool
-     */
-    public function has(string $key): bool
-    {
-        return $this->init()->has($key);
-    }
-
-    /**
-     * 缓存标签
-     * @access public
-     * @param  string|array $name 标签名
-     * @return TagSet
-     */
-    public function tag($name): TagSet
-    {
-        return $this->init()->tag($name);
-    }
-
-    /**
-     * 返回句柄对象，可执行其它高级方法
-     *
-     * @access public
-     * @return object
-     */
-    public function handler()
-    {
-        return $this->init()->handler();
     }
 
     /**
@@ -280,7 +149,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function hasItem($key): bool
     {
-        return $this->has($key);
+        return $this->store()->has($key);
     }
 
     /**
@@ -290,7 +159,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function clear(): bool
     {
-        return $this->init()->clear();
+        return $this->store()->clear();
     }
 
     /**
@@ -302,7 +171,7 @@ class Cache implements CacheItemPoolInterface
      */
     public function deleteItem($key): bool
     {
-        return $this->delete($key);
+        return $this->store()->delete($key);
     }
 
     /**
@@ -315,7 +184,7 @@ class Cache implements CacheItemPoolInterface
     public function deleteItems(array $keys): bool
     {
         foreach ($keys as $key) {
-            $this->delete($key);
+            $this->store()->delete($key);
         }
 
         return true;
@@ -330,7 +199,7 @@ class Cache implements CacheItemPoolInterface
     public function save(CacheItemInterface $item): bool
     {
         if ($item->getKey()) {
-            return $this->set($item->getKey(), $item->get(), $item->getExpire());
+            return $this->store()->set($item->getKey(), $item->get(), $item->getExpire());
         }
 
         return false;
@@ -368,7 +237,7 @@ class Cache implements CacheItemPoolInterface
 
     public function __call($method, $args)
     {
-        return call_user_func_array([$this->init(), $method], $args);
+        return call_user_func_array([$this->store(), $method], $args);
     }
 
     public function __destruct()
