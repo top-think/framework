@@ -25,12 +25,6 @@ use think\db\Raw;
 class Db
 {
     /**
-     * 当前数据库连接对象
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
      * 数据库连接实例
      * @var array
      */
@@ -87,62 +81,23 @@ class Db
     }
 
     /**
-     * 切换数据库连接
+     * 连接/切换数据库连接
      * @access public
-     * @param mixed       $config 连接配置
-     * @param bool|string $name   连接标识 true 强制重新连接
-     * @return $this
-     */
-    public function connect($config = '', $name = false)
-    {
-        $this->connection = $this->instance($this->parseConfig($config), $name);
-        return $this;
-    }
-
-    /**
-     * 数据库连接参数解析
-     * @access private
-     * @param mixed $config
-     * @return array
-     */
-    private function parseConfig($config): array
-    {
-        $defaultConnector = $this->config['default'] ?? 'mysql';
-
-        if (empty($config)) {
-            $config = $this->config['connections'][$defaultConnector];
-        } elseif (is_string($config)) {
-            $config = $this->config['connections'][$config] ?? $this->config['connections'][$defaultConnector];
-        }
-
-        if (!is_array($config)) {
-            throw new DbException('database config error:' . $config);
-        }
-
-        return $config;
-    }
-
-    /**
-     * 取得数据库连接类实例
-     * @access public
-     * @param array       $config 连接配置
-     * @param bool|string $name   连接标识 true 强制重新连接
+     * @param string|null $name  连接标识
+     * @param bool        $force 强制重新连接
      * @return Connection
      */
-    public function instance(array $config = [], $name = false)
+    public function connect(string $name = null, bool $force = false): Connection
     {
-        if (false === $name) {
-            $name = md5(serialize($config));
+        if (empty($name)) {
+            $name = $this->config['default'] ?? 'mysql';
         }
 
-        if (true === $name || !isset($this->instance[$name])) {
+        $config = $this->config['connections'][$name];
 
+        if ($force || !isset($this->instance[$name])) {
             if (empty($config['type'])) {
                 throw new InvalidArgumentException('Undefined db type');
-            }
-
-            if (true === $name) {
-                $name = md5(serialize($config));
             }
 
             $this->instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
@@ -195,12 +150,12 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access public
-     * @param string|array $connection 连接配置信息
-     * @return mixed
+     * @param string|null $connection 连接配置标识
+     * @return Query
      */
-    public function buildQuery($connection = [])
+    public function buildQuery(string $connection = null): Query
     {
-        $connection = $this->instance($this->parseConfig($connection));
+        $connection = $this->connect($connection);
         return $this->newQuery($connection);
     }
 
@@ -267,16 +222,12 @@ class Db
      * 创建一个新的查询对象
      * @access protected
      * @param Connection $connection 连接对象
-     * @return mixed
+     * @return Query
      */
-    protected function newQuery($connection = null)
+    protected function newQuery(Connection $connection = null): Query
     {
         /** @var Query $query */
-        if (is_null($connection) && !$this->connection) {
-            $this->connect();
-        }
-
-        $connection = $connection ?: $this->connection;
+        $connection = $connection ?: $this->connect();
         $class      = $connection->getQueryClass();
         $query      = new $class($connection);
 
@@ -287,7 +238,7 @@ class Db
 
     public function __call($method, $args)
     {
-        $query = $this->newQuery($this->connection);
+        $query = $this->newQuery();
 
         return call_user_func_array([$query, $method], $args);
     }
