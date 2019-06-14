@@ -115,7 +115,7 @@ class Query
      * @access public
      * @return Query
      */
-    public function newQuery()
+    public function newQuery(): Query
     {
         $query = new static($this->connection);
 
@@ -178,7 +178,7 @@ class Query
      * @access public
      * @return Connection
      */
-    public function getConnection()
+    public function getConnection(): Connection
     {
         return $this->connection;
     }
@@ -189,7 +189,7 @@ class Query
      * @param Connection $connection 数据库连接对象
      * @return $this
      */
-    public function setConnection($connection)
+    public function setConnection(Connection $connection)
     {
         $this->connection = $connection;
 

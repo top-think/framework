@@ -171,27 +171,6 @@ abstract class Model implements JsonSerializable, ArrayAccess
     }
 
     /**
-     * 设置Connection信息
-     * @access public
-     * @param mixed $connection 数据库配置
-     * @return void
-     */
-    public function setConnection($connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
-     * 获取Connection信息
-     * @access public
-     * @return string|array
-     */
-    public function getConnection()
-    {
-        return $this->connection;
-    }
-
-    /**
      * 架构函数
      * @access public
      * @param array $data 数据

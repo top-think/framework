@@ -83,7 +83,7 @@ abstract class Builder
     /**
      * 架构函数
      * @access public
-     * @param  Connection    $connection 数据库连接对象实例
+     * @param  Connection $connection 数据库连接对象实例
      */
     public function __construct(Connection $connection)
     {
