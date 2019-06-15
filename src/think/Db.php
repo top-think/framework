@@ -31,6 +31,12 @@ class Db
     protected $instance = [];
 
     /**
+     * 当前连接实例
+     * @var Connection
+     */
+    protected $connection;
+
+    /**
      * Event对象
      * @var Event
      */
@@ -85,12 +91,16 @@ class Db
      * @access public
      * @param string|null $name  连接标识
      * @param bool        $force 强制重新连接
-     * @return Connection
+     * @return $this
      */
-    public function connect(string $name = null, bool $force = false): Connection
+    public function connect(string $name = null, bool $force = false)
     {
         if (empty($name)) {
             $name = $this->config['default'] ?? 'mysql';
+        }
+
+        if (!isset($this->config['connections'][$name])) {
+            throw new InvalidArgumentException('Undefined db config:' . $name);
         }
 
         $config = $this->config['connections'][$name];
@@ -103,7 +113,8 @@ class Db
             $this->instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
         }
 
-        return $this->instance[$name];
+        $this->connection = $this->instance[$name];
+        return $this;
     }
 
     /**
@@ -155,8 +166,8 @@ class Db
      */
     public function buildQuery(string $connection = null): Query
     {
-        $connection = $this->connect($connection);
-        return $this->newQuery($connection);
+        $this->connect($connection);
+        return $this->newQuery($this->connection);
     }
 
     /**
@@ -227,7 +238,11 @@ class Db
     protected function newQuery(Connection $connection = null): Query
     {
         /** @var Query $query */
-        $connection = $connection ?: $this->connect();
+        if (is_null($connection) && !$this->connection) {
+            $this->connect();
+        }
+
+        $connection = $connection ?: $this->connection;
         $class      = $connection->getQueryClass();
         $query      = new $class($connection);
 
@@ -238,7 +253,7 @@ class Db
 
     public function __call($method, $args)
     {
-        $query = $this->newQuery();
+        $query = $this->newQuery($this->connection);
 
         return call_user_func_array([$query, $method], $args);
     }
