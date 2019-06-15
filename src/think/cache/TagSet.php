@@ -119,7 +119,7 @@ class TagSet
     {
         // 指定标签清除
         foreach ($this->tag as $tag) {
-            $names = $this->handler->getTagItems($tag);
+            $names = $this->handler->get($tag, []);
 
             $this->handler->clearTag($names);
             $this->handler->delete($tag);
