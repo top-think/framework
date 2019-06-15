@@ -33,6 +33,7 @@ return [
     'illegal controller name'                                   => '非法的控制器名称',
     'illegal action name'                                       => '非法的操作名称',
     'url suffix deny'                                           => '禁止的URL后缀访问',
+    'Undefined cache config'                                    => '缓存配置未定义',
     'Route Not Found'                                           => '当前访问路由未定义或不匹配',
     'Undefined db config'                                       => '数据库配置未定义',
     'Undefined db type'                                         => '未定义数据库类型',

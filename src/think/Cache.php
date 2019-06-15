@@ -77,6 +77,10 @@ class Cache implements CacheItemPoolInterface
             $name = $this->config['default'] ?? 'file';
         }
 
+        if (!isset($this->config['stores'][$name])) {
+            throw new InvalidArgumentException('Undefined cache config:' . $name);
+        }
+
         $options = $this->config['stores'][$name];
 
         if ($force || !isset($this->instance[$name])) {
