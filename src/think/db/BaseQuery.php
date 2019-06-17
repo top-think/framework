@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think\db;
 
-use PDO;
 use think\App;
 use think\Collection;
 use think\db\exception\BindParamException;
