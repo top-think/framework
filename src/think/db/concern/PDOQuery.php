@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think\db\concern;
 
-use PDO;
 use PDOStatement;
 
 /**
