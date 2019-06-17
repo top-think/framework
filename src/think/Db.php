@@ -243,12 +243,10 @@ class Db
         }
 
         $connection = $connection ?: $this->connection;
-        $class      = $connection->getQueryClass();
-        $query      = new $class($connection);
+        $connection->setDb($this);
 
-        $query->setDb($this);
-
-        return $query;
+        $class = $connection->getQueryClass();
+        return new $class($connection);
     }
 
     public function __call($method, $args)

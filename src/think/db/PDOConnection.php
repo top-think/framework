@@ -716,7 +716,7 @@ abstract class PDOConnection extends Connection
 
         if ($result) {
             $sequence  = $options['sequence'] ?? null;
-            $lastInsId = $query->getLastInsID($sequence);
+            $lastInsId = $this->getLastInsID($query, $sequence);
 
             $data = $options['data'];
 
@@ -1349,12 +1349,27 @@ abstract class PDOConnection extends Connection
     /**
      * 获取最近插入的ID
      * @access public
+     * @param Query  $query    查询对象
      * @param string $sequence 自增序列名
-     * @return string
+     * @return mixed
      */
-    public function getLastInsID(string $sequence = null): string
+    public function getLastInsID(Query $query, string $sequence = null)
     {
-        return $this->linkID->lastInsertId($sequence);
+        $insertId = $this->linkID->lastInsertId($sequence);
+
+        $pk = $query->getPk();
+
+        if (is_string($pk)) {
+            $type = $this->getFieldBindType($pk);
+
+            if (PDO::PARAM_INT == $type) {
+                $insertId = (int) $insertId;
+            } elseif (self::PARAM_FLOAT == $type) {
+                $insertId = (float) $insertId;
+            }
+        }
+
+        return $insertId;
     }
 
     /**
