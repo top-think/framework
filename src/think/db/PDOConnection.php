@@ -604,7 +604,7 @@ abstract class PDOConnection extends Connection
 
         if ($query->getOptions('cache')) {
             // 清理缓存数据
-            $cacheItem = $this->parseCache($query, $query->getOptions('cache'), $sql);
+            $cacheItem = $this->parseCache($query, $query->getOptions('cache'));
             $key       = $cacheItem->getKey();
             $tag       = $cacheItem->getTag();
 

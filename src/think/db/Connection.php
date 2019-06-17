@@ -395,13 +395,6 @@ abstract class Connection
     abstract public function getLastInsID(Query $query, string $sequence = null);
 
     /**
-     * 获取最近的错误信息
-     * @access public
-     * @return string
-     */
-    abstract public function getError(): string;
-
-    /**
      * 初始化数据库连接
      * @access protected
      * @param boolean $master 是否主服务器
