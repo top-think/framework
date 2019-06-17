@@ -402,6 +402,10 @@ abstract class Rule
      */
     public function allowCrossDomain(array $header = [])
     {
+        if ($this->parent) {
+            $this->parent->addRuleItem($this, 'options');
+        }
+
         return $this->middleware('\think\middleware\AllowCrossDomain', $header);
     }
 
