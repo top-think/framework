@@ -43,14 +43,14 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, ? array $header = [])
+    public function handle($request, Closure $next, ?array $header = [])
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 
         if (!isset($header['Access-Control-Allow-Origin'])) {
             $origin = $request->header('origin');
 
-            if ($origin && strpos($this->cookieDomain, $origin)) {
+            if ($origin && ('' == $this->cookieDomain || strpos($origin, $this->cookieDomain))) {
                 $header['Access-Control-Allow-Origin'] = $origin;
             } else {
                 $header['Access-Control-Allow-Origin'] = '*';
