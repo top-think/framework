@@ -15,7 +15,10 @@ namespace think\db;
 use think\Cache;
 use think\cache\CacheItem;
 use think\Db;
+use think\db\exception\DataNotFoundException;
+use think\db\exception\ModelNotFoundException;
 use think\Exception;
+use think\exception\DbException;
 use think\exception\PDOException;
 use think\Log;
 

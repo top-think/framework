@@ -44,6 +44,7 @@ use think\exception\ClassNotFoundException;
  * @property Cookie     $cookie
  * @property Session    $session
  * @property Validate   $validate
+ * @property Filesystem $filesystem
  */
 class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, Countable
 {
@@ -82,6 +83,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         'session'                 => Session::class,
         'validate'                => Validate::class,
         'view'                    => View::class,
+        'filesystem'              => Filesystem::class,
 
         // 接口依赖注入
         'Psr\Log\LoggerInterface' => Log::class,
