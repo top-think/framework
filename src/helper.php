@@ -617,7 +617,7 @@ if (!function_exists('display')) {
      */
     function display(string $content, $vars = [], $code = 200, $filter = null)
     {
-        return Response::create($template, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
+        return Response::create($content, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
     }
 }
 
