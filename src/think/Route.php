@@ -64,7 +64,6 @@ class Route
         'route_annotation'      => false,
         // 路由缓存设置
         'route_check_cache'     => false,
-        'route_cache_option'    => [],
         'route_check_cache_key' => '',
         // 是否自动转换URL中的控制器和操作名
         'url_convert'           => true,
@@ -84,8 +83,6 @@ class Route
         'default_action'        => 'index',
         // 操作方法后缀
         'action_suffix'         => '',
-        // 是否开启路由检测缓存
-        'route_check_cache'     => false,
         // 非路由变量是否使用普通参数方式（用于URL生成）
         'url_common_param'      => true,
     ];
@@ -175,11 +172,7 @@ class Route
         $this->lazy($this->config['url_lazy_route']);
 
         if ($this->config['route_check_cache']) {
-            if (!empty($this->config['route_cache_option'])) {
-                $this->cache = $this->app->cache->connect($this->config['route_cache_option']);
-            } else {
-                $this->cache = $this->app->cache->init();
-            }
+            $this->cache = $this->app->cache->store($this->config['route_check_cache'] === true ? '' : $this->config['route_check_cache']);
         }
 
         if (is_file($this->app->getRuntimePath() . 'route.php')) {
@@ -446,9 +439,9 @@ class Route
     /**
      * 注册路由标识
      * @access public
-     * @param string   $name  路由标识
+     * @param string   $name     路由标识
      * @param RuleItem $ruleItem 路由规则
-     * @param bool     $first 是否优先
+     * @param bool     $first    是否优先
      * @return void
      */
     public function setName(string $name, RuleItem $ruleItem, bool $first = false): void
@@ -459,7 +452,7 @@ class Route
     /**
      * 保存路由规则
      * @access public
-     * @param string $rule   路由规则
+     * @param string   $rule     路由规则
      * @param RuleItem $ruleItem RuleItem对象
      * @return void
      */
@@ -471,7 +464,7 @@ class Route
     /**
      * 读取路由
      * @access public
-     * @param string $rule   路由规则
+     * @param string $rule 路由规则
      * @return RuleItem[]
      */
     public function getRule(string $rule): array
@@ -894,8 +887,8 @@ class Route
     /**
      * URL生成 支持路由反射
      * @access public
-     * @param  string $url 路由地址
-     * @param  array  $vars 参数 ['a'=>'val1', 'b'=>'val2']
+     * @param string $url  路由地址
+     * @param array  $vars 参数 ['a'=>'val1', 'b'=>'val2']
      * @return UrlBuild
      */
     public function buildUrl(string $url = '', array $vars = []): UrlBuild
