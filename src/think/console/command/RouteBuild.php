@@ -62,7 +62,17 @@ class RouteBuild extends Command
         $content .= $this->buildDirRoute($path . $layer . DIRECTORY_SEPARATOR, $namespace, $suffix, $layer);
 
         $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
-        file_put_contents($filename, $content);
+
+        if (!file_exists($filename)) {
+            touch($filename);
+        }
+        $fp = fopen($filename, "w");
+
+        if (flock($fp, LOCK_EX)) {
+            fwrite($fp, $content);
+            flock($fp, LOCK_UN);
+        }
+        fclose($fp);
 
         return $filename;
     }
@@ -70,10 +80,10 @@ class RouteBuild extends Command
     /**
      * 生成子目录控制器类的路由规则
      * @access protected
-     * @param  string $path  控制器目录
-     * @param  string $namespace 应用命名空间
-     * @param  bool   $suffix 类库后缀
-     * @param  string $layer 控制器层目录名
+     * @param string $path      控制器目录
+     * @param string $namespace 应用命名空间
+     * @param bool   $suffix    类库后缀
+     * @param string $layer     控制器层目录名
      * @return string
      */
     protected function buildDirRoute(string $path, string $namespace, bool $suffix, string $layer): string
@@ -112,8 +122,8 @@ class RouteBuild extends Command
     /**
      * 生成控制器类的路由规则
      * @access protected
-     * @param  ReflectionClass  $class        控制器反射对象
-     * @param  string           $controller   控制器名
+     * @param ReflectionClass $class      控制器反射对象
+     * @param string          $controller 控制器名
      * @return string
      */
     protected function getControllerRoute(ReflectionClass $class, string $controller): string
@@ -148,15 +158,17 @@ class RouteBuild extends Command
     /**
      * 解析路由注释
      * @access protected
-     * @param  string $comment
-     * @param  string $tag
+     * @param string $comment
+     * @param string $tag
      * @return string
      */
     protected function parseRouteComment(string $comment, string $tag = '@route('): string
     {
         $comment = substr($comment, 3, -2);
         $comment = explode(PHP_EOL, substr(strstr(trim($comment), $tag), 1));
-        $comment = array_map(function ($item) {return trim(trim($item), ' \t*');}, $comment);
+        $comment = array_map(function ($item) {
+            return trim(trim($item), ' \t*');
+        }, $comment);
 
         if (count($comment) > 1) {
             $key     = array_search('', $comment);
@@ -176,9 +188,9 @@ class RouteBuild extends Command
     /**
      * 获取方法的路由注释
      * @access protected
-     * @param  string           $controller 控制器名
-     * @param  ReflectionMethod $reflectMethod
-     * @param  string           $group
+     * @param string           $controller 控制器名
+     * @param ReflectionMethod $reflectMethod
+     * @param string           $group
      * @return string|void
      */
     protected function getMethodRouteComment(string $controller, ReflectionMethod $reflectMethod, string $group = null)
