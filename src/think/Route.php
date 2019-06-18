@@ -619,7 +619,7 @@ class Route
     }
 
     /**
-     * 注册PATCH路由
+     * 注册OPTIONS路由
      * @access public
      * @param string $rule  路由规则
      * @param mixed  $route 路由地址
