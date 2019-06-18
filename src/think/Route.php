@@ -172,7 +172,7 @@ class Route
         $this->lazy($this->config['url_lazy_route']);
 
         if ($this->config['route_check_cache']) {
-            $this->cache = $this->app->cache->store($this->config['route_check_cache'] === true ? '' : $this->config['route_check_cache']);
+            $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);
         }
 
         if (is_file($this->app->getRuntimePath() . 'route.php')) {
@@ -616,6 +616,18 @@ class Route
     public function patch(string $rule, $route): RuleItem
     {
         return $this->rule($rule, $route, 'PATCH');
+    }
+
+    /**
+     * 注册PATCH路由
+     * @access public
+     * @param string $rule  路由规则
+     * @param mixed  $route 路由地址
+     * @return RuleItem
+     */
+    public function options(string $rule, $route): RuleItem
+    {
+        return $this->rule($rule, $route, 'OPTIONS');
     }
 
     /**
