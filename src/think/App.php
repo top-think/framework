@@ -360,10 +360,10 @@ class App extends Container
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
+        $this->debugModeInit();
+
         // 加载全局初始化文件
         $this->load();
-
-        $this->debugModeInit();
 
         // 加载框架默认语言包
         $langSet = $this->lang->defaultLangSet();
