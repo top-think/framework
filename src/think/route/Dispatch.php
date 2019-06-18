@@ -99,6 +99,16 @@ abstract class Dispatch
      */
     public function run(): Response
     {
+        if ($this->request->method() == 'OPTIONS') {
+            $rules = $this->rule->getRouter()->getRule($this->rule->getRule());
+            $allow = [];
+            foreach ($rules as $item) {
+                $allow[] = strtoupper($item->getMethod());
+            }
+
+            return Response::create('', '', 204)->header(['Allow' => implode(',', $allow)]);
+        }
+
         $option = $this->rule->getOption();
 
         // 数据自动验证

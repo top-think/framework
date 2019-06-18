@@ -449,23 +449,11 @@ class RuleGroup extends Rule
 
         $this->addRuleItem($ruleItem, $method);
 
-        return $ruleItem;
-    }
-
-    public function addGroupOptionsRule()
-    {
-        foreach ($this->rules as $method => $items) {
-            if ('options' == $method) {
-                continue;
-            }
-
-            foreach ($items as $item) {
-                $this->addRuleItem($item, 'options');
-                if ($item instanceof $this) {
-                    $item->addGroupOptionsRule();
-                }
-            }
+        if ('options' != $method) {
+            $this->addRuleItem($ruleItem, 'options');
         }
+
+        return $ruleItem;
     }
 
     public function addRuleItem(Rule $rule, string $method = '*')
