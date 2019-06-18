@@ -23,7 +23,7 @@ trait TimeStamp
      * 是否需要自动写入时间戳 如果设置为字符串 则表示时间字段的类型
      * @var bool|string
      */
-    protected $autoWriteTimestamp;
+    protected $autoWriteTimestamp = 'timestamp';
 
     /**
      * 创建时间字段 false表示关闭
