@@ -106,7 +106,7 @@ abstract class Dispatch
                 $allow[] = strtoupper($item->getMethod());
             }
 
-            return Response::create('', '', 204)->header(['Allow' => implode(',', $allow)]);
+            return Response::create('', '', 204)->header(['Allow' => implode(', ', $allow)]);
         }
 
         $option = $this->rule->getOption();
