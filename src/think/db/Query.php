@@ -18,7 +18,4 @@ namespace think\db;
 class Query extends BaseQuery
 {
     use concern\PDOQuery;
-    use concern\JoinAndViewQuery;
-    use concern\ParamsBind;
-    use concern\TableFieldInfo;
 }

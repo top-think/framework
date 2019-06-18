@@ -32,7 +32,6 @@ class BaseQuery
     use concern\TimeFieldQuery;
     use concern\AggregateQuery;
     use concern\ModelRelationQuery;
-    use concern\ParamsBind;
     use concern\ResultOperation;
     use concern\Transaction;
     use concern\UpdateCheck;
@@ -83,9 +82,9 @@ class BaseQuery
     /**
      * 创建一个新的查询对象
      * @access public
-     * @return Query
+     * @return BaseQuery
      */
-    public function newQuery(): Query
+    public function newQuery(): BaseQuery
     {
         $query = new static($this->connection);
 
@@ -1404,7 +1403,7 @@ class BaseQuery
                 $times++;
                 $query = $this->options($options)->page($times, $count);
             } else {
-                $end    = end($resultSet);
+                $end    = $resultSet->pop();
                 $lastId = is_array($end) ? $end[$key] : $end->getData($key);
 
                 $query = $this->options($options)

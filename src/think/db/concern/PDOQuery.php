@@ -20,6 +20,8 @@ use PDOStatement;
  */
 trait PDOQuery
 {
+    use JoinAndViewQuery, ParamsBind, TableFieldInfo;
+
     /**
      * 执行查询但只返回PDOStatement对象
      * @access public

@@ -12,6 +12,8 @@ declare (strict_types = 1);
 
 namespace think\db\concern;
 
+use think\db\Raw;
+
 /**
  * 聚合查询
  */
