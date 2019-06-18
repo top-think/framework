@@ -452,6 +452,22 @@ class RuleGroup extends Rule
         return $ruleItem;
     }
 
+    public function addGroupOptionsRule()
+    {
+        foreach ($this->rules as $method => $items) {
+            if ('options' == $method) {
+                continue;
+            }
+
+            foreach ($items as $item) {
+                $this->addRuleItem($item, 'options');
+                if ($item instanceof $this) {
+                    $item->addGroupOptionsRule();
+                }
+            }
+        }
+    }
+
     public function addRuleItem(Rule $rule, string $method = '*')
     {
         if (strpos($method, '|')) {
