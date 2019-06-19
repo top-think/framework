@@ -59,7 +59,7 @@ class RuleItem extends Rule
     /**
      * 设置当前路由规则为MISS路由
      * @access public
-     * @return void
+     * @return $this
      */
     public function setMiss()
     {
@@ -80,7 +80,7 @@ class RuleItem extends Rule
     /**
      * 设置当前路由为自动注册OPTIONS
      * @access public
-     * @return void
+     * @return $this
      */
     public function setAutoOptions()
     {
