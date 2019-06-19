@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\db\concern;
 
 use Closure;
+use think\db\BaseQuery;
 use think\db\Raw;
 
 trait WhereQuery
@@ -40,10 +41,10 @@ trait WhereQuery
     /**
      * 解析Query对象查询条件
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return void
      */
-    protected function parseQueryWhere(Query $query): void
+    protected function parseQueryWhere(BaseQuery $query): void
     {
         $this->options['where'] = $query->getOptions('where');
 
