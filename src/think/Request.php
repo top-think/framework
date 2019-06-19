@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think;
 
 use think\file\UploadedFile;
-use think\route\Dispatch;
 use think\route\Rule;
 
 /**
@@ -146,12 +145,6 @@ class Request
      * @var string
      */
     protected $realIP;
-
-    /**
-     * 当前调度信息
-     * @var Dispatch
-     */
-    protected $dispatch;
 
     /**
      * 当前应用名
@@ -1828,21 +1821,6 @@ class Request
         }
 
         return '';
-    }
-
-    /**
-     * 设置或者获取当前请求的调度信息
-     * @access public
-     * @param  Dispatch  $dispatch 调度信息
-     * @return Dispatch
-     */
-    public function dispatch(Dispatch $dispatch = null)
-    {
-        if (!is_null($dispatch)) {
-            $this->dispatch = $dispatch;
-        }
-
-        return $this->dispatch;
     }
 
     /**
