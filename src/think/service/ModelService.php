@@ -32,14 +32,14 @@ class ModelService extends Service
 
             if (is_null($isAutoWriteTimestamp)) {
                 // 自动写入时间戳
-                $model->isAutoWriteTimestamp($config->get('database.auto_timestamp'));
+                $model->isAutoWriteTimestamp($config->get('database.auto_timestamp', 'timestamp'));
             }
 
             $dateFormat = $model->getDateFormat();
 
             if (is_null($dateFormat)) {
                 // 设置时间戳格式
-                $model->setDateFormat($config->get('database.datetime_format'));
+                $model->setDateFormat($config->get('database.datetime_format', 'Y-m-d H:i:s'));
             }
 
         });
