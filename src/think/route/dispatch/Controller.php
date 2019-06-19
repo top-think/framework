@@ -48,19 +48,17 @@ class Controller extends Dispatch
             $result = explode('/', $result);
         }
 
-        // 是否自动转换控制器和操作名
-        $convert = is_bool($this->convert) ? $this->convert : $this->rule->config('url_convert');
         // 获取控制器名
         $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
 
-        $this->controller = $convert ? strtolower($controller) : $controller;
+        $this->controller = App::parseName($controller, 1);
 
         // 获取操作名
         $this->actionName = strip_tags($result[1] ?: $this->rule->config('default_action'));
 
         // 设置当前请求的控制器、操作
         $this->request
-            ->setController(App::parseName($this->controller, 1))
+            ->setController($this->controller)
             ->setAction($this->actionName);
     }
 
@@ -81,9 +79,7 @@ class Controller extends Dispatch
             $action = $this->actionName . $this->rule->config('action_suffix');
 
             if (is_callable([$instance, $action])) {
-                // 自动获取请求变量
-                $vars = array_merge($this->request->param(), $this->param);
-
+                $vars = $this->request->param();
                 try {
                     $reflect = new ReflectionMethod($instance, $action);
                     // 严格获取当前操作方法名
