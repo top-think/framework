@@ -466,7 +466,13 @@ trait WhereQuery
                 if ($val instanceof Raw) {
                     $where[] = [$key, 'exp', $val];
                 } else {
-                    $where[] = is_null($val) ? [$key, 'NULL', ''] : [$key, is_array($val) ? 'IN' : '=', $val];
+                    if (is_null($val)) {
+                        $where[] = [$key, 'NULL', ''];
+                    } elseif (is_array($val)) {
+                        $where[] = [$key, $val[0], $val[1]];
+                    } else {
+                        $where[] = [$key, '=', $val];
+                    }
                 }
             }
         } else {
