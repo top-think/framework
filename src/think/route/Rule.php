@@ -650,7 +650,7 @@ abstract class Rule
             $result = new ResponseDispatch($request, $this, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
             $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : $this->vars);
-        } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
+        } elseif (!empty($option['redirect'])) {
             // 路由到重定向地址
             $result = new RedirectDispatch($request, $this, $route, $this->vars, $option['status'] ?? 301);
         } elseif (false !== strpos($route, '\\')) {

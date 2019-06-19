@@ -646,9 +646,9 @@ class Route
     /**
      * 注册视图路由
      * @access public
-     * @param string|array $rule     路由规则
-     * @param string       $template 路由模板地址
-     * @param array        $vars     模板变量
+     * @param string $rule     路由规则
+     * @param string $template 路由模板地址
+     * @param array  $vars     模板变量
      * @return RuleItem
      */
     public function view(string $rule, string $template = '', array $vars = []): RuleItem
@@ -659,9 +659,9 @@ class Route
     /**
      * 注册重定向路由
      * @access public
-     * @param string|array $rule   路由规则
-     * @param string       $route  路由地址
-     * @param int          $status 状态码
+     * @param string $rule   路由规则
+     * @param string $route  路由地址
+     * @param int    $status 状态码
      * @return RuleItem
      */
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
