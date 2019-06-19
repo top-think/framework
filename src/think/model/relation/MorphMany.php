@@ -252,6 +252,7 @@ class MorphMany extends Relation
         $this->query->removeOption('where');
 
         if ($closure) {
+            $this->baseQuery = true;
             $closure($this);
         }
 

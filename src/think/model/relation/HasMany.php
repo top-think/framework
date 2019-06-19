@@ -203,6 +203,7 @@ class HasMany extends Relation
 
         // 预载入关联查询 支持嵌套预载入
         if ($closure) {
+            $this->baseQuery = true;
             $closure($this);
         }
 

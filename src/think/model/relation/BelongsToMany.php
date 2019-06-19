@@ -432,6 +432,7 @@ class BelongsToMany extends Relation
     protected function eagerlyManyToMany(array $where, string $relation, array $subRelation = [], Closure $closure = null): array
     {
         if ($closure) {
+            $this->baseQuery = true;
             $closure($this);
         }
 

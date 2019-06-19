@@ -243,6 +243,7 @@ class HasManyThrough extends Relation
         $keys        = $throughList->column($this->throughPk, $this->throughPk);
 
         if ($closure) {
+            $this->baseQuery = true;
             $closure($this);
         }
 
