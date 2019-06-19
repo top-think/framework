@@ -61,9 +61,10 @@ class RuleItem extends Rule
      * @access public
      * @return void
      */
-    public function setMiss(): void
+    public function setMiss()
     {
         $this->miss = true;
+        return $this;
     }
 
     /**
@@ -81,9 +82,10 @@ class RuleItem extends Rule
      * @access public
      * @return void
      */
-    public function setAutoOptions(): void
+    public function setAutoOptions()
     {
         $this->autoOption = true;
+        return $this;
     }
 
     /**
