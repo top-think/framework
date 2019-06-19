@@ -247,93 +247,93 @@ abstract class Connection
     /**
      * 查找单条记录
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return array
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    abstract public function find(Query $query): array;
+    abstract public function find(BaseQuery $query): array;
 
     /**
      * 使用游标查询记录
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return \Generator
      */
-    abstract public function cursor(Query $query);
+    abstract public function cursor(BaseQuery $query);
 
     /**
      * 查找记录
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return array
      * @throws DbException
      * @throws ModelNotFoundException
      * @throws DataNotFoundException
      */
-    abstract public function select(Query $query): array;
+    abstract public function select(BaseQuery $query): array;
 
     /**
      * 插入记录
      * @access public
-     * @param Query   $query        查询对象
+     * @param BaseQuery   $query        查询对象
      * @param boolean $getLastInsID 返回自增主键
      * @return mixed
      */
-    abstract public function insert(Query $query, bool $getLastInsID = false);
+    abstract public function insert(BaseQuery $query, bool $getLastInsID = false);
 
     /**
      * 批量插入记录
      * @access public
-     * @param Query   $query   查询对象
+     * @param BaseQuery   $query   查询对象
      * @param mixed   $dataSet 数据集
      * @return integer
      * @throws \Exception
      * @throws \Throwable
      */
-    abstract public function insertAll(Query $query, array $dataSet = []): int;
+    abstract public function insertAll(BaseQuery $query, array $dataSet = []): int;
 
     /**
      * 更新记录
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return integer
      * @throws Exception
      * @throws PDOException
      */
-    abstract public function update(Query $query): int;
+    abstract public function update(BaseQuery $query): int;
 
     /**
      * 删除记录
      * @access public
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @return int
      * @throws Exception
      * @throws PDOException
      */
-    abstract public function delete(Query $query): int;
+    abstract public function delete(BaseQuery $query): int;
 
     /**
      * 得到某个字段的值
      * @access public
-     * @param Query  $query   查询对象
+     * @param BaseQuery  $query   查询对象
      * @param string $field   字段名
      * @param mixed  $default 默认值
      * @param bool   $one     返回一个值
      * @return mixed
      */
-    abstract public function value(Query $query, string $field, $default = null);
+    abstract public function value(BaseQuery $query, string $field, $default = null);
 
     /**
      * 得到某个列的数组
      * @access public
-     * @param Query  $query  查询对象
+     * @param BaseQuery  $query  查询对象
      * @param string $column 字段名 多个字段用逗号分隔
      * @param string $key    索引
      * @return array
      */
-    abstract public function column(Query $query, string $column, string $key = ''): array;
+    abstract public function column(BaseQuery $query, string $column, string $key = ''): array;
 
     /**
      * 执行数据库事务
@@ -388,11 +388,11 @@ abstract class Connection
     /**
      * 获取最近插入的ID
      * @access public
-     * @param Query  $query  查询对象
+     * @param BaseQuery  $query  查询对象
      * @param string $sequence 自增序列名
      * @return mixed
      */
-    abstract public function getLastInsID(Query $query, string $sequence = null);
+    abstract public function getLastInsID(BaseQuery $query, string $sequence = null);
 
     /**
      * 初始化数据库连接
@@ -433,11 +433,11 @@ abstract class Connection
     /**
      * 分析缓存
      * @access protected
-     * @param Query $query 查询对象
+     * @param BaseQuery $query 查询对象
      * @param array $cache 缓存信息
      * @return CacheItem
      */
-    protected function parseCache(Query $query, array $cache): CacheItem
+    protected function parseCache(BaseQuery $query, array $cache): CacheItem
     {
         list($key, $expire, $tag) = $cache;
 

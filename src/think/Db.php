@@ -13,8 +13,8 @@ declare (strict_types = 1);
 namespace think;
 
 use InvalidArgumentException;
+use think\db\BaseQuery;
 use think\db\Connection;
-use think\db\Query;
 use think\db\Raw;
 
 /**
@@ -161,13 +161,18 @@ class Db
     /**
      * 创建一个新的查询对象
      * @access public
-     * @param string|null $connection 连接配置标识
-     * @return Query
+     * @param string|null $name 连接配置标识
+     * @return BaseQuery
      */
-    public function buildQuery(string $connection = null): Query
+    public function buildQuery(string $name = null): BaseQuery
     {
-        $this->connect($connection);
-        return $this->newQuery($this->connection);
+        $this->connect($name);
+
+        $connection = $this->connection;
+        $connection->setDb($this);
+
+        $class = $connection->getQueryClass();
+        return new $class($connection);
     }
 
     /**
@@ -229,30 +234,8 @@ class Db
         }
     }
 
-    /**
-     * 创建一个新的查询对象
-     * @access protected
-     * @param Connection $connection 连接对象
-     * @return Query
-     */
-    protected function newQuery(Connection $connection = null): Query
-    {
-        /** @var Query $query */
-        if (is_null($connection) && !$this->connection) {
-            $this->connect();
-        }
-
-        $connection = $connection ?: $this->connection;
-        $connection->setDb($this);
-
-        $class = $connection->getQueryClass();
-        return new $class($connection);
-    }
-
     public function __call($method, $args)
     {
-        $query = $this->newQuery($this->connection);
-
-        return call_user_func_array([$query, $method], $args);
+        return call_user_func_array([$this->buildQuery(), $method], $args);
     }
 }
