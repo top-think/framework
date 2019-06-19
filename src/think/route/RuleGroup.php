@@ -450,7 +450,7 @@ class RuleGroup extends Rule
         $this->addRuleItem($ruleItem, $method);
 
         if ('options' != $method) {
-            $this->addRuleItem($ruleItem, 'options');
+            $this->addRuleItem($ruleItem->setAutoOptions(), 'options');
         }
 
         return $ruleItem;

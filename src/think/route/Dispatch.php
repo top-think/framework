@@ -99,7 +99,7 @@ abstract class Dispatch
      */
     public function run(): Response
     {
-        if ($this->request->method() == 'OPTIONS') {
+        if ($this->request->method() == 'OPTIONS' && $this->rule->isAutoOptions()) {
             $rules = $this->rule->getRouter()->getRule($this->rule->getRule());
             $allow = [];
             foreach ($rules as $item) {

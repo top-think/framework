@@ -25,7 +25,13 @@ class RuleItem extends Rule
      * 是否为MISS规则
      * @var bool
      */
-    protected $miss;
+    protected $miss = false;
+
+    /**
+     * 是否为额外自动注册的OPTIONS规则
+     * @var bool
+     */
+    protected $autoOption = false;
 
     /**
      * 架构函数
@@ -67,7 +73,27 @@ class RuleItem extends Rule
      */
     public function isMiss(): bool
     {
-        return $this->miss ? true : false;
+        return $this->miss;
+    }
+
+    /**
+     * 设置当前路由为自动注册OPTIONS
+     * @access public
+     * @return void
+     */
+    public function setAutoOptions(): void
+    {
+        $this->autoOption = true;
+    }
+
+    /**
+     * 判断当前路由规则是否为自动注册的OPTIONS路由
+     * @access public
+     * @return bool
+     */
+    public function isAutoOptions(): bool
+    {
+        return $this->autoOption;
     }
 
     /**
