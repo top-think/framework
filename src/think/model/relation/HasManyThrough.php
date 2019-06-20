@@ -14,7 +14,7 @@ namespace think\model\relation;
 use Closure;
 use think\App;
 use think\Collection;
-use think\db\Query;
+use think\db\BaseQuery as Query;
 use think\Model;
 use think\model\Relation;
 
@@ -139,6 +139,9 @@ class HasManyThrough extends Relation
             $this->getQueryWhere($where, $modelTable);
         } elseif ($where instanceof Query) {
             $where->via($modelTable);
+        } elseif ($where instanceof Closure) {
+            $where($this->query->via($modelTable));
+            $where = $this->query;
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

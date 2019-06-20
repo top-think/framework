@@ -14,7 +14,7 @@ namespace think\model\relation;
 use Closure;
 use think\App;
 use think\Collection;
-use think\db\Query;
+use think\db\BaseQuery as Query;
 use think\Exception;
 use think\Model;
 use think\model\Relation;

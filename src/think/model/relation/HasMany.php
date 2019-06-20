@@ -15,7 +15,7 @@ namespace think\model\relation;
 use Closure;
 use think\App;
 use think\Collection;
-use think\db\Query;
+use think\db\BaseQuery as Query;
 use think\Model;
 use think\model\Relation;
 
@@ -320,6 +320,9 @@ class HasMany extends Relation
             $this->getQueryWhere($where, $relation);
         } elseif ($where instanceof Query) {
             $where->via($relation);
+        } elseif ($where instanceof Closure) {
+            $where($this->query->via($relation));
+            $where = $this->query;
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);

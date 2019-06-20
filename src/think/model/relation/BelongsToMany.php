@@ -14,7 +14,7 @@ namespace think\model\relation;
 use Closure;
 use think\App;
 use think\Collection;
-use think\db\Query;
+use think\db\BaseQuery as Query;
 use think\db\Raw;
 use think\Exception;
 use think\Model;
@@ -111,7 +111,7 @@ class BelongsToMany extends Relation
      */
     protected function newPivot(array $data = []): Pivot
     {
-        $class = $this->pivotName ?: '\\think\\model\\Pivot';
+        $class = $this->pivotName ?: Pivot::class;
         $pivot = new $class($data, $this->parent, $this->middle);
 
         if ($pivot instanceof Pivot) {
