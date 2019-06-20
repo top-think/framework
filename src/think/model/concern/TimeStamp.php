@@ -192,7 +192,7 @@ trait TimeStamp
      */
     protected function getTimestampValue($value)
     {
-        $type = $this->autoCheckTimestamp($this->autoWriteTimestamp);
+        $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
 
         if (in_array(strtolower($type), [
             'datetime', 'date', 'timestamp',
