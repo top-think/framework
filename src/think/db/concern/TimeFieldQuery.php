@@ -35,13 +35,12 @@ trait TimeFieldQuery
     /**
      * 添加日期或者时间查询规则
      * @access public
-     * @param string       $name 时间表达式
-     * @param string|array $rule 时间范围
+     * @param array $rule 时间表达式
      * @return $this
      */
-    public function timeRule(string $name, $rule)
+    public function timeRule(array $rule)
     {
-        $this->timeRule[$name] = $rule;
+        $this->timeRule = array_merge($this->timeRule, $rule);
         return $this;
     }
 

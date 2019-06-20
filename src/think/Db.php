@@ -172,7 +172,13 @@ class Db
         $connection->setDb($this);
 
         $class = $connection->getQueryClass();
-        return new $class($connection);
+        $query = new $class($connection);
+
+        if (!empty($this->config['time_query_rule'])) {
+            $query->timeRule($this->config['time_query_rule']);
+        }
+
+        return $query;
     }
 
     /**
