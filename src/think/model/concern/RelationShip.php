@@ -462,21 +462,21 @@ trait RelationShip
      * BELONGS TO MANY 关联定义
      * @access public
      * @param  string $model      模型名
-     * @param  string $table      中间表名
+     * @param  string $middle     中间表/模型名
      * @param  string $foreignKey 关联外键
      * @param  string $localKey   当前模型关联键
      * @return BelongsToMany
      */
-    public function belongsToMany(string $model, string $table = '', string $foreignKey = '', string $localKey = ''): BelongsToMany
+    public function belongsToMany(string $model, string $middle = '', string $foreignKey = '', string $localKey = ''): BelongsToMany
     {
         // 记录当前关联信息
         $model      = $this->parseModel($model);
         $name       = App::parseName(App::classBaseName($model));
-        $table      = $table ?: App::parseName($this->name) . '_' . $name;
+        $middle     = $middle ?: App::parseName($this->name) . '_' . $name;
         $foreignKey = $foreignKey ?: $name . '_id';
         $localKey   = $localKey ?: $this->getForeignKey($this->name);
 
-        return new BelongsToMany($this, $model, $table, $foreignKey, $localKey);
+        return new BelongsToMany($this, $model, $middle, $foreignKey, $localKey);
     }
 
     /**
