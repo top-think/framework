@@ -56,22 +56,22 @@ class BelongsToMany extends Relation
      * @access public
      * @param  Model  $parent     上级模型对象
      * @param  string $model      模型名
-     * @param  string $table      中间表名
+     * @param  string $middle     中间表/模型名
      * @param  string $foreignKey 关联模型外键
      * @param  string $localKey   当前模型关联键
      */
-    public function __construct(Model $parent, string $model, string $table, string $foreignKey, string $localKey)
+    public function __construct(Model $parent, string $model, string $middle, string $foreignKey, string $localKey)
     {
         $this->parent     = $parent;
         $this->model      = $model;
         $this->foreignKey = $foreignKey;
         $this->localKey   = $localKey;
 
-        if (false !== strpos($table, '\\')) {
-            $this->pivotName = $table;
-            $this->middle    = App::classBaseName($table);
+        if (false !== strpos($middle, '\\')) {
+            $this->pivotName = $middle;
+            $this->middle    = App::classBaseName($middle);
         } else {
-            $this->middle = $table;
+            $this->middle = $middle;
         }
 
         $this->query = (new $model)->db();

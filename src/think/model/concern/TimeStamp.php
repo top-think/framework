@@ -51,9 +51,24 @@ trait TimeStamp
      */
     public function isAutoWriteTimestamp($auto)
     {
-        $this->autoWriteTimestamp = $auto;
+        $this->autoWriteTimestamp = $this->checkTimeFieldType($auto);
 
         return $this;
+    }
+
+    /**
+     * 检测时间字段的实际类型
+     * @access public
+     * @param  bool|string $auto
+     * @return mixed
+     */
+    protected function checkTimeFieldType($auto)
+    {
+        if (true === $auto && isset($this->schema[$this->createTime]) && in_array($this->schema[$this->createTime], ['datetime', 'date', 'timestamp', 'int'])) {
+            return $this->schema[$this->createTime];
+        }
+
+        return $auto;
     }
 
     /**
@@ -97,34 +112,41 @@ trait TimeStamp
      */
     protected function autoWriteTimestamp(string $name)
     {
-        $value = time();
-
+        // 检测时间字段类型
         if (isset($this->type[$name])) {
             $type = $this->type[$name];
+        } else {
+            $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
+        }
 
-            if (strpos($type, ':')) {
-                list($type, $param) = explode(':', $type, 2);
-            }
+        return $this->getTimeTypeValue($type);
+    }
 
-            switch ($type) {
-                case 'datetime':
-                case 'date':
-                case 'timestamp':
-                    $value = $this->formatDateTime('Y-m-d H:i:s.u');
-                    break;
-                default:
-                    if (false !== strpos($type, '\\')) {
+    /**
+     * 获取指定类型的时间字段值
+     * @access protected
+     * @param  string $type 时间字段类型
+     * @return mixed
+     */
+    protected function getTimeTypeValue(string $type)
+    {
+        $value = time();
+
+        switch ($type) {
+            case 'datetime':
+            case 'date':
+            case 'timestamp':
+                $value = $this->formatDateTime('Y-m-d H:i:s.u');
+                break;
+            default:
+                if (false !== strpos($type, '\\')) {
+                    // 对象数据写入
+                    $obj = new $type();
+                    if (method_exists($obj, '__toString')) {
                         // 对象数据写入
-                        $value = new $type();
-                        if (method_exists($value, '__toString')) {
-                            // 对象数据写入
-                            $value = $value->__toString();
-                        }
+                        $value = $obj->__toString();
                     }
-            }
-        } elseif (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp),
-            ['datetime', 'date', 'timestamp'])) {
-            $value = $this->formatDateTime('Y-m-d H:i:s.u');
+                }
         }
 
         return $value;
@@ -170,7 +192,9 @@ trait TimeStamp
      */
     protected function getTimestampValue($value)
     {
-        if (is_string($this->autoWriteTimestamp) && in_array(strtolower($this->autoWriteTimestamp), [
+        $type = $this->autoCheckTimestamp($this->autoWriteTimestamp);
+
+        if (in_array(strtolower($type), [
             'datetime', 'date', 'timestamp',
         ])) {
             $value = $this->formatDateTime($this->dateFormat, $value);
