@@ -37,7 +37,7 @@ class Filesystem
      * @param null|string $name
      * @return Driver
      */
-    public function disk($name = null)
+    public function disk(string $name = null): Driver
     {
         $name = $name ?: $this->app->config->get('filesystem.default');
 
