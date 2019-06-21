@@ -90,6 +90,13 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     ];
 
     /**
+     * 容器回调
+     *
+     * @var array
+     */
+    protected $invokeCallback = [];
+
+    /**
      * 获取当前容器的实例（单例）
      * @access public
      * @return static
@@ -116,6 +123,27 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public static function setInstance($instance): void
     {
         static::$instance = $instance;
+    }
+
+    /**
+     * 注册一个容器对象回调
+     *
+     * @param  string|Closure $abstract
+     * @param  Closure|null   $callback
+     * @return void
+     */
+    public function resolving($abstract, Closure $callback = null): void
+    {
+        if ($abstract instanceof Closure) {
+            $this->invokeCallback['*'][] = $abstract;
+            return;
+        }
+
+        if (isset($this->bind[$abstract])) {
+            $abstract = $this->bind[$abstract];
+        }
+
+        $this->invokeCallback[$abstract][] = $callback;
     }
 
     /**
@@ -394,9 +422,35 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             $args = $constructor ? $this->bindParams($constructor, $vars) : [];
 
-            return $reflect->newInstanceArgs($args);
+            $object = $reflect->newInstanceArgs($args);
+
+            $this->invokeAfter($class, $object);
+
+            return $object;
         } catch (ReflectionException $e) {
             throw new ClassNotFoundException('class not exists: ' . $class, $class);
+        }
+    }
+
+    /**
+     * 执行invokeClass回调
+     * @access protected
+     * @param string $class  对象类名
+     * @param object $object 容器对象实例
+     * @return void
+     */
+    protected function invokeAfter(string $class, $object): void
+    {
+        if (isset($this->invokeCallback['*'])) {
+            foreach ($this->invokeCallback['*'] as $callback) {
+                $callback($object, $this);
+            }
+        }
+
+        if (isset($this->invokeCallback[$class])) {
+            foreach ($this->invokeCallback as $callback) {
+                $callback($object, $this);
+            }
         }
     }
 
