@@ -2,6 +2,7 @@
 
 namespace think\filesystem;
 
+use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Cached\CachedAdapter;
 use League\Flysystem\Cached\Storage\Memory as MemoryStore;
@@ -58,6 +59,20 @@ abstract class Driver
         $config = array_intersect_key($this->config, array_flip(['visibility', 'disable_asserts', 'url']));
 
         return new Filesystem($adapter, count($config) > 0 ? $config : null);
+    }
+
+    /**
+     * 获取文件完整路径
+     * @param $path
+     * @return string
+     */
+    public function path($path)
+    {
+        $adapter = $this->filesystem->getAdapter();
+        if ($adapter instanceof AbstractAdapter) {
+            return $adapter->applyPathPrefix($path);
+        }
+        return $path;
     }
 
     /**
