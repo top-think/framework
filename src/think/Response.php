@@ -142,6 +142,8 @@ class Response
      */
     public function send(): void
     {
+        // 触发请求发送前置事件
+        event('BeforeSend');
         // 处理输出数据
         $data = $this->getContent();
 
@@ -162,6 +164,9 @@ class Response
             // 提高页面响应
             fastcgi_finish_request();
         }
+
+        // 触发请求发送后置事件
+        event('AfterSend');
     }
 
     /**
