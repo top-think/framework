@@ -312,10 +312,10 @@ abstract class Model implements JsonSerializable, ArrayAccess
             $query = $this->db->buildQuery($this->connection)
                 ->name($this->name . $this->suffix)
                 ->pk($this->pk);
-
-            if (!empty($this->table)) {
-                $query->table($this->table . $this->suffix);
-            }
+        }
+        
+        if (!empty($this->table)) {
+            $query->table($this->table . $this->suffix);
         }
 
         $query->model($this)
