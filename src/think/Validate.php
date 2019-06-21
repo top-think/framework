@@ -970,7 +970,7 @@ class Validate
      */
     protected function checkSize(File $file, int $size): bool
     {
-        return $file->getSize() > $size;
+        return $file->getSize() <= $size;
     }
 
     /**
