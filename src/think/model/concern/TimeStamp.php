@@ -119,7 +119,7 @@ trait TimeStamp
             $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
         }
 
-        return $this->getTimeTypeValue($type);
+        return is_string($type) ? $this->getTimeTypeValue($type) : time();
     }
 
     /**
@@ -194,7 +194,7 @@ trait TimeStamp
     {
         $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
 
-        if (in_array(strtolower($type), [
+        if (is_string($type) && in_array(strtolower($type), [
             'datetime', 'date', 'timestamp',
         ])) {
             $value = $this->formatDateTime($this->dateFormat, $value);
