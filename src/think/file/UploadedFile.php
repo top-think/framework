@@ -21,23 +21,31 @@ class UploadedFile extends File
     private $mimeType;
     private $error;
 
-    public function __construct(string $path, string $originalName, string $mimeType = null, int $error = null, $test = false)
+    public function __construct(string $path, string $originalName, string $mimeType = null, int $error = null, bool $test = false)
     {
         $this->originalName = $originalName;
         $this->mimeType     = $mimeType ?: 'application/octet-stream';
         $this->test         = $test;
         $this->error        = $error ?: UPLOAD_ERR_OK;
+
         parent::__construct($path, UPLOAD_ERR_OK === $this->error);
     }
 
-    public function isValid()
+    public function isValid(): bool
     {
         $isOk = UPLOAD_ERR_OK === $this->error;
 
         return $this->test ? $isOk : $isOk && is_uploaded_file($this->getPathname());
     }
 
-    public function move(string $directory, $name = null)
+    /**
+     * 上传文件
+     * @access public
+     * @param string      $directory 保存路径
+     * @param string|null $name      保存的文件名
+     * @return File
+     */
+    public function move(string $directory, string $name = null): File
     {
         if ($this->isValid()) {
             if ($this->test) {
@@ -99,7 +107,7 @@ class UploadedFile extends File
      * 获取上传文件类型信息
      * @return string
      */
-    public function getOriginalMime()
+    public function getOriginalMime(): string
     {
         return $this->mimeType;
     }
@@ -108,7 +116,7 @@ class UploadedFile extends File
      * 上传文件名
      * @return string
      */
-    public function getOriginalName()
+    public function getOriginalName(): string
     {
         return $this->originalName;
     }
@@ -117,7 +125,7 @@ class UploadedFile extends File
      * 获取上传文件扩展名
      * @return string
      */
-    public function getOriginalExtension()
+    public function getOriginalExtension(): string
     {
         return pathinfo($this->originalName, PATHINFO_EXTENSION);
     }
@@ -126,7 +134,7 @@ class UploadedFile extends File
      * 获取文件扩展名
      * @return string
      */
-    public function extension()
+    public function extension(): string
     {
         return $this->getOriginalExtension();
     }

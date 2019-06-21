@@ -53,12 +53,22 @@ class File extends SplFileInfo
         return $this->hash[$type];
     }
 
-    public function md5()
+    /**
+     * 获取文件的MD5值
+     * @access public
+     * @return string
+     */
+    public function md5(): string
     {
         return $this->hash('md5');
     }
 
-    public function sha1()
+    /**
+     * 获取文件的SHA1值
+     * @access public
+     * @return string
+     */
+    public function sha1(): string
     {
         return $this->hash('sha1');
     }
@@ -79,10 +89,10 @@ class File extends SplFileInfo
      * 移动文件
      * @access public
      * @param string      $directory 保存路径
-     * @param string|bool $name      保存的文件名
+     * @param string|null $name      保存的文件名
      * @return File
      */
-    public function move(string $directory, $name = null)
+    public function move(string $directory, string $name = null): File
     {
         $target = $this->getTargetFile($directory, $name);
 
@@ -106,7 +116,7 @@ class File extends SplFileInfo
      * @param null|string $name
      * @return File
      */
-    protected function getTargetFile($directory, $name = null)
+    protected function getTargetFile(string $directory, string $name = null): File
     {
         if (!is_dir($directory)) {
             if (false === @mkdir($directory, 0777, true) && !is_dir($directory)) {
@@ -123,10 +133,10 @@ class File extends SplFileInfo
 
     /**
      * 获取文件名
-     * @param $name
-     * @return bool|mixed|string
+     * @param string $name
+     * @return string
      */
-    protected function getName($name)
+    protected function getName(string $name): string
     {
         $originalName = str_replace('\\', '/', $name);
         $pos          = strrpos($originalName, '/');
@@ -139,7 +149,7 @@ class File extends SplFileInfo
      * 文件扩展名
      * @return string
      */
-    public function extension()
+    public function extension(): string
     {
         return $this->getExtension();
     }
