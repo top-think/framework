@@ -99,18 +99,15 @@ class Db
             $name = $this->config['default'] ?? 'mysql';
         }
 
-        if (!isset($this->config['connections'][$name])) {
-            throw new InvalidArgumentException('Undefined db config:' . $name);
-        }
-
-        $config = $this->config['connections'][$name];
-
         if ($force || !isset($this->instance[$name])) {
-            if (empty($config['type'])) {
-                throw new InvalidArgumentException('Undefined db type');
+            if (!isset($this->config['connections'][$name])) {
+                throw new InvalidArgumentException('Undefined db config:' . $name);
             }
 
-            $this->instance[$name] = App::factory($config['type'], '\\think\\db\\connector\\', $config);
+            $config = $this->config['connections'][$name];
+            $type   = !empty($config['type']) ? $config['type'] : 'mysql';
+
+            $this->instance[$name] = App::factory($type, '\\think\\db\\connector\\', $config);
         }
 
         $this->connection = $this->instance[$name];

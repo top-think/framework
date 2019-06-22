@@ -77,14 +77,13 @@ class Cache implements CacheItemPoolInterface
             $name = $this->config['default'] ?? 'file';
         }
 
-        if (!isset($this->config['stores'][$name])) {
-            throw new InvalidArgumentException('Undefined cache config:' . $name);
-        }
-
-        $options = $this->config['stores'][$name];
-
         if ($force || !isset($this->instance[$name])) {
-            $type = !empty($options['type']) ? $options['type'] : 'File';
+            if (!isset($this->config['stores'][$name])) {
+                throw new InvalidArgumentException('Undefined cache config:' . $name);
+            }
+
+            $options = $this->config['stores'][$name];
+            $type    = !empty($options['type']) ? $options['type'] : 'File';
 
             $this->instance[$name] = App::factory($type, '\\think\\cache\\driver\\', $options);
         }

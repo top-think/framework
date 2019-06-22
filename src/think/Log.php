@@ -42,6 +42,12 @@ class Log implements LoggerInterface
     protected $log = [];
 
     /**
+     * 日志通道
+     * @var string
+     */
+    protected $channel;
+
+    /**
      * 配置参数
      * @var array
      */
@@ -49,9 +55,9 @@ class Log implements LoggerInterface
 
     /**
      * 日志写入驱动
-     * @var object
+     * @var array
      */
-    protected $driver;
+    protected $driver = [];
 
     /**
      * 日志授权key
@@ -71,41 +77,62 @@ class Log implements LoggerInterface
      */
     public function __construct(App $app)
     {
-        $this->app = $app;
-        $this->init($app->config->get('log'));
+        $this->app    = $app;
+        $this->config = $app->config->get('log');
+
+        $this->channel();
     }
 
     /**
-     * 日志初始化
+     * 切换日志通道
      * @access public
-     * @param  array $config
+     * @param  string $name 日志通道名
      * @return $this
      */
-    public function init(array $config = [])
+    public function channel(string $name = '')
     {
-        $type = $config['type'] ?? 'File';
-
-        $this->config = $config;
-
-        unset($config['type']);
-        if (!empty($config['close'])) {
-            $this->allowWrite = false;
+        if ('' == $name) {
+            $name = $this->config['default'] ?? 'think';
         }
 
-        $this->driver = App::factory($type, '\\think\\log\\driver\\', $config);
+        if (!isset($this->config['channels'][$name])) {
+            throw new InvalidArgumentException('Undefined log config:' . $name);
+        }
 
+        $this->channel = $name;
         return $this;
+    }
+
+    /**
+     * 实例化日志写入驱动
+     * @access public
+     * @param  string $name 日志通道名
+     * @return object
+     */
+    protected function driver(string $name = '')
+    {
+        $name = $name ?: $this->channel;
+
+        if (!isset($this->driver[$name])) {
+            $config = $this->config['channels'][$name];
+            $type   = !empty($config['type']) ? $config['type'] : 'File';
+
+            $this->driver[$name] = App::factory($type, '\\think\\log\\driver\\', $config);
+        }
+
+        return $this->driver[$name];
     }
 
     /**
      * 获取日志信息
      * @access public
-     * @param  string $type 信息类型
+     * @param  string $channel 日志通道
      * @return array
      */
-    public function getLog(string $type = ''): array
+    public function getLog(string $channel = ''): array
     {
-        return $type ? $this->log[$type] : $this->log;
+        $channel = $channel ?: $this->channel;
+        return $this->log[$channel] ?? [];
     }
 
     /**
@@ -136,8 +163,13 @@ class Log implements LoggerInterface
                 // 命令行日志实时写入
                 $this->write($msg, $type, true);
             }
+        } elseif (isset($this->config['type_channel'][$type])) {
+            $channels = (array) $this->config['type_channel'][$type];
+            foreach ($channels as $channel) {
+                $this->log[$channel][$type][] = $msg;
+            }
         } else {
-            $this->log[$type][] = $msg;
+            $this->log[$this->channel][$type][] = $msg;
         }
 
         return $this;
@@ -146,8 +178,8 @@ class Log implements LoggerInterface
     /**
      * 记录批量日志信息
      * @access public
-     * @param  array  $msg       日志信息
-     * @param  string $type      日志级别
+     * @param  array  $msg  日志信息
+     * @param  string $type 日志级别
      * @return $this
      */
     public function append(array $log, string $type = 'info')
@@ -156,10 +188,10 @@ class Log implements LoggerInterface
             return $this;
         }
 
-        if (isset($this->log[$type])) {
-            $this->log[$type] += $log;
+        if (isset($this->log[$this->channel][$type])) {
+            $this->log[$this->channel][$type] += $log;
         } else {
-            $this->log[$type] = $log;
+            $this->log[$this->channel][$type] = $log;
         }
 
         return $this;
@@ -168,11 +200,16 @@ class Log implements LoggerInterface
     /**
      * 清空日志信息
      * @access public
+     * @param  string  $channel 日志通道名
      * @return $this
      */
-    public function clear()
+    public function clear(string $channel = '')
     {
-        $this->log = [];
+        if ($channel) {
+            $this->log[$channel] = [];
+        } else {
+            $this->log = [];
+        }
 
         return $this;
     }
@@ -219,11 +256,12 @@ class Log implements LoggerInterface
     }
 
     /**
-     * 保存调试信息
+     * 保存日志信息
      * @access public
+     * @param  string $channel 日志通道名
      * @return bool
      */
-    public function save(): bool
+    public function save(string $channel = ''): bool
     {
         if (empty($this->log) || !$this->allowWrite) {
             return true;
@@ -234,26 +272,25 @@ class Log implements LoggerInterface
             return false;
         }
 
-        $log = [];
+        foreach ($this->log as $channel => $logs) {
+            $log = [];
 
-        foreach ($this->log as $level => $info) {
-            if (!$this->app->isDebug() && 'debug' == $level) {
-                continue;
+            foreach ($logs as $level => $info) {
+                if (!$this->app->isDebug() && 'debug' == $level) {
+                    continue;
+                }
+
+                if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
+                    $log[$level] = $info;
+                }
             }
 
-            if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
-                $log[$level] = $info;
-                $this->app->event->trigger('LogLevel', [$level, $info]);
-            }
+            $result = $this->driver($channel)->save($log);
+
+            $this->log[$channel] = [];
         }
 
-        $result = $this->driver->save($log);
-
-        if ($result) {
-            $this->log = [];
-        }
-
-        return $result;
+        return true;
     }
 
     /**
@@ -283,7 +320,7 @@ class Log implements LoggerInterface
         $this->app->event->trigger('LogWrite', $log);
 
         // 写入日志
-        return $this->driver->save($log, false);
+        return $this->driver()->save($log, false);
     }
 
     /**
