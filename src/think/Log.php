@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 
 /**
