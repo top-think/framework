@@ -36,6 +36,7 @@ return [
     'Undefined cache config'                                    => '缓存配置未定义',
     'Route Not Found'                                           => '当前访问路由未定义或不匹配',
     'Undefined db config'                                       => '数据库配置未定义',
+    'Undefined log config'                                      => '日志配置未定义',
     'Undefined db type'                                         => '未定义数据库类型',
     'variable type error'                                       => '变量类型错误',
     'PSR-4 error'                                               => 'PSR-4 规范错误',
