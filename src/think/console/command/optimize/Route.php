@@ -14,6 +14,7 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
+use think\event\RouteLoaded;
 
 class Route extends Command
 {
@@ -60,14 +61,8 @@ class Route extends Command
             }
         }
 
-        if ($this->app->config->get('route.route_annotation')) {
-            $this->app->console->call('route:build', [$app ?: '']);
-            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
+        //触发路由载入完成事件
+        $this->app->event->trigger(RouteLoaded::class);
 
         $content = '<?php ' . PHP_EOL . 'return ';
         $content .= '\think\App::unserialize(\'' . \think\App::serialize($this->app->route->getName()) . '\');';

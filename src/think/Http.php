@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use think\event\RouteLoaded;
 use think\exception\Handle;
 use think\exception\HttpException;
 use Throwable;
@@ -207,18 +208,7 @@ class Http
             }
         }
 
-        if ($this->app->route->config('route_annotation')) {
-            // 自动生成注解路由定义
-            if ($this->app->isDebug()) {
-                $this->app->console->call('route:build', [$this->name]);
-            }
-
-            $filename = $this->app->getRuntimePath() . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
+        $this->app->event->trigger(RouteLoaded::class);
     }
 
     /**
