@@ -16,6 +16,7 @@ use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\console\Table;
+use think\event\RouteLoaded;
 
 class RouteList extends Command
 {
@@ -81,14 +82,8 @@ class RouteList extends Command
             }
         }
 
-        if ($this->app->config->get('route.route_annotation')) {
-            $this->app->console->call('route:build', [$app ?: '']);
-            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '') . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
+        //触发路由载入完成事件
+        $this->app->event->trigger(RouteLoaded::class);
 
         $table = new Table();
 
