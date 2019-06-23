@@ -30,7 +30,6 @@ use think\console\command\make\Subscribe;
 use think\console\command\make\Validate;
 use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
-use think\console\command\RouteBuild;
 use think\console\command\RouteList;
 use think\console\command\RunServer;
 use think\console\command\ServiceDiscover;
@@ -80,7 +79,6 @@ class Console
         'run'              => RunServer::class,
         'version'          => Version::class,
         'route:list'       => RouteList::class,
-        'route:build'      => RouteBuild::class,
         'service:discover' => ServiceDiscover::class,
         'vendor:publish'   => VendorPublish::class,
     ];
