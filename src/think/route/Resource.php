@@ -38,6 +38,24 @@ class Resource extends RuleGroup
     protected $rest = [];
 
     /**
+     * 模型绑定
+     * @var array
+     */
+    protected $model = [];
+
+    /**
+     * 数据验证
+     * @var array
+     */
+    protected $validate = [];
+
+    /**
+     * 中间件
+     * @var array
+     */
+    protected $middleware = [];
+
+    /**
      * 架构函数
      * @access public
      * @param  Route         $router     路由对象
@@ -114,12 +132,11 @@ class Resource extends RuleGroup
 
             $ruleItem = $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
 
-            if (isset($option['resource_model'][$key])) {
-                call_user_func_array([$ruleItem, 'model'], (array) $option['resource_model'][$key]);
-            }
+            foreach (['model', 'validate', 'middleware'] as $name) {
+                if (isset($this->$name[$key])) {
+                    call_user_func_array([$ruleItem, $name], (array) $this->$name[$key]);
+                }
 
-            if (isset($option['resource_validate'][$key])) {
-                call_user_func_array([$ruleItem, 'validate'], (array) $option['resource_validate'][$key]);
             }
         }
 
@@ -162,23 +179,55 @@ class Resource extends RuleGroup
     /**
      * 绑定资源验证
      * @access public
-     * @param  array $validate 验证信息
+     * @param  array|string $name 资源类型或者验证信息
+     * @param  array|string $validate 验证信息
      * @return $this
      */
-    public function withValidate(array $validate)
+    public function withValidate($name, $validate = [])
     {
-        return $this->setOption('resource_validate', $validate);
+        if (is_array($name)) {
+            $this->validate = array_merge($this->validate, $name);
+        } else {
+            $this->validate[$name] = $validate;
+        }
+
+        return $this;
     }
 
     /**
      * 绑定资源模型
      * @access public
-     * @param  array $model 模型绑定
+     * @param  array|string $name 资源类型或者模型绑定
+     * @param  array|string $model 模型绑定
      * @return $this
      */
-    public function withModel(array $model)
+    public function withModel($name, $model = [])
     {
-        return $this->setOption('resource_model', $model);
+        if (is_array($name)) {
+            $this->model = array_merge($this->model, $name);
+        } else {
+            $this->model[$name] = $model;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 绑定资源模型
+     * @access public
+     * @param  array|string $name 资源类型或者中间件定义
+     * @param  array|string $middleware 中间件定义
+     * @return $this
+     */
+    public function withMiddleware($name, $middleware = [])
+    {
+        if (is_array($name)) {
+            $this->middleware = array_merge($this->middleware, $name);
+        } else {
+            $this->middleware[$name] = $middleware;
+        }
+
+        return $this;
     }
 
     /**
