@@ -491,39 +491,6 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 设置资源允许
-     * @access public
-     * @param  array $only 资源允许
-     * @return $this
-     */
-    public function only(array $only)
-    {
-        return $this->setOption('only', $only);
-    }
-
-    /**
-     * 设置资源排除
-     * @access public
-     * @param  array $except 排除资源
-     * @return $this
-     */
-    public function except(array $except)
-    {
-        return $this->setOption('except', $except);
-    }
-
-    /**
-     * 设置资源路由的变量
-     * @access public
-     * @param  array $vars 资源变量
-     * @return $this
-     */
-    public function vars(array $vars)
-    {
-        return $this->setOption('var', $vars);
-    }
-
-    /**
      * 合并分组的路由规则正则
      * @access public
      * @param  bool $merge 是否合并
@@ -539,9 +506,9 @@ class RuleGroup extends Rule
      * @access public
      * @return string
      */
-    public function getFullName():  ? string
+    public function getFullName(): string
     {
-        return $this->fullName;
+        return $this->fullName ?: '';
     }
 
     /**
@@ -550,7 +517,7 @@ class RuleGroup extends Rule
      * @param  string $method 请求类型
      * @return array
      */
-    public function getRules(string $method = '') : array
+    public function getRules(string $method = ''): array
     {
         if ('' === $method) {
             return $this->rules;

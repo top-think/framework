@@ -112,10 +112,73 @@ class Resource extends RuleGroup
                 $val[1] = str_replace('<id>', '<' . $option['var'][$rule] . '>', $val[1]);
             }
 
-            $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
+            $ruleItem = $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
+
+            if (isset($option['resource_model'][$key])) {
+                call_user_func_array([$ruleItem, 'model'], (array) $option['resource_model'][$key]);
+            }
+
+            if (isset($option['resource_validate'][$key])) {
+                call_user_func_array([$ruleItem, 'validate'], (array) $option['resource_validate'][$key]);
+            }
         }
 
         $this->router->setGroup($origin);
+    }
+
+    /**
+     * 设置资源允许
+     * @access public
+     * @param  array $only 资源允许
+     * @return $this
+     */
+    public function only(array $only)
+    {
+        return $this->setOption('only', $only);
+    }
+
+    /**
+     * 设置资源排除
+     * @access public
+     * @param  array $except 排除资源
+     * @return $this
+     */
+    public function except(array $except)
+    {
+        return $this->setOption('except', $except);
+    }
+
+    /**
+     * 设置资源路由的变量
+     * @access public
+     * @param  array $vars 资源变量
+     * @return $this
+     */
+    public function vars(array $vars)
+    {
+        return $this->setOption('var', $vars);
+    }
+
+    /**
+     * 绑定资源验证
+     * @access public
+     * @param  array $validate 验证信息
+     * @return $this
+     */
+    public function withValidate(array $validate)
+    {
+        return $this->setOption('resource_validate', $validate);
+    }
+
+    /**
+     * 绑定资源模型
+     * @access public
+     * @param  array $model 模型绑定
+     * @return $this
+     */
+    public function withModel(array $model)
+    {
+        return $this->setOption('resource_model', $model);
     }
 
     /**
