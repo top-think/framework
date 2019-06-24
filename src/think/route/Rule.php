@@ -86,7 +86,7 @@ abstract class Rule
      * 需要和分组合并的路由参数
      * @var array
      */
-    protected $mergeOptions = ['after', 'model', 'append', 'middleware'];
+    protected $mergeOptions = ['model', 'append', 'middleware'];
 
     abstract public function check(Request $request, string $url, bool $completeMatch = false);
 
