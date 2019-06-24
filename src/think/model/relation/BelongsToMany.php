@@ -703,22 +703,4 @@ class BelongsToMany extends Relation
         return $changes;
     }
 
-    /**
-     * 执行基础查询（仅执行一次）
-     * @access protected
-     * @return void
-     */
-    protected function baseQuery(): void
-    {
-        if (empty($this->baseQuery) && $this->parent->getData()) {
-            $pk    = $this->parent->getPk();
-            $table = $this->pivot->getTable();
-
-            $this->query
-                ->join([$table => 'pivot'], 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())
-                ->where('pivot.' . $this->localKey, $this->parent->$pk);
-            $this->baseQuery = true;
-        }
-    }
-
 }
