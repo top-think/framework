@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think\route;
 
-use Closure;
-
 /**
  * 路由标识管理类
  */
@@ -78,10 +76,10 @@ class RuleName
     {
         $route = $ruleItem->getRoute();
 
-        if ($route instanceof Closure) {
-            $this->rule[$rule][] = $ruleItem;
+        if (is_string($route)) {
+            $this->rule[$rule][$route] = $ruleItem;
         } else {
-            $this->rule[$rule][$ruleItem->getRoute()] = $ruleItem;
+            $this->rule[$rule][] = $ruleItem;
         }
     }
 
