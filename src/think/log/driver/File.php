@@ -61,11 +61,10 @@ class File implements LogHandlerInterface
     /**
      * 日志写入接口
      * @access public
-     * @param  array $log    日志信息
-     * @param  bool  $append 是否追加请求信息
+     * @param  array $log 日志信息
      * @return bool
      */
-    public function save(array $log, bool $append = false): bool
+    public function save(array $log): bool
     {
         $destination = $this->getMasterLogFile();
 
@@ -88,14 +87,14 @@ class File implements LogHandlerInterface
                 // 独立记录的日志级别
                 $filename = $this->getApartLevelFile($path, $type);
 
-                $this->write($info[$type], $filename, true, $append);
+                $this->write($info[$type], $filename, true);
 
                 unset($info[$type]);
             }
         }
 
         if ($info) {
-            return $this->write($info, $destination, false, $append);
+            return $this->write($info, $destination, false);
         }
 
         return true;
@@ -107,10 +106,9 @@ class File implements LogHandlerInterface
      * @param  array  $message 日志信息
      * @param  string $destination 日志文件
      * @param  bool   $apart 是否独立文件写入
-     * @param  bool   $append 是否追加请求信息
      * @return bool
      */
-    protected function write(array $message, string $destination, bool $apart = false, bool $append = false): bool
+    protected function write(array $message, string $destination, bool $apart = false): bool
     {
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
         $this->checkLogSize($destination);
@@ -126,9 +124,6 @@ class File implements LogHandlerInterface
         if ($this->isCli) {
             $message = $this->parseCliLog($info);
         } else {
-            // 添加调试日志
-            $this->getDebugLog($info, $append, $apart);
-
             $message = $this->parseLog($info);
         }
 
@@ -268,37 +263,4 @@ class File implements LogHandlerInterface
         return implode(PHP_EOL, $info) . PHP_EOL;
     }
 
-    protected function getDebugLog(&$info, $append, $apart): void
-    {
-        if ($this->app->isDebug() && $append) {
-
-            if ($this->config['json']) {
-                // 获取基本信息
-                $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-
-                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
-
-                $info = [
-                    'runtime' => number_format($runtime, 6) . 's',
-                    'reqs'    => $reqs . 'req/s',
-                    'memory'  => $memory_use . 'kb',
-                    'file'    => count(get_included_files()),
-                ] + $info;
-
-            } elseif (!$apart) {
-                // 增加额外的调试信息
-                $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-
-                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
-
-                $time_str   = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
-                $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-                $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
-
-                array_unshift($info, $time_str . $memory_str . $file_load);
-            }
-        }
-    }
 }
