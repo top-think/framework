@@ -1349,14 +1349,26 @@ abstract class PDOConnection extends Connection
     /**
      * 获取最近插入的ID
      * @access public
-     * @param BaseQuery  $query    查询对象
-     * @param string $sequence 自增序列名
+     * @param BaseQuery $query    查询对象
+     * @param string    $sequence 自增序列名
      * @return mixed
      */
     public function getLastInsID(BaseQuery $query, string $sequence = null)
     {
         $insertId = $this->linkID->lastInsertId($sequence);
 
+        return $this->autoInsIDType($query, $insertId);
+    }
+
+    /**
+     * 获取最近插入的ID
+     * @access public
+     * @param BaseQuery $query    查询对象
+     * @param string    $insertId 自增ID
+     * @return mixed
+     */
+    protected function autoInsIDType(BaseQuery $query, string $insertId)
+    {
         $pk = $query->getPk();
 
         if (is_string($pk)) {
