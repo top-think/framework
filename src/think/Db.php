@@ -31,12 +31,6 @@ class Db
     protected $instance = [];
 
     /**
-     * 当前连接实例
-     * @var Connection
-     */
-    protected $connection;
-
-    /**
      * Event对象
      * @var Event
      */
@@ -87,13 +81,35 @@ class Db
     }
 
     /**
-     * 连接/切换数据库连接
+     * 创建/切换数据库连接查询
      * @access public
+     * @param string|null $name 连接配置标识
+     * @param bool        $force 强制重新连接
+     * @return BaseQuery
+     */
+    public function connect(string $name = null, bool $force = false): BaseQuery
+    {
+        $connection = $this->instance($name, $force);
+        $connection->setDb($this);
+
+        $class = $connection->getQueryClass();
+        $query = new $class($connection);
+
+        if (!empty($this->config['time_query_rule'])) {
+            $query->timeRule($this->config['time_query_rule']);
+        }
+
+        return $query;
+    }
+
+    /**
+     * 创建数据库连接实例
+     * @access protected
      * @param string|null $name  连接标识
      * @param bool        $force 强制重新连接
-     * @return $this
+     * @return Connection
      */
-    public function connect(string $name = null, bool $force = false)
+    protected function instance(string $name = null, bool $force = false): Connection
     {
         if (empty($name)) {
             $name = $this->config['default'] ?? 'mysql';
@@ -110,8 +126,7 @@ class Db
             $this->instance[$name] = App::factory($type, '\\think\\db\\connector\\', $config);
         }
 
-        $this->connection = $this->instance[$name];
-        return $this;
+        return $this->instance[$name];
     }
 
     /**
@@ -153,29 +168,6 @@ class Db
     public function getQueryTimes(): int
     {
         return $this->queryTimes;
-    }
-
-    /**
-     * 创建一个新的查询对象
-     * @access public
-     * @param string|null $name 连接配置标识
-     * @return BaseQuery
-     */
-    public function buildQuery(string $name = null): BaseQuery
-    {
-        $this->connect($name);
-
-        $connection = $this->connection;
-        $connection->setDb($this);
-
-        $class = $connection->getQueryClass();
-        $query = new $class($connection);
-
-        if (!empty($this->config['time_query_rule'])) {
-            $query->timeRule($this->config['time_query_rule']);
-        }
-
-        return $query;
     }
 
     /**
@@ -239,6 +231,6 @@ class Db
 
     public function __call($method, $args)
     {
-        return call_user_func_array([$this->buildQuery(), $method], $args);
+        return call_user_func_array([$this->connect(), $method], $args);
     }
 }
