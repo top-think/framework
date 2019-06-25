@@ -20,7 +20,7 @@ use think\db\Raw;
 /**
  * Class Db
  * @package think
- * @mixin Query
+ * @mixin BaseQuery
  */
 class Db
 {
@@ -169,6 +169,7 @@ class Db
         $connection->setDb($this);
 
         $class = $connection->getQueryClass();
+        /** @var BaseQuery $query */
         $query = new $class($connection);
 
         if (!empty($this->config['time_query_rule'])) {
