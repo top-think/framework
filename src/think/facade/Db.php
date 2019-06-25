@@ -16,8 +16,7 @@ use think\Facade;
 /**
  * @see \think\Db
  * @mixin \think\Db
- * @method object buildQuery(string $query, mixed $connection) static 创建一个新的查询对象
- * @method \think\db\Query connect(array $config =[], mixed $name = false) static 连接/切换数据库连接
+ * @method \think\db\Query connect(string $name = null, bool $force = false) static 连接/切换数据库连接
  * @method \think\db\Connection getConnection() static 获取数据库连接对象
  * @method \think\db\Query master() static 从主服务器读取数据
  * @method \think\db\Query table(string $table) static 指定数据表（含前缀）

@@ -20,6 +20,7 @@ use think\db\Raw;
 /**
  * Class Db
  * @package think
+ * @mixin BaseQuery
  * @mixin Query
  */
 class Db
