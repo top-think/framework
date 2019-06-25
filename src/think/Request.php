@@ -1216,7 +1216,7 @@ class Request
         ];
 
         $msg = $fileUploadErrors[$error];
-        throw new Exception($msg);
+        throw new Exception($msg, $error);
     }
 
     /**
