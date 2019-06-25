@@ -448,7 +448,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         }
 
         if (isset($this->invokeCallback[$class])) {
-            foreach ($this->invokeCallback as $callback) {
+            foreach ($this->invokeCallback[$class] as $callback) {
                 $callback($object, $this);
             }
         }

@@ -61,16 +61,19 @@ class Log implements LoggerInterface
     protected $driver = [];
 
     /**
-     * 日志授权key
-     * @var string
-     */
-    protected $key;
-
-    /**
      * 是否允许日志写入
      * @var bool
      */
     protected $allowWrite = true;
+
+    /**
+     * 日志处理
+     *
+     * @var array
+     */
+    protected $processor = [
+        '*' => [],
+    ];
 
     /**
      * 构造方法
@@ -81,7 +84,33 @@ class Log implements LoggerInterface
         $this->app    = $app;
         $this->config = $app->config->get('log');
 
+        if (isset($this->config['processor'])) {
+            $this->processor($this->config['processor']);
+        }
+
         $this->channel();
+    }
+
+    /**
+     * 获取日志配置
+     * @access public
+     * @return array
+     */
+    public function getConfig(): array
+    {
+        return $this->config;
+    }
+
+    /**
+     * 注册一个日志回调处理
+     *
+     * @param  callable $callback 回调
+     * @param  string   $channel  日志通道名
+     * @return void
+     */
+    public function processor(callable $callback, string $channel = '*'): void
+    {
+        $this->processor[$channel][] = $callback;
     }
 
     /**
@@ -98,6 +127,10 @@ class Log implements LoggerInterface
 
         if (!isset($this->config['channels'][$name])) {
             throw new InvalidArgumentException('Undefined log config:' . $name);
+        }
+
+        if (isset($this->config['channels'][$name]['processor'])) {
+            $this->processor($this->config['channels'][$name]['processor'], $name);
         }
 
         $this->channel = $name;
@@ -216,34 +249,6 @@ class Log implements LoggerInterface
     }
 
     /**
-     * 当前日志记录的授权key
-     * @access public
-     * @param  string  $key  授权key
-     * @return $this
-     */
-    public function key(string $key)
-    {
-        $this->key = $key;
-
-        return $this;
-    }
-
-    /**
-     * 检查日志写入权限
-     * @access public
-     * @param  array  $config  当前日志配置参数
-     * @return bool
-     */
-    public function check(array $config): bool
-    {
-        if ($this->key && !empty($config['allow_key']) && !in_array($this->key, $config['allow_key'])) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * 关闭本次请求日志写入
      * @access public
      * @return $this
@@ -259,43 +264,58 @@ class Log implements LoggerInterface
     /**
      * 保存日志信息
      * @access public
-     * @param  string $channel 日志通道名
      * @return bool
      */
-    public function save(string $channel = ''): bool
+    public function save(): bool
     {
-        if (empty($this->log) || !$this->allowWrite) {
-            return true;
-        }
-
-        if (!$this->check($this->config)) {
-            // 检测日志写入权限
-            return false;
-        }
-
         foreach ($this->log as $channel => $logs) {
-            $log = [];
+            $result = $this->saveChannel($channel, $logs);
 
-            foreach ($logs as $level => $info) {
-                if (!$this->app->isDebug() && 'debug' == $level) {
-                    continue;
-                }
-
-                if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
-                    $log[$level] = $info;
-                }
+            if ($result) {
+                $this->log[$channel] = [];
             }
-
-            $result = $this->driver($channel)->save($log);
-
-            $this->log[$channel] = [];
         }
 
         return true;
     }
 
     /**
-     * 实时写入日志信息 并支持行为
+     * 保存某个通道的日志信息
+     * @access protected
+     * @param  string $channel 日志通道名
+     * @param  array  $logs    日志信息
+     * @return bool
+     */
+    protected function saveChannel(string $channel, array $logs = []): bool
+    {
+        // 日志处理
+        $processors = $this->processor[$channel] ?? $this->processor['*'];
+
+        foreach ($processors as $callback) {
+            $logs = $callback($logs, $channel, $this);
+
+            if (false === $logs) {
+                return false;
+            }
+        }
+
+        $log = [];
+
+        foreach ($logs as $level => $info) {
+            if (!$this->app->isDebug() && 'debug' == $level) {
+                continue;
+            }
+
+            if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
+                $log[$level] = $info;
+            }
+        }
+
+        return $this->driver($channel)->save($log);
+    }
+
+    /**
+     * 实时写入日志信息
      * @access public
      * @param  mixed  $msg   调试信息
      * @param  string $type  日志级别
@@ -317,11 +337,8 @@ class Log implements LoggerInterface
             return false;
         }
 
-        // 监听LogWrite
-        $this->app->event->trigger('LogWrite', $log);
-
         // 写入日志
-        return $this->driver()->save($log, false);
+        return $this->saveChannel($this->channel, $log);
     }
 
     /**
