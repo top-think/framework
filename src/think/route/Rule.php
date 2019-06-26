@@ -14,6 +14,9 @@ namespace think\route;
 
 use Closure;
 use think\Container;
+use think\middleware\AllowCrossDomain;
+use think\middleware\CheckRequestCache;
+use think\middleware\FormTokenCheck;
 use think\Request;
 use think\Response;
 use think\Route;
@@ -402,7 +405,7 @@ abstract class Rule
      */
     public function allowCrossDomain(array $header = [])
     {
-        return $this->middleware('\think\middleware\AllowCrossDomain', $header);
+        return $this->middleware(AllowCrossDomain::class, $header);
     }
 
     /**
@@ -413,7 +416,7 @@ abstract class Rule
      */
     public function token(string $token = '__token__')
     {
-        return $this->middleware('\think\middleware\FormTokenCheck', $token);
+        return $this->middleware(FormTokenCheck::class, $token);
     }
 
     /**
@@ -424,7 +427,7 @@ abstract class Rule
      */
     public function cache($cache)
     {
-        return $this->middleware('\think\middleware\CheckRequestCache', $cache);
+        return $this->middleware(CheckRequestCache::class, $cache);
     }
 
     /**
