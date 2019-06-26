@@ -156,9 +156,9 @@ class File implements LogHandlerInterface
         }
 
         if ($this->config['single']) {
-            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
-
-            $destination = $this->config['path'] . $name . '.log';
+            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $cli         = $this->isCli ? '_cli' : '';
+            $destination = $this->config['path'] . $name . $cli . '.log';
         } else {
             $cli = $this->isCli ? '_cli' : '';
 
