@@ -991,7 +991,7 @@ class Request
         return $this->input($this->put, $name, $default, $filter);
     }
 
-    protected function getInputData($content)
+    protected function getInputData($content): array
     {
         if ($this->isJson()) {
             return (array) json_decode($content, true);
@@ -1156,7 +1156,7 @@ class Request
         }
     }
 
-    protected function dealUploadFile($files, $name)
+    protected function dealUploadFile(array $files, string $name): array
     {
         $array = [];
         foreach ($files as $key => $file) {
@@ -1299,7 +1299,7 @@ class Request
     /**
      * 强制类型转换
      * @access public
-     * @param  string $data
+     * @param  mixed  $data
      * @param  string $type
      * @return mixed
      */
@@ -1371,7 +1371,7 @@ class Request
         return $this;
     }
 
-    protected function getFilter($filter, $default)
+    protected function getFilter($filter, $default): array
     {
         if (is_null($filter)) {
             $filter = [];

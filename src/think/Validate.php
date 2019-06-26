@@ -968,9 +968,9 @@ class Validate
      * @param integer $size 最大大小
      * @return bool
      */
-    protected function checkSize(File $file, int $size): bool
+    protected function checkSize(File $file, $size): bool
     {
-        return $file->getSize() <= $size;
+        return $file->getSize() <= (int) $size;
     }
 
     /**
