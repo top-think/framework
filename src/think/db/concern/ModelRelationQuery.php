@@ -316,12 +316,8 @@ trait ModelRelationQuery
      */
     protected function resultSetToModelCollection(array $resultSet): ModelCollection
     {
-        if (!empty($this->options['collection']) && is_string($this->options['collection'])) {
-            $collection = $this->options['collection'];
-        }
-
         if (empty($resultSet)) {
-            return $this->model->toCollection([], $collection ?? null);
+            return $this->model->toCollection();
         }
 
         // 检查动态获取器
@@ -354,7 +350,7 @@ trait ModelRelationQuery
         }
 
         // 模型数据集转换
-        return $this->model->toCollection($resultSet, $collection ?? null);
+        return $this->model->toCollection($resultSet);
     }
 
     /**

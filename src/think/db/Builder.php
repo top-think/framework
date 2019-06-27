@@ -777,7 +777,7 @@ abstract class Builder
      */
     protected function parseClosure(Query $query, Closure $call, bool $show = true): string
     {
-        $newQuery = $query->newQuery()->setConnection($this->connection);
+        $newQuery = $query->newQuery()->removeOption();
         $call($newQuery);
 
         return $newQuery->buildSql($show);
