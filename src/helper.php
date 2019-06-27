@@ -424,7 +424,7 @@ if (!function_exists('request')) {
      * 获取当前Request对象实例
      * @return Request
      */
-    function request(): Request
+    function request(): \think\Request
     {
         return app('request');
     }
