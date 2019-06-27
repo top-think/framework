@@ -356,7 +356,7 @@ trait Attribute
 
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
-            $value = $this->autoWriteTimestamp($name);
+            $value = $this->autoWriteTimestamp();
         } else {
             // 检测修改器
             $method = 'set' . App::parseName($name, 1) . 'Attr';

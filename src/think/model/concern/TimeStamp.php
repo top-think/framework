@@ -59,16 +59,22 @@ trait TimeStamp
     /**
      * 检测时间字段的实际类型
      * @access public
-     * @param  bool|string $auto
+     * @param  bool|string $type
      * @return mixed
      */
-    protected function checkTimeFieldType($auto)
+    protected function checkTimeFieldType($type)
     {
-        if (true === $auto && isset($this->schema[$this->createTime]) && in_array($this->schema[$this->createTime], ['datetime', 'date', 'timestamp', 'int'])) {
-            return $this->schema[$this->createTime];
+        if (true === $type) {
+            if (isset($this->type[$this->createTime])) {
+                $type = $this->type[$this->createTime];
+            } elseif (isset($this->schema[$this->createTime]) && in_array($this->schema[$this->createTime], ['datetime', 'date', 'timestamp', 'int'])) {
+                $type = $this->schema[$this->createTime];
+            } else {
+                $type = $this->getFieldType($this->createTime);
+            }
         }
 
-        return $auto;
+        return $type;
     }
 
     /**
@@ -107,17 +113,12 @@ trait TimeStamp
     /**
      * 自动写入时间戳
      * @access protected
-     * @param  string $name 时间戳字段
      * @return mixed
      */
-    protected function autoWriteTimestamp(string $name)
+    protected function autoWriteTimestamp()
     {
         // 检测时间字段类型
-        if (isset($this->type[$name])) {
-            $type = $this->type[$name];
-        } else {
-            $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
-        }
+        $type = $this->checkTimeFieldType($this->autoWriteTimestamp);
 
         return is_string($type) ? $this->getTimeTypeValue($type) : time();
     }
