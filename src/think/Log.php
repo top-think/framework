@@ -88,6 +88,10 @@ class Log implements LoggerInterface
             $this->processor($this->config['processor']);
         }
 
+        if (!empty($this->config['close'])) {
+            $this->allowWrite = false;
+        }
+
         $this->channel();
     }
 
