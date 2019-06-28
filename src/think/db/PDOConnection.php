@@ -381,7 +381,7 @@ abstract class PDOConnection extends Connection
             $startTime             = microtime(true);
             $this->links[$linkNum] = $this->createPdo($config['dsn'], $config['username'], $config['password'], $params);
             // 记录数据库连接信息
-            $this->log('[ DB ] CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
+            $this->log('CONNECT:[ UseTime:' . number_format(microtime(true) - $startTime, 6) . 's ] ' . $config['dsn']);
 
             return $this->links[$linkNum];
         } catch (\PDOException $e) {
@@ -1473,7 +1473,7 @@ abstract class PDOConnection extends Connection
             }
 
             // 未注册监听则记录到日志中
-            $this->log('[ SQL ] ' . $sql . ' [ ' . $master . 'RunTime:' . $runtime . 's ]');
+            $this->log($sql . ' [ ' . $master . 'RunTime:' . $runtime . 's ]');
 
             if (!empty($explain)) {
                 $this->log('[ EXPLAIN : ' . var_export($explain, true) . ' ]');
