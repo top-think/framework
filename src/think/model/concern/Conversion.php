@@ -167,7 +167,7 @@ trait Conversion
                 }
                 // 关联模型对象
                 if (!isset($this->hidden[$key]) || true !== $this->hidden[$key]) {
-                    $item[$key] = $val->toArray();
+                    $item[$key] = $val;
                 }
             } elseif (isset($this->visible[$key])) {
                 $item[$key] = $this->getAttr($key);
