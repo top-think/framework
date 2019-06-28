@@ -322,10 +322,6 @@ class Log implements LoggerInterface
         $log = [];
 
         foreach ($logs as $level => $info) {
-            if (!$this->app->isDebug() && 'debug' == $level) {
-                continue;
-            }
-
             if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
                 $log[$level] = $info;
             }
