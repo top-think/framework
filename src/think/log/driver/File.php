@@ -25,13 +25,15 @@ class File implements LogHandlerInterface
      * @var array
      */
     protected $config = [
-        'time_format' => 'c',
-        'single'      => false,
-        'file_size'   => 2097152,
-        'path'        => '',
-        'apart_level' => [],
-        'max_files'   => 0,
-        'json'        => false,
+        'time_format'  => 'c',
+        'single'       => false,
+        'file_size'    => 2097152,
+        'path'         => '',
+        'apart_level'  => [],
+        'max_files'    => 0,
+        'json'         => false,
+        'json_options' => JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
+        'format'       => '[%s][%s] %s',
     ];
 
     /**
@@ -77,27 +79,25 @@ class File implements LogHandlerInterface
         $time = date($this->config['time_format']);
 
         foreach ($log as $type => $val) {
-
+            $message = [];
             foreach ($val as $msg) {
                 if (!is_string($msg)) {
                     $msg = var_export($msg, true);
                 }
 
-                if ($this->config['json']) {
-                    $info[] = json_encode(['time' => $time, 'type' => $type, 'msg' => $msg], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                } else {
-                    $info[$type][] = '[' . $time . '][' . $type . '] ' . $msg;
-                }
+                $message[] = $this->config['json'] ?
+                json_encode(['time' => $time, 'type' => $type, 'msg' => $msg], $this->config['json_options']) :
+                sprintf($this->config['format'], $time, $type, $msg);
             }
 
-            if (!$this->config['json'] && (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level']))) {
+            if (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $this->getApartLevelFile($path, $type);
-
-                $this->write($info[$type], $filename);
-
-                unset($info[$type]);
+                $this->write($message, $filename);
+                continue;
             }
+
+            $info[$type] = $message;
         }
 
         if ($info) {
@@ -214,5 +214,4 @@ class File implements LogHandlerInterface
             }
         }
     }
-
 }
