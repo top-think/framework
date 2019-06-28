@@ -23,7 +23,7 @@ use think\Facade;
  * @method \think\Log record(mixed $msg, string $type = 'info', array $context = []) static 记录日志信息
  * @method \think\Log clear(string $channel = '') static 清空日志信息
  * @method \think\Log key(string $key) static 当前日志记录的授权key
- * @method \think\Log close() static 关闭本次请求日志写入
+ * @method \think\Log close(string $channel = '') static 关闭本次请求日志写入
  * @method bool save() static 保存日志信息
  * @method void write(mixed $msg, string $type = 'info', bool $force = false) static 实时写入日志信息
  * @method void log(string $level,mixed $message, array $context = []) static 记录日志信息

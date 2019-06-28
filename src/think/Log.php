@@ -61,12 +61,6 @@ class Log implements LoggerInterface
     protected $driver = [];
 
     /**
-     * 是否允许日志写入
-     * @var bool
-     */
-    protected $allowWrite = true;
-
-    /**
      * 日志处理
      *
      * @var array
@@ -74,6 +68,12 @@ class Log implements LoggerInterface
     protected $processor = [
         '*' => [],
     ];
+
+    /**
+     * 关闭日志（渠道）
+     * @var array
+     */
+    protected $close = [];
 
     /**
      * 构造方法
@@ -89,7 +89,7 @@ class Log implements LoggerInterface
         }
 
         if (!empty($this->config['close'])) {
-            $this->allowWrite = false;
+            $this->close['*'] = true;
         }
 
         $this->channel();
@@ -133,8 +133,14 @@ class Log implements LoggerInterface
             throw new InvalidArgumentException('Undefined log config:' . $name);
         }
 
-        if (isset($this->config['channels'][$name]['processor'])) {
-            $this->processor($this->config['channels'][$name]['processor'], $name);
+        $config = $this->config['channels'][$name];
+
+        if (isset($config['processor'])) {
+            $this->processor($config['processor'], $name);
+        }
+
+        if (!empty($config['close'])) {
+            $this->close[$name] = true;
         }
 
         $this->channel = $name;
@@ -183,7 +189,7 @@ class Log implements LoggerInterface
      */
     public function record($msg, string $type = 'info', array $context = [])
     {
-        if (!$this->allowWrite) {
+        if (!empty($this->close['*']) || !empty($this->close[$this->channel])) {
             return;
         }
 
@@ -222,7 +228,7 @@ class Log implements LoggerInterface
      */
     public function append(array $log, string $type = 'info')
     {
-        if (!$this->allowWrite || empty($log)) {
+        if (!empty($this->close['*']) || !empty($this->close[$this->channel]) || empty($log)) {
             return $this;
         }
 
@@ -255,12 +261,14 @@ class Log implements LoggerInterface
     /**
      * 关闭本次请求日志写入
      * @access public
+     * @param  string  $channel 日志通道名
      * @return $this
      */
-    public function close()
+    public function close(string $channel = '*')
     {
-        $this->allowWrite = false;
-        $this->log        = [];
+        $this->close[$channel] = true;
+
+        $this->clear('*' == $channel ? '' : $channel);
 
         return $this;
     }
@@ -272,6 +280,10 @@ class Log implements LoggerInterface
      */
     public function save(): bool
     {
+        if (!empty($this->close['*'])) {
+            return true;
+        }
+
         foreach ($this->log as $channel => $logs) {
             $result = $this->saveChannel($channel, $logs);
 
@@ -292,6 +304,10 @@ class Log implements LoggerInterface
      */
     protected function saveChannel(string $channel, array $logs = []): bool
     {
+        if (!empty($this->close[$channel])) {
+            return false;
+        }
+
         // 日志处理
         $processors = $this->processor[$channel] ?? $this->processor['*'];
 
