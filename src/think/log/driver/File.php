@@ -90,7 +90,7 @@ class File implements LogHandlerInterface
                 }
             }
 
-            if (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level'])) {
+            if (!$this->config['json'] && (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level']))) {
                 // 独立记录的日志级别
                 $filename = $this->getApartLevelFile($path, $type);
 
