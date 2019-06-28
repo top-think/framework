@@ -186,6 +186,8 @@ class Http
         // 监听HttpRun
         $this->app->event->trigger('HttpRun');
 
+        $this->app->log->info($request->ip() . ' ' . $request->method() . ' ' . $request->host() . $request->url());
+
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
         } : null;

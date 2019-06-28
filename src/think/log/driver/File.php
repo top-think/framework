@@ -73,6 +73,9 @@ class File implements LogHandlerInterface
 
         $info = [];
 
+        // 日志信息封装
+        $time = date($this->config['time_format']);
+
         foreach ($log as $type => $val) {
 
             foreach ($val as $msg) {
@@ -80,21 +83,25 @@ class File implements LogHandlerInterface
                     $msg = var_export($msg, true);
                 }
 
-                $info[$type][] = $this->config['json'] ? $msg : '[ ' . $type . ' ] ' . $msg;
+                if ($this->config['json']) {
+                    $info[] = json_encode(['time' => $time, 'type' => $type, 'msg' => $msg], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+                } else {
+                    $info[$type][] = '[' . $time . '][' . $type . '] ' . $msg;
+                }
             }
 
-            if (!$this->config['json'] && (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level']))) {
+            if (true === $this->config['apart_level'] || in_array($type, $this->config['apart_level'])) {
                 // 独立记录的日志级别
                 $filename = $this->getApartLevelFile($path, $type);
 
-                $this->write($info[$type], $filename, true);
+                $this->write($info[$type], $filename);
 
                 unset($info[$type]);
             }
         }
 
         if ($info) {
-            return $this->write($info, $destination, false);
+            return $this->write($info, $destination);
         }
 
         return true;
@@ -105,27 +112,20 @@ class File implements LogHandlerInterface
      * @access protected
      * @param  array  $message 日志信息
      * @param  string $destination 日志文件
-     * @param  bool   $apart 是否独立文件写入
      * @return bool
      */
-    protected function write(array $message, string $destination, bool $apart = false): bool
+    protected function write(array $message, string $destination): bool
     {
         // 检测日志文件大小，超过配置大小则备份日志文件重新生成
         $this->checkLogSize($destination);
 
         $info = [];
-        // 日志信息封装
-        $info['timestamp'] = date($this->config['time_format']);
 
         foreach ($message as $type => $msg) {
             $info[$type] = is_array($msg) ? implode(PHP_EOL, $msg) : $msg;
         }
 
-        if ($this->isCli) {
-            $message = $this->parseCliLog($info);
-        } else {
-            $message = $this->parseLog($info);
-        }
+        $message = implode(PHP_EOL, $info) . PHP_EOL;
 
         return error_log($message, 3, $destination);
     }
@@ -213,54 +213,6 @@ class File implements LogHandlerInterface
                 //
             }
         }
-    }
-
-    /**
-     * CLI日志解析
-     * @access protected
-     * @param  array $info 日志信息
-     * @return string
-     */
-    protected function parseCliLog(array $info): string
-    {
-        if ($this->config['json']) {
-            $message = json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
-        } else {
-            $now = $info['timestamp'];
-            unset($info['timestamp']);
-
-            $message = implode(PHP_EOL, $info);
-
-            $message = "[{$now}]" . $message . PHP_EOL;
-        }
-
-        return $message;
-    }
-
-    /**
-     * 解析日志
-     * @access protected
-     * @param  array $info 日志信息
-     * @return string
-     */
-    protected function parseLog(array $info): string
-    {
-        $requestInfo = [
-            'ip'     => $this->app->request->ip(),
-            'method' => $this->app->request->method(),
-            'host'   => $this->app->request->host(),
-            'uri'    => $this->app->request->url(),
-        ];
-
-        if ($this->config['json']) {
-            $info = $requestInfo + $info;
-            return json_encode($info, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . PHP_EOL;
-        }
-
-        array_unshift($info, "---------------------------------------------------------------" . PHP_EOL . "[{$info['timestamp']}] {$requestInfo['ip']} {$requestInfo['method']} {$requestInfo['host']}{$requestInfo['uri']}");
-        unset($info['timestamp']);
-
-        return implode(PHP_EOL, $info) . PHP_EOL;
     }
 
 }
