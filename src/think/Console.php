@@ -264,6 +264,8 @@ class Console
 
         $command = $this->find($name);
 
+        $this->app->log->info('run: php think ' . $input);
+
         return $this->doRunCommand($command, $input, $output);
     }
 
