@@ -492,4 +492,10 @@ class Log implements LoggerInterface
     {
         $this->log(__FUNCTION__, $message, $context);
     }
+
+    public function __call($method, $args)
+    {
+        array_unshift($args, $method);
+        call_user_func_array([$this, 'log'], $args);
+    }
 }
