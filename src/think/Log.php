@@ -31,12 +31,6 @@ class Log implements LoggerInterface
     const SQL       = 'sql';
 
     /**
-     * 应用对象
-     * @var App
-     */
-    protected $app;
-
-    /**
      * 日志信息
      * @var array
      */
@@ -76,12 +70,17 @@ class Log implements LoggerInterface
     protected $close = [];
 
     /**
+     * 是否控制台执行
+     * @var bool
+     */
+    protected $isCli = false;
+
+    /**
      * 构造方法
      * @access public
      */
     public function __construct(App $app)
     {
-        $this->app    = $app;
         $this->config = $app->config->get('log');
 
         if (isset($this->config['processor'])) {
@@ -92,6 +91,7 @@ class Log implements LoggerInterface
             $this->close['*'] = true;
         }
 
+        $this->isCli = $app->runningInConsole();
         $this->channel();
     }
 
@@ -202,21 +202,34 @@ class Log implements LoggerInterface
             $msg = strtr($msg, $replace);
         }
 
-        if ($this->app->runningInConsole()) {
-            if (empty($this->config['level']) || in_array($type, $this->config['level'])) {
-                // 命令行日志实时写入
-                $this->write($msg, $type, true);
-            }
-        } elseif (isset($this->config['type_channel'][$type])) {
+        if (isset($this->config['type_channel'][$type])) {
             $channels = (array) $this->config['type_channel'][$type];
             foreach ($channels as $channel) {
-                $this->log[$channel][$type][] = $msg;
+                $this->channelLog($channel, $msg, $type);
             }
         } else {
-            $this->log[$this->channel][$type][] = $msg;
+            $this->channelLog($this->channel, $msg, $type);
         }
 
         return $this;
+    }
+
+    /**
+     * 记录通道日志
+     * @access public
+     * @param  string $channel 日志通道
+     * @param  mixed  $msg  日志信息
+     * @param  string $type 日志级别
+     * @return void
+     */
+    protected function channelLog(string $channel, $msg, string $type): void
+    {
+        if ($this->isCli || !empty($this->config['channels'][$channel]['realtime_write'])) {
+            // 实时写入
+            $this->write($msg, $type, true, $channel);
+        } else {
+            $this->log[$channel][$type][] = $msg;
+        }
     }
 
     /**
@@ -336,9 +349,10 @@ class Log implements LoggerInterface
      * @param  mixed  $msg   调试信息
      * @param  string $type  日志级别
      * @param  bool   $force 是否强制写入
+     * @param  string $channel  日志通道
      * @return bool
      */
-    public function write($msg, string $type = 'info', bool $force = false): bool
+    public function write($msg, string $type = 'info', bool $force = false, string $channel = ''): bool
     {
         // 封装日志信息
         if (empty($this->config['level'])) {
@@ -354,7 +368,7 @@ class Log implements LoggerInterface
         }
 
         // 写入日志
-        return $this->saveChannel($this->channel, $log);
+        return $this->saveChannel($channel ?: $this->channel, $log);
     }
 
     /**
