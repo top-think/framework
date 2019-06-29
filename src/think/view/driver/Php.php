@@ -29,9 +29,9 @@ class Php implements TemplateHandlerInterface
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写 3 保持操作方法
         'auto_rule'   => 1,
-        // 视图基础目录（集中式）
+        // 视图根目录
         'view_base'   => '',
-        // 模板起始路径
+        // 应用模板起始路径
         'view_path'   => '',
         // 模板文件后缀
         'view_suffix' => 'php',
@@ -114,8 +114,8 @@ class Php implements TemplateHandlerInterface
      */
     private function parseTemplate(string $template): string
     {
-        if (empty($this->config['view_path'])) {
-            $this->config['view_path'] = $this->app->getAppPath() . 'view' . DIRECTORY_SEPARATOR;
+        if (empty($this->config['view_base'])) {
+            $this->config['view_base'] = $this->app->getRootPath() . 'view' . DIRECTORY_SEPARATOR;
         }
 
         $request = $this->app->request;
@@ -126,12 +126,12 @@ class Php implements TemplateHandlerInterface
             list($app, $template) = explode('@', $template);
         }
 
-        if ($this->config['view_base']) {
-            // 基础视图目录
-            $app  = isset($app) ? $app : $request->app();
-            $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
+        if ($this->config['view_path'] && !isset($app)) {
+            $path = $this->config['view_path'];
         } else {
-            $path = isset($app) ? $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
+            $app = isset($app) ? $app : $request->app();
+            // 基础视图目录
+            $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
         }
 
         $depr = $this->config['view_depr'];
