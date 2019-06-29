@@ -189,10 +189,6 @@ class Log implements LoggerInterface
      */
     public function record($msg, string $type = 'info', array $context = [])
     {
-        if (!empty($this->close['*']) || !empty($this->close[$this->channel])) {
-            return;
-        }
-
         if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
@@ -204,11 +200,12 @@ class Log implements LoggerInterface
 
         if (isset($this->config['type_channel'][$type])) {
             $channels = (array) $this->config['type_channel'][$type];
-            foreach ($channels as $channel) {
-                $this->channelLog($channel, $msg, $type);
-            }
         } else {
-            $this->channelLog($this->channel, $msg, $type);
+            $channels = (array) $this->channel;
+        }
+
+        foreach ($channels as $channel) {
+            $this->channelLog($channel, $msg, $type);
         }
 
         return $this;
@@ -224,6 +221,10 @@ class Log implements LoggerInterface
      */
     protected function channelLog(string $channel, $msg, string $type): void
     {
+        if (!empty($this->close['*']) || !empty($this->close[$channel])) {
+            return;
+        }
+
         if ($this->isCli || !empty($this->config['channels'][$channel]['realtime_write'])) {
             // 实时写入
             $this->write($msg, $type, true, $channel);
@@ -387,8 +388,8 @@ class Log implements LoggerInterface
     /**
      * 记录emergency信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function emergency($message, array $context = []): void
@@ -399,8 +400,8 @@ class Log implements LoggerInterface
     /**
      * 记录警报信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function alert($message, array $context = []): void
@@ -411,8 +412,8 @@ class Log implements LoggerInterface
     /**
      * 记录紧急情况
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function critical($message, array $context = []): void
@@ -423,8 +424,8 @@ class Log implements LoggerInterface
     /**
      * 记录错误信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function error($message, array $context = []): void
@@ -435,8 +436,8 @@ class Log implements LoggerInterface
     /**
      * 记录warning信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function warning($message, array $context = []): void
@@ -447,8 +448,8 @@ class Log implements LoggerInterface
     /**
      * 记录notice信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function notice($message, array $context = []): void
@@ -459,8 +460,8 @@ class Log implements LoggerInterface
     /**
      * 记录一般信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function info($message, array $context = []): void
@@ -471,8 +472,8 @@ class Log implements LoggerInterface
     /**
      * 记录调试信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function debug($message, array $context = []): void
@@ -483,8 +484,8 @@ class Log implements LoggerInterface
     /**
      * 记录sql信息
      * @access public
-     * @param  mixed  $message   日志信息
-     * @param  array  $context   替换内容
+     * @param  mixed $message 日志信息
+     * @param  array $context 替换内容
      * @return void
      */
     public function sql($message, array $context = []): void
