@@ -440,10 +440,10 @@ class App extends Container
         $appPath = $this->getAppPath();
 
         if (is_file($appPath . 'common.php')) {
-            include $appPath . 'common.php';
+            include_once $appPath . 'common.php';
         }
 
-        include $this->thinkPath . 'helper.php';
+        include_once $this->thinkPath . 'helper.php';
 
         $configPath = $this->getConfigPath();
 
