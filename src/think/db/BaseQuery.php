@@ -691,7 +691,7 @@ class BaseQuery
         if ('asc' == $sort) {
             $this->where($key, '>=', $lastId ?: ($page - 1) * $listRows);
         } else {
-            if (is_null($max)) {
+            if (is_null($lastId) && is_null($max)) {
                 $data = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, 'desc')->find();
                 $max  = $data[$key];
             }
