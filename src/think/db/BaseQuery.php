@@ -641,10 +641,11 @@ class BaseQuery
      * @param int|bool  $simple   是否简洁模式或者总记录数
      * @param string    $key      索引键
      * @param string    $sort     排序 asc|desc
+     * @param mixed     $lastId   最后数据索引键值
      * @return Paginator
      * @throws DbException
      */
-    public function pageSelect($listRows = null, $simple = false, $key = null, $sort = null)
+    public function pageSelect($listRows = null, $simple = false, $key = null, $sort = null, $lastId = null)
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
@@ -688,14 +689,14 @@ class BaseQuery
         }
 
         if ('asc' == $sort) {
-            $this->where($key, '>', ($page - 1) * $listRows);
+            $this->where($key, '>=', $lastId ?: ($page - 1) * $listRows);
         } else {
             if (is_null($max)) {
                 $data = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, 'desc')->find();
                 $max  = $data[$key];
             }
 
-            $this->where($key, '<=', $max - ($page - 1) * $listRows);
+            $this->where($key, '<=', $lastId ?: $max - ($page - 1) * $listRows);
         }
 
         $results = $this->limit($listRows)->select();
