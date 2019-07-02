@@ -636,6 +636,75 @@ class BaseQuery
     }
 
     /**
+     * 大数据分页查询
+     * @access public
+     * @param int|array $listRows 每页数量或者分页配置
+     * @param int|bool  $simple   是否简洁模式或者总记录数
+     * @param string    $key      索引键
+     * @param string    $sort     排序 asc|desc
+     * @return Paginator
+     * @throws DbException
+     */
+    public function pageSelect($listRows = null, $simple = false, $key = null, $sort = null)
+    {
+        $defaultConfig = [
+            'query'     => [], //url额外参数
+            'fragment'  => '', //url锚点
+            'var_page'  => 'page', //分页变量
+            'list_rows' => 15, //每页数量
+        ];
+
+        if (is_array($listRows)) {
+            $config = array_merge($defaultConfig, $listRows);
+        } else {
+            $config = $defaultConfig;
+        }
+
+        if (is_int($simple)) {
+            $max    = $simple;
+            $simple = false;
+        } else {
+            $max = null;
+        }
+
+        $listRows = is_int($listRows) ? $listRows : (int) $config['list_rows'];
+
+        $page = isset($config['page']) ? (int) $config['page'] : Paginator::getCurrentPage($config['var_page']);
+
+        $page = $page < 1 ? 1 : $page;
+
+        $config['path'] = $config['path'] ?? Paginator::getCurrentPath();
+
+        if (is_null($key)) {
+            $key = $this->getPk();
+        }
+
+        if (is_null($sort)) {
+            $order = $this->getOptions('order');
+            if (!empty($order)) {
+                $sort = $order[$key] ?? 'asc';
+            } else {
+                $this->order($key, 'desc');
+            }
+        }
+
+        if ('asc' == $sort) {
+            $this->where($key, '>', ($page - 1) * $listRows);
+        } else {
+            if (is_null($max)) {
+                $data = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, 'desc')->find();
+                $max  = $data[$key];
+            }
+
+            $this->where($key, '<=', $max - ($page - 1) * $listRows);
+        }
+
+        $results = $this->limit($listRows)->select();
+
+        return Paginator::make($results, $listRows, $page, $max, $simple, $config);
+    }
+
+    /**
      * 表达式方式指定当前操作的数据表
      * @access public
      * @param mixed $table 表名
