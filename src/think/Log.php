@@ -148,7 +148,7 @@ class Log implements LoggerInterface
 
             $config = $this->config['channels'][$name];
 
-            if (isset($config['processor'])) {
+            if (!empty($config['processor'])) {
                 $this->processor($config['processor'], $name);
             }
 
@@ -205,6 +205,10 @@ class Log implements LoggerInterface
      */
     public function record($msg, string $type = 'info', array $context = [])
     {
+        if (!empty($this->allow['*']) && !in_array($type, $this->allow['*'])) {
+            return $this;
+        }
+
         if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
@@ -218,10 +222,6 @@ class Log implements LoggerInterface
             $channels = (array) $this->config['type_channel'][$type];
         } else {
             $channels = $this->channel;
-        }
-
-        if (!empty($this->allow['*']) && !in_array($type, $this->allow['*'])) {
-            return $this;
         }
 
         foreach ($channels as $channel) {
