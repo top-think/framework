@@ -638,14 +638,13 @@ class BaseQuery
      * 大数据分页查询
      * @access public
      * @param int|array $listRows 每页数量或者分页配置
-     * @param int|bool  $simple   是否简洁模式或者总记录数
      * @param string    $key      索引键
      * @param string    $sort     排序 asc|desc
      * @param mixed     $lastId   最后数据索引键值
      * @return Paginator
      * @throws DbException
      */
-    public function pageSelect($listRows = null, $simple = false, $key = null, $sort = null, $lastId = null)
+    public function pageSelect($listRows = null, $key = null, $sort = null, $lastId = null)
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
@@ -658,13 +657,6 @@ class BaseQuery
             $config = array_merge($defaultConfig, $listRows);
         } else {
             $config = $defaultConfig;
-        }
-
-        if (is_int($simple)) {
-            $max    = $simple;
-            $simple = false;
-        } else {
-            $max = null;
         }
 
         $listRows = is_int($listRows) ? $listRows : (int) $config['list_rows'];
@@ -682,26 +674,24 @@ class BaseQuery
         if (is_null($sort)) {
             $order = $this->getOptions('order');
             if (!empty($order)) {
-                $sort = $order[$key] ?? 'asc';
+                $sort = $order[$key] ?? 'desc';
             } else {
                 $this->order($key, 'desc');
+                $sort = 'desc';
             }
         }
 
-        if ('asc' == $sort) {
-            $this->where($key, '>=', $lastId ?: ($page - 1) * $listRows);
-        } else {
-            if (is_null($lastId) && is_null($max)) {
-                $data = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, 'desc')->find();
-                $max  = $data[$key];
-            }
-
-            $this->where($key, '<=', $lastId ?: $max - ($page - 1) * $listRows);
+        if (is_null($lastId)) {
+            $data   = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, $sort)->find();
+            $result = $data[$key];
+            $lastId = 'asc' == $sort ? $result + ($page - 1) * $listRows : $result - ($page - 1) * $listRows;
         }
 
-        $results = $this->limit($listRows)->select();
+        $results = $this->limit($listRows)
+            ->where($key, 'asc' == $sort ? '>=' : '<=', $lastId)
+            ->select();
 
-        return Paginator::make($results, $listRows, $page, $max, $simple, $config);
+        return Paginator::make($results, $listRows, $page, null, true, $config);
     }
 
     /**
