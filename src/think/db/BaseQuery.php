@@ -687,8 +687,8 @@ class BaseQuery
             $lastId = 'asc' == $sort ? $result + ($page - 1) * $listRows : $result - ($page - 1) * $listRows;
         }
 
-        $results = $this->limit($listRows)
-            ->where($key, 'asc' == $sort ? '>=' : '<=', $lastId)
+        $results = $this->where($key, 'asc' == $sort ? '>=' : '<=', $lastId)
+            ->limit($listRows)
             ->select();
 
         return Paginator::make($results, $listRows, $page, null, true, $config);
