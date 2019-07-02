@@ -582,11 +582,10 @@ class BaseQuery
      * @access public
      * @param int|array $listRows 每页数量 数组表示配置参数
      * @param int|bool  $simple   是否简洁模式或者总记录数
-     * @param array     $config   配置参数
      * @return Paginator
      * @throws DbException
      */
-    public function paginate($listRows = null, $simple = false, $config = [])
+    public function paginate($listRows = null, $simple = false)
     {
         if (is_int($simple)) {
             $total  = $simple;
@@ -604,7 +603,7 @@ class BaseQuery
             $config   = array_merge($defaultConfig, $listRows);
             $listRows = intval($config['list_rows']);
         } else {
-            $config   = array_merge($defaultConfig, $config);
+            $config   = $defaultConfig;
             $listRows = intval($listRows ?: $config['list_rows']);
         }
 
