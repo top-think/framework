@@ -644,7 +644,7 @@ class BaseQuery
      * @return Paginator
      * @throws DbException
      */
-    public function pageSelect($listRows = null, $key = null, $sort = null, $lastId = null)
+    public function pageSelect($listRows = null, string $key = null, string $sort = null, $lastId = null)
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
@@ -653,23 +653,14 @@ class BaseQuery
             'list_rows' => 15, //每页数量
         ];
 
-        if (is_array($listRows)) {
-            $config = array_merge($defaultConfig, $listRows);
-        } else {
-            $config = $defaultConfig;
-        }
-
+        $config   = is_array($listRows) ? array_merge($defaultConfig, $listRows) : $defaultConfig;
         $listRows = is_int($listRows) ? $listRows : (int) $config['list_rows'];
-
-        $page = isset($config['page']) ? (int) $config['page'] : Paginator::getCurrentPage($config['var_page']);
-
-        $page = $page < 1 ? 1 : $page;
+        $page     = isset($config['page']) ? (int) $config['page'] : Paginator::getCurrentPage($config['var_page']);
+        $page     = $page < 1 ? 1 : $page;
 
         $config['path'] = $config['path'] ?? Paginator::getCurrentPath();
 
-        if (is_null($key)) {
-            $key = $this->getPk();
-        }
+        $key = $key ?: $this->getPk();
 
         if (is_null($sort)) {
             $order = $this->getOptions('order');
