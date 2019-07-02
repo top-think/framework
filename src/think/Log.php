@@ -38,9 +38,9 @@ class Log implements LoggerInterface
 
     /**
      * 日志通道
-     * @var string
+     * @var array
      */
-    protected $channel;
+    protected $channel = [];
 
     /**
      * 配置参数
@@ -120,30 +120,35 @@ class Log implements LoggerInterface
     /**
      * 切换日志通道
      * @access public
-     * @param  string $name 日志通道名
+     * @param  string|array $name 日志通道名
      * @return $this
      */
-    public function channel(string $name = '')
+    public function channel($name = '')
     {
         if ('' == $name) {
             $name = $this->config['default'] ?? 'think';
         }
 
-        if (!isset($this->config['channels'][$name])) {
-            throw new InvalidArgumentException('Undefined log config:' . $name);
+        $names = (array) $name;
+
+        foreach ($names as $name) {
+            if (!isset($this->config['channels'][$name])) {
+                throw new InvalidArgumentException('Undefined log config:' . $name);
+            }
+
+            $config = $this->config['channels'][$name];
+
+            if (isset($config['processor'])) {
+                $this->processor($config['processor'], $name);
+            }
+
+            if (!empty($config['close'])) {
+                $this->close[$name] = true;
+            }
+
         }
 
-        $config = $this->config['channels'][$name];
-
-        if (isset($config['processor'])) {
-            $this->processor($config['processor'], $name);
-        }
-
-        if (!empty($config['close'])) {
-            $this->close[$name] = true;
-        }
-
-        $this->channel = $name;
+        $this->channel = $names;
         return $this;
     }
 
@@ -153,10 +158,8 @@ class Log implements LoggerInterface
      * @param  string $name 日志通道名
      * @return object
      */
-    protected function driver(string $name = '')
+    protected function driver(string $name)
     {
-        $name = $name ?: $this->channel;
-
         if (!isset($this->driver[$name])) {
             $config = $this->config['channels'][$name];
             $type   = !empty($config['type']) ? $config['type'] : 'File';
@@ -175,7 +178,7 @@ class Log implements LoggerInterface
      */
     public function getLog(string $channel = ''): array
     {
-        $channel = $channel ?: $this->channel;
+        $channel = $channel ?: array_shift($this->channel);
         return $this->log[$channel] ?? [];
     }
 
@@ -201,7 +204,7 @@ class Log implements LoggerInterface
         if (isset($this->config['type_channel'][$type])) {
             $channels = (array) $this->config['type_channel'][$type];
         } else {
-            $channels = (array) $this->channel;
+            $channels = $this->channel;
         }
 
         foreach ($channels as $channel) {
@@ -231,28 +234,6 @@ class Log implements LoggerInterface
         } else {
             $this->log[$channel][$type][] = $msg;
         }
-    }
-
-    /**
-     * 记录批量日志信息
-     * @access public
-     * @param  array  $msg  日志信息
-     * @param  string $type 日志级别
-     * @return $this
-     */
-    public function append(array $log, string $type = 'info')
-    {
-        if (!empty($this->close['*']) || !empty($this->close[$this->channel]) || empty($log)) {
-            return $this;
-        }
-
-        if (isset($this->log[$this->channel][$type])) {
-            $this->log[$this->channel][$type] += $log;
-        } else {
-            $this->log[$this->channel][$type] = $log;
-        }
-
-        return $this;
     }
 
     /**
@@ -353,9 +334,8 @@ class Log implements LoggerInterface
      * @param  string $channel  日志通道
      * @return bool
      */
-    public function write($msg, string $type = 'info', bool $force = false, string $channel = ''): bool
+    public function write($msg, string $type = 'info', bool $force = false, $channel = ''): bool
     {
-        // 封装日志信息
         if (empty($this->config['level'])) {
             $force = true;
         }
@@ -369,7 +349,13 @@ class Log implements LoggerInterface
         }
 
         // 写入日志
-        return $this->saveChannel($channel ?: $this->channel, $log);
+        $channels = $channel ? (array) $channel : $this->channel;
+
+        foreach ($channels as $channel) {
+            $this->saveChannel($channel, $log);
+        }
+
+        return true;
     }
 
     /**
