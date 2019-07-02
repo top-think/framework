@@ -70,6 +70,12 @@ class Log implements LoggerInterface
     protected $close = [];
 
     /**
+     * （通道）允许写入类型
+     * @var array
+     */
+    protected $allow = [];
+
+    /**
      * 是否控制台执行
      * @var bool
      */
@@ -89,6 +95,10 @@ class Log implements LoggerInterface
 
         if (!empty($this->config['close'])) {
             $this->close['*'] = true;
+        }
+
+        if (!empty($this->config['level'])) {
+            $this->allow['*'] = $this->config['level'];
         }
 
         $this->isCli = $app->runningInConsole();
@@ -146,6 +156,9 @@ class Log implements LoggerInterface
                 $this->close[$name] = true;
             }
 
+            if (!empty($config['level'])) {
+                $this->allow[$name] = $config['level'];
+            }
         }
 
         $this->channel = $names;
@@ -207,8 +220,14 @@ class Log implements LoggerInterface
             $channels = $this->channel;
         }
 
+        if (!empty($this->allow['*']) && !in_array($type, $this->allow['*'])) {
+            return $this;
+        }
+
         foreach ($channels as $channel) {
-            $this->channelLog($channel, $msg, $type);
+            if (empty($this->allow[$channel]) || in_array($type, $this->allow[$channel])) {
+                $this->channelLog($channel, $msg, $type);
+            }
         }
 
         return $this;
@@ -294,10 +313,10 @@ class Log implements LoggerInterface
      * 保存某个通道的日志信息
      * @access protected
      * @param  string $channel 日志通道名
-     * @param  array  $logs    日志信息
+     * @param  array  $log    日志信息
      * @return bool
      */
-    protected function saveChannel(string $channel, array $logs = []): bool
+    protected function saveChannel(string $channel, array $log = []): bool
     {
         if (!empty($this->close[$channel])) {
             return false;
@@ -307,18 +326,10 @@ class Log implements LoggerInterface
         $processors = $this->processor[$channel] ?? $this->processor['*'];
 
         foreach ($processors as $callback) {
-            $logs = $callback($logs, $channel, $this);
+            $log = $callback($log, $channel, $this);
 
-            if (false === $logs) {
+            if (false === $log) {
                 return false;
-            }
-        }
-
-        $log = [];
-
-        foreach ($logs as $level => $info) {
-            if (empty($this->config['level']) || in_array($level, $this->config['level'])) {
-                $log[$level] = $info;
             }
         }
 
@@ -336,13 +347,13 @@ class Log implements LoggerInterface
      */
     public function write($msg, string $type = 'info', bool $force = false, $channel = ''): bool
     {
-        if (empty($this->config['level'])) {
+        if (empty($this->allow['*'])) {
             $force = true;
         }
 
         $log = [];
 
-        if (true === $force || in_array($type, $this->config['level'])) {
+        if (true === $force || in_array($type, $this->allow['*'])) {
             $log[$type][] = $msg;
         } else {
             return false;
@@ -352,7 +363,9 @@ class Log implements LoggerInterface
         $channels = $channel ? (array) $channel : $this->channel;
 
         foreach ($channels as $channel) {
-            $this->saveChannel($channel, $log);
+            if (empty($this->allow[$channel]) || in_array($type, $this->allow[$channel])) {
+                $this->saveChannel($channel, $log);
+            }
         }
 
         return true;
