@@ -670,6 +670,8 @@ class BaseQuery
                 $this->order($key, 'desc');
                 $sort = 'desc';
             }
+        } else {
+            $this->order($key, $sort);
         }
 
         if (is_null($lastId)) {
