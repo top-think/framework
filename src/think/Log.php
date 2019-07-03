@@ -299,6 +299,10 @@ class Log implements LoggerInterface
         }
 
         foreach ($this->log as $channel => $logs) {
+            if (!empty($this->close[$channel])) {
+                continue;
+            }
+
             $result = $this->saveChannel($channel, $logs);
 
             if ($result) {
@@ -318,15 +322,11 @@ class Log implements LoggerInterface
      */
     protected function saveChannel(string $channel, array $log = []): bool
     {
-        if (!empty($this->close[$channel])) {
-            return false;
-        }
-
         // 日志处理
-        $processors = $this->processor[$channel] ?? $this->processor['*'];
+        $processors = array_merge($this->processor[$channel] ?? [], $this->processor['*']);
 
         foreach ($processors as $callback) {
-            $log = $callback($log, $channel, $this);
+            $log = $callback($log, $channel);
 
             if (false === $log) {
                 return false;

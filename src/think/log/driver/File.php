@@ -57,6 +57,10 @@ class File implements LogHandlerInterface
             $this->config = array_merge($this->config, $config);
         }
 
+        if (empty($this->config['format'])) {
+            $this->config['format'] = '[%s][%s] %s';
+        }
+
         $this->isCli = $app->runningInConsole();
     }
 
