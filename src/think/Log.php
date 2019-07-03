@@ -59,9 +59,7 @@ class Log implements LoggerInterface
      *
      * @var array
      */
-    protected $processor = [
-        '*' => [],
-    ];
+    protected $processor = [];
 
     /**
      * 关闭日志（渠道）
@@ -323,7 +321,7 @@ class Log implements LoggerInterface
     protected function saveChannel(string $channel, array $log = []): bool
     {
         // 日志处理
-        $processors = array_merge($this->processor[$channel] ?? [], $this->processor['*']);
+        $processors = array_merge($this->processor[$channel] ?? [], $this->processor['*'] ?? []);
 
         foreach ($processors as $callback) {
             $log = $callback($log, $channel);
