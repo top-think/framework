@@ -359,6 +359,9 @@ abstract class Builder
                     throw new Exception('where express error:' . var_export($value, true));
                 }
                 $field = array_shift($value);
+            } elseif (true === $value) {
+                $where[] = ' ' . $logic . ' 1 ';
+                continue;
             } elseif (!($value instanceof Closure)) {
                 throw new Exception('where express error:' . var_export($value, true));
             }

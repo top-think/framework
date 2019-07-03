@@ -31,6 +31,9 @@ trait WhereQuery
         if ($field instanceof $this) {
             $this->parseQueryWhere($field);
             return $this;
+        } elseif (true === $field || 1 === $field) {
+            $this->options['where']['AND'][] = true;
+            return $this;
         }
 
         $param = func_get_args();

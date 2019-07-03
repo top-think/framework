@@ -585,7 +585,7 @@ class BaseQuery
      * @return Paginator
      * @throws DbException
      */
-    public function paginate($listRows = null, $simple = false)
+    public function paginate($listRows = null, $simple = false): Paginator
     {
         if (is_int($simple)) {
             $total  = $simple;
@@ -644,7 +644,7 @@ class BaseQuery
      * @return Paginator
      * @throws DbException
      */
-    public function pageSelect($listRows = null, string $key = null, string $sort = null, $lastId = null)
+    public function pageSelect($listRows = null, string $key = null, string $sort = null, $lastId = null): Paginator
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
@@ -675,8 +675,13 @@ class BaseQuery
         }
 
         if (is_null($lastId)) {
-            $data   = $this->newQuery()->field($key)->where('1=1')->limit(1)->order($key, $sort)->find();
+            $data   = $this->newQuery()->field($key)->where(true)->limit(1)->order($key, $sort)->find();
             $result = $data[$key];
+
+            if (!is_numeric($result)) {
+                throw new Exception('not support type');
+            }
+
             $lastId = 'asc' == $sort ? $result + ($page - 1) * $listRows : $result - ($page - 1) * $listRows;
         }
 
