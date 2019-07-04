@@ -533,6 +533,28 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     }
 
     /**
+     * 获取最后一个单元数据
+     *
+     * @access public
+     * @return mixed
+     */
+    public function first()
+    {
+        return reset($this->items);
+    }
+
+    /**
+     * 获取第一个单元数据
+     *
+     * @access public
+     * @return mixed
+     */
+    public function last()
+    {
+        return end($this->items);
+    }
+
+    /**
      * 截取数组
      *
      * @access public

@@ -635,16 +635,15 @@ class BaseQuery
     }
 
     /**
-     * 分页查询（大数据）
+     * 根据数字类型字段进行分页查询（大数据）
      * @access public
      * @param int|array $listRows 每页数量或者分页配置
      * @param string    $key      分页索引键
      * @param string    $sort     索引键排序 asc|desc
-     * @param mixed     $lastId   上次数据值
      * @return Paginator
      * @throws DbException
      */
-    public function paginateX($listRows = null, string $key = null, string $sort = null, $lastId = null): Paginator
+    public function paginateX($listRows = null, string $key = null, string $sort = null): Paginator
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
@@ -664,7 +663,7 @@ class BaseQuery
         $options = $this->getOptions();
 
         if (is_null($sort)) {
-            $order = $options['order'];
+            $order = $options['order'] ?? '';
             if (!empty($order)) {
                 $sort = $order[$key] ?? 'desc';
             } else {
@@ -675,23 +674,21 @@ class BaseQuery
             $this->order($key, $sort);
         }
 
-        if (is_null($lastId)) {
-            $newOption = $options;
-            unset($newOption['field'], $newOption['page']);
+        $newOption = $options;
+        unset($newOption['field'], $newOption['page']);
 
-            $data = $this->newQuery()
-                ->options($newOption)
-                ->field($key)
-                ->where(true)
-                ->order($key, $sort)
-                ->limit(1)
-                ->find();
+        $data = $this->newQuery()
+            ->options($newOption)
+            ->field($key)
+            ->where(true)
+            ->order($key, $sort)
+            ->limit(1)
+            ->find();
 
-            $result = $data[$key];
+        $result = $data[$key];
 
-            if (is_numeric($result)) {
-                $lastId = 'asc' == $sort ? ($result - 1) + ($page - 1) * $listRows : ($result + 1) - ($page - 1) * $listRows;
-            }
+        if (is_numeric($result)) {
+            $lastId = 'asc' == $sort ? ($result - 1) + ($page - 1) * $listRows : ($result + 1) - ($page - 1) * $listRows;
         }
 
         $results = $this->when($lastId, function ($query) use ($key, $sort, $lastId) {
@@ -703,6 +700,46 @@ class BaseQuery
         $this->options($options);
 
         return Paginator::make($results, $listRows, $page, null, true, $config);
+    }
+
+    /**
+     * 根据最后ID查询N个数据
+     * @access public
+     * @param int        $limit  LIMIT
+     * @param int|string $lastId LastId
+     * @param string     $key    分页索引键 默认为主键
+     * @param string     $sort   索引键排序 asc|desc
+     * @return array
+     * @throws DbException
+     */
+    public function selectByLastId(int $limit, $lastId = null, string $key = null, string $sort = null): array
+    {
+        $key = $key ?: $this->getPk();
+
+        if (is_null($sort)) {
+            $order = $this->getOptions('order');
+            if (!empty($order)) {
+                $sort = $order[$key] ?? 'desc';
+            } else {
+                $this->order($key, 'desc');
+                $sort = 'desc';
+            }
+        } else {
+            $this->order($key, $sort);
+        }
+
+        $result = $this->when($lastId, function ($query) use ($key, $sort, $lastId) {
+            $query->where($key, 'asc' == $sort ? '>' : '<', $lastId);
+        })->limit($limit)->select();
+
+        $last = $result->last();
+
+        $result->first();
+
+        return [
+            'data'   => $result,
+            'lastId' => $last[$key],
+        ];
     }
 
     /**
