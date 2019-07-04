@@ -660,10 +660,11 @@ class BaseQuery
 
         $config['path'] = $config['path'] ?? Paginator::getCurrentPath();
 
-        $key = $key ?: $this->getPk();
+        $key     = $key ?: $this->getPk();
+        $options = $this->getOptions();
 
         if (is_null($sort)) {
-            $order = $this->getOptions('order');
+            $order = $options['order'];
             if (!empty($order)) {
                 $sort = $order[$key] ?? 'desc';
             } else {
@@ -675,11 +676,11 @@ class BaseQuery
         }
 
         if (is_null($lastId)) {
-            $options = $this->getOptions();
-            unset($options['field']);
+            $newOption = $options;
+            unset($newOption['field'], $newOption['page']);
 
             $data = $this->newQuery()
-                ->options($options)
+                ->options($newOption)
                 ->field($key)
                 ->where(true)
                 ->limit(1)
@@ -697,6 +698,8 @@ class BaseQuery
         $results = $this->where($key, 'asc' == $sort ? '>=' : '<=', $lastId)
             ->limit($listRows)
             ->select();
+
+        $this->options($options);
 
         return Paginator::make($results, $listRows, $page, null, true, $config);
     }
