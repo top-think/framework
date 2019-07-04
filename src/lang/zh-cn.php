@@ -40,7 +40,7 @@ return [
     'Undefined db type'                                         => '未定义数据库类型',
     'variable type error'                                       => '变量类型错误',
     'PSR-4 error'                                               => 'PSR-4 规范错误',
-    'not support type'                                          => '不支持的分页索引字段类型，必须使用lastId参数',
+    'not support type'                                          => '不支持的分页索引字段类型',
     'not support total'                                         => '简洁模式下不能获取数据总数',
     'not support last'                                          => '简洁模式下不能获取最后一页',
     'error session handler'                                     => '错误的SESSION处理器类',

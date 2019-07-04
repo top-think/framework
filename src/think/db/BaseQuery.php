@@ -689,6 +689,8 @@ class BaseQuery
 
         if (is_numeric($result)) {
             $lastId = 'asc' == $sort ? ($result - 1) + ($page - 1) * $listRows : ($result + 1) - ($page - 1) * $listRows;
+        } else {
+            throw new Exception('not support type');
         }
 
         $results = $this->when($lastId, function ($query) use ($key, $sort, $lastId) {
@@ -703,7 +705,7 @@ class BaseQuery
     }
 
     /**
-     * 根据最后ID查询N个数据
+     * 根据最后ID查询更多N个数据
      * @access public
      * @param int        $limit  LIMIT
      * @param int|string $lastId LastId
@@ -712,7 +714,7 @@ class BaseQuery
      * @return array
      * @throws DbException
      */
-    public function selectByLastId(int $limit, $lastId = null, string $key = null, string $sort = null): array
+    public function more(int $limit, $lastId = null, string $key = null, string $sort = null): array
     {
         $key = $key ?: $this->getPk();
 
