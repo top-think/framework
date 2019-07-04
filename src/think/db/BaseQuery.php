@@ -675,7 +675,16 @@ class BaseQuery
         }
 
         if (is_null($lastId)) {
-            $data   = $this->newQuery()->field($key)->where(true)->limit(1)->order($key, $sort)->find();
+            $options = $this->getOptions();
+            unset($options['field']);
+
+            $data = $this->newQuery()
+                ->options($options)
+                ->field($key)
+                ->where(true)
+                ->limit(1)
+                ->find();
+
             $result = $data[$key];
 
             if (!is_numeric($result)) {
