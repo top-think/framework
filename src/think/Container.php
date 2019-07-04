@@ -304,7 +304,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $bind = $this->bind[$name];
 
             if (is_string($bind)) {
-                return $this->delete($bind);
+                $this->delete($bind);
+                return;
             }
         }
 
@@ -329,7 +330,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             return call_user_func_array($function, $args);
         } catch (ReflectionException $e) {
-            throw new Exception('function not exists: ' . $function . '()');
+            throw new Exception('function not exists: ' . $function . '()', 0, $e);
         }
     }
 
@@ -362,7 +363,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
                 $callback = $method;
             }
 
-            throw new Exception('method not exists: ' . $callback . '()');
+            throw new Exception('method not exists: ' . $callback . '()', 0, $e);
         }
     }
 
@@ -428,7 +429,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             return $object;
         } catch (ReflectionException $e) {
-            throw new ClassNotFoundException('class not exists: ' . $class, $class);
+            throw new ClassNotFoundException('class not exists: ' . $class, $class, $e);
         }
     }
 
