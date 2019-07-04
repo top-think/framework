@@ -635,16 +635,16 @@ class BaseQuery
     }
 
     /**
-     * 大数据分页查询
+     * 分页查询（大数据）
      * @access public
      * @param int|array $listRows 每页数量或者分页配置
-     * @param string    $key      索引键
-     * @param string    $sort     排序 asc|desc
-     * @param mixed     $lastId   最后数据索引键值
+     * @param string    $key      分页索引键
+     * @param string    $sort     索引键排序 asc|desc
+     * @param mixed     $lastId   上次数据值
      * @return Paginator
      * @throws DbException
      */
-    public function pageSelect($listRows = null, string $key = null, string $sort = null, $lastId = null): Paginator
+    public function paginateX($listRows = null, string $key = null, string $sort = null, $lastId = null): Paginator
     {
         $defaultConfig = [
             'query'     => [], //url额外参数
