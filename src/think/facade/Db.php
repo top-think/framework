@@ -15,6 +15,7 @@ use think\Facade;
 
 /**
  * @see \think\Db
+ * @package think\facade
  * @mixin \think\Db
  * @method \think\db\Query connect(string $name = null, bool $force = false) static 连接/切换数据库连接
  * @method \think\db\Connection getConnection() static 获取数据库连接对象
@@ -40,23 +41,24 @@ use think\Facade;
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method mixed find(mixed $data = null) static 查询单个记录
  * @method mixed select(mixed $data = null) static 查询多个记录
- * @method integer save(boolean $forceInsert = false) static 保存记录 自动判断insert或者update
- * @method integer insert(array $data, boolean $getLastInsID = false, string $sequence = null) static 插入一条记录
+ * @method integer save(array $data = [], bool $forceInsert = false) static 保存记录 自动判断insert或者update
+ * @method integer insert(array $data, bool $getLastInsID = false, string $sequence = null) static 插入一条记录
  * @method integer insertGetId(array $data, string $sequence = null) static 插入一条记录并返回自增ID
  * @method integer insertAll(array $dataSet) static 插入多条记录
  * @method integer update(array $data) static 更新记录
  * @method integer delete(mixed $data = null) static 删除记录
  * @method boolean chunk(integer $count, callable $callback, string $column = null) static 分块获取数据
  * @method \Generator cursor(mixed $data = null) static 使用游标查找记录
- * @method mixed query(string $sql, array $bind = [], boolean $master = false, bool $pdo = false) static SQL查询
- * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, boolean $getLastInsID = false, string $sequence = null) static SQL执行
- * @method \think\Paginator paginate(integer $listRows = 15, mixed $simple = null, array $config = []) static 分页查询
+ * @method mixed query(string $sql, array $bind = [], bool $master = false, bool $pdo = false) static SQL查询
+ * @method integer execute(string $sql, array $bind = [], boolean $fetch = false, bool $getLastInsID = false, string $sequence = null) static SQL执行
+ * @method \think\Paginator paginate(mixed $listRows = 15, mixed $simple = null) static 分页查询
+ * @method \think\Paginator pageSelect(mixed $listRows = null, string $key = null, string $sort = null, mixed $lastId = null) static 分页查询（适用于大数据）
  * @method mixed transaction(callable $callback) static 执行数据库事务
  * @method void startTrans() static 启动事务
  * @method void commit() static 用于非自动提交状态下面的查询提交
  * @method void rollback() static 事务回滚
- * @method boolean batchQuery(array $sqlArray) static 批处理执行SQL语句
- * @method string getLastInsID(string $sequence = null) static 获取最近插入的ID
+ * @method bool batchQuery(array $sqlArray) static 批处理执行SQL语句
+ * @method mixed getLastInsID(string $sequence = null) static 获取最近插入的ID
  * @method mixed getConfig(string $name = '') static 获取数据库的配置参数
  */
 class Db extends Facade

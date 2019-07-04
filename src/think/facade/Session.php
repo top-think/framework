@@ -15,22 +15,8 @@ use think\Facade;
 
 /**
  * @see \think\Session
+ * @package think\facade
  * @mixin \think\Session
- * @method void init() static session初始化
- * @method bool has(string $name) static 判断session数据
- * @method mixed get(string $name = '',mixed $default = null) static session获取
- * @method mixed pull(string $name) static session获取并删除
- * @method void push(string $key, mixed $value) static 添加数据到一个session数组
- * @method void set(string $name, mixed $value) static 设置session数据
- * @method void flash(string $name, mixed $value = null) static session设置 下一次请求有效
- * @method void flush() static 清空当前请求的session数据
- * @method void delete(mixed $name) static 删除session数据
- * @method void clear() static 清空session数据
- * @method void start() static 启动session
- * @method void destroy() static 销毁session
- * @method void setId() static 设置session_id
- * @method string getId(bool $regenerate = true) static 获取session_id
- * @method void regenerate(bool $delete = false) static 重新生成session_id
  */
 class Session extends Facade
 {

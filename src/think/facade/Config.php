@@ -15,15 +15,8 @@ use think\Facade;
 
 /**
  * @see \think\Config
+ * @package think\facade
  * @mixin \think\Config
- * @method array load(string $file, string $name = '') static 加载配置文件
- * @method bool has(string $name) static 检测配置是否存在
- * @method mixed get(string $name,mixed $default = null) static 获取配置参数
- * @method array set(array $config, string $name = null) static 批量设置配置参数
- * @method array reset(string $name ='') static 重置配置参数
- * @method void remove(string $name = '') static 移除配置
- * @method void setYaconf(mixed $yaconf) static 设置开启Yaconf 或者指定配置文件名
- * @method mixed yaconf(string $name, mixed $default = null) static 获取yaconf配置
  */
 class Config extends Facade
 {
