@@ -683,6 +683,7 @@ class BaseQuery
                 ->options($newOption)
                 ->field($key)
                 ->where(true)
+                ->order($key, $sort)
                 ->limit(1)
                 ->find();
 
