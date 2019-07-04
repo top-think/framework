@@ -689,14 +689,14 @@ class BaseQuery
 
             $result = $data[$key];
 
-            if (!is_numeric($result)) {
-                throw new Exception('not support type');
+            if (is_numeric($result)) {
+                $lastId = 'asc' == $sort ? ($result - 1) + ($page - 1) * $listRows : ($result + 1) - ($page - 1) * $listRows;
             }
-
-            $lastId = 'asc' == $sort ? $result + ($page - 1) * $listRows : $result - ($page - 1) * $listRows;
         }
 
-        $results = $this->where($key, 'asc' == $sort ? '>=' : '<=', $lastId)
+        $results = $this->when($lastId, function ($query) use ($key, $sort, $lastId) {
+            $query->where($key, 'asc' == $sort ? '>' : '<', $lastId);
+        })
             ->limit($listRows)
             ->select();
 
