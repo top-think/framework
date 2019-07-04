@@ -328,9 +328,15 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             $args = $this->bindParams($reflect, $vars);
 
-            return call_user_func_array($function, $args);
+            return $reflect->invokeArgs($args);
         } catch (ReflectionException $e) {
-            throw new Exception('function not exists: ' . $function . '()', 0, $e);
+            // 如果是调用闭包时发生错误则尝试获取闭包的真实位置
+            if (isset($reflect) && $reflect->isClosure() && $function instanceof Closure) {
+                $function = "{Closure}@{$reflect->getFileName()}#L{$reflect->getStartLine()}-{$reflect->getEndLine()}";
+            } else {
+                $function .= '()';
+            }
+            throw new Exception('function not exists: ' . $function, 0, $e);
         }
     }
 
