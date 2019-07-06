@@ -14,8 +14,12 @@ namespace think\model\relation;
 
 use Closure;
 use think\App;
+use think\db\BaseQuery as Query;
 use think\Model;
 
+/**
+ * BelongsTo关联类
+ */
 class BelongsTo extends OneToOne
 {
     /**
@@ -44,14 +48,14 @@ class BelongsTo extends OneToOne
     /**
      * 延迟获取关联数据
      * @access public
-     * @param  array    $subRelation 子关联名
-     * @param  Closure  $closure     闭包查询条件
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure     闭包查询条件
      * @return Model
      */
     public function getRelation(array $subRelation = [], Closure $closure = null)
     {
         if ($closure) {
-            $closure($this->query);
+            $closure($this);
         }
 
         $foreignKey = $this->foreignKey;
@@ -72,16 +76,16 @@ class BelongsTo extends OneToOne
     /**
      * 创建关联统计子查询
      * @access public
-     * @param  Closure  $closure 闭包
-     * @param  string   $aggregate 聚合查询方法
-     * @param  string   $field 字段
-     * @param  string   $name 聚合字段别名
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
+     * @param  string  $name 聚合字段别名
      * @return string
      */
     public function getRelationCountQuery(Closure $closure = null, string $aggregate = 'count', string $field = '*', &$name = ''): string
     {
         if ($closure) {
-            $closure($this->query, $name);
+            $closure($this, $name);
         }
 
         return $this->query
@@ -93,14 +97,14 @@ class BelongsTo extends OneToOne
     /**
      * 关联统计
      * @access public
-     * @param  Model    $result  数据对象
-     * @param  Closure  $closure 闭包
-     * @param  string   $aggregate 聚合查询方法
-     * @param  string   $field 字段
-     * @param  string   $name 统计字段别名
+     * @param  Model   $result  数据对象
+     * @param  Closure $closure 闭包
+     * @param  string  $aggregate 聚合查询方法
+     * @param  string  $field 字段
+     * @param  string  $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null)
+    public function relationCount(Model $result, Closure $closure = null, string $aggregate = 'count', string $field = '*', string &$name = null)
     {
         $foreignKey = $this->foreignKey;
 
@@ -109,11 +113,7 @@ class BelongsTo extends OneToOne
         }
 
         if ($closure) {
-            $return = $closure($this->query);
-
-            if ($return && is_string($return)) {
-                $name = $return;
-            }
+            $closure($this, $name);
         }
 
         return $this->query
@@ -150,10 +150,10 @@ class BelongsTo extends OneToOne
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  mixed   $where  查询条件（数组或者闭包）
-     * @param  mixed   $fields 字段
-     * @param  string  $joinType JOIN类型
-     * @return \think\db\Query
+     * @param  mixed  $where  查询条件（数组或者闭包）
+     * @param  mixed  $fields 字段
+     * @param  string $joinType JOIN类型
+     * @return Query
      */
     public function hasWhere($where = [], $fields = null, string $joinType = ''): Query
     {
@@ -163,6 +163,11 @@ class BelongsTo extends OneToOne
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $relation);
+        } elseif ($where instanceof Query) {
+            $where->via($relation);
+        } elseif ($where instanceof Closure) {
+            $where($this->query->via($relation));
+            $where = $this->query;
         }
 
         $fields = $this->getRelationQueryFields($fields, $model);
@@ -177,10 +182,10 @@ class BelongsTo extends OneToOne
     /**
      * 预载入关联查询（数据集）
      * @access protected
-     * @param  array     $resultSet 数据集
-     * @param  string    $relation 当前关联名
-     * @param  array     $subRelation 子关联名
-     * @param  \Closure  $closure 闭包
+     * @param  array   $resultSet 数据集
+     * @param  string  $relation 当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure 闭包
      * @return void
      */
     protected function eagerlySet(array &$resultSet, string $relation, array $subRelation = [], Closure $closure = null): void
@@ -214,7 +219,7 @@ class BelongsTo extends OneToOne
                 } else {
                     $relationModel = $data[$result->$foreignKey];
                     $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
+                    $relationModel->exists(true);
                 }
 
                 if ($relationModel && !empty($this->bindAttr)) {
@@ -231,10 +236,10 @@ class BelongsTo extends OneToOne
     /**
      * 预载入关联查询（数据）
      * @access protected
-     * @param  Model     $result 数据对象
-     * @param  string    $relation 当前关联名
-     * @param  array     $subRelation 子关联名
-     * @param  \Closure  $closure 闭包
+     * @param  Model   $result 数据对象
+     * @param  string  $relation 当前关联名
+     * @param  array   $subRelation 子关联名
+     * @param  Closure $closure 闭包
      * @return void
      */
     protected function eagerlyOne(Model $result, string $relation, array $subRelation = [], Closure $closure = null): void
@@ -254,7 +259,7 @@ class BelongsTo extends OneToOne
         } else {
             $relationModel = $data[$result->$foreignKey];
             $relationModel->setParent(clone $result);
-            $relationModel->isUpdate(true);
+            $relationModel->exists(true);
         }
 
         if ($relationModel && !empty($this->bindAttr)) {
@@ -269,15 +274,12 @@ class BelongsTo extends OneToOne
     /**
      * 添加关联数据
      * @access public
-     * @param  Model $model       关联模型对象
+     * @param  Model $model关联模型对象
      * @return Model
      */
     public function associate(Model $model): Model
     {
-        $foreignKey = $this->foreignKey;
-        $pk         = $model->getPk();
-
-        $this->parent->setAttr($foreignKey, $model->$pk);
+        $this->parent->setAttr($this->foreignKey, $model->getKey());
         $this->parent->save();
 
         return $this->parent->setRelation($this->relation, $model);

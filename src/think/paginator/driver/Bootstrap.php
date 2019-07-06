@@ -13,6 +13,9 @@ namespace think\paginator\driver;
 
 use think\Paginator;
 
+/**
+ * Bootstrap 分页驱动
+ */
 class Bootstrap extends Paginator
 {
 

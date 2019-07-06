@@ -15,6 +15,9 @@ namespace think\db;
 use think\App;
 use think\Exception;
 
+/**
+ * SQL获取类
+ */
 class Fetch
 {
     /**
@@ -49,27 +52,28 @@ class Fetch
 
     /**
      * 聚合查询
-     * @access public
+     * @access protected
      * @param  string $aggregate    聚合方法
      * @param  string $field        字段名
      * @return string
      */
-    public function aggregate(string $aggregate, string $field): string
+    protected function aggregate(string $aggregate, string $field): string
     {
         $this->query->parseOptions();
 
         $field = $aggregate . '(' . $this->builder->parseKey($this->query, $field) . ') AS tp_' . strtolower($aggregate);
 
-        return $this->value($field);
+        return $this->value($field, 0, false);
     }
 
     /**
      * 得到某个字段的值
      * @access public
      * @param  string $field   字段名
+     * @param  mixed  $default 默认值
      * @return string
      */
-    public function value(string $field): string
+    public function value(string $field, $default = null, bool $one = true): string
     {
         $options = $this->query->parseOptions();
 
@@ -80,7 +84,7 @@ class Fetch
         $this->query->setOption('field', (array) $field);
 
         // 生成查询SQL
-        $sql = $this->builder->select($this->query, true);
+        $sql = $this->builder->select($this->query, $one);
 
         if (isset($options['field'])) {
             $this->query->setOption('field', $options['field']);
@@ -140,8 +144,7 @@ class Fetch
             $this->query->setOption('data', $data);
         }
 
-        $replace = $options['replace'] ?? false;
-        $sql     = $this->builder->insert($this->query, $replace);
+        $sql = $this->builder->insert($this->query);
 
         return $this->fetch($sql);
     }
@@ -166,21 +169,19 @@ class Fetch
      */
     public function save(array $data = [], bool $forceInsert = false): string
     {
-        if (empty($data)) {
-            $data = $this->query->getOptions('data');
-        }
-
-        if (empty($data)) {
-            return '';
-        }
-
         if ($forceInsert) {
             return $this->insert($data);
         }
 
-        $isUpdate = $this->query->parseUpdateData($data);
+        $data = array_merge($this->query->getOptions('data') ?: [], $data);
 
         $this->query->setOption('data', $data);
+
+        if ($this->query->getOptions('where')) {
+            $isUpdate = true;
+        } else {
+            $isUpdate = $this->query->parseUpdateData($data);
+        }
 
         return $isUpdate ? $this->update() : $this->insert();
     }
@@ -189,11 +190,10 @@ class Fetch
      * 批量插入记录
      * @access public
      * @param  array     $dataSet 数据集
-     * @param  boolean   $replace 是否replace
      * @param  integer   $limit   每次写入数据限制
      * @return string
      */
-    public function insertAll(array $dataSet = [], bool $replace = false, int $limit = null): string
+    public function insertAll(array $dataSet = [], int $limit = null): string
     {
         $options = $this->query->parseOptions();
 
@@ -209,7 +209,7 @@ class Fetch
             $array    = array_chunk($dataSet, $limit, true);
             $fetchSql = [];
             foreach ($array as $item) {
-                $sql  = $this->builder->insertAll($this->query, $item, $replace);
+                $sql  = $this->builder->insertAll($this->query, $item);
                 $bind = $this->query->getBind();
 
                 $fetchSql[] = $this->connection->getRealSql($sql, $bind);
@@ -218,7 +218,7 @@ class Fetch
             return implode(';', $fetchSql);
         }
 
-        $sql = $this->builder->insertAll($this->query, $dataSet, $replace);
+        $sql = $this->builder->insertAll($this->query, $dataSet);
 
         return $this->fetch($sql);
     }
@@ -233,6 +233,7 @@ class Fetch
     public function selectInsert(array $fields, string $table): string
     {
         $this->query->parseOptions();
+
         $sql = $this->builder->selectInsert($this->query, $fields, $table);
 
         return $this->fetch($sql);
@@ -369,7 +370,7 @@ class Fetch
      */
     public function selectOrFail($data = null): string
     {
-        return $this->failException(true)->select($data);
+        return $this->select($data);
     }
 
     /**
@@ -380,7 +381,18 @@ class Fetch
      */
     public function findOrFail($data = null): string
     {
-        return $this->failException(true)->find($data);
+        return $this->find($data);
+    }
+
+    /**
+     * 查找单条记录 不存在返回空数据（或者空模型）
+     * @access public
+     * @param  mixed $data 数据
+     * @return string
+     */
+    public function findOrEmpty($data = null)
+    {
+        return $this->find($data);
     }
 
     /**

@@ -144,8 +144,9 @@ class Table
     {
         if (is_array($row)) {
             foreach ($row as $key => $cell) {
-                if (!isset($this->colWidth[$key]) || strlen($cell) > $this->colWidth[$key]) {
-                    $this->colWidth[$key] = strlen($cell);
+                $width = strlen((string) $cell);
+                if (!isset($this->colWidth[$key]) || $width > $this->colWidth[$key]) {
+                    $this->colWidth[$key] = $width;
                 }
             }
         }
@@ -266,7 +267,7 @@ class Table
                     $array = [];
 
                     foreach ($row as $key => $val) {
-                        $array[] = ' ' . str_pad($val, $this->colWidth[$key], ' ', $this->cellAlign);
+                        $array[] = ' ' . str_pad((string) $val, $this->colWidth[$key], ' ', $this->cellAlign);
                     }
 
                     $content .= $style[0] . implode(' ' . $style[2], $array) . ' ' . $style[3] . PHP_EOL;

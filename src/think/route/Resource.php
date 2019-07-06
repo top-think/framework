@@ -14,14 +14,46 @@ namespace think\route;
 
 use think\Route;
 
+/**
+ * 资源路由类
+ */
 class Resource extends RuleGroup
 {
-    // 资源路由名称
+    /**
+     * 资源路由名称
+     * @var string
+     */
     protected $resource;
-    // 资源路由地址
+
+    /**
+     * 资源路由地址
+     * @var string
+     */
     protected $route;
-    // REST路由方法定义
+
+    /**
+     * REST方法定义
+     * @var array
+     */
     protected $rest = [];
+
+    /**
+     * 模型绑定
+     * @var array
+     */
+    protected $model = [];
+
+    /**
+     * 数据验证
+     * @var array
+     */
+    protected $validate = [];
+
+    /**
+     * 中间件
+     * @var array
+     */
+    protected $middleware = [];
 
     /**
      * 架构函数
@@ -34,6 +66,7 @@ class Resource extends RuleGroup
      */
     public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
     {
+        $name           = ltrim($name, '/');
         $this->router   = $router;
         $this->parent   = $parent;
         $this->resource = $name;
@@ -97,10 +130,104 @@ class Resource extends RuleGroup
                 $val[1] = str_replace('<id>', '<' . $option['var'][$rule] . '>', $val[1]);
             }
 
-            $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
+            $ruleItem = $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
+
+            foreach (['model', 'validate', 'middleware'] as $name) {
+                if (isset($this->$name[$key])) {
+                    call_user_func_array([$ruleItem, $name], (array) $this->$name[$key]);
+                }
+
+            }
         }
 
         $this->router->setGroup($origin);
+    }
+
+    /**
+     * 设置资源允许
+     * @access public
+     * @param  array $only 资源允许
+     * @return $this
+     */
+    public function only(array $only)
+    {
+        return $this->setOption('only', $only);
+    }
+
+    /**
+     * 设置资源排除
+     * @access public
+     * @param  array $except 排除资源
+     * @return $this
+     */
+    public function except(array $except)
+    {
+        return $this->setOption('except', $except);
+    }
+
+    /**
+     * 设置资源路由的变量
+     * @access public
+     * @param  array $vars 资源变量
+     * @return $this
+     */
+    public function vars(array $vars)
+    {
+        return $this->setOption('var', $vars);
+    }
+
+    /**
+     * 绑定资源验证
+     * @access public
+     * @param  array|string $name 资源类型或者验证信息
+     * @param  array|string $validate 验证信息
+     * @return $this
+     */
+    public function withValidate($name, $validate = [])
+    {
+        if (is_array($name)) {
+            $this->validate = array_merge($this->validate, $name);
+        } else {
+            $this->validate[$name] = $validate;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 绑定资源模型
+     * @access public
+     * @param  array|string $name 资源类型或者模型绑定
+     * @param  array|string $model 模型绑定
+     * @return $this
+     */
+    public function withModel($name, $model = [])
+    {
+        if (is_array($name)) {
+            $this->model = array_merge($this->model, $name);
+        } else {
+            $this->model[$name] = $model;
+        }
+
+        return $this;
+    }
+
+    /**
+     * 绑定资源模型
+     * @access public
+     * @param  array|string $name 资源类型或者中间件定义
+     * @param  array|string $middleware 中间件定义
+     * @return $this
+     */
+    public function withMiddleware($name, $middleware = [])
+    {
+        if (is_array($name)) {
+            $this->middleware = array_merge($this->middleware, $name);
+        } else {
+            $this->middleware[$name] = $middleware;
+        }
+
+        return $this;
     }
 
     /**

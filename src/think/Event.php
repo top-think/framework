@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 事件管理类
+ */
 class Event
 {
     /**
@@ -31,13 +34,11 @@ class Event
      * @var array
      */
     protected $bind = [
-        'AppInit'      => event\AppInit::class,
-        'AppBegin'     => event\AppBegin::class,
-        'AppEnd'       => event\AppEnd::class,
-        'LogLevel'     => event\LogLevel::class,
-        'LogWrite'     => event\LogWrite::class,
-        'ResponseSend' => event\ResponseSend::class,
-        'ResponseEnd'  => event\ResponseEnd::class,
+        'AppInit'  => event\AppInit::class,
+        'HttpRun'  => event\HttpRun::class,
+        'HttpEnd'  => event\HttpEnd::class,
+        'LogLevel' => event\LogLevel::class,
+        'LogWrite' => event\LogWrite::class,
     ];
 
     /**
@@ -212,7 +213,8 @@ class Event
         $events = array_keys($this->listener);
 
         foreach ($events as $event) {
-            $method = 'on' . substr(strrchr($event, '\\'), 1);
+            $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
+            $method = 'on' . $name;
 
             if (method_exists($observer, $method)) {
                 $this->listen($event, [$observer, $method]);
@@ -237,18 +239,17 @@ class Event
         }
 
         if (is_object($event)) {
-            $class = get_class($event);
-            $this->app->instance($class, $event);
-            $event = $class;
+            $params = $event;
+            $event  = get_class($event);
         }
 
         if (isset($this->bind[$event])) {
             $event = $this->bind[$event];
         }
 
+        $result    = [];
         $listeners = $this->listener[$event] ?? [];
 
-        $result = [];
         foreach ($listeners as $key => $listener) {
             $result[$key] = $this->dispatch($listener, $params);
 

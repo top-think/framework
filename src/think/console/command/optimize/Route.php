@@ -14,25 +14,27 @@ use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\Output;
+use think\event\RouteLoaded;
 
 class Route extends Command
 {
     protected function configure()
     {
         $this->setName('optimize:route')
-            ->addArgument('app', Argument::OPTIONAL, 'Build app route cache .')
-            ->setDescription('Build route cache.');
+            ->addArgument('app', Argument::OPTIONAL, 'app name.')
+            ->setDescription('Build app route cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
         $app = $input->getArgument('app');
 
-        if ($app) {
-            $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
-        } else {
-            $path = $this->app->getRuntimePath();
+        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
         }
+
+        $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
 
         $filename = $path . 'route.php';
         if (is_file($filename)) {
@@ -45,7 +47,7 @@ class Route extends Command
 
     protected function buildRouteCache(string $app = null): string
     {
-        $this->app->route->setName([]);
+        $this->app->route->clear();
         $this->app->route->lazy(false);
 
         // 路由检测
@@ -59,12 +61,11 @@ class Route extends Command
             }
         }
 
-        if ($this->app->config->get('route.route_annotation')) {
-            include $this->app->build->buildRoute();
-        }
+        //触发路由载入完成事件
+        $this->app->event->trigger(RouteLoaded::class);
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= '\think\App::unserialize(\'' . \think\App::serialize($route->getName()) . '\');';
+        $content .= '\think\App::unserialize(\'' . \think\App::serialize($this->app->route->getName()) . '\');';
         return $content;
     }
 

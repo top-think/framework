@@ -12,8 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\response\Redirect as RedirectResponse;
-
+/**
+ * 响应输出基础类
+ */
 class Response
 {
     /**
@@ -65,6 +66,18 @@ class Response
     protected $content = null;
 
     /**
+     * Cookie对象
+     * @var Cookie
+     */
+    protected $cookie;
+
+    /**
+     * Session对象
+     * @var Session
+     */
+    protected $session;
+
+    /**
      * 架构函数
      * @access public
      * @param  mixed $data    输出数据
@@ -91,10 +104,34 @@ class Response
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
 
         if (class_exists($class)) {
-            return new $class($data, $code);
+            return Container::getInstance()->invokeClass($class, [$data, $code]);
         }
 
         return new static($data, $code);
+    }
+
+    /**
+     * 设置Cookie对象
+     * @access public
+     * @param  Cookie $cookie Cookie对象
+     * @return $this
+     */
+    public function setCookie(Cookie $cookie)
+    {
+        $this->cookie = $cookie;
+        return $this;
+    }
+
+    /**
+     * 设置Session对象
+     * @access public
+     * @param  Session $session Session对象
+     * @return $this
+     */
+    public function setSession(Session $session)
+    {
+        $this->session = $session;
+        return $this;
     }
 
     /**
@@ -105,27 +142,8 @@ class Response
      */
     public function send(): void
     {
-        // 监听response_send
-        Container::pull('event')->trigger('ResponseSend', $this);
-
         // 处理输出数据
         $data = $this->getContent();
-
-        // Trace调试注入
-        if ('cli' != PHP_SAPI && Container::pull('env')->get('app_trace', Container::pull('config')->get('app.app_trace'))) {
-            Container::pull('debug')->inject($this, $data);
-        }
-
-        if (200 == $this->code && $this->allowCache) {
-            $cache = Container::pull('request')->getCache();
-            if ($cache) {
-                $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
-                $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
-                $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
-
-                Container::pull('cache')->tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
-            }
-        }
 
         if (!headers_sent() && !empty($this->header)) {
             // 发送状态码
@@ -136,19 +154,13 @@ class Response
             }
         }
 
+        $this->cookie->save();
+
         $this->sendData($data);
 
         if (function_exists('fastcgi_finish_request')) {
             // 提高页面响应
             fastcgi_finish_request();
-        }
-
-        // 监听response_end
-        Container::pull('event')->trigger('ResponseEnd', $this);
-
-        // 清空当次请求有效的数据
-        if (!($this instanceof RedirectResponse)) {
-            Container::pull('session')->flush();
         }
     }
 
@@ -211,6 +223,16 @@ class Response
         $this->allowCache = $cache;
 
         return $this;
+    }
+
+    /**
+     * 是否允许请求缓存
+     * @access public
+     * @return $this
+     */
+    public function isAllowCache()
+    {
+        return $this->allowCache;
     }
 
     /**

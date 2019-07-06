@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
+use think\event\RouteLoaded;
+use think\exception\Handle;
 use think\exception\HttpException;
 use Throwable;
 
@@ -118,6 +121,10 @@ class Http
      */
     public function path(string $path)
     {
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
+        }
+
         $this->path = $path;
         return $this;
     }
@@ -142,7 +149,7 @@ class Http
             $response = $this->renderException($request, $e);
         }
 
-        return $response;
+        return $response->setCookie($this->app->cookie);
     }
 
     /**
@@ -163,6 +170,11 @@ class Http
     protected function runWithRequest(Request $request)
     {
         $this->initialize();
+
+        // 加载全局中间件
+        if (is_file($this->app->getBasePath() . 'middleware.php')) {
+            $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');
+        }
 
         if ($this->multi) {
             $this->parseMultiApp();
@@ -196,18 +208,7 @@ class Http
             }
         }
 
-        if ($this->app->route->config('route_annotation')) {
-            // 自动生成注解路由定义
-            if ($this->app->isDebug()) {
-                $this->app->build->buildRoute();
-            }
-
-            $filename = $this->app->getRuntimePath() . 'build_route.php';
-
-            if (is_file($filename)) {
-                include $filename;
-            }
-        }
+        $this->app->event->trigger(RouteLoaded::class);
     }
 
     /**
@@ -228,24 +229,25 @@ class Http
      */
     protected function reportException(Throwable $e)
     {
-        $this->app['error_handle']->report($e);
+        $this->app->make(Handle::class)->report($e);
     }
 
     /**
      * Render the exception to a response.
      *
-     * @param Request    $request
+     * @param Request   $request
      * @param Throwable $e
      * @return Response
      */
     protected function renderException($request, Throwable $e)
     {
-        return $this->app['error_handle']->render($request, $e);
+        return $this->app->make(Handle::class)->render($request, $e);
     }
 
     /**
      * 获取当前运行入口名称
      * @access protected
+     * @codeCoverageIgnore
      * @return string
      */
     protected function getScriptName(): string
@@ -273,7 +275,7 @@ class Http
             if (!empty($bind)) {
                 // 获取当前子域名
                 $subDomain = $this->app->request->subDomain();
-                $domain    = $this->app->request->host();
+                $domain    = $this->app->request->host(true);
 
                 if (isset($bind[$domain])) {
                     $appName          = $bind[$domain];
@@ -281,28 +283,35 @@ class Http
                 } elseif (isset($bind[$subDomain])) {
                     $appName          = $bind[$subDomain];
                     $this->bindDomain = true;
+                } elseif (isset($bind['*'])) {
+                    $appName          = $bind['*'];
+                    $this->bindDomain = true;
                 }
             }
 
             if (!$this->bindDomain) {
                 $map  = $this->app->config->get('app.app_map', []);
+                $deny = $this->app->config->get('app.deny_app_list', []);
                 $path = $this->app->request->pathinfo();
                 $name = current(explode('/', $path));
 
                 if (isset($map[$name])) {
-                    if ($map[$name] instanceof \Closure) {
-                        call_user_func_array($map[$name], [$this->app]);
+                    if ($map[$name] instanceof Closure) {
+                        $result  = call_user_func_array($map[$name], [$this]);
+                        $appName = $result ?: $name;
                     } else {
                         $appName = $map[$name];
                     }
-                } elseif ($name && false !== array_search($name, $map)) {
+                } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
                     throw new HttpException(404, 'app not exists:' . $name);
+                } elseif ($name && isset($map['*'])) {
+                    $appName = $map['*'];
                 } else {
                     $appName = $name;
                 }
 
                 if ($name) {
-                    $this->app->request->setRoot($name);
+                    $this->app->request->setRoot('/' . $name);
                     $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
                 }
             }
@@ -326,10 +335,7 @@ class Http
         $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
 
         //加载app文件
-        if (is_file($this->app->getRuntimePath() . 'init.php')) {
-            //直接加载缓存
-            include $this->app->getRuntimePath() . 'init.php';
-        } else {
+        if (is_dir($this->app->getAppPath())) {
             $appPath = $this->app->getAppPath();
 
             if (is_file($appPath . 'common.php')) {
@@ -340,10 +346,10 @@ class Http
 
             $files = [];
 
-            if (is_dir($appPath . 'config')) {
-                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            } elseif (is_dir($configPath . $appName)) {
+            if (is_dir($configPath . $appName)) {
                 $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+            } elseif (is_dir($appPath . 'config')) {
+                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
             }
 
             foreach ($files as $file) {
@@ -363,6 +369,35 @@ class Http
             }
         }
 
+        // 加载应用默认语言包
+        $this->app->loadLangPack($this->app->lang->defaultLangSet());
+
+        // 设置应用命名空间
         $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: 'app\\' . $appName);
+    }
+
+    /**
+     * HttpEnd
+     * @param Response $response
+     * @return void
+     */
+    public function end(Response $response): void
+    {
+        $this->app->event->trigger('HttpEnd', $response);
+
+        // 写入日志
+        $this->app->log->save();
+        // 写入Session
+        $this->app->session->save();
+    }
+
+    public function __debugInfo()
+    {
+        return [
+            'path'       => $this->path,
+            'multi'      => $this->multi,
+            'bindDomain' => $this->bindDomain,
+            'name'       => $this->name,
+        ];
     }
 }

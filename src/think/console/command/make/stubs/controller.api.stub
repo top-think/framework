@@ -2,10 +2,9 @@
 
 namespace {%namespace%};
 
-use think\Controller;
 use think\Request;
 
-class {%className%} extends Controller
+class {%className%}
 {
     /**
      * 显示资源列表

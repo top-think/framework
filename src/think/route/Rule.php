@@ -12,7 +12,11 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+use Closure;
 use think\Container;
+use think\middleware\AllowCrossDomain;
+use think\middleware\CheckRequestCache;
+use think\middleware\FormTokenCheck;
 use think\Request;
 use think\Response;
 use think\Route;
@@ -22,6 +26,9 @@ use think\route\dispatch\Redirect as RedirectDispatch;
 use think\route\dispatch\Response as ResponseDispatch;
 use think\route\dispatch\View as ViewDispatch;
 
+/**
+ * 路由规则基础类
+ */
 abstract class Rule
 {
     /**
@@ -50,7 +57,7 @@ abstract class Rule
 
     /**
      * 路由地址
-     * @var string|\Closure
+     * @var string|Closure
      */
     protected $route;
 
@@ -82,13 +89,7 @@ abstract class Rule
      * 需要和分组合并的路由参数
      * @var array
      */
-    protected $mergeOptions = ['after', 'model', 'header', 'response', 'append', 'middleware'];
-
-    /**
-     * 是否需要后置操作
-     * @var bool
-     */
-    protected $doAfter = false;
+    protected $mergeOptions = ['model', 'append', 'middleware'];
 
     abstract public function check(Request $request, string $url, bool $completeMatch = false);
 
@@ -162,7 +163,7 @@ abstract class Rule
      */
     public function getName(): string
     {
-        return $this->name;
+        return $this->name ?: '';
     }
 
     /**
@@ -268,16 +269,6 @@ abstract class Rule
     }
 
     /**
-     * 路由是否有后置操作
-     * @access public
-     * @return bool
-     */
-    public function doAfter(): bool
-    {
-        return $this->doAfter;
-    }
-
-    /**
      * 设置路由请求类型
      * @access public
      * @param  string $method 请求类型
@@ -337,14 +328,14 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param  array|string|\Closure $var  路由变量名 多个使用 & 分割
-     * @param  string|\Closure       $model 绑定模型类
+     * @param  array|string|Closure $var  路由变量名 多个使用 & 分割
+     * @param  string|Closure       $model 绑定模型类
      * @param  bool                  $exception 是否抛出异常
      * @return $this
      */
     public function model($var, $model = null, bool $exception = true)
     {
-        if ($var instanceof \Closure) {
+        if ($var instanceof Closure) {
             $this->option['model'][] = $var;
         } elseif (is_array($var)) {
             $this->option['model'] = $var;
@@ -387,35 +378,10 @@ abstract class Rule
     }
 
     /**
-     * 绑定Response对象
-     * @access public
-     * @param  mixed $response Response对象
-     * @return $this
-     */
-    public function response($response)
-    {
-        $this->option['response'][] = $response;
-        return $this;
-    }
-
-    /**
-     * 设置Response Header信息
-     * @access public
-     * @param  array $header 头信息
-     * @return $this
-     */
-    public function header(array $header)
-    {
-        $this->option['header'] = $header;
-
-        return $this;
-    }
-
-    /**
      * 指定路由中间件
      * @access public
-     * @param  string|array|\Closure $middleware 中间件
-     * @param  mixed                 $param 参数
+     * @param  string|array|Closure $middleware 中间件
+     * @param  mixed                $param 参数
      * @return $this
      */
     public function middleware($middleware, $param = null)
@@ -432,6 +398,28 @@ abstract class Rule
     }
 
     /**
+     * 允许跨域
+     * @access public
+     * @param  array $header 自定义Header
+     * @return $this
+     */
+    public function allowCrossDomain(array $header = [])
+    {
+        return $this->middleware(AllowCrossDomain::class, $header);
+    }
+
+    /**
+     * 表单令牌验证
+     * @access public
+     * @param  string $token 表单令牌token名称
+     * @return $this
+     */
+    public function token(string $token = '__token__')
+    {
+        return $this->middleware(FormTokenCheck::class, $token);
+    }
+
+    /**
      * 设置路由缓存
      * @access public
      * @param  array|string $cache 缓存
@@ -439,7 +427,7 @@ abstract class Rule
      */
     public function cache($cache)
     {
-        return $this->setOption('cache', $cache);
+        return $this->middleware(CheckRequestCache::class, $cache);
     }
 
     /**
@@ -565,54 +553,6 @@ abstract class Rule
     }
 
     /**
-     * 设置是否允许跨域
-     * @access public
-     * @param  bool  $allow  是否允许跨域
-     * @param  array $header 头信息
-     * @return $this
-     */
-    public function allowCrossDomain(bool $allow = true, array $header = [])
-    {
-        if (!empty($header)) {
-            $this->header($header);
-        }
-
-        if ($allow && $this->parent) {
-            $this->parent->addRuleItem($this, 'options');
-        }
-
-        return $this->setOption('cross_domain', $allow);
-    }
-
-    /**
-     * 检查OPTIONS请求
-     * @access public
-     * @param  Request $request 当前请求对象
-     * @return Dispatch|void
-     */
-    protected function checkCrossDomain(Request $request)
-    {
-        if (!empty($this->option['cross_domain'])) {
-
-            $header = [
-                'Access-Control-Allow-Origin'  => '*',
-                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
-                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
-            ];
-
-            if (!empty($this->option['header'])) {
-                $header = array_merge($header, $this->option['header']);
-            }
-
-            $this->option['header'] = $header;
-
-            if ($request->method(true) == 'OPTIONS') {
-                return new ResponseDispatch($request, $this, Response::create()->code(204)->header($header));
-            }
-        }
-    }
-
-    /**
      * 设置路由规则全局有效
      * @access public
      * @return $this
@@ -688,10 +628,7 @@ abstract class Rule
         $url   = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams(implode('|', $url), $matches);
 
-        $this->route   = $route;
-        $this->vars    = $matches;
-        $this->option  = $option;
-        $this->doAfter = true;
+        $this->vars = $matches;
 
         // 发起路由调度
         return $this->dispatch($request, $route, $option);
@@ -709,16 +646,16 @@ abstract class Rule
     {
         if ($route instanceof Dispatch) {
             $result = $route;
-        } elseif ($route instanceof \Closure) {
+        } elseif ($route instanceof Closure) {
             // 执行闭包
-            $result = new CallbackDispatch($request, $this, $route);
+            $result = new CallbackDispatch($request, $this, $route, $this->vars);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($request, $this, $route);
         } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : []);
-        } elseif (!empty($option['redirect']) || 0 === strpos($route, '/') || strpos($route, '://')) {
+            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : $this->vars);
+        } elseif (!empty($option['redirect'])) {
             // 路由到重定向地址
-            $result = new RedirectDispatch($request, $this, $route, [], $option['status'] ?? 301);
+            $result = new RedirectDispatch($request, $this, $route, $this->vars, $option['status'] ?? 301);
         } elseif (false !== strpos($route, '\\')) {
             // 路由到类的方法
             $result = $this->dispatchMethod($request, $route);
@@ -739,12 +676,12 @@ abstract class Rule
      */
     protected function dispatchMethod(Request $request, string $route): CallbackDispatch
     {
-        list($path, $var) = $this->parseUrlPath($route);
+        $path = $this->parseUrlPath($route);
 
         $route  = str_replace('/', '@', implode('/', $path));
         $method = strpos($route, '@') ? explode('@', $route) : $route;
 
-        return new CallbackDispatch($request, $this, $method, $var);
+        return new CallbackDispatch($request, $this, $method, $this->vars);
     }
 
     /**
@@ -756,13 +693,13 @@ abstract class Rule
      */
     protected function dispatchController(Request $request, string $route): ControllerDispatch
     {
-        list($path, $var) = $this->parseUrlPath($route);
+        $path = $this->parseUrlPath($route);
 
         $action     = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
 
         // 路由到模块/控制器/操作
-        return new ControllerDispatch($request, $this, [$controller, $action], $var);
+        return new ControllerDispatch($request, $this, [$controller, $action], $this->vars);
     }
 
     /**
@@ -837,7 +774,7 @@ abstract class Rule
     }
 
     /**
-     * 解析URL的pathinfo参数和变量
+     * 解析URL的pathinfo参数
      * @access public
      * @param  string $url URL地址
      * @return array
@@ -847,25 +784,15 @@ abstract class Rule
         // 分隔符替换 确保路由定义使用统一的分隔符
         $url = str_replace('|', '/', $url);
         $url = trim($url, '/');
-        $var = [];
 
-        if (false !== strpos($url, '?')) {
-            // [控制器/操作?]参数1=值1&参数2=值2...
-            $info = parse_url($url);
-            $path = explode('/', $info['path']);
-            parse_str($info['query'], $var);
-        } elseif (strpos($url, '/')) {
+        if (strpos($url, '/')) {
             // [控制器/操作]
             $path = explode('/', $url);
-        } elseif (false !== strpos($url, '=')) {
-            // 参数1=值1&参数2=值2...
-            parse_str($url, $var);
-            $path = [];
         } else {
             $path = [$url];
         }
 
-        return [$path, $var];
+        return $path;
     }
 
     /**
@@ -950,35 +877,6 @@ abstract class Rule
     }
 
     /**
-     * 分析路由规则中的变量
-     * @access protected
-     * @param  string $rule 路由规则
-     * @return array
-     */
-    protected function parseVar(string $rule): array
-    {
-        // 提取路由规则中的变量
-        $var = [];
-
-        if (preg_match_all('/<\w+\??>/', $rule, $matches)) {
-            foreach ($matches[0] as $name) {
-                $optional = false;
-
-                if (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
-                    $optional = true;
-                } else {
-                    $name = substr($name, 1, -1);
-                }
-
-                $var[$name] = $optional ? 2 : 1;
-            }
-        }
-
-        return $var;
-    }
-
-    /**
      * 设置路由参数
      * @access public
      * @param  string $method 方法名
@@ -992,12 +890,12 @@ abstract class Rule
         }
         array_unshift($args, $method);
 
-        return call_user_func_array([$this, 'option'], $args);
+        return call_user_func_array([$this, 'setOption'], $args);
     }
 
     public function __sleep()
     {
-        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern', 'doAfter'];
+        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern'];
     }
 
     public function __wakeup()

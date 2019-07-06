@@ -17,6 +17,9 @@ use think\exception\HttpException;
 use think\Request;
 use think\route\Rule;
 
+/**
+ * Url Dispatcher
+ */
 class Url extends Controller
 {
 
@@ -27,7 +30,7 @@ class Url extends Controller
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
-        parent::__construct($request, $rule, $dispatch, $param, $code);
+        parent::__construct($request, $rule, $dispatch, $this->param, $code);
     }
 
     /**
@@ -47,7 +50,7 @@ class Url extends Controller
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
 
-        list($path, $var) = $this->rule->parseUrlPath($url);
+        $path = $this->rule->parseUrlPath($url);
         if (empty($path)) {
             return [null, null];
         }
@@ -61,6 +64,7 @@ class Url extends Controller
 
         // 解析操作
         $action = !empty($path) ? array_shift($path) : null;
+        $var    = [];
 
         // 解析额外参数
         if ($path) {
@@ -76,7 +80,7 @@ class Url extends Controller
         }
 
         // 设置当前请求的参数
-        $this->request->setRoute($var);
+        $this->param = $var;
 
         // 封装路由
         $route = [$controller, $action];

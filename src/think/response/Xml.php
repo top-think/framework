@@ -15,6 +15,9 @@ use think\Collection;
 use think\Model;
 use think\Response;
 
+/**
+ * XML Response
+ */
 class Xml extends Response
 {
     // 输出参数

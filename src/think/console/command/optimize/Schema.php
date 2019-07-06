@@ -29,14 +29,21 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        if ($input->getArgument('app')) {
-            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $input->getArgument('app') . DIRECTORY_SEPARATOR;
-            $appPath     = $this->app->getBasePath() . $input->getArgument('app') . DIRECTORY_SEPARATOR;
-            $namespace   = $this->app->getNamespace() . '\\' . $input->getArgument('app');
+        $app = $input->getArgument('app');
+
+        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
+        }
+
+        if ($app) {
+            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
+            $appPath     = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
+            $namespace   = 'app\\' . $app;
         } else {
-            $runtimePath = $this->app->getRuntimePath();
+            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
             $appPath     = $this->app->getBasePath();
-            $namespace   = $this->app->getNamespace();
+            $namespace   = 'app';
         }
 
         $schemaPath = $runtimePath . 'schema' . DIRECTORY_SEPARATOR;
@@ -81,10 +88,14 @@ class Schema extends Command
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
-            $table   = $class::getTable();
-            $dbName  = $class::getConfig('database');
+
+            /** @var \think\Model $model */
+            $model = new $class;
+
+            $table   = $model->getTable();
+            $dbName  = $model->getConfig('database');
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $class::getConnection()->getFields($table);
+            $info    = $model->db()->getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
 
             file_put_contents($path . $dbName . '.' . $table . '.php', $content);

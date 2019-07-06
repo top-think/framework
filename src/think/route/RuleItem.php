@@ -16,8 +16,23 @@ use think\Exception;
 use think\Request;
 use think\Route;
 
+/**
+ * 路由规则类
+ */
 class RuleItem extends Rule
 {
+    /**
+     * 是否为MISS规则
+     * @var bool
+     */
+    protected $miss = false;
+
+    /**
+     * 是否为额外自动注册的OPTIONS规则
+     * @var bool
+     */
+    protected $autoOption = false;
+
     /**
      * 架构函数
      * @access public
@@ -37,6 +52,68 @@ class RuleItem extends Rule
         $this->method = $method;
 
         $this->setRule($rule);
+
+        $this->router->setRule($this->rule, $this);
+    }
+
+    /**
+     * 设置当前路由规则为MISS路由
+     * @access public
+     * @return $this
+     */
+    public function setMiss()
+    {
+        $this->miss = true;
+        return $this;
+    }
+
+    /**
+     * 判断当前路由规则是否为MISS路由
+     * @access public
+     * @return bool
+     */
+    public function isMiss(): bool
+    {
+        return $this->miss;
+    }
+
+    /**
+     * 设置当前路由为自动注册OPTIONS
+     * @access public
+     * @return $this
+     */
+    public function setAutoOptions()
+    {
+        $this->autoOption = true;
+        return $this;
+    }
+
+    /**
+     * 判断当前路由规则是否为自动注册的OPTIONS路由
+     * @access public
+     * @return bool
+     */
+    public function isAutoOptions(): bool
+    {
+        return $this->autoOption;
+    }
+
+    /**
+     * 获取当前路由的URL后缀
+     * @access public
+     * @return string|null
+     */
+    public function getSuffix()
+    {
+        if (isset($this->option['ext'])) {
+            $suffix = $this->option['ext'];
+        } elseif ($this->parent->getOption('ext')) {
+            $suffix = $this->parent->getOption('ext');
+        } else {
+            $suffix = null;
+        }
+
+        return $suffix;
     }
 
     /**
@@ -71,20 +148,6 @@ class RuleItem extends Rule
     }
 
     /**
-     * 检查后缀
-     * @access public
-     * @param  string     $ext
-     * @return $this
-     */
-    public function ext(string $ext = '')
-    {
-        $this->setOption('ext', $ext);
-        $this->setRuleName(true);
-
-        return $this;
-    }
-
-    /**
      * 设置别名
      * @access public
      * @param  string     $name
@@ -101,28 +164,13 @@ class RuleItem extends Rule
     /**
      * 设置路由标识 用于URL反解生成
      * @access protected
-     * @param  bool     $first   是否插入开头
+     * @param  bool $first 是否插入开头
      * @return void
      */
     protected function setRuleName(bool $first = false): void
     {
         if ($this->name) {
-            $vars = $this->parseVar($this->rule);
-            $name = strtolower($this->name);
-
-            if (isset($this->option['ext'])) {
-                $suffix = $this->option['ext'];
-            } elseif ($this->parent->getOption('ext')) {
-                $suffix = $this->parent->getOption('ext');
-            } else {
-                $suffix = null;
-            }
-
-            $value = [$this->rule, $vars, $this->parent->getDomain(), $suffix, $this->method];
-
-            $this->router->setName($name, $value, $first);
-
-            $this->router->getRuleName()->setRule($this->rule, $this);
+            $this->router->setName($this->name, $this, $first);
         }
     }
 
@@ -137,11 +185,6 @@ class RuleItem extends Rule
      */
     public function checkRule(Request $request, string $url, $match = null, bool $completeMatch = false)
     {
-        if ($dispatch = $this->checkCrossDomain($request)) {
-            // 允许跨域
-            return $dispatch;
-        }
-
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
             return false;
@@ -218,7 +261,7 @@ class RuleItem extends Rule
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
 
         // 检查完整规则定义
-        if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
+        if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . ($completeMatch ? '$' : '') . '/', str_replace('|', $depr, $url))) {
             return false;
         }
 
@@ -267,4 +310,21 @@ class RuleItem extends Rule
         return $var;
     }
 
+    /**
+     * 设置路由所属分组（用于注解路由）
+     * @access public
+     * @param  string $name 分组名称或者标识
+     * @return $this
+     */
+    public function group(string $name)
+    {
+        $group = $this->router->getRuleName()->getGroup($name);
+
+        if ($group) {
+            $this->parent = $group;
+            $this->setRule($this->rule);
+        }
+
+        return $this;
+    }
 }

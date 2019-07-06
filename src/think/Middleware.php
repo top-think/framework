@@ -16,6 +16,9 @@ use InvalidArgumentException;
 use LogicException;
 use think\exception\HttpResponseException;
 
+/**
+ * 中间件管理类
+ */
 class Middleware
 {
     /**
@@ -28,23 +31,39 @@ class Middleware
      * 配置
      * @var array
      */
-    protected $config = [
-        'default_namespace' => 'app\\http\\middleware\\',
-    ];
+    protected $config = [];
+
+    /**
+     * 应用对象
+     * @var App
+     */
+    protected $app;
 
     public function __construct(array $config = [])
     {
         $this->config = array_merge($this->config, $config);
     }
 
-    public static function __make(Config $config)
+    public static function __make(App $app, Config $config)
     {
-        return new static($config->get('middleware'));
+        return (new static($config->get('middleware')))->setApp($app);
     }
 
     public function setConfig(array $config): void
     {
         $this->config = array_merge($this->config, $config);
+    }
+
+    /**
+     * 设置应用对象
+     * @access public
+     * @param  App  $app
+     * @return $this
+     */
+    public function setApp(App $app)
+    {
+        $this->app = $app;
+        return $this;
     }
 
     /**
@@ -106,7 +125,7 @@ class Middleware
 
         $middleware = $this->buildMiddleware($middleware, $type);
 
-        if ($middleware) {
+        if (!empty($middleware)) {
             array_unshift($this->queue[$type], $middleware);
         }
     }
@@ -153,12 +172,8 @@ class Middleware
             throw new InvalidArgumentException('The middleware is invalid');
         }
 
-        if (false === strpos($middleware, '\\')) {
-            if (isset($this->config[$middleware])) {
-                $middleware = $this->config[$middleware];
-            } else {
-                $middleware = $this->config['default_namespace'] . $middleware;
-            }
+        if (isset($this->config[$middleware])) {
+            $middleware = $this->config[$middleware];
         }
 
         if (is_array($middleware)) {
@@ -166,11 +181,7 @@ class Middleware
             return [];
         }
 
-        if (strpos($middleware, ':')) {
-            list($middleware, $param) = explode(':', $middleware, 2);
-        }
-
-        return [[Container::pull($middleware), 'handle'], $param ?? null];
+        return [[$middleware, 'handle'], $param ?? null];
     }
 
     protected function resolve(string $type = 'route')
@@ -184,8 +195,12 @@ class Middleware
 
             list($call, $param) = $middleware;
 
+            if (is_array($call) && is_string($call[0])) {
+                $call = [$this->app->make($call[0]), $call[1]];
+            }
+
             try {
-                $response = call_user_func_array($call, [$request, $this->resolve($type), $param]);
+                $response = $this->app->invoke($call, [$request, $this->resolve($type), $param]);
             } catch (HttpResponseException $exception) {
                 $response = $exception->getResponse();
             }

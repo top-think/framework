@@ -11,7 +11,10 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use InvalidArgumentException;
+use LogicException;
 use think\console\Command;
+use think\console\command\Build;
 use think\console\command\Clear;
 use think\console\command\Help;
 use think\console\command\Help as HelpCommand;
@@ -22,10 +25,9 @@ use think\console\command\make\Event;
 use think\console\command\make\Listener;
 use think\console\command\make\Middleware;
 use think\console\command\make\Model;
+use think\console\command\make\Service;
 use think\console\command\make\Subscribe;
 use think\console\command\make\Validate;
-use think\console\command\optimize\Config;
-use think\console\command\optimize\Facade;
 use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
 use think\console\command\RouteList;
@@ -56,7 +58,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand  = 'list';
+    protected $defaultCommand = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -70,11 +72,10 @@ class Console
         'make:validate'    => Validate::class,
         'make:event'       => Event::class,
         'make:listener'    => Listener::class,
+        'make:service'     => Service::class,
         'make:subscribe'   => Subscribe::class,
-        'optimize:config'  => Config::class,
         'optimize:schema'  => Schema::class,
         'optimize:route'   => Route::class,
-        'optimize:facade'  => Facade::class,
         'run'              => RunServer::class,
         'version'          => Version::class,
         'route:list'       => RouteList::class,
@@ -83,16 +84,18 @@ class Console
     ];
 
     /**
-     * 初始化器
+     * 启动器
      * @var array
      */
-    protected static $initializers = [];
+    protected static $startCallbacks = [];
 
     public function __construct(App $app)
     {
         $this->app = $app;
 
-        $this->app->initialize();
+        if (!$this->app->initialized()) {
+            $this->app->initialize();
+        }
 
         $user = $this->app->config->get('console.user');
 
@@ -105,33 +108,33 @@ class Console
         //加载指令
         $this->loadCommands();
 
-        $this->initialize();
+        $this->start();
     }
 
     /**
      * 添加初始化器
      * @param Closure $callback
      */
-    public static function init(Closure $callback): void
+    public static function starting(Closure $callback): void
     {
-        static::$initializers[] = $callback;
+        static::$startCallbacks[] = $callback;
     }
 
     /**
-     * 清空初始化器
+     * 清空启动器
      */
-    public static function flushInit(): void
+    public static function flushStartCallbacks(): void
     {
-        static::$initializers = [];
+        static::$startCallbacks = [];
     }
 
     /**
-     * 初始化
+     * 启动
      */
-    protected function initialize(): void
+    protected function start(): void
     {
-        foreach (static::$initializers as $initialize) {
-            $initialize($this);
+        foreach (static::$startCallbacks as $callback) {
+            $callback($this);
         }
     }
 
@@ -141,7 +144,7 @@ class Console
      */
     protected function setUser(string $user): void
     {
-        if (function_exists('posix_getpwnam')) {
+        if (extension_loaded('posix')) {
             $user = posix_getpwnam($user);
 
             if (!empty($user)) {
@@ -261,6 +264,8 @@ class Console
 
         $command = $this->find($name);
 
+        $this->app->log->info('run: php think ' . $input);
+
         return $this->doRunCommand($command, $input, $output);
     }
 
@@ -331,16 +336,6 @@ class Console
     }
 
     /**
-     * 注册一个指令 （便于动态创建指令）
-     * @access public
-     * @param string $name 指令名
-     */
-    public function register(string $name)
-    {
-        $this->addCommand(new Command($name));
-    }
-
-    /**
      * 添加指令集
      * @access public
      * @param array $commands
@@ -370,7 +365,7 @@ class Console
         }
 
         if (is_string($command)) {
-            $command = new $command();
+            $command = $this->app->invokeClass($command);
         }
 
         $command->setConsole($this);
@@ -383,7 +378,7 @@ class Console
         $command->setApp($this->app);
 
         if (null === $command->getDefinition()) {
-            throw new \LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
+            throw new LogicException(sprintf('Command class "%s" is not correctly initialized. You probably forgot to call the parent constructor.', get_class($command)));
         }
 
         $this->commands[$command->getName()] = $command;
@@ -400,19 +395,19 @@ class Console
      * @access public
      * @param string $name 指令名称
      * @return Command
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function getCommand(string $name): Command
     {
         if (!isset($this->commands[$name])) {
-            throw new \InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
+            throw new InvalidArgumentException(sprintf('The command "%s" does not exist.', $name));
         }
 
         $command = $this->commands[$name];
 
         if (is_string($command)) {
+            $command = $this->app->invokeClass($command);
             /** @var Command $command */
-            $command = new $command();
             $command->setConsole($this);
             $command->setApp($this->app);
         }
@@ -449,9 +444,9 @@ class Console
     public function getNamespaces(): array
     {
         $namespaces = [];
-        foreach ($this->commands as $command) {
+        foreach ($this->commands as $key => $command) {
             if (is_string($command)) {
-                $namespaces[] = $command;
+                $namespaces = array_merge($namespaces, $this->extractAllNamespaces($key));
             } else {
                 $namespaces = array_merge($namespaces, $this->extractAllNamespaces($command->getName()));
 
@@ -469,7 +464,7 @@ class Console
      * @access public
      * @param string $namespace
      * @return string
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function findNamespace(string $namespace): string
     {
@@ -477,7 +472,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -492,12 +487,12 @@ class Console
                 $message .= implode("\n    ", $alternatives);
             }
 
-            throw new \InvalidArgumentException($message);
+            throw new InvalidArgumentException($message);
         }
 
         $exact = in_array($namespace, $namespaces, true);
         if (count($namespaces) > 1 && !$exact) {
-            throw new \InvalidArgumentException(sprintf('The namespace "%s" is ambiguous (%s).', $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))));
+            throw new InvalidArgumentException(sprintf('The namespace "%s" is ambiguous (%s).', $namespace, $this->getAbbreviationSuggestions(array_values($namespaces))));
         }
 
         return $exact ? $namespace : reset($namespaces);
@@ -508,7 +503,7 @@ class Console
      * @access public
      * @param string $name 名称或者别名
      * @return Command
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function find(string $name): Command
     {
@@ -536,14 +531,14 @@ class Console
                 $message .= implode("\n    ", $alternatives);
             }
 
-            throw new \InvalidArgumentException($message);
+            throw new InvalidArgumentException($message);
         }
 
         $exact = in_array($name, $commands, true);
         if (count($commands) > 1 && !$exact) {
             $suggestions = $this->getAbbreviationSuggestions(array_values($commands));
 
-            throw new \InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
+            throw new InvalidArgumentException(sprintf('Command "%s" is ambiguous (%s).', $name, $suggestions));
         }
 
         return $this->getCommand($exact ? $name : reset($commands));

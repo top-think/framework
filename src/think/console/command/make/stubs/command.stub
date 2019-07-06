@@ -4,6 +4,8 @@ namespace {%namespace%};
 
 use think\console\Command;
 use think\console\Input;
+use think\console\input\Argument;
+use think\console\input\Option;
 use think\console\Output;
 
 class {%className%} extends Command
@@ -11,9 +13,8 @@ class {%className%} extends Command
     protected function configure()
     {
         // 指令配置
-        $this->setName('{%commandName%}');
-        // 设置参数
-        
+        $this->setName('{%commandName%}')
+            ->setDescription('the {%commandName%} command');        
     }
 
     protected function execute(Input $input, Output $output)

@@ -14,6 +14,9 @@ namespace think\initializer;
 
 use think\App;
 
+/**
+ * 启动系统服务
+ */
 class BootService
 {
     public function init(App $app)

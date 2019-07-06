@@ -12,18 +12,22 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Wincache缓存驱动
- * @author    liu21st <liu21st@gmail.com>
  */
-class Wincache extends Driver
+class Wincache extends Driver implements CacheHandlerInterface
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $options = [
         'prefix'     => '',
         'expire'     => 0,
-        'serialize'  => true,
-        'tag_prefix' => 'tag_',
+        'tag_prefix' => 'tag:',
+        'serialize'  => [],
     ];
 
     /**
@@ -94,12 +98,7 @@ class Wincache extends Driver
         $expire = $this->getExpireTime($expire);
         $value  = $this->serialize($value);
 
-        if (!empty($this->tag) && !$this->has($name)) {
-            $first = true;
-        }
-
         if (wincache_ucache_set($key, $value, $expire)) {
-            isset($first) && $this->setTagItem($key);
             return true;
         }
 
@@ -144,7 +143,7 @@ class Wincache extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function rm(string $name): bool
+    public function delete($name): bool
     {
         $this->writeTimes++;
 
@@ -158,25 +157,19 @@ class Wincache extends Driver
      */
     public function clear(): bool
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $this->clearTag($tag);
-            }
-            return true;
-        }
-
         $this->writeTimes++;
         return wincache_ucache_clear();
     }
 
-    public function clearTag(string $tag): void
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  array $keys 缓存标识列表
+     * @return void
+     */
+    public function clearTag(array $keys): void
     {
-        $keys = $this->getTagItems($tag);
-
         wincache_ucache_delete($keys);
-
-        $tagName = $this->getTagkey($tag);
-        $this->rm($tagName);
     }
 
 }

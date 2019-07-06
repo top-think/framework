@@ -14,6 +14,9 @@ namespace think\route\dispatch;
 
 use think\route\Dispatch;
 
+/**
+ * Callback Dispatcher
+ */
 class Callback extends Dispatch
 {
     public function exec()

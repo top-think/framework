@@ -11,7 +11,7 @@
 declare (strict_types = 1);
 namespace think\debug;
 
-use think\Container;
+use think\App;
 use think\Response;
 
 /**
@@ -36,9 +36,9 @@ class Console
      * @param  array     $log 日志信息
      * @return string|bool
      */
-    public function output(Response $response, array $log = [])
+    public function output(App $app, Response $response, array $log = [])
     {
-        $request     = Container::pull('request');
+        $request     = $app->request;
         $contentType = $response->getHeader('Content-Type');
         $accept      = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
@@ -47,9 +47,9 @@ class Console
             return false;
         }
         // 获取基本信息
-        $runtime = number_format(microtime(true) - Container::pull('app')->getBeginTime(), 10);
+        $runtime = number_format(microtime(true) - $app->getBeginTime(), 10);
         $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - Container::pull('app')->getBeginMem()) / 1024, 2);
+        $mem     = number_format((memory_get_usage() - $app->getBeginMem()) / 1024, 2);
 
         if ($request->host()) {
             $uri = $request->protocol() . ' ' . $request->method() . ' : ' . $request->url(true);
@@ -59,17 +59,17 @@ class Console
 
         // 页面Trace信息
         $base = [
-            '请求信息' => date('Y-m-d H:i:s', $_SERVER['REQUEST_TIME']) . ' ' . $uri,
+            '请求信息' => date('Y-m-d H:i:s', $request->time()) . ' ' . $uri,
             '运行时间' => number_format((float) $runtime, 6) . 's [ 吞吐率：' . $reqs . 'req/s ] 内存消耗：' . $mem . 'kb 文件加载：' . count(get_included_files()),
-            '查询信息' => Container::pull('db')->getQueryTimes() . ' queries',
-            '缓存信息' => Container::pull('cache')->getReadTimes() . ' reads,' . Container::pull('cache')->getWriteTimes() . ' writes',
+            '查询信息' => $app->db->getQueryTimes() . ' queries',
+            '缓存信息' => $app->cache->getReadTimes() . ' reads,' . $app->cache->getWriteTimes() . ' writes',
         ];
 
-        if (session_id()) {
-            $base['会话信息'] = 'SESSION_ID=' . session_id();
+        if ($app->session->getId(false)) {
+            $base['会话信息'] = 'SESSION_ID=' . $app->session->getId();
         }
 
-        $info = Container::pull('debug')->getFile(true);
+        $info = $this->getFileInfo();
 
         // 页面Trace信息
         $trace = [];
@@ -151,4 +151,20 @@ JS;
         return implode(PHP_EOL, $line);
     }
 
+    /**
+     * 获取文件加载信息
+     * @access protected
+     * @return integer|array
+     */
+    protected function getFileInfo()
+    {
+        $files = get_included_files();
+        $info  = [];
+
+        foreach ($files as $key => $file) {
+            $info[] = $file . ' ( ' . number_format(filesize($file) / 1024, 2) . ' KB )';
+        }
+
+        return $info;
+    }
 }

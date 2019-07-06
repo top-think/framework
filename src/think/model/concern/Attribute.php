@@ -17,6 +17,9 @@ use think\App;
 use think\db\Raw;
 use think\model\Relation;
 
+/**
+ * 模型数据处理
+ */
 trait Attribute
 {
     /**
@@ -72,6 +75,12 @@ trait Attribute
      * @var array
      */
     protected $json = [];
+
+    /**
+     * JSON数据表字段类型
+     * @var array
+     */
+    protected $jsonType = [];
 
     /**
      * JSON数据取出是否需要转换为数组
@@ -347,15 +356,19 @@ trait Attribute
 
         if (is_null($value) && $this->autoWriteTimestamp && in_array($name, [$this->createTime, $this->updateTime])) {
             // 自动写入的时间戳字段
-            $value = $this->autoWriteTimestamp($name);
+            $value = $this->autoWriteTimestamp();
         } else {
             // 检测修改器
             $method = 'set' . App::parseName($name, 1) . 'Attr';
 
             if (method_exists($this, $method)) {
+                $array = $this->data;
                 $value = $this->$method($value, array_merge($this->data, $data));
 
                 $this->set[$name] = true;
+                if (is_null($value) && $array !== $this->data) {
+                    return;
+                }
             } elseif (isset($this->type[$name])) {
                 // 类型转换
                 $value = $this->writeTransform($value, $this->type[$name]);
@@ -409,9 +422,8 @@ trait Attribute
                 }
                 break;
             case 'datetime':
-                $format = !empty($param) ? $param : $this->dateFormat;
-                $value  = is_numeric($value) ? $value : strtotime($value);
-                $value  = $this->formatDateTime($format, $value);
+                $value = is_numeric($value) ? $value : strtotime($value);
+                $value = $this->formatDateTime('Y-m-d H:i:s.u', $value);
                 break;
             case 'object':
                 if (is_object($value)) {
@@ -450,7 +462,7 @@ trait Attribute
             $relation = false;
             $value    = $this->getData($name);
         } catch (InvalidArgumentException $e) {
-            $relation = true;
+            $relation = $this->isRelationAttr($name);
             $value    = null;
         }
 
@@ -460,13 +472,13 @@ trait Attribute
     /**
      * 获取经过获取器处理后的数据对象的值
      * @access protected
-     * @param  string $name 字段名称
-     * @param  mixed  $value 字段值
-     * @param  bool   $relation 是否为关联属性
+     * @param  string      $name 字段名称
+     * @param  mixed       $value 字段值
+     * @param  bool|string $relation 是否为关联属性或者关联名
      * @return mixed
      * @throws InvalidArgumentException
      */
-    protected function getValue(string $name, $value, bool $relation = false)
+    protected function getValue(string $name, $value, $relation = false)
     {
         // 检测属性获取器
         $fieldName = $this->getRealFieldName($name);
@@ -474,14 +486,18 @@ trait Attribute
 
         if (isset($this->withAttr[$fieldName])) {
             if ($relation) {
-                $value = $this->getRelationValue($name);
+                $value = $this->getRelationValue($relation);
             }
 
-            $closure = $this->withAttr[$fieldName];
-            $value   = $closure($value, $this->data);
+            if (in_array($fieldName, $this->json) && is_array($this->withAttr[$fieldName])) {
+                $value = $this->getJsonValue($fieldName, $value);
+            } else {
+                $closure = $this->withAttr[$fieldName];
+                $value   = $closure($value, $this->data);
+            }
         } elseif (method_exists($this, $method)) {
             if ($relation) {
-                $value = $this->getRelationValue($name);
+                $value = $this->getRelationValue($relation);
             }
 
             $value = $this->$method($value, $this->data);
@@ -491,7 +507,29 @@ trait Attribute
         } elseif ($this->autoWriteTimestamp && in_array($fieldName, [$this->createTime, $this->updateTime])) {
             $value = $this->getTimestampValue($value);
         } elseif ($relation) {
-            $value = $this->getRelationAttribute($name);
+            $value = $this->getRelationValue($relation);
+            // 保存关联对象值
+            $this->relation[$name] = $value;
+        }
+
+        return $value;
+    }
+
+    /**
+     * 获取JSON字段属性值
+     * @access protected
+     * @param  string $name  属性名
+     * @param  mixed  $value JSON数据
+     * @return mixed
+     */
+    protected function getJsonValue($name, $value)
+    {
+        foreach ($this->withAttr[$name] as $key => $closure) {
+            if ($this->jsonAssoc) {
+                $value[$key] = $closure($value[$key], $value);
+            } else {
+                $value->$key = $closure($value->$key, $value);
+            }
         }
 
         return $value;
@@ -500,40 +538,14 @@ trait Attribute
     /**
      * 获取关联属性值
      * @access protected
-     * @param  string   $name  属性名
+     * @param  string $relation 关联名
      * @return mixed
      */
-    protected function getRelationValue(string $name)
+    protected function getRelationValue(string $relation)
     {
-        $relation = $this->isRelationAttr($name);
-
-        if (false === $relation) {
-            return;
-        }
-
         $modelRelation = $this->$relation();
 
         return $modelRelation instanceof Relation ? $this->getRelationData($modelRelation) : null;
-    }
-
-    /**
-     * 获取并保存关联属性值
-     * @access protected
-     * @param  string   $name  属性名
-     * @return mixed
-     */
-    protected function getRelationAttribute(string $name)
-    {
-        $value = $this->getRelationValue($name);
-
-        if (!$value) {
-            throw new InvalidArgumentException('property not exists:' . static::class . '->' . $name);
-        }
-
-        // 保存关联对象值
-        $this->relation[$name] = $value;
-
-        return $value;
     }
 
     /**
@@ -618,14 +630,18 @@ trait Attribute
     {
         if (is_array($name)) {
             foreach ($name as $key => $val) {
-                $key = $this->getRealFieldName($key);
-
-                $this->withAttr[$key] = $val;
+                $this->withAttribute($key, $val);
             }
         } else {
             $name = $this->getRealFieldName($name);
 
-            $this->withAttr[$name] = $callback;
+            if (strpos($name, '.')) {
+                list($name, $key) = explode('.', $name);
+
+                $this->withAttr[$name][$key] = $callback;
+            } else {
+                $this->withAttr[$name] = $callback;
+            }
         }
 
         return $this;

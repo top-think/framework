@@ -24,7 +24,11 @@ use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
 use think\route\RuleName;
+use think\route\Url as UrlBuild;
 
+/**
+ * 路由管理类
+ */
 class Route
 {
     /**
@@ -60,7 +64,6 @@ class Route
         'route_annotation'      => false,
         // 路由缓存设置
         'route_check_cache'     => false,
-        'route_cache_option'    => [],
         'route_check_cache_key' => '',
         // 是否自动转换URL中的控制器和操作名
         'url_convert'           => true,
@@ -80,10 +83,8 @@ class Route
         'default_action'        => 'index',
         // 操作方法后缀
         'action_suffix'         => '',
-        // 是否开启路由检测缓存
-        'route_check_cache'     => false,
         // 非路由变量是否使用普通参数方式（用于URL生成）
-        'url_common_param'      => false,
+        'url_common_param'      => true,
     ];
 
     /**
@@ -114,12 +115,6 @@ class Route
      * @var string
      */
     protected $host;
-
-    /**
-     * 当前域名
-     * @var string
-     */
-    protected $domain;
 
     /**
      * 当前分组对象
@@ -161,20 +156,29 @@ class Route
      * （分组）路由规则是否合并解析
      * @var bool
      */
-    protected $mergeRuleRegex = true;
+    protected $mergeRuleRegex = false;
 
-    public function __construct(App $app, Cache $cache)
+    public function __construct(App $app)
     {
-        $this->app    = $app;
-        $this->config = array_merge($this->config, $app->config->get('route'));
+        $this->app      = $app;
+        $this->ruleName = new RuleName();
+        $this->setDefaultDomain();
+    }
 
-        if (!empty($this->config['route_cache_option'])) {
-            $this->cache = $cache->connect($this->config['route_cache_option']);
-        } else {
-            $this->cache = $cache->init();
+    protected function init()
+    {
+        $this->config = array_merge($this->config, $this->app->config->get('route'));
+
+        $this->lazy($this->config['url_lazy_route']);
+
+        if ($this->config['route_check_cache']) {
+            $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);
         }
 
-        $this->ruleName = new RuleName();
+        if (is_file($this->app->getRuntimePath() . 'route.php')) {
+            // 读取路由映射文件
+            $this->import(include $this->app->getRuntimePath() . 'route.php');
+        }
     }
 
     public function config(string $name = null)
@@ -240,20 +244,17 @@ class Route
      */
     protected function setDefaultDomain(): void
     {
-        // 默认域名
-        $this->domain = $this->host;
-
         // 注册默认域名
-        $domain = new Domain($this, $this->host);
+        $domain = new Domain($this);
 
-        $this->domains[$this->host] = $domain;
+        $this->domains['-'] = $domain;
 
         // 默认分组
         $this->group = $domain;
     }
 
     /**
-     * 设置当前域名
+     * 设置当前分组
      * @access public
      * @param RuleGroup $group 域名
      * @return void
@@ -264,13 +265,13 @@ class Route
     }
 
     /**
-     * 获取当前分组
+     * 获取指定标识的路由分组 不指定则获取当前分组
      * @access public
      * @return RuleGroup
      */
-    public function getGroup(): RuleGroup
+    public function getGroup(string $name = null)
     {
-        return $this->group;
+        return $name ? $this->ruleName->getGroup($name) : $this->group;
     }
 
     /**
@@ -311,10 +312,6 @@ class Route
         // 支持多个域名使用相同路由规则
         $domainName = is_array($name) ? array_shift($name) : $name;
 
-        if ('*' != $domainName && false === strpos($domainName, '.')) {
-            $domainName .= '.' . $this->request->rootDomain();
-        }
-
         if (!isset($this->domains[$domainName])) {
             $domain = (new Domain($this, $domainName, $rule))
                 ->lazy($this->lazy)
@@ -327,12 +324,7 @@ class Route
         }
 
         if (is_array($name) && !empty($name)) {
-            $root = $this->request->rootDomain();
             foreach ($name as $item) {
-                if (false === strpos($item, '.')) {
-                    $item .= '.' . $root;
-                }
-
                 $this->domains[$item] = $domainName;
             }
         }
@@ -352,9 +344,9 @@ class Route
     }
 
     /**
-     * 获取域名
+     * 获取RuleName对象
      * @access public
-     * @return array
+     * @return RuleName
      */
     public function getRuleName(): RuleName
     {
@@ -370,7 +362,7 @@ class Route
      */
     public function bind(string $bind, string $domain = null)
     {
-        $domain = is_null($domain) ? $this->domain : $domain;
+        $domain = is_null($domain) ? '-' : $domain;
 
         $this->bind[$domain] = $bind;
 
@@ -396,7 +388,7 @@ class Route
     public function getDomainBind(string $domain = null)
     {
         if (is_null($domain)) {
-            $domain = $this->domain;
+            $domain = $this->host;
         } elseif (false === strpos($domain, '.')) {
             $domain .= '.' . $this->request->rootDomain();
         }
@@ -439,51 +431,55 @@ class Route
      * @param array $name 路由标识
      * @return $this
      */
-    public function import(array $name)
+    public function import(array $name): void
     {
         $this->ruleName->import($name);
-        return $this;
     }
 
     /**
      * 注册路由标识
      * @access public
-     * @param string       $name  路由标识
-     * @param string|array $value 路由规则
-     * @param bool         $first 是否置顶
-     * @return Route
+     * @param string   $name     路由标识
+     * @param RuleItem $ruleItem 路由规则
+     * @param bool     $first    是否优先
+     * @return void
      */
-    public function setName(string $name, $value, bool $first = false): Route
+    public function setName(string $name, RuleItem $ruleItem, bool $first = false): void
     {
-        $this->ruleName->setName($name, $value, $first);
-        return $this;
+        $this->ruleName->setName($name, $ruleItem, $first);
+    }
+
+    /**
+     * 保存路由规则
+     * @access public
+     * @param string   $rule     路由规则
+     * @param RuleItem $ruleItem RuleItem对象
+     * @return void
+     */
+    public function setRule(string $rule, RuleItem $ruleItem = null): void
+    {
+        $this->ruleName->setRule($rule, $ruleItem);
     }
 
     /**
      * 读取路由
      * @access public
-     * @param string $rule   路由规则
-     * @param string $domain 域名
+     * @param string $rule 路由规则
      * @return RuleItem[]
      */
-    public function getRule(string $rule, string $domain = null): array
+    public function getRule(string $rule): array
     {
-        if (is_null($domain)) {
-            $domain = $this->domain;
-        }
-
-        return $this->ruleName->getRule($rule, $domain);
+        return $this->ruleName->getRule($rule);
     }
 
     /**
      * 读取路由列表
      * @access public
-     * @param string $domain 域名
      * @return array
      */
-    public function getRuleList(string $domain = null): array
+    public function getRuleList(): array
     {
-        return $this->ruleName->getRuleList($domain);
+        return $this->ruleName->getRuleList();
     }
 
     /**
@@ -494,7 +490,10 @@ class Route
     public function clear(): void
     {
         $this->ruleName->clear();
-        $this->group->clear();
+
+        if ($this->group) {
+            $this->group->clear();
+        }
     }
 
     /**
@@ -620,6 +619,18 @@ class Route
     }
 
     /**
+     * 注册OPTIONS路由
+     * @access public
+     * @param string $rule  路由规则
+     * @param mixed  $route 路由地址
+     * @return RuleItem
+     */
+    public function options(string $rule, $route): RuleItem
+    {
+        return $this->rule($rule, $route, 'OPTIONS');
+    }
+
+    /**
      * 注册资源路由
      * @access public
      * @param string $rule  路由规则
@@ -635,9 +646,9 @@ class Route
     /**
      * 注册视图路由
      * @access public
-     * @param string|array $rule     路由规则
-     * @param string       $template 路由模板地址
-     * @param array        $vars     模板变量
+     * @param string $rule     路由规则
+     * @param string $template 路由模板地址
+     * @param array  $vars     模板变量
      * @return RuleItem
      */
     public function view(string $rule, string $template = '', array $vars = []): RuleItem
@@ -648,9 +659,9 @@ class Route
     /**
      * 注册重定向路由
      * @access public
-     * @param string|array $rule   路由规则
-     * @param string       $route  路由地址
-     * @param int          $status 状态码
+     * @param string $rule   路由规则
+     * @param string $route  路由地址
+     * @param int    $status 状态码
      * @return RuleItem
      */
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
@@ -713,8 +724,7 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
-
-        $this->setDefaultDomain();
+        $this->init();
 
         if ($withRoute) {
             $checkCallback = function () use ($request, $withRoute) {
@@ -731,8 +741,10 @@ class Route
                 $dispatch = $checkCallback();
             }
         } else {
-            $dispatch = $this->url($request->path());
+            $dispatch = $this->url($this->path());
         }
+
+        $dispatch->init($this->app);
 
         $this->app->middleware->add(function () use ($dispatch) {
             try {
@@ -773,7 +785,7 @@ class Route
     public function check(): Dispatch
     {
         // 自动检测域名路由
-        $url = str_replace($this->config['pathinfo_depr'], '|', $this->request->path());
+        $url = str_replace($this->config['pathinfo_depr'], '|', $this->path());
 
         $completeMatch = $this->config['route_complete_match'];
 
@@ -794,6 +806,30 @@ class Route
     }
 
     /**
+     * 获取当前请求URL的pathinfo信息(不含URL后缀)
+     * @access protected
+     * @return string
+     */
+    protected function path(): string
+    {
+        $suffix   = $this->config['url_html_suffix'];
+        $pathinfo = $this->request->pathinfo();
+
+        if (false === $suffix) {
+            // 禁止伪静态访问
+            $path = $pathinfo;
+        } elseif ($suffix) {
+            // 去除正常的URL后缀
+            $path = preg_replace('/\.(' . ltrim($suffix, '.') . ')$/i', '', $pathinfo);
+        } else {
+            // 允许任何后缀访问
+            $path = preg_replace('/\.' . $this->request->ext() . '$/i', '', $pathinfo);
+        }
+
+        return $path;
+    }
+
+    /**
      * 默认URL解析
      * @access public
      * @param string $url URL地址
@@ -811,22 +847,24 @@ class Route
      */
     protected function checkDomain(): Domain
     {
-        // 获取当前子域名
-        $subDomain = $this->request->subDomain();
-
         $item = false;
 
-        if ($subDomain && count($this->domains) > 1) {
-            $domain  = explode('.', $subDomain);
-            $domain2 = array_pop($domain);
+        if (count($this->domains) > 1) {
+            // 获取当前子域名
+            $subDomain = $this->request->subDomain();
+
+            $domain  = $subDomain ? explode('.', $subDomain) : [];
+            $domain2 = $domain ? array_pop($domain) : '';
 
             if ($domain) {
                 // 存在三级域名
                 $domain3 = array_pop($domain);
             }
 
-            if ($subDomain && isset($this->domains[$subDomain])) {
+            if (isset($this->domains[$this->host])) {
                 // 子域名配置
+                $item = $this->domains[$this->host];
+            } elseif (isset($this->domains[$subDomain])) {
                 $item = $this->domains[$subDomain];
             } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
@@ -847,8 +885,8 @@ class Route
         }
 
         if (false === $item) {
-            // 检测当前完整域名
-            $item = $this->domains[$this->host];
+            // 检测全局域名规则
+            $item = $this->domains['-'];
         }
 
         if (is_string($item)) {
@@ -856,6 +894,18 @@ class Route
         }
 
         return $item;
+    }
+
+    /**
+     * URL生成 支持路由反射
+     * @access public
+     * @param string $url  路由地址
+     * @param array  $vars 参数 ['a'=>'val1', 'b'=>'val2']
+     * @return UrlBuild
+     */
+    public function buildUrl(string $url = '', array $vars = []): UrlBuild
+    {
+        return new UrlBuild($this, $this->app, $url, $vars);
     }
 
     /**

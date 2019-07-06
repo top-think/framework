@@ -14,64 +14,19 @@ namespace think\model\concern;
 
 use think\App;
 use think\Container;
+use think\exception\ModelEventException;
 
 /**
  * 模型事件处理
  */
 trait ModelEvent
 {
-    /**
-     * 模型回调
-     * @var array
-     */
-    private static $event = [];
-
-    /**
-     * 模型事件观察
-     * @var array
-     */
-    protected static $observe = ['after_read', 'before_write', 'after_write', 'before_insert', 'after_insert', 'before_update', 'after_update', 'before_delete', 'after_delete', 'before_restore', 'after_restore'];
-
-    /**
-     * 绑定模型事件观察者类
-     * @var string
-     */
-    protected $observerClass;
 
     /**
      * 是否需要事件响应
      * @var bool
      */
     protected $withEvent = true;
-
-    /**
-     * 清除回调方法
-     * @access public
-     * @return void
-     */
-    public static function flush(): void
-    {
-        self::$event[static::class] = [];
-    }
-
-    /**
-     * 注册一个模型观察者
-     *
-     * @param  string  $class
-     * @return void
-     */
-    protected static function observe(string $class): void
-    {
-        foreach (static::$observe as $event) {
-            $call = 'on' . App::parseName($event, 1, false);
-
-            if (method_exists($class, $call)) {
-                $instance = Container::getInstance()->invokeClass($class);
-
-                self::$event[static::class][$event][] = [$instance, $call];
-            }
-        }
-    }
 
     /**
      * 当前操作的事件响应
@@ -88,23 +43,28 @@ trait ModelEvent
     /**
      * 触发事件
      * @access protected
-     * @param  string $event  事件名
+     * @param  string $event 事件名
      * @return bool
      */
     protected function trigger(string $event): bool
     {
-        $class = static::class;
-
-        if ($this->withEvent && isset(self::$event[$class][$event])) {
-            foreach (self::$event[$class][$event] as $callback) {
-                $result = Container::getInstance()->invoke($callback, [$this]);
-
-                if (false === $result) {
-                    return false;
-                }
-            }
+        if (!$this->withEvent) {
+            return true;
         }
 
-        return true;
+        $call = 'on' . App::parseName($event, 1);
+
+        try {
+            if (method_exists(static::class, $call)) {
+                $result = Container::getInstance()
+                    ->invoke([static::class, $call], [$this]);
+            } else {
+                $result = true;
+            }
+
+            return false === $result ? false : true;
+        } catch (ModelEventException $e) {
+            return false;
+        }
     }
 }

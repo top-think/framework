@@ -12,6 +12,7 @@
 namespace think\cache\driver;
 
 use think\cache\Driver;
+use think\contract\CacheHandlerInterface;
 
 /**
  * Redis缓存驱动，适合单机部署、有前端代理实现高可用的场景，性能最好
@@ -20,8 +21,12 @@ use think\cache\Driver;
  * 要求安装phpredis扩展：https://github.com/nicolasff/phpredis
  * @author    尘缘 <130775@qq.com>
  */
-class Redis extends Driver
+class Redis extends Driver implements CacheHandlerInterface
 {
+    /**
+     * 配置参数
+     * @var array
+     */
     protected $options = [
         'host'       => '127.0.0.1',
         'port'       => 6379,
@@ -31,8 +36,8 @@ class Redis extends Driver
         'expire'     => 0,
         'persistent' => false,
         'prefix'     => '',
-        'serialize'  => true,
-        'tag_prefix' => 'tag_',
+        'tag_prefix' => 'tag:',
+        'serialize'  => [],
     ];
 
     /**
@@ -50,17 +55,13 @@ class Redis extends Driver
             $this->handler = new \Redis;
 
             if ($this->options['persistent']) {
-                $this->handler->pconnect($this->options['host'], $this->options['port'], $this->options['timeout'], 'persistent_id_' . $this->options['select']);
+                $this->handler->pconnect($this->options['host'], (int) $this->options['port'], $this->options['timeout'], 'persistent_id_' . $this->options['select']);
             } else {
-                $this->handler->connect($this->options['host'], $this->options['port'], $this->options['timeout']);
+                $this->handler->connect($this->options['host'], (int) $this->options['port'], $this->options['timeout']);
             }
 
             if ('' != $this->options['password']) {
                 $this->handler->auth($this->options['password']);
-            }
-
-            if (0 != $this->options['select']) {
-                $this->handler->select($this->options['select']);
             }
         } elseif (class_exists('\Predis\Client')) {
             $params = [];
@@ -80,6 +81,10 @@ class Redis extends Driver
             $this->options['prefix'] = '';
         } else {
             throw new \BadFunctionCallException('not support: redis');
+        }
+
+        if (0 != $this->options['select']) {
+            $this->handler->select($this->options['select']);
         }
     }
 
@@ -130,14 +135,9 @@ class Redis extends Driver
             $expire = $this->options['expire'];
         }
 
-        if (!empty($this->tag) && !$this->has($name)) {
-            $first = true;
-        }
-
         $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-
-        $value = $this->serialize($value);
+        $value  = $this->serialize($value);
 
         if ($expire) {
             $this->handler->setex($key, $expire, $value);
@@ -145,16 +145,14 @@ class Redis extends Driver
             $this->handler->set($key, $value);
         }
 
-        isset($first) && $this->setTagItem($key);
-
         return true;
     }
 
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function inc(string $name, int $step = 1)
@@ -169,8 +167,8 @@ class Redis extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param  string    $name 缓存变量名
-     * @param  int       $step 步长
+     * @param  string $name 缓存变量名
+     * @param  int    $step 步长
      * @return false|int
      */
     public function dec(string $name, int $step = 1)
@@ -188,7 +186,7 @@ class Redis extends Driver
      * @param  string $name 缓存变量名
      * @return bool
      */
-    public function rm(string $name): bool
+    public function delete($name): bool
     {
         $this->writeTimes++;
 
@@ -203,46 +201,34 @@ class Redis extends Driver
      */
     public function clear(): bool
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $this->clearTag($tag);
-            }
-            return true;
-        }
-
         $this->writeTimes++;
 
         $this->handler->flushDB();
         return true;
     }
 
-    public function clearTag(string $tag): void
+    /**
+     * 删除缓存标签
+     * @access public
+     * @param  array  $keys 缓存标识列表
+     * @return void
+     */
+    public function clearTag(array $keys): void
     {
         // 指定标签清除
-        $keys = $this->getTagItems($tag);
-
         $this->handler->del($keys);
-
-        $tagName = $this->getTagKey($tag);
-        $this->handler->del($tagName);
     }
 
     /**
-     * 更新标签
-     * @access protected
+     * 追加（数组）缓存数据
+     * @access public
      * @param  string $name 缓存标识
+     * @param  mixed  $value 数据
      * @return void
      */
-    protected function setTagItem(string $name): void
+    public function push(string $name, $value): void
     {
-        if (!empty($this->tag)) {
-            foreach ($this->tag as $tag) {
-                $tagName = $this->getTagKey($tag);
-                $this->handler->sAdd($tagName, $name);
-            }
-
-            $this->tag = null;
-        }
+        $this->handler->sAdd($name, $value);
     }
 
     /**
@@ -253,12 +239,7 @@ class Redis extends Driver
      */
     public function getTagItems(string $tag): array
     {
-        $tagName = $this->getTagKey($tag);
-        $keys    = $this->handler->sMembers($tagName);
-
-        return array_map(function ($key) {
-            return $this->getCacheKey($key);
-        }, $keys);
+        return $this->handler->sMembers($tag);
     }
 
 }

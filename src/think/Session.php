@@ -12,8 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\exception\ClassNotFoundException;
-
+/**
+ * Session管理类
+ */
 class Session
 {
     /**
@@ -35,44 +36,44 @@ class Session
     protected $init = null;
 
     /**
-     * 锁驱动
-     * @var object
-     */
-    protected $lockDriver = null;
-
-    /**
-     * 锁key
+     * 记录Session name
      * @var string
      */
-    protected $sessKey = 'PHPSESSID';
+    protected $sessionName = 'PHPSESSID';
 
     /**
-     * 锁超时时间
-     * @var integer
+     * 记录Session Id
+     * @var string
      */
-    protected $lockTimeout = 3;
+    protected $sessionId;
 
     /**
-     * 是否启用锁机制
-     * @var bool
+     * Session有效期
+     * @var int
      */
-    protected $lock = false;
+    protected $expire = 0;
 
     /**
-     * App实例
-     * @var App
+     * Request实例
+     * @var Request
      */
-    protected $app;
+    protected $request;
 
-    public function __construct(App $app, array $config = [])
+    /**
+     * Session写入对象
+     * @var object
+     */
+    protected $handler;
+
+    public function __construct(Request $request, array $config = [])
     {
-        $this->config = $config;
-        $this->app    = $app;
+        $this->config  = $config;
+        $this->request = $request;
     }
 
-    public static function __make(App $app, Config $config)
+    public static function __make(Request $request, Config $config)
     {
-        return new static($app, $config->get('session'));
+        return new static($request, $config->get('session'));
     }
 
     /**
@@ -84,10 +85,6 @@ class Session
     public function setConfig(array $config = []): void
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
-
-        if (isset($config['use_lock'])) {
-            $this->lock = $config['use_lock'];
-        }
     }
 
     /**
@@ -109,73 +106,79 @@ class Session
      */
     public function init(): void
     {
-        $config = $this->config;
-
-        if (isset($config['use_lock'])) {
-            $this->lock = $config['use_lock'];
+        if (!empty($this->config['name'])) {
+            $this->sessionName = $this->config['name'];
         }
 
-        if (!empty($config['id'])) {
-            session_id($config['id']);
+        if (!empty($this->config['expire'])) {
+            $this->expire = $this->config['expire'];
         }
 
-        if (!empty($config['type'])) {
-            // 读取session驱动
-            $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
+        // 初始化session写入驱动
+        $type = !empty($this->config['type']) ? $this->config['type'] : 'File';
 
-            // 检查驱动类
-            if (!class_exists($class) || !session_set_save_handler(new $class($config))) {
-                throw new ClassNotFoundException('error session handler:' . $class, $class);
-            }
-        }
+        $this->handler = App::factory($type, '\\think\\session\\driver\\', $this->config);
 
-        if (!empty($config['auto_start'])) {
-            try {
-                session_start($config['options'] ?? []);
-            } catch (\Exception $e) {
-            }
-
-            if (empty($this->data)) {
-                $this->data = $_SESSION;
-            }
-
-            $this->init = true;
-        } else {
-            $this->init = false;
-        }
+        $this->start();
     }
 
     /**
-     * session自动启动或者初始化
+     * 设置SessionName
      * @access public
+     * @param  string $name session_name
      * @return void
      */
-    public function boot(): void
+    public function setName(string $name): void
     {
-        if (is_null($this->init)) {
-            $this->init();
+        $this->sessionName = $name;
+    }
+
+    /**
+     * 获取sessionName
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->sessionName;
+    }
+
+    /**
+     * session_id设置
+     * @access public
+     * @param  string $id session_id
+     * @return void
+     */
+    public function setId(string $id): void
+    {
+        $this->sessionId = $id;
+    }
+
+    /**
+     * 获取session_id
+     * @access public
+     * @param  bool $regenerate 不存在是否自动生成
+     * @return string
+     */
+    public function getId(bool $regenerate = true): string
+    {
+        if ($this->sessionId) {
+            return $this->sessionId;
         }
 
-        if (false === $this->init) {
-            if (PHP_SESSION_ACTIVE != session_status()) {
-                session_start();
-            }
-            $this->init = true;
-        }
+        return $regenerate ? $this->regenerate() : '';
     }
 
     /**
      * session设置
      * @access public
-     * @param  string        $name session名称
-     * @param  mixed         $value session值
+     * @param  string $name session名称
+     * @param  mixed  $value session值
      * @return void
      */
     public function set(string $name, $value): void
     {
-        $this->lock();
-
-        empty($this->init) && $this->boot();
+        empty($this->init) && $this->init();
 
         if (strpos($name, '.')) {
             // 二维数组赋值
@@ -185,23 +188,33 @@ class Session
         } else {
             $this->data[$name] = $value;
         }
-
-        $this->unlock();
     }
 
     /**
      * session获取
      * @access public
-     * @param  string        $name session名称
-     * @param  mixed         $default 默认值
+     * @param  string $name session名称
+     * @param  mixed  $default 默认值
      * @return mixed
      */
     public function get(string $name = '', $default = null)
     {
-        $this->lock();
+        empty($this->init) && $this->init();
 
-        empty($this->init) && $this->boot();
+        $sessionId = $this->getId();
 
+        return $this->readSession($name, $default);
+    }
+
+    /**
+     * session获取
+     * @access protected
+     * @param  string $name session名称
+     * @param  mixed  $default 默认值
+     * @return mixed
+     */
+    protected function readSession(string $name = '', $default = null)
+    {
         $value = $this->data;
 
         if ('' != $name) {
@@ -217,88 +230,173 @@ class Session
             }
         }
 
-        $this->unlock();
-
         return $value;
     }
 
     /**
-     * session 读写锁驱动实例化
+     * 删除session数据
+     * @access public
+     * @param  string $name session名称
+     * @return void
      */
-    protected function initDriver(): void
+    public function delete(string $name): bool
     {
-        // 不在 init 方法中实例化lockDriver，是因为 init 方法不一定先于 set 或 get 方法调用
-        $config = $this->config;
+        empty($this->init) && $this->init();
 
-        if (!empty($config['type']) && !empty($config['use_lock'])) {
-            // 读取session驱动
-            $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\session\\driver\\' . ucwords($config['type']);
+        $sessionId = $this->getId(false);
 
-            // 检查驱动类及类中是否存在 lock 和 unlock 函数
-            if (class_exists($class) && method_exists($class, 'lock') && method_exists($class, 'unlock')) {
-                $this->lockDriver = new $class($config);
+        if (!$sessionId) {
+            return false;
+        }
+
+        if (strpos($name, '.')) {
+            list($name1, $name2) = explode('.', $name);
+            unset($this->data[$name1][$name2]);
+        } else {
+            unset($this->data[$name]);
+        }
+
+        return true;
+    }
+
+    /**
+     * 保存session数据
+     * @access public
+     * @return void
+     */
+    public function save()
+    {
+        if ($this->handler) {
+            $sessionId = $this->getId(false);
+
+            if (!empty($this->data)) {
+                $data = $this->serialize($this->data);
+
+                $this->handler->write($sessionId, $data, $this->expire);
+            } else {
+                $this->handler->delete($sessionId);
+            }
+        }
+    }
+
+    /**
+     * 清空session数据
+     * @access public
+     * @return void
+     */
+    public function clear(): void
+    {
+        empty($this->init) && $this->init();
+
+        $sessionId = $this->getId(false);
+
+        if ($sessionId) {
+            $this->data = [];
+        }
+    }
+
+    /**
+     * 判断session数据
+     * @access public
+     * @param  string $name session名称
+     * @return bool
+     */
+    public function has(string $name): bool
+    {
+        empty($this->init) && $this->init();
+
+        $sessionId = $this->getId(false);
+
+        if ($sessionId) {
+            return $this->hasSession($name);
+        }
+
+        return false;
+    }
+
+    /**
+     * 判断session数据
+     * @access protected
+     * @param  string $name session名称
+     * @return bool
+     */
+    protected function hasSession(string $name): bool
+    {
+        $value = $this->data ?: [];
+
+        $name = explode('.', $name);
+
+        foreach ($name as $val) {
+            if (!isset($value[$val])) {
+                return false;
+            } else {
+                $value = $value[$val];
             }
         }
 
-        // 通过cookie获得session_id
-        if (!empty($config['name'])) {
-            $this->sessKey = $config['name'];
+        return true;
+    }
+
+    /**
+     * 启动session
+     * @access public
+     * @return void
+     */
+    public function start(): void
+    {
+        $sessionId = $this->getId();
+
+        // 读取缓存数据
+        if (empty($this->data)) {
+            $data = $this->handler->read($sessionId);
+
+            if (!empty($data)) {
+                $this->data = $this->unserialize($data);
+            }
         }
 
-        if (isset($config['lock_timeout']) && $config['lock_timeout'] > 0) {
-            $this->lockTimeout = $config['lock_timeout'];
+        $this->init = true;
+    }
+
+    /**
+     * 销毁session
+     * @access public
+     * @return void
+     */
+    public function destroy(): void
+    {
+        $sessionId = $this->getId(false);
+
+        if ($sessionId && !empty($this->data)) {
+            $this->data = [];
+            $this->save();
         }
     }
 
     /**
-     * session 读写加锁
+     * 重新生成session_id
      * @access protected
-     * @return void
+     * @param  bool $delete 是否删除关联会话文件
+     * @return string
      */
-    protected function lock()
+    protected function regenerate(bool $delete = false): string
     {
-        if (empty($this->lock)) {
-            return;
+        if ($delete) {
+            $data = $this->data;
+            $this->destroy();
+            $this->data = $data;
         }
 
-        $this->initDriver();
+        $sessionId = md5(microtime(true) . uniqid());
 
-        if (null !== $this->lockDriver && method_exists($this->lockDriver, 'lock')) {
-            $t = time();
-            // 使用 session_id 作为互斥条件，即只对同一 session_id 的会话互斥。第一次请求没有 session_id
-            $sessID = $this->app->cookie->get($this->sessKey) ?: '';
-
-            do {
-                if (time() - $t > $this->lockTimeout) {
-                    $this->unlock();
-                }
-            } while (!$this->lockDriver->lock($sessID, $this->lockTimeout));
-        }
-    }
-
-    /**
-     * session 读写解锁
-     * @access protected
-     * @return void
-     */
-    protected function unlock()
-    {
-        if (empty($this->lock)) {
-            return;
-        }
-
-        $this->pause();
-
-        if ($this->lockDriver && method_exists($this->lockDriver, 'unlock')) {
-            $sessID = $this->app->cookie->get($this->sessKey) ?: '';
-            $this->lockDriver->unlock($sessID);
-        }
+        $this->setId($sessionId);
+        return $sessionId;
     }
 
     /**
      * session获取并删除
      * @access public
-     * @param  string        $name session名称
+     * @param  string $name session名称
      * @return mixed
      */
     public function pull(string $name)
@@ -314,8 +412,8 @@ class Session
     /**
      * session设置 下一次请求有效
      * @access public
-     * @param  string        $name session名称
-     * @param  mixed         $value session值
+     * @param  string $name session名称
+     * @param  mixed  $value session值
      * @return void
      */
     public function flash(string $name, $value): void
@@ -323,7 +421,7 @@ class Session
         $this->set($name, $value);
 
         if (!$this->has('__flash__.__time__')) {
-            $this->set('__flash__.__time__', $this->app->request->server('REQUEST_TIME_FLOAT'));
+            $this->set('__flash__.__time__', $this->request->time(true));
         }
 
         $this->push('__flash__', $name);
@@ -340,84 +438,28 @@ class Session
             return;
         }
 
-        $item = $this->get('__flash__');
+        $items = $this->get('__flash__');
 
-        if (!empty($item)) {
-            $time = $item['__time__'];
+        if (!empty($items)) {
+            $time = $items['__time__'];
 
-            if ($this->app->request->server('REQUEST_TIME_FLOAT') > $time) {
-                unset($item['__time__']);
-                $this->delete($item);
+            if ($this->request->time(true) > $time) {
+                unset($items['__time__']);
+
+                foreach ($items as $item) {
+                    $this->delete($item);
+                }
+
                 $this->set('__flash__', []);
             }
         }
     }
 
     /**
-     * 删除session数据
-     * @access public
-     * @param  string|array  $name session名称
-     * @return void
-     */
-    public function delete($name): void
-    {
-        empty($this->init) && $this->boot();
-
-        if (is_array($name)) {
-            foreach ($name as $key) {
-                $this->delete($key);
-            }
-        } elseif (strpos($name, '.')) {
-            list($name1, $name2) = explode('.', $name);
-
-            unset($this->data[$name1][$name2]);
-        } else {
-            unset($this->data[$name]);
-        }
-    }
-
-    /**
-     * 清空session数据
-     * @access public
-     * @return void
-     */
-    public function clear(): void
-    {
-        empty($this->init) && $this->boot();
-
-        $this->data = [];
-    }
-
-    /**
-     * 判断session数据
-     * @access public
-     * @param  string       $name session名称
-     * @return bool
-     */
-    public function has(string $name): bool
-    {
-        empty($this->init) && $this->boot();
-
-        $value = $this->data;
-
-        $name = explode('.', $name);
-
-        foreach ($name as $val) {
-            if (!isset($value[$val])) {
-                return false;
-            } else {
-                $value = $value[$val];
-            }
-        }
-
-        return true;
-    }
-
-    /**
      * 添加数据到一个session数组
      * @access public
-     * @param  string  $key
-     * @param  mixed   $value
+     * @param  string $key
+     * @param  mixed  $value
      * @return void
      */
     public function push(string $key, $value): void
@@ -434,69 +476,28 @@ class Session
     }
 
     /**
-     * 启动session
-     * @access public
-     * @return void
-     */
-    public function start(): void
-    {
-        session_start();
-
-        if (empty($this->data)) {
-            $this->data = $_SESSION;
-        }
-
-        $this->init = true;
-    }
-
-    /**
-     * 销毁session
-     * @access public
-     * @return void
-     */
-    public function destroy(): void
-    {
-        if (!empty($this->data)) {
-            $this->data = [];
-        }
-
-        session_unset();
-        session_destroy();
-
-        $this->init       = null;
-        $this->lockDriver = null;
-    }
-
-    /**
-     * 重新生成session_id
-     * @access public
-     * @param  bool $delete 是否删除关联会话文件
+     * 序列化数据
+     * @access protected
+     * @param  mixed $data
      * @return string
      */
-    public function regenerate(bool $delete = false): string
+    protected function serialize($data): string
     {
-        session_regenerate_id($delete);
-        return session_id();
+        $serialize = $this->config['serialize'][0] ?? 'serialize';
+
+        return $serialize($data);
     }
 
     /**
-     * 暂停session
-     * @access public
-     * @return void
+     * 反序列化数据
+     * @access protected
+     * @param  string $data
+     * @return array
      */
-    public function pause(): void
+    protected function unserialize(string $data): array
     {
-        // 暂停session
-        session_write_close();
-        $this->init = false;
-    }
+        $unserialize = $this->config['serialize'][1] ?? 'unserialize';
 
-    /**
-     * 析构方法
-     * @access public
-     */
-    public function __destruct()
-    {
-        $_SESSION = $this->data;
+        return (array) $unserialize($data);
     }
 }

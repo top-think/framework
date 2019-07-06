@@ -84,9 +84,9 @@ trait Conversion
                 $key = is_numeric($key) ? $attr : $key;
                 if (isset($this->data[$key])) {
                     throw new Exception('bind attr has exists:' . $key);
-                } else {
-                    $this->data[$key] = $model->$attr;
                 }
+
+                $this->data[$key] = $model->$attr;
             }
         }
 
@@ -160,13 +160,15 @@ trait Conversion
         foreach ($data as $key => $val) {
             if ($val instanceof Model || $val instanceof ModelCollection) {
                 // 关联模型对象
-                if (isset($this->visible[$key])) {
+                if (isset($this->visible[$key]) && is_array($this->visible[$key])) {
                     $val->visible($this->visible[$key]);
-                } elseif (isset($this->hidden[$key])) {
+                } elseif (isset($this->hidden[$key]) && is_array($this->hidden[$key])) {
                     $val->hidden($this->hidden[$key]);
                 }
                 // 关联模型对象
-                $item[$key] = $val->toArray();
+                if (!isset($this->hidden[$key]) || true !== $this->hidden[$key]) {
+                    $item[$key] = $val;
+                }
             } elseif (isset($this->visible[$key])) {
                 $item[$key] = $this->getAttr($key);
             } elseif (!isset($this->hidden[$key]) && !$hasVisible) {
@@ -186,25 +188,15 @@ trait Conversion
     {
         if (is_array($name)) {
             // 追加关联对象属性
-            $relation = $this->getRelation($key);
-
-            if (!$relation) {
-                $relation = $this->getAttr($key);
-                $relation->visible($name);
-            }
-
-            $item[$key] = $relation->append($name)->toArray();
+            $relation   = $this->getRelation($key, true);
+            $item[$key] = $relation ? $relation->append($name)
+                ->toArray() : [];
         } elseif (strpos($name, '.')) {
             list($key, $attr) = explode('.', $name);
             // 追加关联对象属性
-            $relation = $this->getRelation($key);
-
-            if (!$relation) {
-                $relation = $this->getAttr($key);
-                $relation->visible([$attr]);
-            }
-
-            $item[$key] = $relation->append([$attr])->toArray();
+            $relation   = $this->getRelation($key, true);
+            $item[$key] = $relation ? $relation->append([$attr])
+                ->toArray() : [];
         } else {
             $value       = $this->getAttr($name);
             $item[$name] = $value;
@@ -250,17 +242,6 @@ trait Conversion
     public function toJson(int $options = JSON_UNESCAPED_UNICODE): string
     {
         return json_encode($this->toArray(), $options);
-    }
-
-    /**
-     * 移除当前模型的关联属性
-     * @access public
-     * @return $this
-     */
-    public function removeRelation()
-    {
-        $this->relation = [];
-        return $this;
     }
 
     public function __toString()

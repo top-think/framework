@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+/**
+ * 异常基础类
+ */
 class Exception extends \Exception
 {
     /**

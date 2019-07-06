@@ -21,8 +21,6 @@ use think\exception\HttpResponseException;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Cookie;
-use think\facade\Db;
-use think\facade\Debug;
 use think\facade\Env;
 use think\facade\Event;
 use think\facade\Lang;
@@ -30,9 +28,15 @@ use think\facade\Log;
 use think\facade\Request;
 use think\facade\Route;
 use think\facade\Session;
-use think\facade\Url;
 use think\Response;
-use think\route\RuleItem;
+use think\response\File;
+use think\response\Json;
+use think\response\Jsonp;
+use think\response\Redirect;
+use think\response\View;
+use think\response\Xml;
+use think\route\Url as UrlBuild;
+use think\Validate;
 
 if (!function_exists('abort')) {
     /**
@@ -59,9 +63,9 @@ if (!function_exists('app')) {
      * @param bool   $newInstance 是否每次创建新的实例
      * @return object|App
      */
-    function app(string $name = App::class, array $args = [], bool $newInstance = false)
+    function app(string $name = '', array $args = [], bool $newInstance = false)
     {
-        return Container::pull($name, $args, $newInstance);
+        return Container::getInstance()->make($name ?: App::class, $args, $newInstance);
     }
 }
 
@@ -81,17 +85,16 @@ if (!function_exists('bind')) {
 if (!function_exists('cache')) {
     /**
      * 缓存管理
-     * @param  mixed  $name    缓存名称，如果为数组表示进行缓存设置
+     * @param  string $name    缓存名称
      * @param  mixed  $value   缓存值
      * @param  mixed  $options 缓存参数
      * @param  string $tag     缓存标签
      * @return mixed
      */
-    function cache($name, $value = '', $options = null, $tag = null)
+    function cache(string $name = null, $value = '', $options = null, $tag = null)
     {
-        if (is_array($name)) {
-            // 缓存初始化
-            return Cache::connect($name);
+        if (is_null($name)) {
+            return app('cache');
         }
 
         if ('' === $value) {
@@ -99,14 +102,14 @@ if (!function_exists('cache')) {
             return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
-            return Cache::rm($name);
+            return Cache::delete($name);
         }
 
         // 缓存数据
         if (is_array($options)) {
             $expire = $options['expire'] ?? null; //修复查询缓存无法设置过期时间
         } else {
-            $expire = is_numeric($options) ? $options : null; //默认快捷缓存设置过期时间
+            $expire = $options;
         }
 
         if (is_null($tag)) {
@@ -117,19 +120,6 @@ if (!function_exists('cache')) {
     }
 }
 
-if (!function_exists('call')) {
-    /**
-     * 调用反射执行callable 支持依赖注入
-     * @param  mixed $callable 支持闭包等callable写法
-     * @param  array $args     参数
-     * @return mixed
-     */
-    function call(callable $callable, array $args = [])
-    {
-        return Container::getInstance()->invoke($callable, $args);
-    }
-}
-
 if (!function_exists('class_basename')) {
     /**
      * 获取类名(不包含命名空间)
@@ -137,29 +127,10 @@ if (!function_exists('class_basename')) {
      * @param  mixed $class 类名
      * @return string
      */
-    function class_basename($class)
+    function class_basename($class): string
     {
         $class = is_object($class) ? get_class($class) : $class;
         return basename(str_replace('\\', '/', $class));
-    }
-}
-
-if (!function_exists('trait_uses_recursive')) {
-    /**
-     * 获取一个trait里所有引用到的trait
-     *
-     * @param  string $trait
-     * @return array
-     */
-    function trait_uses_recursive($trait)
-    {
-        $traits = class_uses($trait);
-
-        foreach ($traits as $trait) {
-            $traits += trait_uses_recursive($trait);
-        }
-
-        return $traits;
     }
 }
 
@@ -170,7 +141,7 @@ if (!function_exists('class_uses_recursive')) {
      * @param  mixed $class 类名
      * @return array
      */
-    function class_uses_recursive($class)
+    function class_uses_recursive($class): array
     {
         if (is_object($class)) {
             $class = get_class($class);
@@ -206,46 +177,22 @@ if (!function_exists('config')) {
 if (!function_exists('cookie')) {
     /**
      * Cookie管理
-     * @param  string|array $name   cookie名称，如果为数组表示进行cookie设置
-     * @param  mixed        $value  cookie值
-     * @param  mixed        $option 参数
+     * @param  string $name   cookie名称
+     * @param  mixed  $value  cookie值
+     * @param  mixed  $option 参数
      * @return mixed
      */
-    function cookie($name, $value = '', $option = null)
+    function cookie(string $name, $value = '', $option = null)
     {
-        if (is_array($name)) {
-            // 初始化
-            Cookie::init($name);
-        } elseif (is_null($name)) {
-            // 清除
-            Cookie::clear($value);
+        if (is_null($value)) {
+            // 删除
+            Cookie::delete($name);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1), $option) : Cookie::get($name);
-        } elseif (is_null($value)) {
-            // 删除
-            return Cookie::delete($name);
+            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1)) : Cookie::get($name);
         } else {
             // 设置
             return Cookie::set($name, $value, $option);
-        }
-    }
-}
-
-if (!function_exists('debug')) {
-    /**
-     * 记录时间（微秒）和内存使用情况
-     * @param  string         $start 开始标签
-     * @param  string         $end   结束标签
-     * @param  integer|string $dec   小数位 如果是m 表示统计内存占用
-     * @return mixed
-     */
-    function debug(string $start, string $end = '', $dec = 6)
-    {
-        if ('' == $end) {
-            Debug::remark($start);
-        } else {
-            return 'm' == $dec ? Debug::getRangeMem($start, $end) : Debug::getRangeTime($start, $end, $dec);
         }
     }
 }
@@ -259,7 +206,7 @@ if (!function_exists('download')) {
      * @param  int    $expire   有效期（秒）
      * @return \think\response\File
      */
-    function download(string $filename, string $name = '', bool $content = false, int $expire = 180)
+    function download(string $filename, string $name = '', bool $content = false, int $expire = 180): File
     {
         return Response::create($filename, 'file')->name($name)->isContent($content)->expire($expire);
     }
@@ -268,14 +215,27 @@ if (!function_exists('download')) {
 if (!function_exists('dump')) {
     /**
      * 浏览器友好的变量输出
-     * @param  mixed  $var   变量
-     * @param  bool   $echo  是否输出 默认为true 如果为false 则返回输出字符串
-     * @param  string $label 标签 默认为空
-     * @return void|string
+     * @param  mixed  $vars 要输出的变量
+     * @return void
      */
-    function dump($var, bool $echo = true, string $label = null)
+    function dump(...$vars)
     {
-        return Debug::dump($var, $echo, $label);
+        ob_start();
+        var_dump(...$vars);
+
+        $output = ob_get_clean();
+        $output = preg_replace('/\]\=\>\n(\s+)/m', '] => ', $output);
+
+        if (PHP_SAPI == 'cli') {
+            $output = PHP_EOL . $output . PHP_EOL;
+        } else {
+            if (!extension_loaded('xdebug')) {
+                $output = htmlspecialchars($output, ENT_SUBSTITUTE);
+            }
+            $output = '<pre>' . $output . '</pre>';
+        }
+
+        echo $output;
     }
 }
 
@@ -306,31 +266,14 @@ if (!function_exists('event')) {
     }
 }
 
-if (!function_exists('exception')) {
-    /**
-     * 抛出异常处理
-     *
-     * @param string $msg       异常消息
-     * @param int    $code      异常代码 默认为0
-     * @param string $exception 异常类
-     *
-     * @throws Exception
-     */
-    function exception(string $msg, int $code = 0, string $exception = '')
-    {
-        $e = $exception ?: '\think\Exception';
-        throw new $e($msg, $code);
-    }
-}
-
 if (!function_exists('halt')) {
     /**
      * 调试变量并且中断输出
-     * @param mixed $var 调试变量或者信息
+     * @param mixed $vars 调试变量或者信息
      */
-    function halt($var)
+    function halt(...$vars)
     {
-        dump($var);
+        dump(...$vars);
 
         throw new HttpResponseException(new Response);
     }
@@ -356,6 +299,9 @@ if (!function_exists('input')) {
             $method = substr($key, 0, $pos);
             if (in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'route', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
                 $key = substr($key, $pos + 1);
+                if ('server' == $method && is_null($default)) {
+                    $default = '';
+                }
             } else {
                 $method = 'param';
             }
@@ -364,11 +310,26 @@ if (!function_exists('input')) {
             $method = 'param';
         }
 
-        if (isset($has)) {
-            return request()->has($key, $method, $default);
-        } else {
-            return request()->$method($key, $default, $filter);
+        return isset($has) ?
+        request()->has($key, $method) :
+        request()->$method($key, $default, $filter);
+    }
+}
+
+if (!function_exists('invoke')) {
+    /**
+     * 调用反射实例化对象或者执行方法 支持依赖注入
+     * @param  mixed $call 类名或者callable
+     * @param  array $args 参数
+     * @return mixed
+     */
+    function invoke($call, array $args = [])
+    {
+        if (is_callable($call)) {
+            return Container::getInstance()->invoke($call, $args);
         }
+
+        return Container::getInstance()->invokeClass($call, $args);
     }
 }
 
@@ -381,7 +342,7 @@ if (!function_exists('json')) {
      * @param  array $options 参数
      * @return \think\response\Json
      */
-    function json($data = [], $code = 200, $header = [], $options = [])
+    function json($data = [], $code = 200, $header = [], $options = []): Json
     {
         return Response::create($data, 'json', $code)->header($header)->options($options);
     }
@@ -396,7 +357,7 @@ if (!function_exists('jsonp')) {
      * @param  array $options 参数
      * @return \think\response\Jsonp
      */
-    function jsonp($data = [], $code = 200, $header = [], $options = [])
+    function jsonp($data = [], $code = 200, $header = [], $options = []): Jsonp
     {
         return Response::create($data, 'jsonp', $code)->header($header)->options($options);
     }
@@ -425,7 +386,7 @@ if (!function_exists('parse_name')) {
      * @param  bool   $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
-    function parse_name(string $name, int $type = 0, bool $ucfirst = true)
+    function parse_name(string $name, int $type = 0, bool $ucfirst = true): string
     {
         if ($type) {
             $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
@@ -439,18 +400,6 @@ if (!function_exists('parse_name')) {
     }
 }
 
-if (!function_exists('raw')) {
-    /**
-     * 生成一个数据库的Raw对象
-     * @param  string $sql SQL指令
-     * @return \think\db\Raw
-     */
-    function raw(string $sql)
-    {
-        return Db::raw($sql);
-    }
-}
-
 if (!function_exists('redirect')) {
     /**
      * 获取\think\response\Redirect对象实例
@@ -459,7 +408,7 @@ if (!function_exists('redirect')) {
      * @param  int           $code   状态码
      * @return \think\response\Redirect
      */
-    function redirect($url = [], $params = [], $code = 302)
+    function redirect($url = [], $params = [], $code = 302): Redirect
     {
         if (is_integer($params)) {
             $code   = $params;
@@ -475,7 +424,7 @@ if (!function_exists('request')) {
      * 获取当前Request对象实例
      * @return Request
      */
-    function request()
+    function request(): \think\Request
     {
         return app('request');
     }
@@ -490,47 +439,30 @@ if (!function_exists('response')) {
      * @param  string     $type
      * @return Response
      */
-    function response($data = '', $code = 200, $header = [], $type = 'html')
+    function response($data = '', $code = 200, $header = [], $type = 'html'): Response
     {
         return Response::create($data, $type, $code)->header($header);
-    }
-}
-
-if (!function_exists('route')) {
-    /**
-     * 路由注册
-     * @param  string $rule   路由规则
-     * @param  mixed  $route  路由地址
-     * @param  string $method 请求类型
-     * @return RuleItem
-     */
-    function route(string $rule, $route, $method = '*')
-    {
-        return Route::rule($rule, $route, $method);
     }
 }
 
 if (!function_exists('session')) {
     /**
      * Session管理
-     * @param  string|array $name  session名称，如果为数组表示进行session设置
-     * @param  mixed        $value session值
+     * @param  string $name  session名称
+     * @param  mixed  $value session值
      * @return mixed
      */
-    function session($name, $value = '')
+    function session(string $name = null, $value = '')
     {
-        if (is_array($name)) {
-            // 初始化
-            Session::init($name);
-        } elseif (is_null($name)) {
+        if (is_null($name)) {
             // 清除
             Session::clear();
-        } elseif ('' === $value) {
-            // 判断或获取
-            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } elseif (is_null($value)) {
             // 删除
             Session::delete($name);
+        } elseif ('' === $value) {
+            // 判断或获取
+            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } else {
             // 设置
             Session::set($name, $value);
@@ -540,16 +472,44 @@ if (!function_exists('session')) {
 
 if (!function_exists('token')) {
     /**
-     * 生成表单令牌
+     * 获取Token令牌
      * @param  string $name 令牌名称
      * @param  mixed  $type 令牌生成方法
      * @return string
      */
     function token(string $name = '__token__', string $type = 'md5'): string
     {
-        $token = Request::token($name, $type);
+        return Request::buildToken($name, $type);
+    }
+}
+
+if (!function_exists('token_field')) {
+    /**
+     * 生成令牌隐藏表单
+     * @param  string $name 令牌名称
+     * @param  mixed  $type 令牌生成方法
+     * @return string
+     */
+    function token_field(string $name = '__token__', string $type = 'md5'): string
+    {
+        $token = Request::buildToken($name, $type);
 
         return '<input type="hidden" name="' . $name . '" value="' . $token . '" />';
+    }
+}
+
+if (!function_exists('token_meta')) {
+    /**
+     * 生成令牌meta
+     * @param  string $name 令牌名称
+     * @param  mixed  $type 令牌生成方法
+     * @return string
+     */
+    function token_meta(string $name = '__token__', string $type = 'md5'): string
+    {
+        $token = Request::buildToken($name, $type);
+
+        return '<meta name="csrf-token" content="' . $token . '">';
     }
 }
 
@@ -577,11 +537,11 @@ if (!function_exists('trait_uses_recursive')) {
      * @param  string $trait Trait
      * @return array
      */
-    function trait_uses_recursive(string $trait)
+    function trait_uses_recursive(string $trait): array
     {
         $traits = class_uses($trait);
         foreach ($traits as $trait) {
-            $traits += traitUsesRecursive($trait);
+            $traits += trait_uses_recursive($trait);
         }
 
         return $traits;
@@ -595,43 +555,45 @@ if (!function_exists('url')) {
      * @param array       $vars   变量
      * @param bool|string $suffix 生成的URL后缀
      * @param bool|string $domain 域名
-     * @return string
+     * @return UrlBuild
      */
-    function url(string $url = '', array $vars = [], $suffix = true, $domain = false)
+    function url(string $url = '', array $vars = [], $suffix = true, $domain = false): UrlBuild
     {
-        return Url::build($url, $vars, $suffix, $domain);
+        return Route::buildUrl($url, $vars)->suffix($suffix)->domain($domain);
     }
 }
 
 if (!function_exists('validate')) {
     /**
-     * 验证数据
-     * @param  array        $data     数据
-     * @param  string|array $validate 验证器名或者验证规则数组
-     * @param  array        $message  提示信息
+     * 生成验证对象
+     * @param  string|array $validate 验证器类名或者验证规则数组
+     * @param  array        $message  错误提示信息
      * @param  bool         $batch    是否批量验证
-     * @return true
-     * @throws ValidateException
+     * @return Validate
      */
-    function validate(array $data, $validate, array $message = [], bool $batch = false)
+    function validate($validate = '', array $message = [], bool $batch = false): Validate
     {
-        if (is_array($validate)) {
-            $v = new Validate($validate, $message);
+        if (is_array($validate) || '' === $validate) {
+            $v = new Validate();
+            if (is_array($validate)) {
+                $v->rule($validate);
+            }
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
                 list($validate, $scene) = explode('.', $validate);
             }
 
-            $class = app()->parseClass('validate', $validate);
-            $v     = $class::make([], $message);
+            $class = false !== strpos($validate, '\\') ? $validate : app()->parseClass('validate', $validate);
+
+            $v = new $class();
 
             if (!empty($scene)) {
                 $v->scene($scene);
             }
         }
 
-        return $v->batch($batch)->failException(true)->check($data);
+        return $v->message($message)->batch($batch)->failException(true);
     }
 }
 
@@ -644,9 +606,24 @@ if (!function_exists('view')) {
      * @param callable  $filter 内容过滤
      * @return \think\response\View
      */
-    function view(string $template = '', $vars = [], $code = 200, $filter = null)
+    function view(string $template = '', $vars = [], $code = 200, $filter = null): View
     {
         return Response::create($template, 'view', $code)->assign($vars)->filter($filter);
+    }
+}
+
+if (!function_exists('display')) {
+    /**
+     * 渲染模板输出
+     * @param string    $content 渲染内容
+     * @param array     $vars 模板变量
+     * @param int       $code 状态码
+     * @param callable  $filter 内容过滤
+     * @return \think\response\View
+     */
+    function display(string $content, $vars = [], $code = 200, $filter = null): View
+    {
+        return Response::create($content, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
     }
 }
 
@@ -659,22 +636,8 @@ if (!function_exists('xml')) {
      * @param  array $options 参数
      * @return \think\response\Xml
      */
-    function xml($data = [], $code = 200, $header = [], $options = [])
+    function xml($data = [], $code = 200, $header = [], $options = []): Xml
     {
         return Response::create($data, 'xml', $code)->header($header)->options($options);
-    }
-}
-
-if (!function_exists('yaconf')) {
-    /**
-     * 获取yaconf配置
-     *
-     * @param  string $name    配置参数名
-     * @param  mixed  $default 默认值
-     * @return mixed
-     */
-    function yaconf(string $name, $default = null)
-    {
-        return Config::yaconf($name, $default);
     }
 }

@@ -12,52 +12,97 @@ declare (strict_types = 1);
 
 namespace think\route;
 
+/**
+ * 路由标识管理类
+ */
 class RuleName
 {
+    /**
+     * 路由标识
+     * @var array
+     */
     protected $item = [];
 
+    /**
+     * 路由规则
+     * @var array
+     */
     protected $rule = [];
+
+    /**
+     * 路由分组
+     * @var array
+     */
+    protected $group = [];
 
     /**
      * 注册路由标识
      * @access public
-     * @param  string       $name  路由标识
-     * @param  string|array $value 路由规则
-     * @param  bool         $first 是否置顶
+     * @param  string   $name  路由标识
+     * @param  RuleItem $ruleItem 路由规则
+     * @param  bool     $first 是否优先
      * @return void
      */
-    public function setName(string $name, $value, bool $first = false): void
+    public function setName(string $name, RuleItem $ruleItem, bool $first = false): void
     {
         $name = strtolower($name);
         if ($first && isset($this->item[$name])) {
-            array_unshift($this->item[$name], $value);
+            array_unshift($this->item[$name], $ruleItem);
         } else {
-            $this->item[$name][] = $value;
+            $this->item[$name][] = $ruleItem;
         }
+    }
+
+    /**
+     * 注册路由分组标识
+     * @access public
+     * @param  string    $name  路由分组标识
+     * @param  RuleGroup $group 路由分组
+     * @return void
+     */
+    public function setGroup(string $name, RuleGroup $group): void
+    {
+        $this->group[strtolower($name)] = $group;
     }
 
     /**
      * 注册路由规则
      * @access public
      * @param  string   $rule  路由规则
-     * @param  RuleItem $route 路由
+     * @param  RuleItem $ruleItem 路由
      * @return void
      */
-    public function setRule(string $rule, RuleItem $route): void
+    public function setRule(string $rule, RuleItem $ruleItem): void
     {
-        $this->rule[$route->getDomain()][$rule][$route->getRoute()] = $route;
+        $route = $ruleItem->getRoute();
+
+        if (is_string($route)) {
+            $this->rule[$rule][$route] = $ruleItem;
+        } else {
+            $this->rule[$rule][] = $ruleItem;
+        }
     }
 
     /**
      * 根据路由规则获取路由对象（列表）
      * @access public
      * @param  string $rule   路由标识
-     * @param  string $domain 域名
      * @return RuleItem[]
      */
-    public function getRule(string $rule, string $domain = null): array
+    public function getRule(string $rule): array
     {
-        return $this->rule[$domain][$rule] ?? [];
+        return $this->rule[$rule] ?? [];
+    }
+
+    /**
+     * 根据路由分组标识获取分组
+     * @access public
+     * @param  string $name 路由分组标识
+     * @return RuleGroup|null
+     */
+    public function getGroup(string $name)
+    {
+        return $this->group[strtolower($name)] ?? null;
     }
 
     /**
@@ -74,30 +119,27 @@ class RuleName
     /**
      * 获取全部路由列表
      * @access public
-     * @param  string $domain 域名
      * @return array
      */
-    public function getRuleList(string $domain = null): array
+    public function getRuleList(): array
     {
         $list = [];
 
-        foreach ($this->rule as $ruleDomain => $rules) {
-            foreach ($rules as $rule => $items) {
-                foreach ($items as $item) {
-                    $val = [];
+        foreach ($this->rule as $rule => $rules) {
+            foreach ($rules as $item) {
+                $val = [];
 
-                    foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
-                        $call        = 'get' . $param;
-                        $val[$param] = $item->$call();
-                    }
-
-                    $list[$ruleDomain][] = $val;
+                foreach (['method', 'rule', 'name', 'route', 'domain', 'pattern', 'option'] as $param) {
+                    $call        = 'get' . $param;
+                    $val[$param] = $item->$call();
                 }
-            }
-        }
 
-        if ($domain) {
-            return $list[$domain] ?? [];
+                if ($item->isMiss()) {
+                    $val['rule'] .= '<MISS>';
+                }
+
+                $list[] = $val;
+            }
         }
 
         return $list;
@@ -137,7 +179,10 @@ class RuleName
                 $result = $this->item[$name];
             } else {
                 foreach ($this->item[$name] as $item) {
-                    if ($item[2] == $domain && ('*' == $item[4] || '*' == $method || $method == $item[4])) {
+                    $itemDomain = $item->getDomain();
+                    $itemMethod = $item->getMethod();
+
+                    if (($itemDomain == $domain || '-' == $itemDomain) && ('*' == $itemMethod || '*' == $method || $method == $itemMethod)) {
                         $result[] = $item;
                     }
                 }

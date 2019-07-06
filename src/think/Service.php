@@ -12,6 +12,14 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
+use think\event\RouteLoaded;
+
+/**
+ * 系统服务基础类
+ * @method void register()
+ * @method void boot()
+ */
 abstract class Service
 {
     protected $app;
@@ -28,7 +36,18 @@ abstract class Service
      */
     protected function loadRoutesFrom($path)
     {
-        require $path;
+        $this->registerRoutes(function () use ($path) {
+            include $path;
+        });
+    }
+
+    /**
+     * 注册路由
+     * @param Closure $closure
+     */
+    protected function registerRoutes(Closure $closure)
+    {
+        $this->app->event->listen(RouteLoaded::class, $closure);
     }
 
     /**
@@ -40,7 +59,7 @@ abstract class Service
     {
         $commands = is_array($commands) ? $commands : func_get_args();
 
-        Console::init(function (Console $console) use ($commands) {
+        Console::starting(function (Console $console) use ($commands) {
             $console->addCommands($commands);
         });
     }

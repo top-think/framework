@@ -18,6 +18,9 @@ use think\exception\ErrorException;
 use think\exception\Handle;
 use Throwable;
 
+/**
+ * 错误和异常处理
+ */
 class Error
 {
     /** @var App */
@@ -41,7 +44,7 @@ class Error
     /**
      * Exception Handler
      * @access public
-     * @param  \Throwable $e
+     * @param \Throwable $e
      */
     public function appException(Throwable $e): void
     {
@@ -52,17 +55,17 @@ class Error
         if ($this->app->runningInConsole()) {
             $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
-            $handler->render($this->app->request, $e)->send();
+            $handler->render($this->app->request, $e)->setCookie($this->app->cookie)->send();
         }
     }
 
     /**
      * Error Handler
      * @access public
-     * @param  integer $errno   错误编号
-     * @param  string  $errstr  详细错误信息
-     * @param  string  $errfile 出错的文件
-     * @param  integer $errline 出错行号
+     * @param integer $errno   错误编号
+     * @param string  $errstr  详细错误信息
+     * @param string  $errfile 出错的文件
+     * @param integer $errline 出错行号
      * @throws ErrorException
      */
     public function appError(int $errno, string $errstr, string $errfile = '', int $errline = 0): void
@@ -87,16 +90,13 @@ class Error
 
             $this->appException($exception);
         }
-
-        // 写入日志
-        $this->app->log->save();
     }
 
     /**
      * 确定错误类型是否致命
      *
      * @access protected
-     * @param  int $type
+     * @param int $type
      * @return bool
      */
     protected function isFatal(int $type): bool
@@ -112,6 +112,6 @@ class Error
      */
     protected function getExceptionHandler()
     {
-        return $this->app->make('error_handle');
+        return $this->app->make(Handle::class);
     }
 }

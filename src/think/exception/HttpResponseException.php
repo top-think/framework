@@ -13,6 +13,9 @@ namespace think\exception;
 
 use think\Response;
 
+/**
+ * HTTP响应异常
+ */
 class HttpResponseException extends \RuntimeException
 {
     /**

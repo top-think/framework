@@ -23,13 +23,13 @@ use think\initializer\RegisterService;
  */
 class App extends Container
 {
-    const VERSION = '6.0.0RC1';
+    const VERSION = '6.0.0RC3';
 
     /**
      * 应用调试模式
      * @var bool
      */
-    protected $appDebug = true;
+    protected $appDebug = false;
 
     /**
      * 应用开始时间
@@ -109,9 +109,13 @@ class App extends Container
     public function __construct(string $rootPath = '')
     {
         $this->thinkPath   = dirname(__DIR__) . DIRECTORY_SEPARATOR;
-        $this->rootPath    = $rootPath ? realpath($rootPath) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->rootPath    = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+
+        if (is_file($this->appPath . 'provider.php')) {
+            $this->bind(include $this->appPath . 'provider.php');
+        }
 
         static::setInstance($this);
 
@@ -140,6 +144,10 @@ class App extends Container
 
         if (method_exists($service, 'register')) {
             $service->register();
+        }
+
+        if (property_exists($service, 'bind')) {
+            $this->bind($service->bind);
         }
 
         $this->services[] = $service;
@@ -352,15 +360,18 @@ class App extends Container
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
-        // 加载全局初始化文件
-        if (is_file($this->getRuntimePath() . 'init.php')) {
-            //直接加载缓存
-            include $this->getRuntimePath() . 'init.php';
-        } else {
-            $this->load();
-        }
-
         $this->debugModeInit();
+
+        // 加载全局初始化文件
+        $this->load();
+
+        // 加载框架默认语言包
+        $langSet = $this->lang->defaultLangSet();
+
+        $this->lang->load($this->thinkPath . 'lang' . DIRECTORY_SEPARATOR . $langSet . '.php');
+
+        // 加载应用默认语言包
+        $this->loadLangPack($langSet);
 
         // 监听AppInit
         $this->event->trigger('AppInit');
@@ -382,6 +393,29 @@ class App extends Container
     public function initialized()
     {
         return $this->initialized;
+    }
+
+    /**
+     * 加载语言包
+     * @param string $langset 语言
+     * @return void
+     */
+    public function loadLangPack($langset)
+    {
+        if (empty($langset)) {
+            return;
+        }
+
+        // 加载系统语言包
+        $files = glob($this->appPath . 'lang' . DIRECTORY_SEPARATOR . $langset . '.*');
+        $this->lang->load($files);
+
+        // 加载扩展（自定义）语言包
+        $list = $this->config->get('lang.extend_list', []);
+
+        if (isset($list[$langset])) {
+            $this->lang->load($list[$langset]);
+        }
     }
 
     /**
@@ -409,7 +443,7 @@ class App extends Container
             include_once $appPath . 'common.php';
         }
 
-        include $this->thinkPath . 'helper.php';
+        include_once $this->thinkPath . 'helper.php';
 
         $configPath = $this->getConfigPath();
 
@@ -427,12 +461,11 @@ class App extends Container
             $this->loadEvent(include $appPath . 'event.php');
         }
 
-        if (is_file($appPath . 'middleware.php')) {
-            $this->middleware->import(include $appPath . 'middleware.php');
-        }
-
-        if (is_file($appPath . 'provider.php')) {
-            $this->bind(include $appPath . 'provider.php');
+        if (is_file($appPath . 'service.php')) {
+            $services = include $appPath . 'service.php';
+            foreach ($services as $service) {
+                $this->register($service);
+            }
         }
     }
 
@@ -446,11 +479,10 @@ class App extends Container
         // 应用调试模式
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug') ? true : false;
+            ini_set('display_errors', 'Off');
         }
 
-        if (!$this->appDebug) {
-            ini_set('display_errors', 'Off');
-        } elseif (!$this->runningInConsole()) {
+        if (!$this->runningInConsole()) {
             //重新申请一块比较大的buffer
             if (ob_get_level() > 0) {
                 $output = ob_get_clean();
@@ -559,6 +591,7 @@ class App extends Container
      * @access public
      * @param string $name      工厂类名
      * @param string $namespace 默认命名空间
+     * @param array  $args
      * @return mixed
      */
     public static function factory(string $name, string $namespace = '', ...$args)
@@ -572,6 +605,11 @@ class App extends Container
         throw new ClassNotFoundException('class not exists:' . $class, $class);
     }
 
+    /**
+     * @param $data
+     * @codeCoverageIgnore
+     * @return string
+     */
     public static function serialize($data): string
     {
         SerializableClosure::enterContext();
@@ -581,6 +619,11 @@ class App extends Container
         return $data;
     }
 
+    /**
+     * @param string $data
+     * @codeCoverageIgnore
+     * @return mixed|string
+     */
     public static function unserialize(string $data)
     {
         SerializableClosure::enterContext();
