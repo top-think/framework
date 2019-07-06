@@ -424,10 +424,10 @@ abstract class PDOConnection extends Connection
     public function getPdo()
     {
         if (!$this->linkID) {
-            return false;
+            $this->initConnect(true);
         }
 
-        return $this->linkID;
+        return $this->linkID ?: false;
     }
 
     /**
