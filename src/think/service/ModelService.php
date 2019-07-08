@@ -26,7 +26,6 @@ class ModelService extends Service
             $db     = $this->app->db;
             $config = $this->app->config;
             $model->setDb($db);
-            $model->setEvent($this->app->event);
 
             $isAutoWriteTimestamp = $model->getAutoWriteTimestamp();
 
