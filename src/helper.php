@@ -72,8 +72,8 @@ if (!function_exists('app')) {
 if (!function_exists('bind')) {
     /**
      * 绑定一个类到容器
-     * @param  string|array $abstract 类标识、接口（支持批量绑定）
-     * @param  mixed        $concrete 要绑定的类、闭包或者实例
+     * @param string|array $abstract 类标识、接口（支持批量绑定）
+     * @param mixed        $concrete 要绑定的类、闭包或者实例
      * @return Container
      */
     function bind($abstract, $concrete = null)
@@ -85,10 +85,10 @@ if (!function_exists('bind')) {
 if (!function_exists('cache')) {
     /**
      * 缓存管理
-     * @param  string $name    缓存名称
-     * @param  mixed  $value   缓存值
-     * @param  mixed  $options 缓存参数
-     * @param  string $tag     缓存标签
+     * @param string $name    缓存名称
+     * @param mixed  $value   缓存值
+     * @param mixed  $options 缓存参数
+     * @param string $tag     缓存标签
      * @return mixed
      */
     function cache(string $name = null, $value = '', $options = null, $tag = null)
@@ -124,7 +124,7 @@ if (!function_exists('class_basename')) {
     /**
      * 获取类名(不包含命名空间)
      *
-     * @param  mixed $class 类名
+     * @param mixed $class 类名
      * @return string
      */
     function class_basename($class): string
@@ -138,7 +138,7 @@ if (!function_exists('class_uses_recursive')) {
     /**
      *获取一个类里所有用到的trait，包括父类的
      *
-     * @param  mixed $class 类名
+     * @param mixed $class 类名
      * @return array
      */
     function class_uses_recursive($class): array
@@ -160,8 +160,8 @@ if (!function_exists('class_uses_recursive')) {
 if (!function_exists('config')) {
     /**
      * 获取和设置配置参数
-     * @param  string|array $name  参数名
-     * @param  mixed        $value 参数值
+     * @param string|array $name  参数名
+     * @param mixed        $value 参数值
      * @return mixed
      */
     function config($name = '', $value = null)
@@ -177,9 +177,9 @@ if (!function_exists('config')) {
 if (!function_exists('cookie')) {
     /**
      * Cookie管理
-     * @param  string $name   cookie名称
-     * @param  mixed  $value  cookie值
-     * @param  mixed  $option 参数
+     * @param string $name   cookie名称
+     * @param mixed  $value  cookie值
+     * @param mixed  $option 参数
      * @return mixed
      */
     function cookie(string $name, $value = '', $option = null)
@@ -200,10 +200,10 @@ if (!function_exists('cookie')) {
 if (!function_exists('download')) {
     /**
      * 获取\think\response\Download对象实例
-     * @param  string $filename 要下载的文件
-     * @param  string $name     显示文件名
-     * @param  bool   $content  是否为内容
-     * @param  int    $expire   有效期（秒）
+     * @param string $filename 要下载的文件
+     * @param string $name     显示文件名
+     * @param bool   $content  是否为内容
+     * @param int    $expire   有效期（秒）
      * @return \think\response\File
      */
     function download(string $filename, string $name = '', bool $content = false, int $expire = 180): File
@@ -215,7 +215,7 @@ if (!function_exists('download')) {
 if (!function_exists('dump')) {
     /**
      * 浏览器友好的变量输出
-     * @param  mixed  $vars 要输出的变量
+     * @param mixed $vars 要输出的变量
      * @return void
      */
     function dump(...$vars)
@@ -243,8 +243,8 @@ if (!function_exists('env')) {
     /**
      * 获取环境变量值
      * @access public
-     * @param  string $name    环境变量名（支持二级 .号分割）
-     * @param  string $default 默认值
+     * @param string $name    环境变量名（支持二级 .号分割）
+     * @param string $default 默认值
      * @return mixed
      */
     function env(string $name = null, $default = null)
@@ -256,8 +256,8 @@ if (!function_exists('env')) {
 if (!function_exists('event')) {
     /**
      * 触发事件
-     * @param  mixed $event 事件名（或者类名）
-     * @param  mixed $args  参数
+     * @param mixed $event 事件名（或者类名）
+     * @param mixed $args  参数
      * @return mixed
      */
     function event($event, $args = null)
@@ -282,9 +282,9 @@ if (!function_exists('halt')) {
 if (!function_exists('input')) {
     /**
      * 获取输入数据 支持默认值和过滤
-     * @param  string $key     获取的变量名
-     * @param  mixed  $default 默认值
-     * @param  string $filter  过滤方法
+     * @param string $key     获取的变量名
+     * @param mixed  $default 默认值
+     * @param string $filter  过滤方法
      * @return mixed
      */
     function input(string $key = '', $default = null, $filter = '')
@@ -311,16 +311,16 @@ if (!function_exists('input')) {
         }
 
         return isset($has) ?
-        request()->has($key, $method) :
-        request()->$method($key, $default, $filter);
+            request()->has($key, $method) :
+            request()->$method($key, $default, $filter);
     }
 }
 
 if (!function_exists('invoke')) {
     /**
      * 调用反射实例化对象或者执行方法 支持依赖注入
-     * @param  mixed $call 类名或者callable
-     * @param  array $args 参数
+     * @param mixed $call 类名或者callable
+     * @param array $args 参数
      * @return mixed
      */
     function invoke($call, array $args = [])
@@ -336,10 +336,10 @@ if (!function_exists('invoke')) {
 if (!function_exists('json')) {
     /**
      * 获取\think\response\Json对象实例
-     * @param  mixed $data    返回的数据
-     * @param  int   $code    状态码
-     * @param  array $header  头部
-     * @param  array $options 参数
+     * @param mixed $data    返回的数据
+     * @param int   $code    状态码
+     * @param array $header  头部
+     * @param array $options 参数
      * @return \think\response\Json
      */
     function json($data = [], $code = 200, $header = [], $options = []): Json
@@ -351,10 +351,10 @@ if (!function_exists('json')) {
 if (!function_exists('jsonp')) {
     /**
      * 获取\think\response\Jsonp对象实例
-     * @param  mixed $data    返回的数据
-     * @param  int   $code    状态码
-     * @param  array $header  头部
-     * @param  array $options 参数
+     * @param mixed $data    返回的数据
+     * @param int   $code    状态码
+     * @param array $header  头部
+     * @param array $options 参数
      * @return \think\response\Jsonp
      */
     function jsonp($data = [], $code = 200, $header = [], $options = []): Jsonp
@@ -366,9 +366,9 @@ if (!function_exists('jsonp')) {
 if (!function_exists('lang')) {
     /**
      * 获取语言变量值
-     * @param  string $name 语言变量名
-     * @param  array  $vars 动态变量值
-     * @param  string $lang 语言
+     * @param string $name 语言变量名
+     * @param array  $vars 动态变量值
+     * @param string $lang 语言
      * @return mixed
      */
     function lang(string $name, array $vars = [], string $lang = '')
@@ -381,9 +381,9 @@ if (!function_exists('parse_name')) {
     /**
      * 字符串命名风格转换
      * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @param  string $name    字符串
-     * @param  int    $type    转换类型
-     * @param  bool   $ucfirst 首字母是否大写（驼峰规则）
+     * @param string $name    字符串
+     * @param int    $type    转换类型
+     * @param bool   $ucfirst 首字母是否大写（驼峰规则）
      * @return string
      */
     function parse_name(string $name, int $type = 0, bool $ucfirst = true): string
@@ -403,9 +403,9 @@ if (!function_exists('parse_name')) {
 if (!function_exists('redirect')) {
     /**
      * 获取\think\response\Redirect对象实例
-     * @param  mixed         $url    重定向地址 支持Url::build方法的地址
-     * @param  array|integer $params 额外参数
-     * @param  int           $code   状态码
+     * @param mixed         $url    重定向地址 支持Url::build方法的地址
+     * @param array|integer $params 额外参数
+     * @param int           $code   状态码
      * @return \think\response\Redirect
      */
     function redirect($url = [], $params = [], $code = 302): Redirect
@@ -433,10 +433,10 @@ if (!function_exists('request')) {
 if (!function_exists('response')) {
     /**
      * 创建普通 Response 对象实例
-     * @param  mixed      $data   输出数据
-     * @param  int|string $code   状态码
-     * @param  array      $header 头信息
-     * @param  string     $type
+     * @param mixed      $data   输出数据
+     * @param int|string $code   状态码
+     * @param array      $header 头信息
+     * @param string     $type
      * @return Response
      */
     function response($data = '', $code = 200, $header = [], $type = 'html'): Response
@@ -448,8 +448,8 @@ if (!function_exists('response')) {
 if (!function_exists('session')) {
     /**
      * Session管理
-     * @param  string $name  session名称
-     * @param  mixed  $value session值
+     * @param string $name  session名称
+     * @param mixed  $value session值
      * @return mixed
      */
     function session(string $name = null, $value = '')
@@ -473,8 +473,8 @@ if (!function_exists('session')) {
 if (!function_exists('token')) {
     /**
      * 获取Token令牌
-     * @param  string $name 令牌名称
-     * @param  mixed  $type 令牌生成方法
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
      * @return string
      */
     function token(string $name = '__token__', string $type = 'md5'): string
@@ -486,8 +486,8 @@ if (!function_exists('token')) {
 if (!function_exists('token_field')) {
     /**
      * 生成令牌隐藏表单
-     * @param  string $name 令牌名称
-     * @param  mixed  $type 令牌生成方法
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
      * @return string
      */
     function token_field(string $name = '__token__', string $type = 'md5'): string
@@ -501,8 +501,8 @@ if (!function_exists('token_field')) {
 if (!function_exists('token_meta')) {
     /**
      * 生成令牌meta
-     * @param  string $name 令牌名称
-     * @param  mixed  $type 令牌生成方法
+     * @param string $name 令牌名称
+     * @param mixed  $type 令牌生成方法
      * @return string
      */
     function token_meta(string $name = '__token__', string $type = 'md5'): string
@@ -516,8 +516,8 @@ if (!function_exists('token_meta')) {
 if (!function_exists('trace')) {
     /**
      * 记录日志信息
-     * @param  mixed  $log   log信息 支持字符串和数组
-     * @param  string $level 日志级别
+     * @param mixed  $log   log信息 支持字符串和数组
+     * @param string $level 日志级别
      * @return array|void
      */
     function trace($log = '[think]', string $level = 'log')
@@ -534,7 +534,7 @@ if (!function_exists('trait_uses_recursive')) {
     /**
      * 获取一个trait里所有引用到的trait
      *
-     * @param  string $trait Trait
+     * @param string $trait Trait
      * @return array
      */
     function trait_uses_recursive(string $trait): array
@@ -566,9 +566,9 @@ if (!function_exists('url')) {
 if (!function_exists('validate')) {
     /**
      * 生成验证对象
-     * @param  string|array $validate 验证器类名或者验证规则数组
-     * @param  array        $message  错误提示信息
-     * @param  bool         $batch    是否批量验证
+     * @param string|array $validate 验证器类名或者验证规则数组
+     * @param array        $message  错误提示信息
+     * @param bool         $batch    是否批量验证
      * @return Validate
      */
     function validate($validate = '', array $message = [], bool $batch = false): Validate
@@ -600,10 +600,10 @@ if (!function_exists('validate')) {
 if (!function_exists('view')) {
     /**
      * 渲染模板输出
-     * @param string    $template 模板文件
-     * @param array     $vars 模板变量
-     * @param int       $code 状态码
-     * @param callable  $filter 内容过滤
+     * @param string   $template 模板文件
+     * @param array    $vars     模板变量
+     * @param int      $code     状态码
+     * @param callable $filter   内容过滤
      * @return \think\response\View
      */
     function view(string $template = '', $vars = [], $code = 200, $filter = null): View
@@ -615,10 +615,10 @@ if (!function_exists('view')) {
 if (!function_exists('display')) {
     /**
      * 渲染模板输出
-     * @param string    $content 渲染内容
-     * @param array     $vars 模板变量
-     * @param int       $code 状态码
-     * @param callable  $filter 内容过滤
+     * @param string   $content 渲染内容
+     * @param array    $vars    模板变量
+     * @param int      $code    状态码
+     * @param callable $filter  内容过滤
      * @return \think\response\View
      */
     function display(string $content, $vars = [], $code = 200, $filter = null): View
@@ -630,14 +630,92 @@ if (!function_exists('display')) {
 if (!function_exists('xml')) {
     /**
      * 获取\think\response\Xml对象实例
-     * @param  mixed $data    返回的数据
-     * @param  int   $code    状态码
-     * @param  array $header  头部
-     * @param  array $options 参数
+     * @param mixed $data    返回的数据
+     * @param int   $code    状态码
+     * @param array $header  头部
+     * @param array $options 参数
      * @return \think\response\Xml
      */
     function xml($data = [], $code = 200, $header = [], $options = []): Xml
     {
         return Response::create($data, 'xml', $code)->header($header)->options($options);
+    }
+}
+
+if (!function_exists('app_path')) {
+    /**
+     * 获取当前应用目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function app_path($path = '')
+    {
+        return app()->getAppPath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('base_path')) {
+    /**
+     * 获取应用基础目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function base_path($path = '')
+    {
+        return app()->getBasePath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('config_path')) {
+    /**
+     * 获取应用配置目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function config_path($path = '')
+    {
+        return app()->getConfigPath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('public_path')) {
+    /**
+     * 获取web根目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function public_path($path = '')
+    {
+        return app()->getRootPath() . ($path ? ltrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('runtime_path')) {
+    /**
+     * 获取web根目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function runtime_path($path = '')
+    {
+        return app()->getRuntimePath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('root_path')) {
+    /**
+     * 获取项目根目录
+     *
+     * @param string $path
+     * @return string
+     */
+    function root_path($path = '')
+    {
+        return app()->getRootPath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
     }
 }
