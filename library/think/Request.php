@@ -682,6 +682,7 @@ class Request
                 // 判断URL里面是否有兼容模式参数
                 $pathinfo = $_GET[$this->config['var_pathinfo']];
                 unset($_GET[$this->config['var_pathinfo']]);
+                unset($this->get[$this->config['var_pathinfo']]);
             } elseif ($this->isCli()) {
                 // CLI模式下 index.php module/controller/action/params/...
                 $pathinfo = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : '';
@@ -700,6 +701,10 @@ class Request
                         break;
                     }
                 }
+            }
+
+            if (!empty($pathinfo)) {
+                unset($this->get[$pathinfo], $this->request[$pathinfo]);
             }
 
             $this->pathinfo = empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
