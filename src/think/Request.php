@@ -619,7 +619,7 @@ class Request
             if (isset($_GET[$this->varPathinfo])) {
                 // 判断URL里面是否有兼容模式参数
                 $pathinfo = $_GET[$this->varPathinfo];
-                unset($_GET[$this->varPathinfo]);
+                unset($_GET[$this->varPathinfo], $this->get[$this->varPathinfo]);
             } elseif ($this->server('PATH_INFO')) {
                 $pathinfo = $this->server('PATH_INFO');
             } elseif ('cli-server' == PHP_SAPI) {
@@ -636,6 +636,11 @@ class Request
                     }
                 }
             }
+
+            if (!empty($pathinfo)) {
+                unset($this->get[$pathinfo]);
+            }
+
             $this->pathinfo = empty($pathinfo) || '/' == $pathinfo ? '' : ltrim($pathinfo, '/');
         }
 
