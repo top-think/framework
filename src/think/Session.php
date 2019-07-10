@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * Session管理类
+ * @package think
  */
 class Session
 {

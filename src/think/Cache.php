@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 缓存管理类
+ * @package think
  */
 class Cache extends CacheManager
 {

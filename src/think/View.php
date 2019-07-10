@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 视图类
+ * @package think
  */
 class View
 {

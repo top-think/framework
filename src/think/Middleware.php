@@ -18,6 +18,7 @@ use think\exception\HttpResponseException;
 
 /**
  * 中间件管理类
+ * @package think
  */
 class Middleware
 {

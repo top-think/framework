@@ -12,13 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
-use think\db\BaseQuery;
-
 /**
- * Class Db
+ * 数据库管理类
  * @package think
- * @mixin BaseQuery
- * @mixin Query
  */
 class Db extends DbManager
 {

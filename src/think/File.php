@@ -17,6 +17,7 @@ use think\exception\FileException;
 
 /**
  * 文件上传类
+ * @package think
  */
 class File extends SplFileInfo
 {

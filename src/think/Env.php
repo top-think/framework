@@ -16,6 +16,7 @@ use ArrayAccess;
 
 /**
  * Env管理类
+ * @package think
  */
 class Env implements ArrayAccess
 {

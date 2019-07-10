@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 响应输出基础类
+ * @package think
  */
 class Response
 {

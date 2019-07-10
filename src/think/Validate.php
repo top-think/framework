@@ -18,6 +18,7 @@ use think\validate\ValidateRule;
 
 /**
  * 数据验证类
+ * @package think
  */
 class Validate
 {

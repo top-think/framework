@@ -20,6 +20,7 @@ use Throwable;
 
 /**
  * Web应用管理类
+ * @package think
  */
 class Http
 {

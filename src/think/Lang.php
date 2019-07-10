@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 多语言管理类
+ * @package think
  */
 class Lang
 {

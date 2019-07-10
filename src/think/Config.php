@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 配置管理类
+ * @package think
  */
 class Config
 {

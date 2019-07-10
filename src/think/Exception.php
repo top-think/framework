@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 异常基础类
+ * @package think
  */
 class Exception extends \Exception
 {

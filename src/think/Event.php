@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 事件管理类
+ * @package think
  */
 class Event
 {

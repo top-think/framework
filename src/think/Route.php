@@ -28,6 +28,7 @@ use think\route\Url as UrlBuild;
 
 /**
  * 路由管理类
+ * @package think
  */
 class Route
 {

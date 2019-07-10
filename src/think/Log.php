@@ -14,6 +14,7 @@ namespace think;
 
 /**
  * 日志管理类
+ * @package think
  */
 class Log extends LogManager
 {

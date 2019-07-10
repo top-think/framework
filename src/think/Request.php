@@ -17,6 +17,7 @@ use think\route\Rule;
 
 /**
  * 请求管理类
+ * @package think
  */
 class Request
 {

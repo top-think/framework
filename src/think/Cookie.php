@@ -16,6 +16,7 @@ use DateTimeInterface;
 
 /**
  * Cookie管理类
+ * @package think
  */
 class Cookie
 {
