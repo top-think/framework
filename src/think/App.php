@@ -576,7 +576,7 @@ class App extends Container
         $class = self::parseName(array_pop($array), 1);
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
-        return $this->namespace . '\\' . $layer . '\\' . $path . $class;
+        return $this->namespace . '\\' . $layer . '\\' . lcfirst($path) . $class;
     }
 
     /**
