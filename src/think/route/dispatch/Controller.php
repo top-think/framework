@@ -51,7 +51,12 @@ class Controller extends Dispatch
         // 获取控制器名
         $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
 
-        $this->controller = App::parseName($controller, 1);
+        if (strpos($controller, '.')) {
+            $pos              = strrpos($controller, '.');
+            $this->controller = substr($controller, 0, $pos) . App::parseName(substr($controller, $pos), 1);
+        } else {
+            $this->controller = App::parseName($controller, 1);
+        }
 
         // 获取操作名
         $this->actionName = strip_tags($result[1] ?: $this->rule->config('default_action'));
