@@ -23,7 +23,7 @@ class ChannelSet
     public function __call($method, $arguments)
     {
         foreach ($this->channels as $channel) {
-            $this->log->driver($channel)->{$method}(...$arguments);
+            $this->log->channel($channel)->{$method}(...$arguments);
         }
     }
 }

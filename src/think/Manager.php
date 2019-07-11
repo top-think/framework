@@ -42,7 +42,7 @@ abstract class Manager
      * @param null|string $name
      * @return mixed
      */
-    public function driver($name = null)
+    protected function driver($name = null)
     {
         $name = $name ?: $this->getDefaultDriver();
 

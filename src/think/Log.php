@@ -85,6 +85,8 @@ class Log extends Manager implements LoggerInterface
      */
     public function channel($name = null)
     {
+        $name = $name ?: $this->getDefaultDriver();
+
         if (is_array($name)) {
             return new ChannelSet($this, $name);
         }
