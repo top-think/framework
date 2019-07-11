@@ -17,7 +17,6 @@ use Psr\Cache\CacheItemPoolInterface;
 use Psr\SimpleCache\CacheInterface;
 use think\cache\CacheItem;
 use think\cache\Driver;
-use think\Container;
 use think\exception\InvalidArgumentException;
 
 /**
