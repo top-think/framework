@@ -38,6 +38,15 @@ class Db extends DbManager
     }
 
     /**
+     * 注入模型对象
+     * @access public
+     * @return void
+     */
+    protected function modelMaker()
+    {
+    }
+
+    /**
      * 设置Event对象
      * @param Event $event
      */
