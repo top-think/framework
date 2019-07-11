@@ -42,7 +42,7 @@ abstract class Manager
      * @param null|string $name
      * @return mixed
      */
-    public function driver($name = null)
+    public function driver(string $name = null)
     {
         $name = $name ?: $this->getDefaultDriver();
 
@@ -57,30 +57,30 @@ abstract class Manager
 
     /**
      * 获取驱动实例
-     * @param $name
+     * @param string $name
      * @return mixed
      */
-    protected function get($name)
+    protected function get(stromg $name)
     {
         return $this->drivers[$name] ?? $this->createDriver($name);
     }
 
     /**
      * 获取驱动类型
-     * @param $name
+     * @param string $name
      * @return mixed
      */
-    protected function resolveType($name)
+    protected function resolveType(string $name)
     {
         return $name;
     }
 
     /**
      * 获取驱动配置
-     * @param $name
-     * @return array
+     * @param string $name
+     * @return mixed
      */
-    protected function resolveConfig($name)
+    protected function resolveConfig(string $name)
     {
         return $name;
     }
@@ -90,7 +90,7 @@ abstract class Manager
      * @param string $type
      * @return string
      */
-    protected function resolveClass($type)
+    protected function resolveClass(string $type): string
     {
         if ($this->namespace || false !== strpos($type, '\\')) {
             $class = false !== strpos($type, '\\') ? $type : $this->namespace . Str::studly($type);
@@ -130,7 +130,7 @@ abstract class Manager
      * 默认驱动
      * @return string
      */
-    abstract public function getDefaultDriver();
+    abstract public function getDefaultDriver(): string;
 
     /**
      * 动态调用
