@@ -60,7 +60,7 @@ abstract class Manager
      * @param string $name
      * @return mixed
      */
-    protected function get(stromg $name)
+    protected function get(string $name)
     {
         return $this->drivers[$name] ?? $this->createDriver($name);
     }
@@ -128,9 +128,9 @@ abstract class Manager
 
     /**
      * 默认驱动
-     * @return string|array
+     * @return string
      */
-    abstract public function getDefaultDriver();
+    abstract public function getDefaultDriver(): string;
 
     /**
      * 动态调用
