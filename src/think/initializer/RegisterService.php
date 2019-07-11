@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\initializer;
 
 use think\App;
+use think\service\ModelService;
 use think\service\PaginatorService;
 use think\service\ValidateService;
 
@@ -25,6 +26,7 @@ class RegisterService
     protected $services = [
         PaginatorService::class,
         ValidateService::class,
+        ModelService::class,
     ];
 
     public function init(App $app)
