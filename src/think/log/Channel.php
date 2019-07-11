@@ -67,7 +67,7 @@ class Channel implements LoggerInterface
      * @param bool   $lazy
      * @return $this
      */
-    public function record($msg, string $type = 'info', array $context = [], $lazy = true)
+    public function record($msg, string $type = 'info', array $context = [], bool $lazy = true)
     {
         if ($this->close || (!empty($this->allow) && !in_array($type, $this->allow))) {
             return $this;
@@ -106,8 +106,9 @@ class Channel implements LoggerInterface
 
     /**
      * 获取日志信息
+     * @return array
      */
-    public function getLog()
+    public function getLog(): array
     {
         return $this->log;
     }
@@ -116,7 +117,7 @@ class Channel implements LoggerInterface
      * 保存日志
      * @return bool
      */
-    public function save()
+    public function save(): bool
     {
         $log = $this->log;
         if ($this->event) {

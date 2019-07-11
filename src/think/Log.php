@@ -85,6 +85,8 @@ class Log extends Manager implements LoggerInterface
      */
     public function channel($name = null)
     {
+        $name = $name ?: $this->getDefaultDriver();
+
         if (is_array($name)) {
             return new ChannelSet($this, $name);
         }
@@ -92,7 +94,7 @@ class Log extends Manager implements LoggerInterface
         return $this->driver($name);
     }
 
-    protected function resolveType($name)
+    protected function resolveType(string $name)
     {
         return $this->getChannelConfig($name, 'type', 'file');
     }
@@ -107,7 +109,7 @@ class Log extends Manager implements LoggerInterface
         return new Channel($name, $driver, $allow, $lazy, $this->app->event);
     }
 
-    protected function resolveConfig($name)
+    protected function resolveConfig(string $name)
     {
         return $this->getChannelConfig($name);
     }
