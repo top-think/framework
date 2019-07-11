@@ -53,7 +53,7 @@ class Log extends Manager implements LoggerInterface
      * @param mixed       $default 默认值
      * @return mixed
      */
-    public function getConfig($name = null, $default = null)
+    public function getConfig(string $name = null, $default = null)
     {
         if (!is_null($name)) {
             return $this->app->config->get('log.' . $name, $default);
@@ -180,7 +180,7 @@ class Log extends Manager implements LoggerInterface
      * @param bool   $lazy
      * @return $this
      */
-    public function record($msg, string $type = 'info', array $context = [], $lazy = true)
+    public function record($msg, string $type = 'info', array $context = [], bool $lazy = true)
     {
         $channel = $this->getConfig('type_channel.' . $type);
 
