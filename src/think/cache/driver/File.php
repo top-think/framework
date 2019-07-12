@@ -88,7 +88,7 @@ class File extends Driver
         $filename = $this->getCacheKey($name);
 
         if (!is_file($filename)) {
-            return null;
+            return;
         }
 
         $content = @file_get_contents($filename);
@@ -98,7 +98,7 @@ class File extends Driver
             if (0 != $expire && time() > filemtime($filename) + $expire) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
-                return null;
+                return;
             }
 
             $content = substr($content, 32);
@@ -111,7 +111,7 @@ class File extends Driver
             return ['content' => $content, 'expire' => $expire];
         }
 
-        return null;
+        return;
     }
 
     /**
