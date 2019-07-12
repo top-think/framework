@@ -31,7 +31,7 @@ class Cache extends Manager implements CacheInterface
      * 默认驱动
      * @return array|string
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): string
     {
         return $this->getConfig('default');
     }
@@ -68,12 +68,12 @@ class Cache extends Manager implements CacheInterface
         throw new \InvalidArgumentException("Store [$store] not found.");
     }
 
-    protected function resolveType($name)
+    protected function resolveType(string $name)
     {
         return $this->getStoreConfig($name, 'type', 'file');
     }
 
-    protected function resolveConfig($name)
+    protected function resolveConfig(string $name)
     {
         return $this->getStoreConfig($name);
     }
