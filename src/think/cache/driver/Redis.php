@@ -22,6 +22,9 @@ use think\cache\Driver;
  */
 class Redis extends Driver
 {
+    /** @var \Predis\Client|\Redis */
+    protected $handler;
+
     /**
      * 配置参数
      * @var array
@@ -42,7 +45,7 @@ class Redis extends Driver
     /**
      * 架构函数
      * @access public
-     * @param  array $options 缓存参数
+     * @param array $options 缓存参数
      */
     public function __construct(array $options = [])
     {
@@ -90,7 +93,7 @@ class Redis extends Driver
     /**
      * 判断缓存
      * @access public
-     * @param  string $name 缓存变量名
+     * @param string $name 缓存变量名
      * @return bool
      */
     public function has($name): bool
@@ -101,17 +104,17 @@ class Redis extends Driver
     /**
      * 读取缓存
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $default 默认值
+     * @param string $name    缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = false)
+    public function get($name, $default = null)
     {
         $this->readTimes++;
 
         $value = $this->handler->get($this->getCacheKey($name));
 
-        if (is_null($value) || false === $value) {
+        if (false === $value) {
             return $default;
         }
 
@@ -121,9 +124,9 @@ class Redis extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param  string            $name 缓存变量名
-     * @param  mixed             $value  存储数据
-     * @param  integer|\DateTime $expire  有效时间（秒）
+     * @param string            $name   缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool
@@ -150,8 +153,8 @@ class Redis extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  int    $step 步长
+     * @param string $name 缓存变量名
+     * @param int    $step 步长
      * @return false|int
      */
     public function inc(string $name, int $step = 1)
@@ -166,8 +169,8 @@ class Redis extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  int    $step 步长
+     * @param string $name 缓存变量名
+     * @param int    $step 步长
      * @return false|int
      */
     public function dec(string $name, int $step = 1)
@@ -182,15 +185,15 @@ class Redis extends Driver
     /**
      * 删除缓存
      * @access public
-     * @param  string $name 缓存变量名
+     * @param string $name 缓存变量名
      * @return bool
      */
     public function delete($name): bool
     {
         $this->writeTimes++;
 
-        $this->handler->del($this->getCacheKey($name));
-        return true;
+        $result = $this->handler->del($this->getCacheKey($name));
+        return $result > 0;
     }
 
     /**
@@ -209,7 +212,7 @@ class Redis extends Driver
     /**
      * 删除缓存标签
      * @access public
-     * @param  array  $keys 缓存标识列表
+     * @param array $keys 缓存标识列表
      * @return void
      */
     public function clearTag(array $keys): void
@@ -221,8 +224,8 @@ class Redis extends Driver
     /**
      * 追加（数组）缓存数据
      * @access public
-     * @param  string $name 缓存标识
-     * @param  mixed  $value 数据
+     * @param string $name  缓存标识
+     * @param mixed  $value 数据
      * @return void
      */
     public function push(string $name, $value): void
@@ -233,7 +236,7 @@ class Redis extends Driver
     /**
      * 获取标签包含的缓存标识
      * @access public
-     * @param  string $tag 缓存标签
+     * @param string $tag 缓存标签
      * @return array
      */
     public function getTagItems(string $tag): array

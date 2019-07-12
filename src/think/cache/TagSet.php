@@ -32,8 +32,8 @@ class TagSet
     /**
      * 架构函数
      * @access public
-     * @param  array  $tag 缓存标签
-     * @param  Driver $cache 缓存对象
+     * @param array  $tag   缓存标签
+     * @param Driver $cache 缓存对象
      */
     public function __construct(array $tag, Driver $cache)
     {
@@ -44,9 +44,9 @@ class TagSet
     /**
      * 写入缓存
      * @access public
-     * @param  string            $name 缓存变量名
-     * @param  mixed             $value  存储数据
-     * @param  integer|\DateTime $expire  有效时间（秒）
+     * @param string            $name   缓存变量名
+     * @param mixed             $value  存储数据
+     * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool
@@ -61,7 +61,7 @@ class TagSet
     /**
      * 追加缓存标识到标签
      * @access public
-     * @param  string $name 缓存变量名
+     * @param string $name 缓存变量名
      * @return void
      */
     public function append(string $name): void
@@ -76,8 +76,8 @@ class TagSet
     /**
      * 写入缓存
      * @access public
-     * @param  iterable               $values 缓存数据
-     * @param  null|int|\DateInterval $ttl    有效时间 0为永久
+     * @param iterable               $values 缓存数据
+     * @param null|int|\DateInterval $ttl    有效时间 0为永久
      * @return bool
      */
     public function setMultiple($values, $ttl = null): bool
@@ -96,9 +96,9 @@ class TagSet
     /**
      * 如果不存在则写入缓存
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $value  存储数据
-     * @param  int    $expire  有效时间 0为永久
+     * @param string $name   缓存变量名
+     * @param mixed  $value  存储数据
+     * @param int    $expire 有效时间 0为永久
      * @return mixed
      */
     public function remember(string $name, $value, $expire = null)
@@ -119,7 +119,7 @@ class TagSet
     {
         // 指定标签清除
         foreach ($this->tag as $tag) {
-            $names = $this->handler->get($tag, []);
+            $names = $this->handler->getTagItems($tag);
 
             $this->handler->clearTag($names);
             $this->handler->delete($tag);

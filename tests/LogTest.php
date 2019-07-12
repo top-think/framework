@@ -32,9 +32,8 @@ class LogTest extends TestCase
     protected function setUp()
     {
         $this->app = m::mock(App::class)->makePartial();
-
-        $this->app = m::mock(App::class)->makePartial();
         Container::setInstance($this->app);
+
         $this->app->shouldReceive('make')->with(App::class)->andReturn($this->app);
         $this->config = m::mock(Config::class)->makePartial();
         $this->app->shouldReceive('get')->with('config')->andReturn($this->config);

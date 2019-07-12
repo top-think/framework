@@ -30,7 +30,7 @@ abstract class Manager
      * 驱动的命名空间
      * @var string
      */
-    protected $namespace = "";
+    protected $namespace = null;
 
     public function __construct(App $app)
     {
@@ -52,7 +52,7 @@ abstract class Manager
             ));
         }
 
-        return $this->drivers[$name] = $this->get($name);
+        return $this->drivers[$name] = $this->getDriver($name);
     }
 
     /**
@@ -60,7 +60,7 @@ abstract class Manager
      * @param string $name
      * @return mixed
      */
-    protected function get(string $name)
+    protected function getDriver(string $name)
     {
         return $this->drivers[$name] ?? $this->createDriver($name);
     }
@@ -123,7 +123,26 @@ abstract class Manager
 
         $class = $this->resolveClass($type);
 
-        return $this->app->make($class, [$config]);
+        return $this->app->invokeClass($class, [$config]);
+    }
+
+    /**
+     * 移除一个驱动实例
+     *
+     * @param array|string|null $name
+     * @return $this
+     */
+    public function forgetDriver($name = null)
+    {
+        $name = $name ?? $this->getDefaultDriver();
+
+        foreach ((array) $name as $cacheName) {
+            if (isset($this->drivers[$cacheName])) {
+                unset($this->drivers[$cacheName]);
+            }
+        }
+
+        return $this;
     }
 
     /**

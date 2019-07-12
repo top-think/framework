@@ -36,7 +36,7 @@ class Memcache extends Driver
     /**
      * 架构函数
      * @access public
-     * @param  array $options 缓存参数
+     * @param array $options 缓存参数
      * @throws \BadFunctionCallException
      */
     public function __construct(array $options = [])
@@ -63,15 +63,15 @@ class Memcache extends Driver
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->options['timeout'] > 0 ?
-            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, $this->options['timeout']) :
-            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
+                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, $this->options['timeout']) :
+                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
         }
     }
 
     /**
      * 判断缓存
      * @access public
-     * @param  string $name 缓存变量名
+     * @param string $name 缓存变量名
      * @return bool
      */
     public function has($name): bool
@@ -84,11 +84,11 @@ class Memcache extends Driver
     /**
      * 读取缓存
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  mixed  $default 默认值
+     * @param string $name    缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = false)
+    public function get($name, $default = null)
     {
         $this->readTimes++;
 
@@ -100,9 +100,9 @@ class Memcache extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param  string        $name 缓存变量名
-     * @param  mixed         $value  存储数据
-     * @param  int|\DateTime $expire  有效时间（秒）
+     * @param string        $name   缓存变量名
+     * @param mixed         $value  存储数据
+     * @param int|\DateTime $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool
@@ -127,8 +127,8 @@ class Memcache extends Driver
     /**
      * 自增缓存（针对数值缓存）
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  int    $step 步长
+     * @param string $name 缓存变量名
+     * @param int    $step 步长
      * @return false|int
      */
     public function inc(string $name, int $step = 1)
@@ -137,7 +137,7 @@ class Memcache extends Driver
 
         $key = $this->getCacheKey($name);
 
-        if ($this->handler->get($key)) {
+        if ($this->has($key)) {
             return $this->handler->increment($key, $step);
         }
 
@@ -147,8 +147,8 @@ class Memcache extends Driver
     /**
      * 自减缓存（针对数值缓存）
      * @access public
-     * @param  string $name 缓存变量名
-     * @param  int    $step 步长
+     * @param string $name 缓存变量名
+     * @param int    $step 步长
      * @return false|int
      */
     public function dec(string $name, int $step = 1)
@@ -165,8 +165,8 @@ class Memcache extends Driver
     /**
      * 删除缓存
      * @access public
-     * @param  string     $name 缓存变量名
-     * @param  bool|false $ttl
+     * @param string     $name 缓存变量名
+     * @param bool|false $ttl
      * @return bool
      */
     public function delete($name, $ttl = false): bool
@@ -176,8 +176,8 @@ class Memcache extends Driver
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-        $this->handler->delete($key) :
-        $this->handler->delete($key, $ttl);
+            $this->handler->delete($key) :
+            $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -195,7 +195,7 @@ class Memcache extends Driver
     /**
      * 删除缓存标签
      * @access public
-     * @param  array  $keys 缓存标识列表
+     * @param array $keys 缓存标识列表
      * @return void
      */
     public function clearTag(array $keys): void

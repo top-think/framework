@@ -50,6 +50,10 @@ class File implements LogHandlerInterface
         if (empty($this->config['path'])) {
             $this->config['path'] = $app->getRuntimePath() . 'log';
         }
+
+        if (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
+            $this->config['path'] .= DIRECTORY_SEPARATOR;
+        }
     }
 
     /**
@@ -129,9 +133,6 @@ class File implements LogHandlerInterface
      */
     protected function getMasterLogFile(): string
     {
-        if (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
-            $this->config['path'] .= DIRECTORY_SEPARATOR;
-        }
 
         if ($this->config['max_files']) {
             $files = glob($this->config['path'] . '*.log');
