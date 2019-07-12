@@ -80,10 +80,10 @@ class File extends Driver
 
     /**
      * 获取缓存数据
-     * @param $name
+     * @param string $name 缓存标识名
      * @return array|null
      */
-    protected function getRaw($name)
+    protected function getRaw(string $name)
     {
         $filename = $this->getCacheKey($name);
 
@@ -110,8 +110,6 @@ class File extends Driver
 
             return ['content' => $content, 'expire' => $expire];
         }
-
-        return;
     }
 
     /**
@@ -138,11 +136,7 @@ class File extends Driver
 
         $raw = $this->getRaw($name);
 
-        if (is_null($raw)) {
-            return $default;
-        }
-
-        return $this->unserialize($raw['content']);
+        return is_null($raw) ? $default : $this->unserialize($raw['content']);
     }
 
     /**

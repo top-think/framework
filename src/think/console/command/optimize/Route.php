@@ -65,7 +65,7 @@ class Route extends Command
         $this->app->event->trigger(RouteLoaded::class);
 
         $content = '<?php ' . PHP_EOL . 'return ';
-        $content .= '\think\App::unserialize(\'' . \think\App::serialize($this->app->route->getName()) . '\');';
+        $content .= '\Opis\Closure\unserialize(\'' . \Opis\Closure\serialize($this->app->route->getName()) . '\');';
         return $content;
     }
 

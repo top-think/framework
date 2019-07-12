@@ -12,7 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
-use Opis\Closure\SerializableClosure;
+use think\helper\Str;
 use think\initializer\BootService;
 use think\initializer\Error;
 use think\initializer\RegisterService;
@@ -573,7 +573,7 @@ class App extends Container
     {
         $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
-        $class = self::parseName(array_pop($array), 1);
+        $class = Str::studly(array_pop($array));
         $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
@@ -600,31 +600,4 @@ class App extends Container
         return $path . DIRECTORY_SEPARATOR;
     }
 
-    /**
-     * @param $data
-     * @codeCoverageIgnore
-     * @return string
-     */
-    public static function serialize($data): string
-    {
-        SerializableClosure::enterContext();
-        SerializableClosure::wrapClosures($data);
-        $data = \serialize($data);
-        SerializableClosure::exitContext();
-        return $data;
-    }
-
-    /**
-     * @param string $data
-     * @codeCoverageIgnore
-     * @return mixed|string
-     */
-    public static function unserialize(string $data)
-    {
-        SerializableClosure::enterContext();
-        $data = \unserialize($data);
-        SerializableClosure::unwrapClosures($data);
-        SerializableClosure::exitContext();
-        return $data;
-    }
 }

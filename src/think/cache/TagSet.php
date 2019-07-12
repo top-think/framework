@@ -49,7 +49,7 @@ class TagSet
      * @param integer|\DateTime $expire 有效时间（秒）
      * @return bool
      */
-    public function set($name, $value, $expire = null): bool
+    public function set(string $name, $value, $expire = null): bool
     {
         $this->handler->set($name, $value, $expire);
 
