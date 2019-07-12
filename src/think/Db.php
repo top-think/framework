@@ -56,28 +56,6 @@ class Db extends DbManager
     }
 
     /**
-     * 设置日志对象
-     * @param Log $log
-     * @return void
-     */
-    public function setLog(Log $log)
-    {
-        $this->log = $log;
-    }
-
-    /**
-     * 记录SQL日志
-     * @access protected
-     * @param string $log  SQL日志信息
-     * @param string $type 日志类型
-     * @return void
-     */
-    public function log($log, $type = 'sql')
-    {
-        $this->log->record($log, $type);
-    }
-
-    /**
      * 注册回调方法
      * @access public
      * @param string   $event    事件名
