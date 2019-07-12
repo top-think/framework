@@ -677,7 +677,7 @@ class Request
      */
     public function type(): string
     {
-        $accept = $this->server('HTTP_ACCEPT');
+        $accept = $this->header('HTTP_ACCEPT');
 
         if (empty($accept)) {
             return '';
@@ -998,7 +998,7 @@ class Request
         return $this->input($this->put, $name, $default, $filter);
     }
 
-    protected function getInputData($content): array
+    public function getInputData($content): array
     {
         if ($this->isJson()) {
             return (array) json_decode($content, true);
@@ -1816,7 +1816,7 @@ class Request
      */
     public function contentType(): string
     {
-        $contentType = $this->server('CONTENT_TYPE');
+        $contentType = $this->header('CONTENT_TYPE');
 
         if ($contentType) {
             if (strpos($contentType, ';')) {
@@ -2029,6 +2029,18 @@ class Request
     public function withPost(array $post)
     {
         $this->post = $post;
+        return $this;
+    }
+
+    /**
+     * 设置PUT数据
+     * @access public
+     * @param array $put
+     * @return $this
+     */
+    public function withPut(array $put)
+    {
+        $this->put = $put;
         return $this;
     }
 
