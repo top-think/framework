@@ -29,7 +29,7 @@ class Cache extends Manager implements CacheInterface
 
     /**
      * 默认驱动
-     * @return array|string
+     * @return string
      */
     public function getDefaultDriver(): string
     {
