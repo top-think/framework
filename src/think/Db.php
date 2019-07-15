@@ -52,7 +52,7 @@ class Db extends DbManager
      * @param Config $config 配置对象
      * @return void
      */
-    public function setConfig($config = []): void
+    public function setConfig($config): void
     {
         $this->config = $config;
     }
