@@ -148,10 +148,13 @@ class Log extends Manager implements LoggerInterface
 
     /**
      * 获取日志信息
+     * @access public
+     * @param string $channel 日志通道名
+     * @return array
      */
-    public function getLog()
+    public function getLog(string $channel = null): array
     {
-        return $this->channel()->getLog();
+        return $this->channel($channel)->getLog();
     }
 
     /**
