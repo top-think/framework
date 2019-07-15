@@ -15,6 +15,7 @@ namespace think\middleware;
 use Closure;
 use think\App;
 use think\Config;
+use think\event\LogWrite;
 use think\Request;
 use think\Response;
 use think\response\Redirect;
@@ -24,6 +25,12 @@ use think\response\Redirect;
  */
 class TraceDebug
 {
+
+    /**
+     * Trace日志
+     * @var array
+     */
+    protected $log = [];
 
     /**
      * 配置参数
@@ -49,10 +56,21 @@ class TraceDebug
      */
     public function handle($request, Closure $next)
     {
+        $debug = $this->app->isDebug();
+
+        // 注册日志监听
+        if ($debug) {
+            $this->app->event->listen(LogWrite::class, function ($event) {
+                if (empty($this->config['channel']) || $this->config['channel'] == $event->channel) {
+                    $this->log = array_merge_recursive($this->log, $event->log);
+                }
+            });
+        }
+
         $response = $next($request);
 
         // Trace调试注入
-        if ($this->app->isDebug()) {
+        if ($debug) {
             $data = $response->getContent();
             $this->traceDebug($response, $data);
             $response->content($data);
@@ -73,7 +91,9 @@ class TraceDebug
         if ($response instanceof Redirect) {
             //TODO 记录
         } else {
-            $output = $trace->output($this->app, $response, $this->app->log->getLog($config['channel'] ?? ''));
+            $log    = $this->app->log->getLog($config['channel'] ?? '');
+            $log    = array_merge_recursive($this->log, $log);
+            $output = $trace->output($this->app, $response, $log);
             if (is_string($output)) {
                 // trace调试信息注入
                 $pos = strripos($content, '</body>');
