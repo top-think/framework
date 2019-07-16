@@ -20,6 +20,7 @@
     ],
     "require": {
         "php": ">=7.1.0",
+        "ext-mbstring": "*",
         "league/flysystem": "^1.0",
         "league/flysystem-cached-adapter": "^1.0",
         "opis/closure": "^3.1",
