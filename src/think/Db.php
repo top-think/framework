@@ -66,7 +66,7 @@ class Db extends DbManager
      */
     public function getConfig(string $name = '', $default = null)
     {
-        if (''!==$name) {
+        if ('' !== $name) {
             return $this->config->get('database.' . $name, $default);
         }
 
