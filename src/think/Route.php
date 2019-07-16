@@ -66,8 +66,6 @@ class Route
         // 路由缓存设置
         'route_check_cache'     => false,
         'route_check_cache_key' => '',
-        // 是否自动转换URL中的控制器和操作名
-        'url_convert'           => true,
         // 默认的路由变量规则
         'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
@@ -171,6 +169,7 @@ class Route
         $this->config = array_merge($this->config, $this->app->config->get('route'));
 
         $this->lazy($this->config['url_lazy_route']);
+        $this->mergeRuleRegex = $this->config['route_rule_merge'];
 
         if ($this->config['route_check_cache']) {
             $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);

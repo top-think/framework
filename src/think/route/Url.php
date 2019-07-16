@@ -237,11 +237,6 @@ class Url
                 $app        = empty($path) ? $app : array_pop($path);
             }
 
-            if ($this->route->config('url_convert')) {
-                $action     = strtolower($action);
-                $controller = App::parseName($controller);
-            }
-
             $url = $controller . '/' . $action;
 
             if ($app && $this->app->config->get('app.auto_multi_app')) {
