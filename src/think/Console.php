@@ -148,8 +148,8 @@ class Console
             $user = posix_getpwnam($user);
 
             if (!empty($user)) {
-                posix_setuid($user['uid']);
                 posix_setgid($user['gid']);
+                posix_setuid($user['uid']);
             }
         }
     }
