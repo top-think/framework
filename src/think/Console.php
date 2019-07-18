@@ -29,6 +29,7 @@ use think\console\command\make\Service;
 use think\console\command\make\Subscribe;
 use think\console\command\make\Validate;
 use think\console\command\optimize\Route;
+use think\console\command\optimize\Schema;
 use think\console\command\RouteList;
 use think\console\command\RunServer;
 use think\console\command\ServiceDiscover;
@@ -74,6 +75,7 @@ class Console
         'make:service'     => Service::class,
         'make:subscribe'   => Subscribe::class,
         'optimize:route'   => Route::class,
+        'optimize:schema'  => Schema::class,
         'run'              => RunServer::class,
         'version'          => Version::class,
         'route:list'       => RouteList::class,
