@@ -18,6 +18,7 @@ use ReflectionMethod;
 use think\App;
 use think\exception\ClassNotFoundException;
 use think\exception\HttpException;
+use think\helper\Str;
 use think\Request;
 use think\route\Dispatch;
 
@@ -53,9 +54,9 @@ class Controller extends Dispatch
 
         if (strpos($controller, '.')) {
             $pos              = strrpos($controller, '.');
-            $this->controller = substr($controller, 0, $pos) . App::parseName(substr($controller, $pos), 1);
+            $this->controller = substr($controller, 0, $pos) . '.' . Str::studly(substr($controller, $pos + 1));
         } else {
-            $this->controller = App::parseName($controller, 1);
+            $this->controller = Str::studly($controller);
         }
 
         // 获取操作名

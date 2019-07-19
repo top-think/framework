@@ -51,6 +51,12 @@ class Url
     protected $root = '';
 
     /**
+     * HTTPS
+     * @var bool
+     */
+    protected $https;
+
+    /**
      * URL后缀
      * @var string|bool
      */
@@ -125,6 +131,18 @@ class Url
     }
 
     /**
+     * 设置是否使用HTTPS
+     * @access public
+     * @param  bool $https
+     * @return $this
+     */
+    public function https(bool $https = true)
+    {
+        $this->https = $https;
+        return $this;
+    }
+
+    /**
      * 检测域名
      * @access protected
      * @param  string      $url URL
@@ -178,7 +196,7 @@ class Url
         if (false !== strpos($domain, '://')) {
             $scheme = '';
         } else {
-            $scheme = $request->isSsl() ? 'https://' : 'http://';
+            $scheme = $this->https || $request->isSsl() ? 'https://' : 'http://';
         }
 
         return $scheme . $domain;
