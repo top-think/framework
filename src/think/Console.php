@@ -58,7 +58,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand = 'list';
+    protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -97,12 +97,6 @@ class Console
             $this->app->initialize();
         }
 
-        $user = $this->app->config->get('console.user');
-
-        if ($user) {
-            $this->setUser($user);
-        }
-
         $this->definition = $this->getDefaultInputDefinition();
 
         //加载指令
@@ -129,28 +123,28 @@ class Console
     }
 
     /**
+     * 设置执行用户
+     * @param $user
+     */
+    public static function setUser(string $user): void
+    {
+        if (extension_loaded('posix')) {
+            $user = posix_getpwnam($user);
+
+            if (!empty($user)) {
+                posix_setgid($user['gid']);
+                posix_setuid($user['uid']);
+            }
+        }
+    }
+
+    /**
      * 启动
      */
     protected function start(): void
     {
         foreach (static::$startCallbacks as $callback) {
             $callback($this);
-        }
-    }
-
-    /**
-     * 设置执行用户
-     * @param $user
-     */
-    protected function setUser(string $user): void
-    {
-        if (extension_loaded('posix')) {
-            $user = posix_getpwnam($user);
-
-            if (!empty($user)) {
-                posix_setuid($user['uid']);
-                posix_setgid($user['gid']);
-            }
         }
     }
 
@@ -472,7 +466,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
