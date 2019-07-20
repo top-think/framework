@@ -1579,7 +1579,7 @@ class Request
      */
     public function isPjax(bool $pjax = false): bool
     {
-        $result = !is_null($this->server('HTTP_X_PJAX')) ? true : false;
+        $result = !empty($this->server('HTTP_X_PJAX')) ? true : false;
 
         if (true === $pjax) {
             return $result;
