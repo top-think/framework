@@ -14,6 +14,7 @@ namespace think;
 
 use Psr\SimpleCache\CacheInterface;
 use think\cache\Driver;
+use think\cache\TagSet;
 use think\exception\InvalidArgumentException;
 use think\helper\Arr;
 
