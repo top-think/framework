@@ -92,7 +92,9 @@ class Channel implements LoggerInterface
             $msg = strtr($msg, $replace);
         }
 
-        $this->log[$type][] = $msg;
+        if (!empty($msg) || 0 === $msg) {
+            $this->log[$type][] = $msg;
+        }
 
         if (!$this->lazy || !$lazy) {
             $this->save();
