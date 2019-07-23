@@ -39,9 +39,9 @@ class Log extends Manager implements LoggerInterface
 
     /**
      * 默认驱动
-     * @return string
+     * @return string|null
      */
-    public function getDefaultDriver(): string
+    public function getDefaultDriver()
     {
         return $this->getConfig('default');
     }

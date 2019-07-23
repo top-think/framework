@@ -29,9 +29,9 @@ class Cache extends Manager implements CacheInterface
 
     /**
      * 默认驱动
-     * @return string
+     * @return string|null
      */
-    public function getDefaultDriver(): string
+    public function getDefaultDriver()
     {
         return $this->getConfig('default');
     }
