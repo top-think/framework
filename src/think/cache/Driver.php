@@ -69,8 +69,8 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
             $expire = $expire->getTimestamp() - time();
         } elseif ($expire instanceof DateInterval) {
             $expire = DateTime::createFromFormat('U', (string) time())
-                    ->add($expire)
-                    ->format('U') - time();
+                ->add($expire)
+                ->format('U') - time();
         }
 
         return (int) $expire;
@@ -176,15 +176,15 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * 缓存标签
      * @access public
      * @param string|array $name 标签名
-     * @return $this
+     * @return TagSet
      */
-    public function tag($name)
+    public function tag($name): TagSet
     {
         $name = (array) $name;
         $key  = implode('-', $name);
 
         if (!isset($this->tag[$key])) {
-            $name            = array_map(function ($val) {
+            $name = array_map(function ($val) {
                 return $this->getTagKey($val);
             }, $name);
             $this->tag[$key] = new TagSet($name, $this);

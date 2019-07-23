@@ -183,4 +183,14 @@ class Cache extends Manager implements CacheInterface
         return $this->store()->has($key);
     }
 
+    /**
+     * 缓存标签
+     * @access public
+     * @param string|array $name 标签名
+     * @return TagSet
+     */
+    public function tag($name): TagSet
+    {
+        return $this->store()->tag($name);
+    }
 }
