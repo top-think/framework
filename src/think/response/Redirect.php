@@ -32,7 +32,7 @@ class Redirect extends Response
 
     public function __construct(Route $route, Request $request, Session $session, $data = '', int $code = 302)
     {
-        parent::__construct($data, $code);
+        parent::__construct((string) $data, $code);
         $this->route   = $route;
         $this->request = $request;
         $this->session = $session;
