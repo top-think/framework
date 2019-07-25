@@ -41,6 +41,7 @@ use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
 use think\console\output\driver\Buffer;
+use Throwable;
 
 /**
  * 控制台应用管理类
@@ -184,7 +185,7 @@ class Console
      * 执行当前的指令
      * @access public
      * @return int
-     * @throws \Exception
+     * @throws Throwable
      * @api
      */
     public function run()
@@ -196,7 +197,7 @@ class Console
 
         try {
             $exitCode = $this->doRun($input, $output);
-        } catch (\Exception $e) {
+        } catch (Throwable $e) {
             if (!$this->catchExceptions) {
                 throw $e;
             }
