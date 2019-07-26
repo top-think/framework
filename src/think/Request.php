@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use InvalidArgumentException;
 use think\file\UploadedFile;
 use think\route\Rule;
 
@@ -1139,7 +1140,7 @@ class Request
      * 获取上传的文件信息
      * @access public
      * @param  string $name 名称
-     * @return null|array|\think\file\UploadedFile
+     * @return null|array|UploadedFile
      */
     public function file(string $name = '')
     {
@@ -1335,7 +1336,7 @@ class Request
                 if (is_scalar($data)) {
                     $data = (string) $data;
                 } else {
-                    throw new \InvalidArgumentException('variable type error：' . gettype($data));
+                    throw new InvalidArgumentException('variable type error：' . gettype($data));
                 }
                 break;
         }
