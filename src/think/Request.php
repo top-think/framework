@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use Closure;
 use think\file\UploadedFile;
 use think\route\Rule;
 
@@ -1107,7 +1108,7 @@ class Request
         $filter = $this->getFilter($filter, $default);
 
         if (is_array($data)) {
-            array_walk_recursive($data, [$this, 'filterValue'], $filter);
+            array_walk_recursive($data, Closure::fromCallable([$this, 'filterValue']), $filter);
             reset($data);
         } else {
             $this->filterValue($data, $name, $filter);
@@ -1294,7 +1295,7 @@ class Request
         $filter = $this->getFilter($filter, $default);
 
         if (is_array($data)) {
-            array_walk_recursive($data, [$this, 'filterValue'], $filter);
+            array_walk_recursive($data, Closure::fromCallable([$this, 'filterValue']), $filter);
             reset($data);
         } else {
             $this->filterValue($data, $name, $filter);
@@ -1629,7 +1630,7 @@ class Request
             // 这时我们检查 REMOTE_ADDR 是不是指定的前端代理服务器之一
             // 如果是的话说明该 IP头 是由前端代理服务器设置的
             // 否则则是伪装的
-            if ($tempIP) {
+            if (!empty($tempIP)) {
                 $realIPBin = $this->ip2bin($this->realIP);
 
                 foreach ($proxyIp as $ip) {
@@ -1958,8 +1959,8 @@ class Request
     /**
      * 检查请求令牌
      * @access public
-     * @param  string $name 令牌名称
-     * @param  array  $data 表单数据
+     * @param  string $token 令牌名称
+     * @param  array  $data  表单数据
      * @return bool
      */
     public function checkToken(string $token = '__token__', array $data = []): bool
