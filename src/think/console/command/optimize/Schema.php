@@ -44,7 +44,8 @@ class Schema extends Command
             $namespace = 'app';
         }
 
-        $schemaPath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'schema' . DIRECTORY_SEPARATOR;
+        $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
+
         if (!is_dir($schemaPath)) {
             mkdir($schemaPath, 0755, true);
         }
@@ -69,7 +70,7 @@ class Schema extends Command
                     continue;
                 }
                 $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
-                $this->buildModelSchema($schemaPath, $class);
+                $this->buildModelSchema($class);
             }
 
             $output->writeln('<info>Succeed!</info>');
@@ -82,7 +83,7 @@ class Schema extends Command
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildModelSchema(string $path, string $class): void
+    protected function buildModelSchema(string $class): void
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
@@ -92,6 +93,7 @@ class Schema extends Command
 
             $table   = $model->getTable();
             $dbName  = $model->getConnection()->getConfig('database');
+            $path    = $model->getConnection()->getConfig('schema_cache_path');
             $content = '<?php ' . PHP_EOL . 'return ';
             $info    = $model->db()->getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
