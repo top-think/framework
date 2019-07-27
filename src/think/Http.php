@@ -202,8 +202,10 @@ class Http
     protected function loadRoutes(): void
     {
         // 加载路由定义
-        if (is_dir($this->getRoutePath())) {
-            $files = glob($this->getRoutePath() . '*.php');
+        $routePath = $this->getRoutePath();
+
+        if (is_dir($routePath)) {
+            $files = glob($routePath . '*.php');
             foreach ($files as $file) {
                 include $file;
             }
@@ -219,6 +221,10 @@ class Http
      */
     protected function getRoutePath(): string
     {
+        if ($this->isMulti() && is_dir($this->app->getAppPath() . 'route')) {
+            return $this->app->getAppPath() . 'route' . DIRECTORY_SEPARATOR;
+        }
+
         return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->isMulti() ? $this->getName() . DIRECTORY_SEPARATOR : '');
     }
 
