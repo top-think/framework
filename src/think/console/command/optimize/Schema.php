@@ -31,19 +31,6 @@ class Schema extends Command
     {
         $app = $input->getArgument('app');
 
-        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
-            $output->writeln('<error>Miss app name!</error>');
-            return false;
-        }
-
-        if ($app) {
-            $appPath   = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
-            $namespace = 'app\\' . $app;
-        } else {
-            $appPath   = $this->app->getBasePath();
-            $namespace = 'app';
-        }
-
         $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
 
         if (!is_dir($schemaPath)) {
@@ -61,6 +48,18 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = $this->app->db->getConnection()->getTables($dbName);
         } else {
+            if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+                $output->writeln('<error>Miss app name!</error>');
+                return false;
+            }
+
+            if ($app) {
+                $appPath   = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
+                $namespace = 'app\\' . $app;
+            } else {
+                $appPath   = $this->app->getBasePath();
+                $namespace = 'app';
+            }
 
             $path = $appPath . 'model';
             $list = is_dir($path) ? scandir($path) : [];
