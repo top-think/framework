@@ -309,9 +309,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @access public
      * @param mixed $method 方法
      * @param array $vars   参数
+     * @param bool  $accessible 设置是否可访问
      * @return mixed
      */
-    public function invokeMethod($method, array $vars = [])
+    public function invokeMethod($method, array $vars = [], bool $accessible = false)
     {
         try {
             if (is_array($method)) {
@@ -323,6 +324,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             }
 
             $args = $this->bindParams($reflect, $vars);
+
+            if ($accessible) {
+                $reflect->setAccessible($accessible);
+            }
 
             return $reflect->invokeArgs($class ?? null, $args);
         } catch (ReflectionException $e) {
@@ -357,15 +362,16 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @access public
      * @param mixed $callable
      * @param array $vars 参数
+     * @param bool  $accessible 设置是否可访问
      * @return mixed
      */
-    public function invoke($callable, array $vars = [])
+    public function invoke($callable, array $vars = [], bool $accessible = false)
     {
         if ($callable instanceof Closure) {
             return $this->invokeFunction($callable, $vars);
         }
 
-        return $this->invokeMethod($callable, $vars);
+        return $this->invokeMethod($callable, $vars, $accessible);
     }
 
     /**
