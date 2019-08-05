@@ -26,7 +26,6 @@ class ModelService extends Service
         Model::setEvent($this->app->event);
         Model::setInvoker([$this->app, 'invoke']);
         Model::maker(function (Model $model) {
-            $db     = $this->app->db;
             $config = $this->app->config;
 
             $isAutoWriteTimestamp = $model->getAutoWriteTimestamp();
