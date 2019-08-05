@@ -14,6 +14,7 @@ namespace think;
 
 use Closure;
 use think\exception\ValidateException;
+use think\helper\Str;
 use think\validate\ValidateRule;
 
 /**
@@ -214,7 +215,7 @@ class Validate
     protected $request;
 
     /**
-     * @var Closure
+     * @var Closure[]
      */
     protected static $maker = [];
 
@@ -824,7 +825,7 @@ class Validate
      */
     public function is($value, string $rule, array $data = []): bool
     {
-        switch (App::parseName($rule, 1, false)) {
+        switch (Str::camel($rule)) {
             case 'require':
                 // 必须
                 $result = !empty($value) || '0' == $value;
