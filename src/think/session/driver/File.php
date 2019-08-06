@@ -161,13 +161,9 @@ class File implements SessionHandlerInterface
      */
     public function write(string $sessID, string $sessData): bool
     {
-        $expire = $this->config['expire'];
-
-        $expire = $this->getExpireTime($expire);
-
+        $expire   = $this->getExpireTime($this->config['expire']);
         $filename = $this->getFileName($sessID, true);
-
-        $data = $sessData;
+        $data     = $sessData;
 
         if ($this->config['data_compress'] && function_exists('gzcompress')) {
             //数据压缩
