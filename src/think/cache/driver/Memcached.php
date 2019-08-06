@@ -181,15 +181,18 @@ class Memcached extends Driver
      * 删除缓存
      * @access public
      * @param string $name 缓存变量名
+     * @param bool|false $ttl
      * @return bool
      */
-    public function delete($name): bool
+    public function delete($name, $ttl = false): bool
     {
         $this->writeTimes++;
 
         $key = $this->getCacheKey($name);
 
-        return $this->handler->delete($key);
+        return false === $ttl ?
+            $this->handler->delete($key) :
+            $this->handler->delete($key, $ttl);
     }
 
     /**
