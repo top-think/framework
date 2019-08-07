@@ -60,6 +60,7 @@ class TraceDebug
 
         // 注册日志监听
         if ($debug) {
+            $this->log = [];
             $this->app->event->listen(LogWrite::class, function ($event) {
                 if (empty($this->config['channel']) || $this->config['channel'] == $event->channel) {
                     $this->log = array_merge_recursive($this->log, $event->log);
