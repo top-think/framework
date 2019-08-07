@@ -12,8 +12,8 @@ declare (strict_types = 1);
 
 namespace think\route\dispatch;
 
-use think\App;
 use think\exception\HttpException;
+use think\helper\Str;
 use think\Request;
 use think\route\Rule;
 
@@ -103,7 +103,7 @@ class Url extends Controller
         list($controller, $action) = $route;
 
         // 检查地址是否被定义过路由
-        $name = strtolower(App::parseName($controller, 1) . '/' . $action);
+        $name = strtolower(Str::studly($controller) . '/' . $action);
 
         $host   = $this->request->host(true);
         $method = $this->request->method();

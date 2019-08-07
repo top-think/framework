@@ -25,6 +25,7 @@ use ReflectionException;
 use ReflectionFunction;
 use ReflectionMethod;
 use think\exception\ClassNotFoundException;
+use think\helper\Str;
 
 /**
  * 容器管理类 支持PSR-11
@@ -452,7 +453,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
         foreach ($params as $param) {
             $name      = $param->getName();
-            $lowerName = self::parseName($name);
+            $lowerName = Str::snake($name);
             $class     = $param->getClass();
 
             if ($class) {
@@ -471,41 +472,6 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         }
 
         return $args;
-    }
-
-    /**
-     * 字符串命名风格转换
-     * type 0 将Java风格转换为C的风格 1 将C风格转换为Java的风格
-     * @deprecated
-     * @access public
-     * @param string  $name    字符串
-     * @param integer $type    转换类型
-     * @param bool    $ucfirst 首字母是否大写（驼峰规则）
-     * @return string
-     */
-    public static function parseName(string $name = null, int $type = 0, bool $ucfirst = true): string
-    {
-        if ($type) {
-            $name = preg_replace_callback('/_([a-zA-Z])/', function ($match) {
-                return strtoupper($match[1]);
-            }, $name);
-            return $ucfirst ? ucfirst($name) : lcfirst($name);
-        }
-
-        return strtolower(trim(preg_replace("/[A-Z]/", "_\\0", $name), "_"));
-    }
-
-    /**
-     * 获取类名(不包含命名空间)
-     * @deprecated
-     * @access public
-     * @param string|object $class
-     * @return string
-     */
-    public static function classBaseName($class): string
-    {
-        $class = is_object($class) ? get_class($class) : $class;
-        return basename(str_replace('\\', '/', $class));
     }
 
     /**

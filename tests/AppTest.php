@@ -195,20 +195,6 @@ class AppTest extends TestCase
         $this->assertTrue($app->initialized());
     }
 
-    public function testParseName()
-    {
-        $this->assertEquals('SomeName', App::parseName('some_name', 1));
-        $this->assertEquals('someName', App::parseName('some_name', 1, false));
-        $this->assertEquals('some_name', App::parseName('SomeName'));
-        $this->assertEquals('some_name', App::parseName('someName'));
-    }
-
-    public function testClassBaseName()
-    {
-        $this->assertEquals('stdClass', App::classBaseName(stdClass::class));
-        $this->assertEquals('App', App::classBaseName($this->app));
-    }
-
     public function testFactory()
     {
         $this->assertInstanceOf(stdClass::class, App::factory(stdClass::class));
