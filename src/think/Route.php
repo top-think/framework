@@ -180,6 +180,8 @@ class Route
         $this->mergeRuleRegex = $this->config['route_rule_merge'];
         $this->removeSlash    = $this->config['remove_slash'];
 
+        $this->group->removeSlash($this->removeSlash);
+
         if ($this->config['route_check_cache']) {
             $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);
         }
