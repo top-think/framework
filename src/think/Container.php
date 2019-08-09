@@ -142,12 +142,16 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     public function bind($abstract, $concrete = null)
     {
         if (is_array($abstract)) {
-            $this->bind = array_merge($this->bind, $abstract);
+            foreach ($abstract as $key => $val) {
+                $this->bind($key, $val);
+            }
         } elseif ($concrete instanceof Closure) {
             $this->bind[$abstract] = $concrete;
         } elseif (is_object($concrete)) {
             $this->instance($abstract, $concrete);
         } else {
+            $abstract = $this->getAlias($abstract);
+
             $this->bind[$abstract] = $concrete;
         }
 
@@ -156,10 +160,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 根据别名获取真实类名
-     * @param $abstract
-     * @return mixed
+     * @param  string $abstract
+     * @return string
      */
-    public function getAlias($abstract)
+    public function getAlias(string $abstract): string
     {
         if (isset($this->bind[$abstract])) {
             $bind = $this->bind[$abstract];
@@ -168,6 +172,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
                 return $this->getAlias($bind);
             }
         }
+
         return $abstract;
     }
 
