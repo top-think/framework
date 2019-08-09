@@ -48,7 +48,7 @@ class View extends Response
      * @param  bool $content
      * @return $this
      */
-    public function isContent(bool $content = true)
+    public function isContent($content = true)
     {
         $this->isContent = $content;
         return $this;
