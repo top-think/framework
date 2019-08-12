@@ -275,7 +275,7 @@ class Session
 
                 $this->handler->write($sessionId, $data, $this->expire);
             } else {
-                $this->handler->del($sessionId);
+                $this->handler->delete($sessionId);
             }
         }
     }
@@ -405,7 +405,7 @@ class Session
         $result = $this->get($name);
 
         if ($result) {
-            $this->del($name);
+            $this->delete($name);
             return $result;
         }
     }
@@ -448,7 +448,7 @@ class Session
                 unset($items['__time__']);
 
                 foreach ($items as $item) {
-                    $this->del($item);
+                    $this->delete($item);
                 }
 
                 $this->set('__flash__', []);

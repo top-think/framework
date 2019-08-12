@@ -117,7 +117,7 @@ class Redis implements SessionHandlerInterface
      */
     public function delete(string $sessID): bool
     {
-        return $this->handler->delete($this->config['prefix'] . $sessID) > 0;
+        return $this->handler->del($this->config['prefix'] . $sessID) > 0;
     }
 
 }
