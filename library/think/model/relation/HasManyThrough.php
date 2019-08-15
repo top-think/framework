@@ -143,11 +143,11 @@ class HasManyThrough extends Relation
      * @access protected
      * @param  array   $resultSet   数据集
      * @param  string  $relation    当前关联名
-     * @param  array   $subRelation 子关联名
+     * @param  mixed   $subRelation 子关联名
      * @param  Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResultSet(array &$resultSet, $relation, array $subRelation = [], $closure = null)
+    public function eagerlyResultSet(array &$resultSet, $relation, $subRelation = '', $closure = null)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -192,11 +192,11 @@ class HasManyThrough extends Relation
      * @access protected
      * @param  Model   $result      数据对象
      * @param  string  $relation    当前关联名
-     * @param  array   $subRelation 子关联名
+     * @param  mixed   $subRelation 子关联名
      * @param  Closure $closure     闭包
      * @return void
      */
-    public function eagerlyResult($result, $relation, array $subRelation = [], $closure = null)
+    public function eagerlyResult($result, $relation, $subRelation = '', $closure = null)
     {
         $localKey   = $this->localKey;
         $foreignKey = $this->foreignKey;
@@ -226,11 +226,11 @@ class HasManyThrough extends Relation
      * @param  array   $where       关联预查询条件
      * @param  string  $key         关联键名
      * @param  string  $relation    关联名
-     * @param  array   $subRelation 子关联
+     * @param  mixed   $subRelation 子关联
      * @param  Closure $closure
      * @return array
      */
-    protected function eagerlyWhere(array $where, $key, $relation, array $subRelation = [], $closure = null)
+    protected function eagerlyWhere(array $where, $key, $relation, $subRelation = '', $closure = null)
     {
         // 预载入关联查询 支持嵌套预载入
         $throughList = $this->through->where($where)->select();
