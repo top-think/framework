@@ -29,7 +29,7 @@ class Route extends Command
     {
         $app = $input->getArgument('app');
 
-        if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+        if (empty($app) && $this->isMultiApp()) {
             $output->writeln('<error>Miss app name!</error>');
             return false;
         }

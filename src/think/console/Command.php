@@ -28,7 +28,7 @@ abstract class Command
     private $console;
     private $name;
     private $processTitle;
-    private $aliases                         = [];
+    private $aliases = [];
     private $definition;
     private $help;
     private $description;
@@ -499,5 +499,15 @@ abstract class Command
         $content = $table->render();
         $this->output->writeln($content);
         return $content;
+    }
+
+    /**
+     * 判断当前应用是否多应用
+     * @return bool
+     */
+    protected function isMultiApp(): bool
+    {
+        $autoMulti = $this->app->config->get('app.auto_multi_app', false);
+        return $autoMulti || !is_dir($this->app->getBasePath() . 'controller');
     }
 }

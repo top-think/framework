@@ -177,8 +177,11 @@ class Http
             $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');
         }
 
-        if ($this->multi) {
-            $this->parseMultiApp();
+        $autoMulti = $this->app->config->get('app.auto_multi_app', false);
+
+        if ($this->multi || $autoMulti) {
+            $this->multi(true);
+            $this->parseMultiApp($autoMulti);
         }
 
         // 设置开启事件机制
@@ -270,10 +273,11 @@ class Http
 
     /**
      * 解析多应用
+     * @param bool $autoMulti 自动多应用
      */
-    protected function parseMultiApp(): void
+    protected function parseMultiApp($autoMulti): void
     {
-        if ($this->app->config->get('app.auto_multi_app', false)) {
+        if ($autoMulti) {
             // 自动多应用识别
             $this->bindDomain = false;
 

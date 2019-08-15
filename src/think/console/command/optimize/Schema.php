@@ -48,7 +48,7 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = $this->app->db->getConnection()->getTables($dbName);
         } else {
-            if (empty($app) && !is_dir($this->app->getBasePath() . 'controller')) {
+            if (empty($app) && $this->isMultiApp()) {
                 $output->writeln('<error>Miss app name!</error>');
                 return false;
             }
