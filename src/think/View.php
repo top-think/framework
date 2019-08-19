@@ -131,7 +131,6 @@ class View
      * @param  string    $template 模板文件名或者内容
      * @param  bool      $renderContent     是否渲染内容
      * @return string
-     * @throws \Exception
      */
     public function fetch(string $template = '', bool $renderContent = false): string
     {
@@ -143,13 +142,10 @@ class View
         try {
             $method = $renderContent ? 'display' : 'fetch';
             $this->engine->$method($template, $this->data);
-        } catch (\Exception $e) {
-            ob_end_clean();
-            throw $e;
+        } finally {
+            // 获取并清空缓存
+            $content = ob_get_clean();
         }
-
-        // 获取并清空缓存
-        $content = ob_get_clean();
 
         if ($this->filter) {
             $content = call_user_func_array($this->filter, [$content]);
