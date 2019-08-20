@@ -1644,9 +1644,8 @@ class Request
     public function isJson()
     {
         $contentType = $this->contentType();
-        $acceptType  = $this->type();
 
-        return false !== strpos($contentType, 'json') || false !== strpos($acceptType, 'json');
+        return false !== strpos($contentType, 'json');
     }
 
     /**
