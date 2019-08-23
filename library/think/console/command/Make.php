@@ -104,7 +104,14 @@ abstract class Make extends Command
 
     protected function getNamespace($appNamespace, $module)
     {
-        return $module ? ($appNamespace . '\\' . $module) : $appNamespace;
+        if(!empty($module)){
+            if(!ctype_lower($module)){
+                $this->output->warning('[Warning]: Module name is only allowed to use lowercase!');
+                $module = strtolower($module);
+            }
+            return $appNamespace . '\\' . $module;
+        }
+        return $appNamespace;
     }
 
 }
