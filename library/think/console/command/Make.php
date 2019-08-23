@@ -107,7 +107,7 @@ abstract class Make extends Command
         if(!empty($module)){
             if(!ctype_lower($module)){
                 $this->output->warning('[Warning]: Module name is only allowed to use lowercase!');
-                $module = strtolower($module);
+                $module = parse_name($module);
             }
             return $appNamespace . '\\' . $module;
         }
