@@ -113,7 +113,7 @@ class Middleware
     }
 
     /**
-     * 移除中间件
+     * 注册中间件到开始位置
      * @access public
      * @param  mixed  $middleware
      * @param  string $type  中间件类型
