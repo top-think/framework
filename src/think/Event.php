@@ -168,9 +168,10 @@ class Event
      * 注册事件订阅者
      * @access public
      * @param  mixed $subscriber 订阅者
+     * @param  array $events     事件列表
      * @return $this
      */
-    public function subscribe($subscriber)
+    public function subscribe($subscriber, array $events = [])
     {
         if (!$this->withEvent) {
             return $this;
@@ -188,7 +189,7 @@ class Event
                 $subscriber->subscribe($this);
             } else {
                 // 智能订阅
-                $this->observe($subscriber);
+                $this->observe($subscriber, $events);
             }
         }
 
@@ -199,9 +200,10 @@ class Event
      * 自动注册事件观察者
      * @access public
      * @param  string|object $observer 观察者
+     * @param  array         $events   事件列表
      * @return $this
      */
-    public function observe($observer)
+    public function observe($observer, array $events = [])
     {
         if (!$this->withEvent) {
             return $this;
@@ -211,7 +213,7 @@ class Event
             $observer = $this->app->make($observer);
         }
 
-        $events = array_keys($this->listener);
+        $events = $events ?: array_keys($this->listener);
 
         foreach ($events as $event) {
             $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
