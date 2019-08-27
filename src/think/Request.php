@@ -624,7 +624,7 @@ class Request
                 unset($this->get[$this->varPathinfo]);
             } elseif ($this->server('PATH_INFO')) {
                 $pathinfo = $this->server('PATH_INFO');
-            } elseif ('cli-server' == PHP_SAPI) {
+            } elseif (false !== strpos(PHP_SAPI, 'cli')) {
                 $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
             }
 
@@ -1547,7 +1547,7 @@ class Request
      */
     public function isJson(): bool
     {
-        $acceptType  = $this->type();
+        $acceptType = $this->type();
 
         return false !== strpos($acceptType, 'json');
     }

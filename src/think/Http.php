@@ -54,6 +54,12 @@ class Http
      */
     protected $name;
 
+    /**
+     * 应用数据寄存器
+     * @var array
+     */
+    protected $register = [];
+
     public function __construct(App $app)
     {
         $this->app   = $app;
@@ -160,6 +166,10 @@ class Http
     {
         if (!$this->app->initialized()) {
             $this->app->initialize();
+            // 加载全局中间件
+            if (is_file($this->app->getBasePath() . 'middleware.php')) {
+                $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');
+            }
         }
     }
 
@@ -171,11 +181,6 @@ class Http
     protected function runWithRequest(Request $request)
     {
         $this->initialize();
-
-        // 加载全局中间件
-        if (is_file($this->app->getBasePath() . 'middleware.php')) {
-            $this->app->middleware->import(include $this->app->getBasePath() . 'middleware.php');
-        }
 
         $autoMulti = $this->app->config->get('app.auto_multi_app', false);
 
@@ -346,38 +351,60 @@ class Http
         $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
 
         //加载app文件
-        if (is_dir($this->app->getAppPath())) {
-            $appPath = $this->app->getAppPath();
+        if (!isset($this->register[$appName])) {
+            if (is_dir($this->app->getAppPath())) {
+                $appPath = $this->app->getAppPath();
 
-            if (is_file($appPath . 'common.php')) {
-                include_once $appPath . 'common.php';
+                if (is_file($appPath . 'common.php')) {
+                    include_once $appPath . 'common.php';
+                }
+
+                $configPath = $this->app->getConfigPath();
+
+                $files = [];
+
+                if (is_dir($configPath . $appName)) {
+                    $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                } elseif (is_dir($appPath . 'config')) {
+                    $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+                }
+
+                foreach ($files as $file) {
+                    $name = pathinfo($file, PATHINFO_FILENAME);
+
+                    $this->register[$appName]['config'][$name] = $this->app->config->load($file, $name, false);
+                }
+
+                if (is_file($appPath . 'event.php')) {
+                    $this->register[$appName]['event'] = include $appPath . 'event.php';
+                }
+
+                if (is_file($appPath . 'middleware.php')) {
+                    $this->register[$appName]['middleware'] = include $appPath . 'middleware.php';
+                }
+
+                if (is_file($appPath . 'provider.php')) {
+                    $this->register[$appName]['provider'] = include $appPath . 'provider.php';
+                }
             }
+        }
 
-            $configPath = $this->app->getConfigPath();
-
-            $files = [];
-
-            if (is_dir($configPath . $appName)) {
-                $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            } elseif (is_dir($appPath . 'config')) {
-                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
+        if (isset($this->register[$appName]['config'])) {
+            foreach ($this->register[$appName]['config'] as $name => $config) {
+                $this->app->config->set($config, $name);
             }
+        }
 
-            foreach ($files as $file) {
-                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-            }
+        if (isset($this->register[$appName]['event'])) {
+            $this->app->loadEvent($this->register[$appName]['event']);
+        }
 
-            if (is_file($appPath . 'event.php')) {
-                $this->app->loadEvent(include $appPath . 'event.php');
-            }
+        if (isset($this->register[$appName]['middleware'])) {
+            $this->app->middleware->import($this->register[$appName]['middleware']);
+        }
 
-            if (is_file($appPath . 'middleware.php')) {
-                $this->app->middleware->import(include $appPath . 'middleware.php');
-            }
-
-            if (is_file($appPath . 'provider.php')) {
-                $this->app->bind(include $appPath . 'provider.php');
-            }
+        if (isset($this->register[$appName]['provider'])) {
+            $this->app->bind($this->register[$appName]['provider']);
         }
 
         // 加载应用默认语言包
