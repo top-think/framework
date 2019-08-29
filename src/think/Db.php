@@ -33,6 +33,7 @@ class Db extends DbManager
         $db->setEvent($event);
         $db->setLog($log);
         $db->setCache($cache);
+        $db->triggerSql();
 
         return $db;
     }
