@@ -150,7 +150,7 @@ class Http
             $response = $this->renderException($request, $e);
         }
 
-        return $response;
+        return $response->setCookie($this->app->cookie);
     }
 
     /**
@@ -419,8 +419,6 @@ class Http
     public function end(Response $response): void
     {
         $this->app->event->trigger('HttpEnd', $response);
-
-        $response->setCookie($this->app->cookie);
 
         // 写入日志
         $this->app->log->save();
