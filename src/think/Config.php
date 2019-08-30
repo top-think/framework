@@ -59,10 +59,9 @@ class Config
      * @access public
      * @param  string $file 配置文件名
      * @param  string $name 一级配置名
-     * @param  bool   $set 是否设置
      * @return array
      */
-    public function load(string $file, string $name = '', bool $set = true): array
+    public function load(string $file, string $name = ''): array
     {
         if (is_file($file)) {
             $filename = $file;
@@ -71,7 +70,7 @@ class Config
         }
 
         if (isset($filename)) {
-            return $this->parse($filename, $name, $set);
+            return $this->parse($filename, $name);
         }
 
         return $this->config;
@@ -82,10 +81,9 @@ class Config
      * @access public
      * @param  string $file 配置文件名
      * @param  string $name 一级配置名
-     * @param  bool   $set 是否设置
      * @return array
      */
-    protected function parse(string $file, string $name, bool $set = true): array
+    protected function parse(string $file, string $name): array
     {
         $type   = pathinfo($file, PATHINFO_EXTENSION);
         $config = [];
@@ -107,11 +105,7 @@ class Config
                 break;
         }
 
-        if ($set) {
-            return is_array($config) ? $this->set($config, strtolower($name)) : [];
-        } else {
-            return $config;
-        }
+        return is_array($config) ? $this->set($config, strtolower($name)) : [];
     }
 
     /**

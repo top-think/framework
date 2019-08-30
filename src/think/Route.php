@@ -170,6 +170,11 @@ class Route
         $this->app      = $app;
         $this->ruleName = new RuleName();
         $this->setDefaultDomain();
+
+        if (is_file($this->app->getRuntimePath() . 'route.php')) {
+            // 读取路由映射文件
+            $this->import(include $this->app->getRuntimePath() . 'route.php');
+        }
     }
 
     protected function init()
@@ -184,11 +189,6 @@ class Route
 
         if ($this->config['route_check_cache']) {
             $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);
-        }
-
-        if (is_file($this->app->getRuntimePath() . 'route.php')) {
-            // 读取路由映射文件
-            $this->import(include $this->app->getRuntimePath() . 'route.php');
         }
     }
 
