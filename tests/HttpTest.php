@@ -234,6 +234,7 @@ class HttpTest extends TestCase
     {
         $response = m::mock(Response::class);
         $event    = m::mock(Event::class);
+        $response->shouldReceive('setCookie')->once();
         $event->shouldReceive('trigger')->once()->with('HttpEnd', $response);
         $this->app->shouldReceive('get')->once()->with('event')->andReturn($event);
         $log = m::mock(Log::class);
