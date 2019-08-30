@@ -91,8 +91,6 @@ class HttpTest extends TestCase
         $this->assertEquals($response, $this->http->run($request));
 
         $this->assertFalse($this->http->isMulti());
-
-        $response->shouldReceive('setCookie')->once();
     }
 
     /**
