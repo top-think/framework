@@ -150,6 +150,7 @@ class File extends SplFileObject
      * @access protected
      * @param  string   $path    目录
      * @return boolean
+     * @throws \Exception
      */
     protected function checkPath($path)
     {
@@ -157,8 +158,15 @@ class File extends SplFileObject
             return true;
         }
 
-        if (mkdir($path, 0755, true)) {
-            return true;
+        try {
+            if (mkdir($path, 0755, true)) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            if ($e->getMessage() === 'mkdir(): File exists') {
+                return true;
+            }
+            throw $e;
         }
 
         $this->error = ['directory {:path} creation failed', ['path' => $path]];
