@@ -66,9 +66,11 @@ class View
      */
     public function assign($name, $value = null)
     {
-        $vars = is_array($name) ? $name : [$name => $value];
-
-        $this->engine->assign($vars);
+        if (is_array($name)) {
+            $this->data = array_merge($this->data, $name);
+        } else {
+            $this->data[$name] = $value;
+        }
 
         return $this;
     }
@@ -126,9 +128,9 @@ class View
     /**
      * 解析和获取模板内容 用于输出
      * @access public
-     * @param  string $template         模板文件名或者内容
-     * @param  array  $vars             模板变量
-     * @param  bool   $renderContent    是否渲染内容
+     * @param  string $template      模板文件名或者内容
+     * @param  array  $vars          模板变量
+     * @param  bool   $renderContent 是否渲染内容
      * @return string
      * @throws \Exception
      */
@@ -141,7 +143,7 @@ class View
         // 渲染输出
         try {
             $method = $renderContent ? 'display' : 'fetch';
-            $this->engine->$method($template, $this->data);
+            $this->engine->$method($template, array_merge($this->data, $vars));
         } catch (\Exception $e) {
             ob_end_clean();
             throw $e;
