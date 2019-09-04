@@ -84,8 +84,7 @@ class View extends Response
     {
         // 渲染模板输出
         return $this->view->filter($this->filter)
-            ->assign($this->vars)
-            ->fetch($data, $this->isContent);
+            ->fetch($data, $this->vars, $this->isContent);
     }
 
     /**

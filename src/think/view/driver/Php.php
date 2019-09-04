@@ -25,6 +25,7 @@ class Php implements TemplateHandlerInterface
     protected $template;
     protected $content;
     protected $app;
+    protected $vars = [];
 
     // 模板引擎参数
     protected $config = [
@@ -63,6 +64,18 @@ class Php implements TemplateHandlerInterface
     }
 
     /**
+     * 模板变量赋值
+     * @access public
+     * @param  array $vars
+     * @return $this
+     */
+    public function assign(array $vars = [])
+    {
+        $this->vars = array_merge($this->vars, $vars);
+        return $this;
+    }
+
+    /**
      * 渲染模板文件
      * @access public
      * @param  string $template 模板文件
@@ -83,6 +96,8 @@ class Php implements TemplateHandlerInterface
 
         $this->template = $template;
 
+        $data = array_merge($this->vars, $data);
+
         // 记录视图信息
         $this->app->log
             ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
@@ -102,6 +117,8 @@ class Php implements TemplateHandlerInterface
     public function display(string $content, array $data = []): void
     {
         $this->content = $content;
+
+        $data = array_merge($this->vars, $data);
 
         extract($data, EXTR_OVERWRITE);
         eval('?>' . $this->content);
