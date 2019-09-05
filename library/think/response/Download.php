@@ -91,7 +91,7 @@ class Download extends Response
     /**
      * 设置文件类型
      * @access public
-     * @param  string $filename 文件名
+     * @param  string mimeType 文件类型
      * @return $this
      */
     public function mimeType($mimeType)
