@@ -11,6 +11,7 @@
 
 namespace think\model\relation;
 
+use Closure;
 use think\db\Query;
 use think\Loader;
 use think\Model;
@@ -60,7 +61,7 @@ class HasManyThrough extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        if ($closure) {
+        if ($closure instanceof Closure) {
             $closure($this->query);
         }
 
@@ -236,7 +237,7 @@ class HasManyThrough extends Relation
         $throughList = $this->through->where($where)->select();
         $keys        = $throughList->column($this->throughPk, $this->throughPk);
 
-        if ($closure) {
+        if ($closure instanceof Closure) {
             $closure($this->query);
         }
 
@@ -271,7 +272,7 @@ class HasManyThrough extends Relation
             return 0;
         }
 
-        if ($closure) {
+        if ($closure instanceof Closure) {
             $return = $closure($this->query);
             if ($return && is_string($return)) {
                 $name = $return;
@@ -307,7 +308,7 @@ class HasManyThrough extends Relation
      */
     public function getRelationCountQuery($closure = null, $aggregate = 'count', $field = '*', &$name = null)
     {
-        if ($closure) {
+        if ($closure instanceof Closure) {
             $return = $closure($this->query);
             if ($return && is_string($return)) {
                 $name = $return;
