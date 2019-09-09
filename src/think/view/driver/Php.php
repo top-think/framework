@@ -12,10 +12,10 @@ declare (strict_types = 1);
 
 namespace think\view\driver;
 
+use RuntimeException;
 use think\App;
 use think\contract\TemplateHandlerInterface;
 use think\helper\Str;
-use think\template\exception\TemplateNotFoundException;
 
 /**
  * PHP原生模板驱动
@@ -49,7 +49,7 @@ class Php implements TemplateHandlerInterface
     /**
      * 检测是否存在模板文件
      * @access public
-     * @param  string $template 模板文件或者模板规则
+     * @param string $template 模板文件或者模板规则
      * @return bool
      */
     public function exists(string $template): bool
@@ -65,8 +65,8 @@ class Php implements TemplateHandlerInterface
     /**
      * 渲染模板文件
      * @access public
-     * @param  string $template 模板文件
-     * @param  array  $data 模板变量
+     * @param string $template 模板文件
+     * @param array  $data     模板变量
      * @return void
      */
     public function fetch(string $template, array $data = []): void
@@ -78,7 +78,7 @@ class Php implements TemplateHandlerInterface
 
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new TemplateNotFoundException('template not exists:' . $template, $template);
+            throw new RuntimeException('template not exists:' . $template, $template);
         }
 
         $this->template = $template;
@@ -95,8 +95,8 @@ class Php implements TemplateHandlerInterface
     /**
      * 渲染模板内容
      * @access public
-     * @param  string $content 模板内容
-     * @param  array  $data 模板变量
+     * @param string $content 模板内容
+     * @param array  $data    模板变量
      * @return void
      */
     public function display(string $content, array $data = []): void
@@ -110,7 +110,7 @@ class Php implements TemplateHandlerInterface
     /**
      * 自动定位模板文件
      * @access private
-     * @param  string $template 模板文件规则
+     * @param string $template 模板文件规则
      * @return string
      */
     private function parseTemplate(string $template): string
@@ -173,7 +173,7 @@ class Php implements TemplateHandlerInterface
     /**
      * 配置模板引擎
      * @access private
-     * @param  array $config 参数
+     * @param array $config 参数
      * @return void
      */
     public function config(array $config): void
@@ -184,7 +184,7 @@ class Php implements TemplateHandlerInterface
     /**
      * 获取模板引擎配置
      * @access public
-     * @param  string $name 参数名
+     * @param string $name 参数名
      * @return mixed
      */
     public function getConfig(string $name)
