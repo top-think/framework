@@ -17,7 +17,7 @@ use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Cached\CachedAdapter;
 use League\Flysystem\Cached\Storage\Memory as MemoryStore;
 use League\Flysystem\Filesystem;
-use think\App;
+use think\Cache;
 use think\File;
 
 /**
@@ -28,8 +28,8 @@ use think\File;
 abstract class Driver
 {
 
-    /** @var App */
-    protected $app;
+    /** @var Cache */
+    protected $cache;
 
     /** @var Filesystem */
     protected $filesystem;
@@ -40,9 +40,9 @@ abstract class Driver
      */
     protected $config = [];
 
-    public function __construct(App $app, array $config)
+    public function __construct(Cache $cache, array $config)
     {
-        $this->app    = $app;
+        $this->cache  = $cache;
         $this->config = array_merge($this->config, $config);
 
         $adapter          = $this->createAdapter();
@@ -56,7 +56,7 @@ abstract class Driver
         }
 
         return new CacheStore(
-            $this->app->cache->store($config['store']),
+            $this->cache->store($config['store']),
             $config['prefix'] ?? 'flysystem',
             $config['expire'] ?? null
         );

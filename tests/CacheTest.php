@@ -108,6 +108,9 @@ class CacheTest extends TestCase
 
     public function testRedisCache()
     {
+        if (extension_loaded('redis')) {
+            return;
+        }
         $this->config->shouldReceive('get')->with("cache.default", null)->andReturn('redis');
         $this->config->shouldReceive('get')->with("cache.stores.redis", null)->andReturn(['type' => 'redis']);
 
