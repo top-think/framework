@@ -78,7 +78,7 @@ class Php implements TemplateHandlerInterface
 
         // 模板不存在 抛出异常
         if (!is_file($template)) {
-            throw new RuntimeException('template not exists:' . $template, $template);
+            throw new RuntimeException('template not exists:' . $template);
         }
 
         $this->template = $template;
