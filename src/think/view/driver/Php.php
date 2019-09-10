@@ -29,15 +29,15 @@ class Php implements TemplateHandlerInterface
     // 模板引擎参数
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写 3 保持操作方法
-        'auto_rule'   => 1,
-        // 视图根目录
-        'view_base'   => '',
-        // 应用模板起始路径
-        'view_path'   => '',
+        'auto_rule'     => 1,
+        // 视图目录名
+        'view_dir_name' => 'view',
+        // 应用模板路径
+        'view_path'     => '',
         // 模板文件后缀
-        'view_suffix' => 'php',
+        'view_suffix'   => 'php',
         // 模板文件名分隔符
-        'view_depr'   => DIRECTORY_SEPARATOR,
+        'view_depr'     => DIRECTORY_SEPARATOR,
     ];
 
     public function __construct(App $app, array $config = [])
@@ -115,10 +115,6 @@ class Php implements TemplateHandlerInterface
      */
     private function parseTemplate(string $template): string
     {
-        if (empty($this->config['view_base'])) {
-            $this->config['view_base'] = $this->app->getRootPath() . 'view' . DIRECTORY_SEPARATOR;
-        }
-
         $request = $this->app->request;
 
         // 获取视图根目录
@@ -130,9 +126,14 @@ class Php implements TemplateHandlerInterface
         if ($this->config['view_path'] && !isset($app)) {
             $path = $this->config['view_path'];
         } else {
-            $app = isset($app) ? $app : $request->app();
-            // 基础视图目录
-            $path = $this->config['view_base'] . ($app ? $app . DIRECTORY_SEPARATOR : '');
+            $appName = isset($app) ? $app : $request->app();
+            $view    = $this->config['view_dir_name'];
+
+            if (is_dir($this->app->getAppPath() . $view)) {
+                $path = isset($app) ? $this->app->getBasePath() . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . $view . DIRECTORY_SEPARATOR : $this->app->getAppPath() . $view . DIRECTORY_SEPARATOR;
+            } else {
+                $path = $this->app->getRootPath() . $view . DIRECTORY_SEPARATOR . ($appName ? $appName . DIRECTORY_SEPARATOR : '');
+            }
         }
 
         $depr = $this->config['view_depr'];
