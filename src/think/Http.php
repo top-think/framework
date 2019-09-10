@@ -422,8 +422,6 @@ class Http
 
         // 写入日志
         $this->app->log->save();
-        // 写入Session
-        $this->app->session->save();
     }
 
     public function __debugInfo()

@@ -17,7 +17,6 @@ use think\Log;
 use think\Request;
 use think\Response;
 use think\Route;
-use think\Session;
 
 class HttpTest extends TestCase
 {
@@ -239,9 +238,6 @@ class HttpTest extends TestCase
         $log = m::mock(Log::class);
         $log->shouldReceive('save')->once();
         $this->app->shouldReceive('get')->once()->with('log')->andReturn($log);
-        $session = m::mock(Session::class);
-        $session->shouldReceive('save')->once();
-        $this->app->shouldReceive('get')->once()->with('session')->andReturn($session);
 
         $this->http->end($response);
     }
