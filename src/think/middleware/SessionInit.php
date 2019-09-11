@@ -42,7 +42,7 @@ class SessionInit
         if ($varSessionId && $request->request($varSessionId)) {
             $sessionId = $request->request($varSessionId);
         } else {
-            $sessionId = $request->cookie($cookieName) ?: '';
+            $sessionId = $request->cookie($cookieName);
         }
 
         $session->setId($sessionId);
