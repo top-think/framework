@@ -1081,10 +1081,9 @@ class Request
     public function session(string $name = '', $default = null)
     {
         if ('' === $name) {
-            return $this->session->get();
+            return $this->session->all();
         }
-
-        return $this->getData($this->session->get(), $name, $default);
+        return $this->session->get($name, $default);
     }
 
     /**

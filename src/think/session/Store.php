@@ -130,6 +130,15 @@ class Store
     }
 
     /**
+     * 获取所有数据
+     * @return array
+     */
+    public function all()
+    {
+        return $this->data;
+    }
+
+    /**
      * session设置
      * @access public
      * @param string $name  session名称
@@ -148,7 +157,7 @@ class Store
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name = '', $default = null)
+    public function get(string $name, $default = null)
     {
         return Arr::get($this->data, $name, $default);
     }
