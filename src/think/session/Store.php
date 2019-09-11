@@ -57,6 +57,8 @@ class Store
         if (!empty($serialize)) {
             $this->serialize = $serialize;
         }
+
+        $this->setId();
     }
 
     /**
