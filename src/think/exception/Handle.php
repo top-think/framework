@@ -49,7 +49,7 @@ class Handle
      * Report or log an exception.
      *
      * @access public
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return void
      */
     public function report(Throwable $exception): void
@@ -63,13 +63,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}";
+                $log  = "[{$data['code']}]{$data['message']}";
             }
 
             if ($this->app->config->get('log.record_trace')) {
@@ -102,7 +102,9 @@ class Handle
     public function render($request, Throwable $e): Response
     {
         $this->isJson = $request->isJson();
-        if ($e instanceof HttpException) {
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        } elseif ($e instanceof HttpException) {
             return $this->renderHttpException($e);
         } else {
             return $this->convertExceptionToResponse($e);
@@ -111,8 +113,8 @@ class Handle
 
     /**
      * @access public
-     * @param  Output    $output
-     * @param  Throwable $e
+     * @param Output    $output
+     * @param Throwable $e
      */
     public function renderForConsole(Output $output, Throwable $e): void
     {
@@ -125,7 +127,7 @@ class Handle
 
     /**
      * @access protected
-     * @param  HttpException $e
+     * @param HttpException $e
      * @return Response
      */
     protected function renderHttpException(HttpException $e): Response
@@ -187,7 +189,7 @@ class Handle
 
     /**
      * @access protected
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return Response
      */
     protected function convertExceptionToResponse(Throwable $exception): Response
@@ -225,7 +227,7 @@ class Handle
      * 获取错误编码
      * ErrorException则使用错误级别作为错误编码
      * @access protected
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return integer                错误编码
      */
     protected function getCode(Throwable $exception)
@@ -243,7 +245,7 @@ class Handle
      * 获取错误信息
      * ErrorException则使用错误级别作为错误编码
      * @access protected
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return string                错误信息
      */
     protected function getMessage(Throwable $exception): string
@@ -273,7 +275,7 @@ class Handle
      * 获取出错文件内容
      * 获取错误的前9行和后9行
      * @access protected
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return array                 错误文件内容
      */
     protected function getSourceCode(Throwable $exception): array
@@ -299,7 +301,7 @@ class Handle
      * 获取异常扩展信息
      * 用于非调试模式html返回类型显示
      * @access protected
-     * @param  Throwable $exception
+     * @param Throwable $exception
      * @return array                 异常类定义的扩展数据
      */
     protected function getExtendData(Throwable $exception): array

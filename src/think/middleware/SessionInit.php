@@ -24,20 +24,30 @@ use think\Session;
 class SessionInit
 {
 
+    /** @var App */
+    protected $app;
+
+    /** @var Session */
+    protected $session;
+
+    public function __construct(App $app, Session $session)
+    {
+        $this->app     = $app;
+        $this->session = $session;
+    }
+
     /**
      * Session初始化
      * @access public
      * @param Request $request
      * @param Closure $next
-     * @param App     $app
-     * @param Session $session
      * @return Response
      */
-    public function handle($request, Closure $next, App $app, Session $session)
+    public function handle($request, Closure $next)
     {
         // Session初始化
-        $varSessionId = $app->config->get('session.var_session_id');
-        $cookieName   = $session->getName();
+        $varSessionId = $this->app->config->get('session.var_session_id');
+        $cookieName   = $this->session->getName();
 
         if ($varSessionId && $request->request($varSessionId)) {
             $sessionId = $request->request($varSessionId);
@@ -45,20 +55,23 @@ class SessionInit
             $sessionId = $request->cookie($cookieName);
         }
 
-        $session->setId($sessionId);
-        $session->init();
+        $this->session->setId($sessionId);
+        $this->session->init();
 
-        $request->withSession($session);
+        $request->withSession($this->session);
 
         /** @var Response $response */
         $response = $next($request);
 
-        $response->setSession($session);
+        $response->setSession($this->session);
 
-        $app->cookie->set($cookieName, $session->getId());
-
-        $session->save();
+        $this->app->cookie->set($cookieName, $this->session->getId());
 
         return $response;
+    }
+
+    public function end(Response $response)
+    {
+        $this->session->save();
     }
 }
