@@ -57,7 +57,7 @@ class Pipeline
             function ($passable) use ($destination) {
                 try {
                     return $destination($passable);
-                } catch (Throwable|Exception $e) {
+                } catch (Throwable | Exception $e) {
                     return $this->handleException($passable, $e);
                 }
             });
@@ -82,7 +82,7 @@ class Pipeline
             return function ($passable) use ($stack, $pipe) {
                 try {
                     return $pipe($passable, $stack);
-                } catch (Throwable|Exception $e) {
+                } catch (Throwable | Exception $e) {
                     return $this->handleException($passable, $e);
                 }
             };
