@@ -274,8 +274,8 @@ if (!function_exists('input')) {
         }
 
         return isset($has) ?
-            request()->has($key, $method) :
-            request()->$method($key, $default, $filter);
+        request()->has($key, $method) :
+        request()->$method($key, $default, $filter);
     }
 }
 
@@ -415,11 +415,13 @@ if (!function_exists('session')) {
      * @param mixed  $value session值
      * @return mixed
      */
-    function session(string $name = null, $value = '')
+    function session($name = '', $value = '')
     {
         if (is_null($name)) {
             // 清除
             Session::clear();
+        } elseif ('' === $name) {
+            return Session::all();
         } elseif (is_null($value)) {
             // 删除
             Session::delete($name);
