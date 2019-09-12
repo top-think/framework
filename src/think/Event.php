@@ -12,6 +12,9 @@ declare (strict_types = 1);
 
 namespace think;
 
+use ReflectionClass;
+use ReflectionMethod;
+
 /**
  * 事件管理类
  * @package think
@@ -213,14 +216,24 @@ class Event
             $observer = $this->app->make($observer);
         }
 
-        $events = $events ?: array_keys($this->listener);
+        if (!empty($events)) {
+            foreach ($events as $event) {
+                $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
+                $method = 'on' . $name;
 
-        foreach ($events as $event) {
-            $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
-            $method = 'on' . $name;
+                if (method_exists($observer, $method)) {
+                    $this->listen($event, [$observer, $method]);
+                }
+            }
+        } else {
+            $reflect = new ReflectionClass($observer);
+            $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-            if (method_exists($observer, $method)) {
-                $this->listen($event, [$observer, $method]);
+            foreach ($methods as $method) {
+                $name = $method->getName();
+                if (0 === strpos($name, 'on')) {
+                    $this->listen(substr($name, 2), [$observer, $name]);
+                }
             }
         }
 
