@@ -218,7 +218,7 @@ class SessionTest extends TestCase
 
 class TestFileHandle extends File
 {
-    protected function writeFile($path, $content)
+    protected function writeFile($path, $content): bool
     {
         return (bool) file_put_contents($path, $content);
     }
