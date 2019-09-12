@@ -130,7 +130,7 @@ class Middleware
                     }
                     return $response;
                 };
-            }, $this->sortMiddleware($this->queue[$type])))
+            }, $this->sortMiddleware($this->queue[$type] ?? [])))
             ->whenException([$this, 'handleException']);
     }
 
@@ -142,7 +142,7 @@ class Middleware
     {
         foreach ($this->queue as $queue) {
             foreach ($queue as $middleware) {
-                list($call, ) = $middleware;
+                list($call,) = $middleware;
                 if (is_array($call) && is_string($call[0])) {
                     $instance = $this->app->make($call[0]);
                     if (method_exists($instance, 'end')) {
@@ -232,7 +232,7 @@ class Middleware
      */
     protected function getMiddlewarePriority($priority, $middleware)
     {
-        list($call, ) = $middleware;
+        list($call,) = $middleware;
         if (is_array($call) && is_string($call[0])) {
             $index = array_search($call[0], array_reverse($priority));
             return $index === false ? -1 : $index;
