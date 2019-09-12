@@ -199,7 +199,7 @@ class Store
      */
     public function has(string $name): bool
     {
-        return Arr::exists($this->data, $name);
+        return Arr::has($this->data, $name);
     }
 
     /**
