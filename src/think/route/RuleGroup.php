@@ -457,7 +457,7 @@ class RuleGroup extends Rule
      * @access public
      * @param  Rule   $rule   路由规则
      * @param  string $method 请求类型
-     * @return RuleItem
+     * @return $this
      */
     public function addRuleItem(Rule $rule, string $method = '*')
     {

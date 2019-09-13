@@ -277,6 +277,7 @@ class Route
     /**
      * 获取指定标识的路由分组 不指定则获取当前分组
      * @access public
+     * @param string $name 分组标识
      * @return RuleGroup
      */
     public function getGroup(string $name = null)
