@@ -1556,9 +1556,9 @@ class Validate
      * @param string $title     字段描述名
      * @param string $type      验证规则名称
      * @param mixed  $rule      验证规则数据
-     * @return string
+     * @return string|array
      */
-    protected function getRuleMsg(string $attribute, string $title, string $type, $rule): string
+    protected function getRuleMsg(string $attribute, string $title, string $type, $rule)
     {
         if (isset($this->message[$attribute . '.' . $type])) {
             $msg = $this->message[$attribute . '.' . $type];
@@ -1574,10 +1574,28 @@ class Validate
             $msg = $title . $this->lang->get('not conform to the rules');
         }
 
-        if (!is_string($msg)) {
+        if (is_array($msg)) {
+            foreach ($msg as $key => $val) {
+                if (is_string($val)) {
+                    $msg[$key] = $this->parseErrorMsg($val, $rule, $title);
+                }
+            }
             return $msg;
         }
 
+        return $this->parseErrorMsg($msg, $rule, $title);
+    }
+
+    /**
+     * 获取验证规则的错误提示信息
+     * @access protected
+     * @param string $msg   错误信息
+     * @param mixed  $rule  验证规则数据
+     * @param string $title 字段描述名
+     * @return string
+     */
+    protected function parseErrorMsg(string $msg, $rule, string $title)
+    {
         if (0 === strpos($msg, '{%')) {
             $msg = $this->lang->get(substr($msg, 2, -1));
         } elseif ($this->lang->has($msg)) {
