@@ -1115,7 +1115,7 @@ class Validate
      * 验证是否唯一
      * @access public
      * @param mixed  $value 字段值
-     * @param mixed  $rule  验证规则 格式：数据表,字段名,排除ID,主键名
+     * @param mixed  $rule  验证规则 格式：数据表,反向存在判断,字段名,排除ID,主键名
      * @param array  $data  数据
      * @param string $field 验证字段名
      * @return bool
@@ -1133,7 +1133,7 @@ class Validate
             $db = $this->db->name($rule[0]);
         }
 
-        $key = $rule[1] ?? $field;
+        $key = $rule[2] ?? $field;
         $map = [];
 
         if (strpos($key, '^')) {
@@ -1150,17 +1150,21 @@ class Validate
             $map = [];
         }
 
-        $pk = !empty($rule[3]) ? $rule[3] : $db->getPk();
+        $pk = !empty($rule[4]) ? $rule[4] : $db->getPk();
 
         if (is_string($pk)) {
-            if (isset($rule[2])) {
-                $map[] = [$pk, '<>', $rule[2]];
+            if (isset($rule[3])) {
+                $map[] = [$pk, '<>', $rule[3]];
             } elseif (isset($data[$pk])) {
                 $map[] = [$pk, '<>', $data[$pk]];
             }
         }
 
-        if ($db->where($map)->field($pk)->find()) {
+        $reverse = $rule[1] ?? false;
+
+        $check_data = $db->where($map)->field($pk)->find();
+
+        if (($reverse && empty($check_data)) || (!$reverse && $check_data)) {
             return false;
         }
 
