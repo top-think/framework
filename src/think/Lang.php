@@ -250,8 +250,9 @@ class Lang
         } elseif ($this->request->server('HTTP_ACCEPT_LANGUAGE')) {
             // 自动侦测浏览器语言
             preg_match('/^([a-z\d\-]+)/i', $this->request->server('HTTP_ACCEPT_LANGUAGE'), $matches);
-            $langSet = strtolower($matches[1]);
-
+            if (isset($matches[1])) {
+                $langSet = strtolower($matches[1]);
+            }
             if (isset($this->config['accept_language'][$langSet])) {
                 $langSet = $this->config['accept_language'][$langSet];
             }
