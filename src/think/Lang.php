@@ -249,11 +249,12 @@ class Lang
             $langSet = strtolower($this->request->cookie($this->config['cookie_var']));
         } elseif ($this->request->server('HTTP_ACCEPT_LANGUAGE')) {
             // 自动侦测浏览器语言
-            preg_match('/^([a-z\d\-]+)/i', $this->request->server('HTTP_ACCEPT_LANGUAGE'), $matches);
-            $langSet = strtolower($matches[1]);
-
-            if (isset($this->config['accept_language'][$langSet])) {
-                $langSet = $this->config['accept_language'][$langSet];
+            $match = preg_match('/^([a-z\d\-]+)/i', $this->request->server('HTTP_ACCEPT_LANGUAGE'), $matches);
+            if ($match) {
+                $langSet = strtolower($matches[1]);
+                if (isset($this->config['accept_language'][$langSet])) {
+                    $langSet = $this->config['accept_language'][$langSet];
+                }
             }
         }
 
