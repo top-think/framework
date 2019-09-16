@@ -74,7 +74,7 @@ class EventTest extends TestCase
 
         $this->event->listen('some', "SomeListener");
 
-        $this->assertTrue($this->event->until('some'));;
+        $this->assertTrue($this->event->until('some'));
     }
 
     public function testSubscribe()
