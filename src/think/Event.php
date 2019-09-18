@@ -165,10 +165,9 @@ class Event
      * 注册事件订阅者
      * @access public
      * @param mixed $subscriber 订阅者
-     * @param array $events     事件列表
      * @return $this
      */
-    public function subscribe($subscriber, array $events = [])
+    public function subscribe($subscriber)
     {
         if (!$this->withEvent) {
             return $this;
@@ -186,7 +185,7 @@ class Event
                 $subscriber->subscribe($this);
             } else {
                 // 智能订阅
-                $this->observe($subscriber, $events);
+                $this->observe($subscriber);
             }
         }
 
@@ -197,10 +196,9 @@ class Event
      * 自动注册事件观察者
      * @access public
      * @param string|object $observer 观察者
-     * @param array         $events   事件列表
      * @return $this
      */
-    public function observe($observer, array $events = [])
+    public function observe($observer)
     {
         if (!$this->withEvent) {
             return $this;
@@ -210,24 +208,21 @@ class Event
             $observer = $this->app->make($observer);
         }
 
-        if (!empty($events)) {
-            foreach ($events as $event) {
-                $name   = false !== strpos($event, '\\') ? substr(strrchr($event, '\\'), 1) : $event;
-                $method = 'on' . $name;
+        $reflect = new ReflectionClass($observer);
+        $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-                if (method_exists($observer, $method)) {
-                    $this->listen($event, [$observer, $method]);
-                }
-            }
+        if ($reflect->hasProperty('listenPrefix')) {
+            $reflectProperty = $reflect->getProperty('listenPrefix');
+            $reflectProperty->setAccessible(true);
+            $listenPrefix = $reflectProperty->getValue($observer);
         } else {
-            $reflect = new ReflectionClass($observer);
-            $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
+            $listenPrefix = '';
+        }
 
-            foreach ($methods as $method) {
-                $name = $method->getName();
-                if (0 === strpos($name, 'on')) {
-                    $this->listen(substr($name, 2), [$observer, $name]);
-                }
+        foreach ($methods as $method) {
+            $name = $method->getName();
+            if (0 === strpos($name, 'on')) {
+                $this->listen($listenPrefix . substr($name, 2), [$observer, $name]);
             }
         }
 
