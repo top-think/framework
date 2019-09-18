@@ -211,18 +211,18 @@ class Event
         $reflect = new ReflectionClass($observer);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if ($reflect->hasProperty('listenPrefix')) {
-            $reflectProperty = $reflect->getProperty('listenPrefix');
+        if ($reflect->hasProperty('eventPrefix')) {
+            $reflectProperty = $reflect->getProperty('eventPrefix');
             $reflectProperty->setAccessible(true);
-            $listenPrefix = $reflectProperty->getValue($observer);
+            $eventPrefix = $reflectProperty->getValue($observer);
         } else {
-            $listenPrefix = '';
+            $eventPrefix = '';
         }
 
         foreach ($methods as $method) {
             $name = $method->getName();
             if (0 === strpos($name, 'on')) {
-                $this->listen($listenPrefix . substr($name, 2), [$observer, $name]);
+                $this->listen($eventPrefix . substr($name, 2), [$observer, $name]);
             }
         }
 
