@@ -95,17 +95,6 @@ class EventTest extends TestCase
         $this->event->trigger('SomeListener::onBar');
     }
 
-    public function testObserve()
-    {
-        $listener = m::mock("overload:SomeListener", TestListener::class);
-
-        $listener->shouldReceive('onBar')->once();
-
-        $this->event->observe('SomeListener', ['bar', 'foo']);
-
-        $this->event->trigger('bar');
-    }
-
     public function testAutoObserve()
     {
         $listener = m::mock("overload:SomeListener", TestListener::class);
