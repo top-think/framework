@@ -196,9 +196,10 @@ class Event
      * 自动注册事件观察者
      * @access public
      * @param string|object $observer 观察者
+     * @param null|string   $prefix   事件名前缀
      * @return $this
      */
-    public function observe($observer)
+    public function observe($observer, string $prefix = '')
     {
         if (!$this->withEvent) {
             return $this;
@@ -211,18 +212,16 @@ class Event
         $reflect = new ReflectionClass($observer);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if ($reflect->hasProperty('eventPrefix')) {
+        if (empty($prefix) && $reflect->hasProperty('eventPrefix')) {
             $reflectProperty = $reflect->getProperty('eventPrefix');
             $reflectProperty->setAccessible(true);
-            $eventPrefix = $reflectProperty->getValue($observer);
-        } else {
-            $eventPrefix = '';
+            $prefix = $reflectProperty->getValue($observer);
         }
 
         foreach ($methods as $method) {
             $name = $method->getName();
             if (0 === strpos($name, 'on')) {
-                $this->listen($eventPrefix . substr($name, 2), [$observer, $name]);
+                $this->listen($prefix . substr($name, 2), [$observer, $name]);
             }
         }
 
