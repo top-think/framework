@@ -1616,7 +1616,7 @@ class Validate
                 $msg);
 
             if (strpos($msg, ':rule')) {
-                $msg = str_replace(':rule', (string) $rule, $msg);
+                $msg = str_replace(':rule', (string) isset($this->field[$rule]) ? $this->field[$rule] : $rule, $msg);
             }
         }
 
