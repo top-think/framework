@@ -570,7 +570,7 @@ class Validate
                     $result = str_replace(':attribute', $title, $result);
 
                     if (strpos($result, ':rule') && is_scalar($rule)) {
-                        $msg = str_replace(':rule', (string) $rule, $result);
+                        $result = str_replace(':rule', (string) isset($this->field[$rule]) ? $this->field[$rule] : $rule, $result);
                     }
                 }
 
