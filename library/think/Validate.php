@@ -208,7 +208,7 @@ class Validate
      */
     public static function make(array $rules = [], array $message = [], array $field = [])
     {
-        return new self($rules, $message, $field);
+        return new static($rules, $message, $field);
     }
 
     /**
