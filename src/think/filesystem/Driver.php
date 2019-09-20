@@ -93,10 +93,10 @@ abstract class Driver
 
     /**
      * 保存文件
-     * @param string               $path
-     * @param File                 $file
-     * @param null|string|\Closure $rule
-     * @param array                $options
+     * @param string               $path    路径
+     * @param File                 $file    文件
+     * @param null|string|\Closure $rule    文件名规则
+     * @param array                $options 参数
      * @return bool|string
      */
     public function putFile(string $path, File $file, $rule = null, array $options = [])
@@ -106,19 +106,18 @@ abstract class Driver
 
     /**
      * 指定文件名保存文件
-     * @param string $path
-     * @param File   $file
-     * @param string $name
-     * @param array  $options
+     * @param string $path    路径
+     * @param File   $file    文件
+     * @param string $name    文件名
+     * @param array  $options 参数
      * @return bool|string
      */
     public function putFileAs(string $path, File $file, string $name, array $options = [])
     {
         $stream = fopen($file->getRealPath(), 'r');
+        $path = trim($path . '/' . $name, '/');
 
-        $result = $this->putStream(
-            $path = trim($path . '/' . $name, '/'), $stream, $options
-        );
+        $result = $this->putStream($path, $stream, $options);
 
         if (is_resource($stream)) {
             fclose($stream);
