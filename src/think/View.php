@@ -82,7 +82,6 @@ class View extends Manager
      * @param string $template 模板文件名或者内容
      * @param array  $vars     模板变量
      * @return string
-     * @throws \Exception
      */
     public function fetch(string $template = '', array $vars = []): string
     {
@@ -109,7 +108,6 @@ class View extends Manager
      * 获取模板引擎渲染内容
      * @param $callback
      * @return string
-     * @throws \Exception
      */
     protected function getContent($callback): string
     {
@@ -122,7 +120,7 @@ class View extends Manager
             $callback();
         } catch (\Exception $e) {
             ob_end_clean();
-            throw $e;
+            throw new \RuntimeException($e->getMessage(), $e->getCode(), $e);
         }
 
         // 获取并清空缓存
