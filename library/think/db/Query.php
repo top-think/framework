@@ -133,7 +133,19 @@ class Query
      */
     public function newQuery()
     {
-        return new static($this->connection);
+        $query = new static($this->connection);
+
+        if ($this->model) {
+            $query->model($this->model);
+        }
+
+        if (isset($this->options['table'])) {
+            $query->table($this->options['table']);
+        } else {
+            $query->name($this->name);
+        }
+
+        return $query;
     }
 
     /**
