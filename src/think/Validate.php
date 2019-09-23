@@ -1602,6 +1602,11 @@ class Validate
             $msg = $this->lang->get($msg);
         }
 
+        // rule为一维数组时，将数组转为string
+        if (is_array($rule) && array_keys($rule) === range(0, count($rule) - 1) && count($rule) === count($rule, 1)) {
+            $rule = implode(',', $rule);
+        }
+
         if (is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (is_string($rule) && strpos($rule, ',')) {
