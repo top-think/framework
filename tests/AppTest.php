@@ -10,6 +10,7 @@ use stdClass;
 use think\App;
 use think\Env;
 use think\Event;
+use think\event\AppInit;
 use think\exception\ClassNotFoundException;
 use think\Service;
 
@@ -158,7 +159,7 @@ class AppTest extends TestCase
         $env->shouldReceive('get')->once()->with('app_debug')->andReturn($debug);
 
         $event = m::mock(Event::class);
-        $event->shouldReceive('trigger')->once()->with('AppInit');
+        $event->shouldReceive('trigger')->once()->with(AppInit::class);
         $event->shouldReceive('bind')->once()->with([]);
         $event->shouldReceive('listenEvents')->once()->with([]);
         $event->shouldReceive('subscribe')->once()->with([]);

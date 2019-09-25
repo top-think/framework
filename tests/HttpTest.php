@@ -10,6 +10,7 @@ use think\App;
 use think\Config;
 use think\Console;
 use think\Event;
+use think\event\HttpEnd;
 use think\Exception;
 use think\exception\Handle;
 use think\Http;
@@ -233,7 +234,7 @@ class HttpTest extends TestCase
     {
         $response = m::mock(Response::class);
         $event    = m::mock(Event::class);
-        $event->shouldReceive('trigger')->once()->with('HttpEnd', $response);
+        $event->shouldReceive('trigger')->once()->with(HttpEnd::class, $response);
         $this->app->shouldReceive('get')->once()->with('event')->andReturn($event);
         $log = m::mock(Log::class);
         $log->shouldReceive('save')->once();
