@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use think\event\HttpRun;
 use think\event\RouteLoaded;
 use think\exception\Handle;
 use think\exception\HttpException;
@@ -186,7 +187,7 @@ class Http
         $this->app->event->withEvent($this->app->config->get('app.with_event', true));
 
         // 监听HttpRun
-        $this->app->event->trigger('HttpRun');
+        $this->app->event->trigger(HttpRun::class);
 
         return $this->dispatchToRoute($request);
     }
@@ -418,7 +419,7 @@ class Http
      */
     public function end(Response $response): void
     {
-        $this->app->event->trigger('HttpEnd', $response);
+        $this->app->event->trigger(HttpEnd::class, $response);
 
         //执行中间件
         $this->app->middleware->end($response);

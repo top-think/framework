@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use think\event\AppInit;
 use think\helper\Str;
 use think\initializer\BootService;
 use think\initializer\Error;
@@ -421,7 +422,7 @@ class App extends Container
         $this->loadLangPack($langSet);
 
         // 监听AppInit
-        $this->event->trigger('AppInit');
+        $this->event->trigger(AppInit::class);
 
         date_default_timezone_set($this->config->get('app.default_timezone', 'Asia/Shanghai'));
 
