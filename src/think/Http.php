@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
+use think\event\HttpEnd;
 use think\event\HttpRun;
 use think\event\RouteLoaded;
 use think\exception\Handle;
