@@ -85,7 +85,7 @@ class Cache extends Manager implements CacheInterface
      * @param string $name 连接配置名
      * @return Driver
      */
-    public function store(string $name = null): Driver
+    public function store(string $name = null)
     {
         return $this->driver($name);
     }
