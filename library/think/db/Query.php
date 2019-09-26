@@ -145,6 +145,14 @@ class Query
             $query->name($this->name);
         }
 
+        if (isset($this->options['json'])) {
+            $query->json($this->options['json'], $this->options['json_assoc']);
+        }
+
+        if (isset($this->options['field_type'])) {
+            $query->setJsonFieldType($this->options['field_type']);
+        }
+
         return $query;
     }
 
