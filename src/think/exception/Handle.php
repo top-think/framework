@@ -194,25 +194,10 @@ class Handle
      */
     protected function convertExceptionToResponse(Throwable $exception): Response
     {
-        $data = $this->convertExceptionToArray($exception);
-
         if (!$this->isJson) {
-            //保留一层
-            while (ob_get_level() > 1) {
-                ob_end_clean();
-            }
-
-            $data['echo'] = ob_get_clean();
-
-            ob_start();
-            extract($data);
-            include $this->app->config->get('app.exception_tmpl') ?: __DIR__ . '/../../tpl/think_exception.tpl';
-
-            // 获取并清空缓存
-            $data     = ob_get_clean();
-            $response = new Response($data);
+            $response = new Response($this->renderExceptionContent($exception));
         } else {
-            $response = new Json($data);
+            $response = new Json($this->convertExceptionToArray($exception));
         }
 
         if ($exception instanceof HttpException) {
@@ -221,6 +206,16 @@ class Handle
         }
 
         return $response->code($statusCode ?? 500);
+    }
+
+    protected function renderExceptionContent(Throwable $exception): string
+    {
+        ob_start();
+        $data = $this->convertExceptionToArray($exception);
+        extract($data);
+        include $this->app->config->get('app.exception_tmpl') ?: __DIR__ . '/../../tpl/think_exception.tpl';
+
+        return ob_get_clean();
     }
 
     /**

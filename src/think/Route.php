@@ -739,29 +739,29 @@ class Route
         $this->host    = $this->request->host(true);
         $this->init();
 
-        if ($withRoute) {
-            $checkCallback = function () use ($request, $withRoute) {
-                //加载路由
-                $withRoute();
-                return $this->check();
-            };
-
-            if ($this->config['route_check_cache']) {
-                $dispatch = $this->cache
-                    ->tag('route_cache')
-                    ->remember($this->getRouteCacheKey($request), $checkCallback);
-            } else {
-                $dispatch = $checkCallback();
-            }
-        } else {
-            $dispatch = $this->url($this->path());
-        }
-
-        $dispatch->init($this->app);
-
         return $this->app->middleware->pipeline()
             ->send($request)
-            ->then(function () use ($dispatch) {
+            ->then(function ($request) use ($withRoute) {
+                if ($withRoute) {
+                    $checkCallback = function () use ($withRoute) {
+                        //加载路由
+                        $withRoute();
+                        return $this->check();
+                    };
+
+                    if ($this->config['route_check_cache']) {
+                        $dispatch = $this->cache
+                            ->tag('route_cache')
+                            ->remember($this->getRouteCacheKey($request), $checkCallback);
+                    } else {
+                        $dispatch = $checkCallback();
+                    }
+                } else {
+                    $dispatch = $this->url($this->path());
+                }
+
+                $dispatch->init($this->app);
+
                 return $dispatch->run();
             });
     }

@@ -283,9 +283,6 @@
     </style>
 </head>
 <body>
-    <div class="echo">
-        <?php echo $echo;?>
-    </div>
     <?php if(\think\facade\App::isDebug()) { ?>
     <div class="exception">
     <div class="message">
