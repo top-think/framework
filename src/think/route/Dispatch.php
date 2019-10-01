@@ -100,6 +100,10 @@ abstract class Dispatch
             $this->autoValidate($option['validate']);
         }
 
+        if (!empty($option['app'])) {
+            $this->app->http->setApp($option['app']);
+        }
+
         $data = $this->exec();
 
         return $this->autoResponse($data);

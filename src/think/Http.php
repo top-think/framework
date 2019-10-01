@@ -239,6 +239,10 @@ class Http
      */
     protected function getRoutePath(): string
     {
+        if ($this->app->config->get('route.cross_app_route')) {
+            return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
+        }
+
         if ($this->isMulti() && is_dir($this->app->getAppPath() . 'route')) {
             return $this->app->getAppPath() . 'route' . DIRECTORY_SEPARATOR;
         }
@@ -317,9 +321,13 @@ class Http
             }
 
             if (!$this->bindDomain) {
+                if ($this->app->config->get('route.cross_app_route')) {
+                    return;
+                }
+
+                $path = $this->app->request->pathinfo();
                 $map  = $this->app->config->get('app.app_map', []);
                 $deny = $this->app->config->get('app.deny_app_list', []);
-                $path = $this->app->request->pathinfo();
                 $name = current(explode('/', $path));
 
                 if (isset($map[$name])) {
@@ -353,7 +361,7 @@ class Http
      * 设置应用
      * @param string $appName
      */
-    protected function setApp(string $appName): void
+    public function setApp(string $appName): void
     {
         $this->name = $appName;
         $this->app->request->setApp($appName);

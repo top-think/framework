@@ -362,6 +362,19 @@ abstract class Rule
     }
 
     /**
+     * 设置路由的所属应用
+     * @access public
+     * @param  string $app 应用名
+     * @return $this
+     */
+    public function app(string $app)
+    {
+        $this->option['app'] = $app;
+
+        return $this;
+    }
+
+    /**
      * 绑定验证
      * @access public
      * @param  mixed  $validate 验证器类

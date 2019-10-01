@@ -540,6 +540,18 @@ class Route
     }
 
     /**
+     * 注册应用路由
+     * @access public
+     * @param string  $name  应用名称
+     * @param Closure $route 应用路由
+     * @return RuleGroup
+     */
+    public function app($name, Closure $route): RuleGroup
+    {
+        return $this->group('', $route)->app($name);
+    }
+
+    /**
      * 注册路由分组
      * @access public
      * @param string|\Closure $name  分组名称或者参数
@@ -548,7 +560,7 @@ class Route
      */
     public function group($name, $route = null): RuleGroup
     {
-        if ($name instanceof \Closure) {
+        if ($name instanceof Closure) {
             $route = $name;
             $name  = '';
         }
@@ -845,6 +857,16 @@ class Route
      */
     public function url(string $url): UrlDispatch
     {
+        if ($this->app->http->isMulti() && $this->config['cross_app_route']) {
+            if ('' === $url) {
+                $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
+            } else {
+                $array = explode('|', $url);
+                $this->app->http->setApp(array_shift($array));
+                $url = implode('|', $array);
+            }
+        }
+
         return new UrlDispatch($this->request, $this->group, $url);
     }
 
