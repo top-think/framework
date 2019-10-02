@@ -102,6 +102,8 @@ abstract class Dispatch
 
         if (!empty($option['app'])) {
             $this->app->http->setApp($option['app']);
+        } elseif ($this->app->http->isMulti() && $this->rule->config('cross_app_route')) {
+            $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
         }
 
         $data = $this->exec();
