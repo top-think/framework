@@ -518,11 +518,7 @@ class Validate
                 // 没有返回true 则表示验证失败
                 if (!empty($this->batch)) {
                     // 批量验证
-                    if (is_array($result)) {
-                        $this->error = array_merge($this->error, $result);
-                    } else {
-                        $this->error[$key] = $result;
-                    }
+                    $this->error[$key] = $result;
                 } elseif ($this->failException) {
                     throw new ValidateException($result);
                 } else {
