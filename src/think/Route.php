@@ -857,7 +857,7 @@ class Route
      */
     public function url(string $url): UrlDispatch
     {
-        if ($this->app->http->isMulti() && !empty($this->config['cross_app_route'])) {
+        if ($this->app->http->isMulti() && !$this->app->http->getName() && !empty($this->config['cross_app_route'])) {
             if ('' === $url) {
                 $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
             } else {
