@@ -644,7 +644,7 @@ if (!function_exists('public_path')) {
 
 if (!function_exists('runtime_path')) {
     /**
-     * 获取web根目录
+     * 获取应用运行时目录
      *
      * @param string $path
      * @return string
