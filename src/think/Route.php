@@ -558,18 +558,6 @@ class Route
     }
 
     /**
-     * 注册应用路由
-     * @access public
-     * @param string  $name  应用名称
-     * @param Closure $route 应用路由
-     * @return RuleGroup
-     */
-    public function app($name, Closure $route): RuleGroup
-    {
-        return $this->group('', $route)->app($name);
-    }
-
-    /**
      * 注册路由分组
      * @access public
      * @param string|\Closure $name  分组名称或者参数
