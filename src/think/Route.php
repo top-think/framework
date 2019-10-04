@@ -877,10 +877,12 @@ class Route
      */
     public function url(string $url): UrlDispatch
     {
+        $url = str_replace($this->config['pathinfo_depr'], '|', $url);
+
         if ($this->app->http->isMulti() && !$this->app->http->getName()) {
             $map  = $this->app->config->get('app.app_map', []);
             $deny = $this->app->config->get('app.deny_app_list', []);
-            $name = current(explode('/', $url));
+            $name = current(explode('|', $url));
 
             if (isset($map[$name])) {
                 if ($map[$name] instanceof Closure) {
@@ -899,8 +901,8 @@ class Route
 
             if ($name) {
                 $this->request->setRoot('/' . $name);
-                $url = strpos($url, '/') ? ltrim(strstr($url, '/'), '/') : '';
-                $this->request->setPathinfo($url);
+                $url = strpos($url, '|') ? ltrim(strstr($url, '|'), '|') : '';
+                $this->request->setPathinfo(str_replace('|', $this->config['pathinfo_depr'], $url));
             }
 
             $this->app->http->setApp($appName ?: $this->app->config->get('app.default_app', 'index'));
