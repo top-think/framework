@@ -878,10 +878,9 @@ class Route
     public function url(string $url): UrlDispatch
     {
         if ($this->app->http->isMulti() && !$this->app->http->getName()) {
-            $path = $this->app->request->pathinfo();
             $map  = $this->app->config->get('app.app_map', []);
             $deny = $this->app->config->get('app.deny_app_list', []);
-            $name = current(explode('|', $url));
+            $name = current(explode('/', $url));
 
             if (isset($map[$name])) {
                 if ($map[$name] instanceof Closure) {
@@ -900,7 +899,7 @@ class Route
 
             if ($name) {
                 $this->request->setRoot('/' . $name);
-                $url = strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '';
+                $url = strpos($url, '/') ? ltrim(strstr($url, '/'), '/') : '';
                 $this->request->setPathinfo($url);
             }
 
