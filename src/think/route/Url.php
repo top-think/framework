@@ -316,6 +316,9 @@ class Url
     protected function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
     {
         $request = $this->app->request;
+        if (false === strpos($allowDomain, '.')) {
+            $allowDomain .= '.' . $request->rootDomain();
+        }
 
         foreach ($rule as $item) {
             $url     = $item->getRule();

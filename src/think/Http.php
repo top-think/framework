@@ -12,12 +12,10 @@ declare (strict_types = 1);
 
 namespace think;
 
-use Closure;
 use think\event\HttpEnd;
 use think\event\HttpRun;
 use think\event\RouteLoaded;
 use think\exception\Handle;
-use think\exception\HttpException;
 use Throwable;
 
 /**
@@ -219,35 +217,26 @@ class Http
      */
     protected function loadRoutes(): void
     {
-        // 加载路由定义
-        $routePath = $this->getRoutePath();
+        $routePath = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
 
-        if (is_dir($routePath)) {
+        if ($this->name) {
+            // 加载多应用模式的具体应用路由定义
+            $routeFile = $routePath . $this->name . '.php';
+            if (is_file($routeFile)) {
+                include $routeFile;
+            }
+        } else {
+            // 单应用或者未识别的多应用路由定义
             $files = glob($routePath . '*.php');
             foreach ($files as $file) {
+                if ($this->isMulti()) {
+                    $this->app->route->setAppName(pathinfo($file, PATHINFO_FILENAME));
+                }
                 include $file;
             }
         }
 
         $this->app->event->trigger(RouteLoaded::class);
-    }
-
-    /**
-     * 获取路由目录
-     * @access protected
-     * @return string
-     */
-    protected function getRoutePath(): string
-    {
-        if ($this->app->config->get('route.cross_app_route')) {
-            return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
-        }
-
-        if ($this->isMulti() && is_dir($this->app->getAppPath() . 'route')) {
-            return $this->app->getAppPath() . 'route' . DIRECTORY_SEPARATOR;
-        }
-
-        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->isMulti() ? $this->getName() . DIRECTORY_SEPARATOR : '');
     }
 
     /**
@@ -321,34 +310,7 @@ class Http
             }
 
             if (!$this->bindDomain) {
-                if ($this->app->config->get('route.cross_app_route')) {
-                    return;
-                }
-
-                $path = $this->app->request->pathinfo();
-                $map  = $this->app->config->get('app.app_map', []);
-                $deny = $this->app->config->get('app.deny_app_list', []);
-                $name = current(explode('/', $path));
-
-                if (isset($map[$name])) {
-                    if ($map[$name] instanceof Closure) {
-                        $result  = call_user_func_array($map[$name], [$this]);
-                        $appName = $result ?: $name;
-                    } else {
-                        $appName = $map[$name];
-                    }
-                } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
-                    throw new HttpException(404, 'app not exists:' . $name);
-                } elseif ($name && isset($map['*'])) {
-                    $appName = $map['*'];
-                } else {
-                    $appName = $name;
-                }
-
-                if ($name) {
-                    $this->app->request->setRoot('/' . $name);
-                    $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
-                }
+                return;
             }
         } else {
             $appName = $this->name ?: $this->getScriptName();

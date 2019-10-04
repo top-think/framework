@@ -102,7 +102,7 @@ abstract class Dispatch
 
         if (!empty($option['app'])) {
             $this->app->http->setApp($option['app']);
-        } elseif ($this->app->http->isMulti() && !$this->app->http->getName() && $this->rule->config('cross_app_route')) {
+        } elseif ($this->app->http->isMulti() && !$this->app->http->getName()) {
             $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
         }
 
