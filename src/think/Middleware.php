@@ -48,7 +48,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return void
      */
-    public function import(array $middlewares = [], string $type = 'route'): void
+    public function import(array $middlewares = [], string $type = 'global'): void
     {
         foreach ($middlewares as $middleware) {
             $this->add($middleware, $type);
@@ -62,13 +62,24 @@ class Middleware
      * @param string $type 中间件类型
      * @return void
      */
-    public function add($middleware, string $type = 'route'): void
+    public function add($middleware, string $type = 'global'): void
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
         if ($middleware) {
             $this->queue[$type][] = $middleware;
         }
+    }
+
+    /**
+     * 注册路由中间件
+     * @access public
+     * @param mixed $middleware
+     * @return void
+     */
+    public function route($middleware): void
+    {
+        $this->add($middleware, 'route');
     }
 
     /**
@@ -88,7 +99,7 @@ class Middleware
      * @param mixed  $middleware
      * @param string $type 中间件类型
      */
-    public function unshift($middleware, string $type = 'route')
+    public function unshift($middleware, string $type = 'global')
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
@@ -103,7 +114,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return array
      */
-    public function all(string $type = 'route'): array
+    public function all(string $type = 'global'): array
     {
         return $this->queue[$type] ?? [];
     }
@@ -114,7 +125,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return Pipeline
      */
-    public function pipeline(string $type = 'route')
+    public function pipeline(string $type = 'global')
     {
         return (new Pipeline())
             ->through(array_map(function ($middleware) {
@@ -178,7 +189,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return array
      */
-    protected function buildMiddleware($middleware, string $type = 'route'): array
+    protected function buildMiddleware($middleware, string $type): array
     {
         if (is_array($middleware)) {
             list($middleware, $param) = $middleware;
@@ -235,7 +246,7 @@ class Middleware
         list($call) = $middleware;
         if (is_array($call) && is_string($call[0])) {
             $index = array_search($call[0], array_reverse($priority));
-            return $index === false ? -1 : $index;
+            return false === $index ? -1 : $index;
         }
         return -1;
     }

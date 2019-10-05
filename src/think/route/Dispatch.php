@@ -93,21 +93,7 @@ abstract class Dispatch
             return Response::create('', '', 204)->header(['Allow' => implode(', ', $allow)]);
         }
 
-        $option = $this->rule->getOption();
-
-        // 数据自动验证
-        if (isset($option['validate'])) {
-            $this->autoValidate($option['validate']);
-        }
-
-        if (!empty($option['app'])) {
-            $this->app->http->setApp($option['app']);
-        } elseif ($this->app->http->isMulti() && !$this->app->http->getName()) {
-            $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
-        }
-
         $data = $this->exec();
-
         return $this->autoResponse($data);
     }
 
@@ -139,9 +125,15 @@ abstract class Dispatch
     {
         $option = $this->rule->getOption();
 
+        if (!empty($option['app'])) {
+            $this->app->http->setApp($option['app']);
+        } elseif ($this->app->http->isMulti() && !$this->app->http->getName()) {
+            $this->app->http->setApp($this->app->config->get('app.default_app', 'index'));
+        }
+
         // 添加中间件
         if (!empty($option['middleware'])) {
-            $this->app->middleware->import($option['middleware']);
+            $this->app->middleware->import($option['middleware'], 'route');
         }
 
         if (!empty($option['append'])) {
@@ -151,6 +143,11 @@ abstract class Dispatch
         // 绑定模型数据
         if (!empty($option['model'])) {
             $this->createBindModel($option['model'], $this->param);
+        }
+
+        // 数据自动验证
+        if (isset($option['validate'])) {
+            $this->autoValidate($option['validate']);
         }
 
         // 记录当前请求的路由规则
