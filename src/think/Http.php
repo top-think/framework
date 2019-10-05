@@ -289,6 +289,7 @@ class Http
             // 自动多应用识别
             $this->bindDomain = false;
             $appName          = null;
+            $this->name       = '';
 
             $bind = $this->app->config->get('app.domain_bind', []);
 
