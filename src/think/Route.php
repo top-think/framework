@@ -892,9 +892,7 @@ class Route
             }
 
             if ($name) {
-                $this->request->setRoot('/' . $name);
                 $url = strpos($url, '|') ? ltrim(strstr($url, '|'), '|') : '';
-                $this->request->setPathinfo(str_replace('|', $this->config['pathinfo_depr'], $url));
             }
 
             $this->app->http->setApp($appName ?: $this->app->config->get('app.default_app', 'index'));

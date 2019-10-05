@@ -46,7 +46,7 @@ class Url extends Controller
 
         if ($bind && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
-            // 如果有模块/控制器绑定
+            // 如果有域名绑定
             $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
         }
 
