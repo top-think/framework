@@ -779,14 +779,10 @@ class Route
 
         $dispatch->init($this->app);
 
-        return $this->app->middleware->pipeline()
+        return $this->app->middleware->pipeline('route')
             ->send($request)
-            ->then(function ($request) use ($dispatch) {
-                return $this->app->middleware->pipeline('route')
-                    ->send($request)
-                    ->then(function () use ($dispatch) {
-                        return $dispatch->run();
-                    });
+            ->then(function () use ($dispatch) {
+                return $dispatch->run();
             });
     }
 

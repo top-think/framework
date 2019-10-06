@@ -188,16 +188,20 @@ class Http
         // 监听HttpRun
         $this->app->event->trigger(HttpRun::class);
 
-        return $this->dispatchToRoute($request);
+        return $this->app->middleware->pipeline()
+            ->send($request)
+            ->then($this->dispatchToRoute());
     }
 
-    protected function dispatchToRoute($request)
+    protected function dispatchToRoute()
     {
-        $withRoute = $this->app->config->get('app.with_route', true) ? function () {
-            $this->loadRoutes();
-        } : null;
+        return function ($request) {
+            $withRoute = $this->app->config->get('app.with_route', true) ? function () {
+                $this->loadRoutes();
+            } : null;
 
-        return $this->app->route->dispatch($request, $withRoute);
+            return $this->app->route->dispatch($request, $withRoute);
+        };
     }
 
     /**
