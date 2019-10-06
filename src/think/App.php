@@ -42,6 +42,24 @@ class App extends Container
     const VERSION = '6.0.0RC4';
 
     /**
+     * 应用名称
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * 应用路径
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * 是否域名绑定应用
+     * @var bool
+     */
+    protected $bindDomain = false;
+
+    /**
      * 应用调试模式
      * @var bool
      */
@@ -88,6 +106,12 @@ class App extends Container
      * @var string
      */
     protected $runtimePath = '';
+
+    /**
+     * 路由定义目录
+     * @var string
+     */
+    protected $routePath = '';
 
     /**
      * 配置后缀
@@ -160,6 +184,7 @@ class App extends Container
         $this->rootPath    = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
+        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
 
         if (is_file($this->appPath . 'provider.php')) {
             $this->bind(include $this->appPath . 'provider.php');
@@ -250,6 +275,44 @@ class App extends Container
     }
 
     /**
+     * 设置应用名称
+     * @access public
+     * @param string $name 应用名称
+     * @return $this
+     */
+    public function name(string $name)
+    {
+        $this->name = $name;
+        return $this;
+    }
+
+    /**
+     * 获取应用名称
+     * @access public
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name ?: '';
+    }
+
+    /**
+     * 设置应用目录
+     * @access public
+     * @param string $path 应用目录
+     * @return $this
+     */
+    public function path(string $path)
+    {
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
+        }
+
+        $this->path = $path;
+        return $this;
+    }
+
+    /**
      * 设置应用命名空间
      * @access public
      * @param string $namespace 应用命名空间
@@ -272,6 +335,28 @@ class App extends Container
     }
 
     /**
+     * 设置应用绑定域名
+     * @access public
+     * @param bool $bind 是否绑定域名
+     * @return $this
+     */
+    public function setBindDomain(bool $bind = true)
+    {
+        $this->bindDomain = $bind;
+        return $this;
+    }
+
+    /**
+     * 是否域名绑定应用
+     * @access public
+     * @return bool
+     */
+    public function isBindDomain(): bool
+    {
+        return $this->bindDomain;
+    }
+
+    /**
      * 获取框架版本
      * @access public
      * @return string
@@ -279,6 +364,27 @@ class App extends Container
     public function version(): string
     {
         return static::VERSION;
+    }
+
+    /**
+     * 获取路由目录
+     * @access public
+     * @return string
+     */
+    public function getRoutePath(): string
+    {
+        return $this->routePath;
+    }
+
+    /**
+     * 设置路由目录
+     * @access public
+     * @param string $path 路由定义目录
+     * @return string
+     */
+    public function setRoutePath(string $path): void
+    {
+        $this->routePath = $path;
     }
 
     /**
@@ -308,14 +414,14 @@ class App extends Container
      */
     public function getAppPath(): string
     {
-        return $this->appPath;
+        return $this->path ?: $this->appPath;
     }
 
     /**
      * 设置应用目录
-     * @param $path
+     * @param string $path 应用目录
      */
-    public function setAppPath($path)
+    public function setAppPath(string $path)
     {
         $this->appPath = $path;
     }
@@ -332,9 +438,9 @@ class App extends Container
 
     /**
      * 设置runtime目录
-     * @param $path
+     * @param string $path 定义目录
      */
-    public function setRuntimePath($path)
+    public function setRuntimePath(string $path): void
     {
         $this->runtimePath = $path;
     }

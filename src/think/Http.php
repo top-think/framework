@@ -12,7 +12,6 @@ declare (strict_types = 1);
 
 namespace think;
 
-use Closure;
 use think\event\HttpEnd;
 use think\event\HttpRun;
 use think\event\RouteLoaded;
@@ -31,66 +30,9 @@ class Http
      */
     protected $app;
 
-    /**
-     * 应用路径
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * 是否多应用模式
-     * @var bool
-     */
-    protected $multi = false;
-
-    /**
-     * 是否域名绑定应用
-     * @var bool
-     */
-    protected $bindDomain = false;
-
-    /**
-     * 应用名称
-     * @var string
-     */
-    protected $name;
-
     public function __construct(App $app)
     {
-        $this->app   = $app;
-        $this->multi = is_dir($this->app->getBasePath() . 'controller') ? false : true;
-    }
-
-    /**
-     * 是否域名绑定应用
-     * @access public
-     * @return bool
-     */
-    public function isBindDomain(): bool
-    {
-        return $this->bindDomain;
-    }
-
-    /**
-     * 设置应用模式
-     * @access public
-     * @param bool $multi
-     * @return $this
-     */
-    public function multi(bool $multi)
-    {
-        $this->multi = $multi;
-        return $this;
-    }
-
-    /**
-     * 是否为多应用模式
-     * @access public
-     * @return bool
-     */
-    public function isMulti(): bool
-    {
-        return $this->multi;
+        $this->app = $app;
     }
 
     /**
@@ -101,7 +43,7 @@ class Http
      */
     public function name(string $name)
     {
-        $this->name = $name;
+        $this->app->name($name);
         return $this;
     }
 
@@ -112,7 +54,7 @@ class Http
      */
     public function getName(): string
     {
-        return $this->name ?: '';
+        return $this->app->getName();
     }
 
     /**
@@ -123,11 +65,7 @@ class Http
      */
     public function path(string $path)
     {
-        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
-            $path .= DIRECTORY_SEPARATOR;
-        }
-
-        $this->path = $path;
+        $this->app->path($path);
         return $this;
     }
 
@@ -176,13 +114,6 @@ class Http
         // 加载全局中间件
         $this->loadMiddleware();
 
-        $autoMulti = $this->app->config->get('app.auto_multi_app', false);
-
-        if ($this->multi || $autoMulti) {
-            $this->multi(true);
-            $this->parseMultiApp($autoMulti);
-        }
-
         // 设置开启事件机制
         $this->app->event->withEvent($this->app->config->get('app.with_event', true));
 
@@ -223,7 +154,7 @@ class Http
     protected function loadRoutes(): void
     {
         // 加载路由定义
-        $routePath = $this->getRoutePath();
+        $routePath = $this->app->getRoutePath();
 
         if (is_dir($routePath)) {
             $files = glob($routePath . '*.php');
@@ -233,20 +164,6 @@ class Http
         }
 
         $this->app->event->trigger(RouteLoaded::class);
-    }
-
-    /**
-     * 获取路由目录
-     * @access protected
-     * @return string
-     */
-    protected function getRoutePath(): string
-    {
-        if ($this->isMulti() && is_dir($this->app->getAppPath() . 'route')) {
-            return $this->app->getAppPath() . 'route' . DIRECTORY_SEPARATOR;
-        }
-
-        return $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($this->isMulti() ? $this->getName() . DIRECTORY_SEPARATOR : '');
     }
 
     /**
@@ -273,151 +190,6 @@ class Http
     }
 
     /**
-     * 获取当前运行入口名称
-     * @access protected
-     * @codeCoverageIgnore
-     * @return string
-     */
-    protected function getScriptName(): string
-    {
-        if (isset($_SERVER['SCRIPT_FILENAME'])) {
-            $file = $_SERVER['SCRIPT_FILENAME'];
-        } elseif (isset($_SERVER['argv'][0])) {
-            $file = realpath($_SERVER['argv'][0]);
-        }
-
-        return isset($file) ? pathinfo($file, PATHINFO_FILENAME) : '';
-    }
-
-    /**
-     * 解析多应用
-     * @param bool $autoMulti 自动多应用
-     */
-    protected function parseMultiApp(bool $autoMulti): void
-    {
-        if ($autoMulti) {
-            // 自动多应用识别
-            $this->bindDomain = false;
-            $appName          = null;
-            $this->name       = '';
-
-            $bind = $this->app->config->get('app.domain_bind', []);
-
-            if (!empty($bind)) {
-                // 获取当前子域名
-                $subDomain = $this->app->request->subDomain();
-                $domain    = $this->app->request->host(true);
-
-                if (isset($bind[$domain])) {
-                    $appName          = $bind[$domain];
-                    $this->bindDomain = true;
-                } elseif (isset($bind[$subDomain])) {
-                    $appName          = $bind[$subDomain];
-                    $this->bindDomain = true;
-                } elseif (isset($bind['*'])) {
-                    $appName          = $bind['*'];
-                    $this->bindDomain = true;
-                }
-            }
-
-            if (!$this->bindDomain) {
-                $path = $this->app->request->pathinfo();
-                $map  = $this->app->config->get('app.app_map', []);
-                $deny = $this->app->config->get('app.deny_app_list', []);
-                $name = current(explode('/', $path));
-
-                if (isset($map[$name])) {
-                    if ($map[$name] instanceof Closure) {
-                        $result  = call_user_func_array($map[$name], [$this]);
-                        $appName = $result ?: $name;
-                    } else {
-                        $appName = $map[$name];
-                    }
-                } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
-                    throw new HttpException(404, 'app not exists:' . $name);
-                } elseif ($name && isset($map['*'])) {
-                    $appName = $map['*'];
-                } else {
-                    $appName = $name;
-                }
-
-                if ($name) {
-                    $this->app->request->setRoot('/' . $name);
-                    $this->app->request->setPathinfo(strpos($path, '/') ? ltrim(strstr($path, '/'), '/') : '');
-                }
-            }
-        } else {
-            $appName = $this->name ?: $this->getScriptName();
-        }
-
-        $this->setApp($appName ?: $this->app->config->get('app.default_app', 'index'));
-    }
-
-    /**
-     * 设置应用
-     * @param string $appName
-     */
-    protected function setApp(string $appName): void
-    {
-        $this->name = $appName;
-        $this->app->request->setApp($appName);
-        $this->app->setAppPath($this->path ?: $this->app->getBasePath() . $appName . DIRECTORY_SEPARATOR);
-        $this->app->setRuntimePath($this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $appName . DIRECTORY_SEPARATOR);
-
-        // 设置应用命名空间
-        $this->app->setNamespace($this->app->config->get('app.app_namespace') ?: 'app\\' . $appName);
-
-        //加载应用
-        $this->loadApp($appName);
-    }
-
-    /**
-     * 加载应用文件
-     * @param string $appName 应用名
-     * @return void
-     */
-    protected function loadApp(string $appName): void
-    {
-        //加载app文件
-        if (is_dir($this->app->getAppPath())) {
-            $appPath = $this->app->getAppPath();
-
-            if (is_file($appPath . 'common.php')) {
-                include_once $appPath . 'common.php';
-            }
-
-            $configPath = $this->app->getConfigPath();
-
-            $files = [];
-
-            if (is_dir($appPath . 'config')) {
-                $files = array_merge($files, glob($appPath . 'config' . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            } elseif (is_dir($configPath . $appName)) {
-                $files = array_merge($files, glob($configPath . $appName . DIRECTORY_SEPARATOR . '*' . $this->app->getConfigExt()));
-            }
-
-            foreach ($files as $file) {
-                $this->app->config->load($file, pathinfo($file, PATHINFO_FILENAME));
-            }
-
-            if (is_file($appPath . 'event.php')) {
-                $this->app->loadEvent(include $appPath . 'event.php');
-            }
-
-            if (is_file($appPath . 'middleware.php')) {
-                $this->app->middleware->import(include $appPath . 'middleware.php');
-            }
-
-            if (is_file($appPath . 'provider.php')) {
-                $this->app->bind(include $appPath . 'provider.php');
-            }
-        }
-
-        // 加载应用默认语言包
-        $this->app->loadLangPack($this->app->lang->defaultLangSet());
-    }
-
-    /**
      * HttpEnd
      * @param Response $response
      * @return void
@@ -433,13 +205,4 @@ class Http
         $this->app->log->save();
     }
 
-    public function __debugInfo()
-    {
-        return [
-            'path'       => $this->path,
-            'multi'      => $this->multi,
-            'bindDomain' => $this->bindDomain,
-            'name'       => $this->name,
-        ];
-    }
 }

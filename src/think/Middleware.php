@@ -104,6 +104,10 @@ class Middleware
         $middleware = $this->buildMiddleware($middleware, $type);
 
         if (!empty($middleware)) {
+            if (!isset($this->queue[$type])) {
+                $this->queue[$type] = [];
+            }
+
             array_unshift($this->queue[$type], $middleware);
         }
     }
