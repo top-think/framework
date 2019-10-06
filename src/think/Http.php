@@ -30,9 +30,29 @@ class Http
      */
     protected $app;
 
+    /**
+     * 应用名称
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * 应用路径
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * 是否域名绑定应用
+     * @var bool
+     */
+    protected $bindDomain = false;
+
     public function __construct(App $app)
     {
         $this->app = $app;
+
+        $this->routePath = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
     }
 
     /**
@@ -43,7 +63,7 @@ class Http
      */
     public function name(string $name)
     {
-        $this->app->name($name);
+        $this->name = $name;
         return $this;
     }
 
@@ -54,7 +74,7 @@ class Http
      */
     public function getName(): string
     {
-        return $this->app->getName();
+        return $this->name ?: '';
     }
 
     /**
@@ -65,8 +85,65 @@ class Http
      */
     public function path(string $path)
     {
-        $this->app->path($path);
+        if (substr($path, -1) != DIRECTORY_SEPARATOR) {
+            $path .= DIRECTORY_SEPARATOR;
+        }
+
+        $this->path = $path;
         return $this;
+    }
+
+    /**
+     * 获取应用路径
+     * @access public
+     * @return string
+     */
+    public function getPath(): string
+    {
+        return $this->path ?: '';
+    }
+
+    /**
+     * 获取路由目录
+     * @access public
+     * @return string
+     */
+    public function getRoutePath(): string
+    {
+        return $this->routePath;
+    }
+
+    /**
+     * 设置路由目录
+     * @access public
+     * @param string $path 路由定义目录
+     * @return string
+     */
+    public function setRoutePath(string $path): void
+    {
+        $this->routePath = $path;
+    }
+
+    /**
+     * 设置应用绑定域名
+     * @access public
+     * @param bool $bind 是否绑定域名
+     * @return $this
+     */
+    public function setBindDomain(bool $bind = true)
+    {
+        $this->bindDomain = $bind;
+        return $this;
+    }
+
+    /**
+     * 是否域名绑定应用
+     * @access public
+     * @return bool
+     */
+    public function isBindDomain(): bool
+    {
+        return $this->bindDomain;
     }
 
     /**
@@ -154,7 +231,7 @@ class Http
     protected function loadRoutes(): void
     {
         // 加载路由定义
-        $routePath = $this->app->getRoutePath();
+        $routePath = $this->getRoutePath();
 
         if (is_dir($routePath)) {
             $files = glob($routePath . '*.php');
