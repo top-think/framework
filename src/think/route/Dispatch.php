@@ -125,10 +125,6 @@ abstract class Dispatch
     {
         $option = $this->rule->getOption();
 
-        if (!empty($option['app'])) {
-            $this->app->http->setApp($option['app']);
-        }
-
         // 添加中间件
         if (!empty($option['middleware'])) {
             $this->app->middleware->import($option['middleware'], 'route');

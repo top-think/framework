@@ -14,7 +14,6 @@ namespace think;
 
 use Closure;
 use think\cache\Driver;
-use think\exception\HttpException;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
@@ -165,12 +164,6 @@ class Route
      */
     protected $removeSlash = false;
 
-    /**
-     * 当前路由所属应用
-     * @var string
-     */
-    protected $appName = '';
-
     public function __construct(App $app)
     {
         $this->app      = $app;
@@ -268,17 +261,6 @@ class Route
 
         // 默认分组
         $this->group = $domain;
-    }
-
-    /**
-     * 设置当前应用名
-     * @access public
-     * @param string $name 应用名
-     * @return void
-     */
-    public function setAppName(string $name): void
-    {
-        $this->appName = $name;
     }
 
     /**
@@ -536,7 +518,7 @@ class Route
      */
     public function rule(string $rule, $route = null, string $method = '*'): RuleItem
     {
-        return $this->group->addRule($rule, $route, $method)->app($this->appName);
+        return $this->group->addRule($rule, $route, $method);
     }
 
     /**
@@ -574,8 +556,7 @@ class Route
         return (new RuleGroup($this, $this->group, $name, $route))
             ->lazy($this->lazy)
             ->removeSlash($this->removeSlash)
-            ->mergeRuleRegex($this->mergeRuleRegex)
-            ->app($this->appName);
+            ->mergeRuleRegex($this->mergeRuleRegex);
     }
 
     /**
@@ -672,8 +653,7 @@ class Route
     public function resource(string $rule, string $route): Resource
     {
         return (new Resource($this, $this->group, $rule, $route, $this->rest))
-            ->lazy($this->lazy)
-            ->app($this->appName);
+            ->lazy($this->lazy);
     }
 
     /**
@@ -779,14 +759,10 @@ class Route
 
         $dispatch->init($this->app);
 
-        return $this->app->middleware->pipeline()
+        return $this->app->middleware->pipeline('route')
             ->send($request)
-            ->then(function ($request) use ($dispatch) {
-                return $this->app->middleware->pipeline('route')
-                    ->send($request)
-                    ->then(function () use ($dispatch) {
-                        return $dispatch->run();
-                    });
+            ->then(function () use ($dispatch) {
+                return $dispatch->run();
             });
     }
 
@@ -869,35 +845,6 @@ class Route
      */
     public function url(string $url): UrlDispatch
     {
-        $url = str_replace($this->config['pathinfo_depr'], '|', $url);
-
-        if ($this->app->http->isMulti() && !$this->app->http->getName()) {
-            $map  = $this->app->config->get('app.app_map', []);
-            $deny = $this->app->config->get('app.deny_app_list', []);
-            $name = current(explode('|', $url));
-
-            if (isset($map[$name])) {
-                if ($map[$name] instanceof Closure) {
-                    $result  = call_user_func_array($map[$name], [$this]);
-                    $appName = $result ?: $name;
-                } else {
-                    $appName = $map[$name];
-                }
-            } elseif ($name && (false !== array_search($name, $map) || in_array($name, $deny))) {
-                throw new HttpException(404, 'app not exists:' . $name);
-            } elseif ($name && isset($map['*'])) {
-                $appName = $map['*'];
-            } else {
-                $appName = $name;
-            }
-
-            if ($name) {
-                $url = strpos($url, '|') ? ltrim(strstr($url, '|'), '|') : '';
-            }
-
-            $this->app->http->setApp($appName ?: $this->app->config->get('app.default_app', 'index'));
-        }
-
         return new UrlDispatch($this->request, $this->group, $url);
     }
 

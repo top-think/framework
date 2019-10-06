@@ -42,6 +42,11 @@ class RouteList extends Command
     {
         $app = $input->getArgument('app');
 
+        if (empty($app) && $this->isMultiApp()) {
+            $output->writeln('<error>Miss app name!</error>');
+            return false;
+        }
+
         if ($app) {
             $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . 'route_list.php';
         } else {
@@ -63,22 +68,17 @@ class RouteList extends Command
         $this->app->route->setTestMode(true);
         $this->app->route->clear();
 
-        if ($app && $this->isMultiApp()) {
-            $file = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . '.php';
-            if (is_file($file)) {
-                include $file;
-            }
+        if ($app) {
+            $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR;
         } else {
-            $path  = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
-            $files = is_dir($path) ? scandir($path) : [];
+            $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
+        }
 
-            foreach ($files as $file) {
-                if (strpos($file, '.php')) {
-                    if ($this->isMultiApp()) {
-                        $this->app->route->setAppName(pathinfo($file, PATHINFO_FILENAME));
-                    }
-                    include $path . $file;
-                }
+        $files = is_dir($path) ? scandir($path) : [];
+
+        foreach ($files as $file) {
+            if (strpos($file, '.php')) {
+                include $path . $file;
             }
         }
 
