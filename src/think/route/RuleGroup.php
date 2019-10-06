@@ -59,12 +59,6 @@ class RuleGroup extends Rule
     protected $fullName;
 
     /**
-     * 所在域名
-     * @var string
-     */
-    protected $domain;
-
-    /**
      * 分组别名
      * @var string
      */

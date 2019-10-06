@@ -327,7 +327,7 @@ class Url
             $suffix  = $item->getSuffix();
 
             if ('-' == $domain) {
-                $domain = $request->host(true);
+                $domain = is_string($allowDomain) ? $allowDomain : $request->host(true);
             }
 
             if (is_string($allowDomain) && $domain != $allowDomain) {
