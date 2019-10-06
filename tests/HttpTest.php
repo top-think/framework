@@ -77,8 +77,6 @@ class HttpTest extends TestCase
             ],
         ]);
 
-        $this->http->multi(false);
-
         $this->app->shouldReceive('getBasePath')->andReturn($root->getChild('app')->url() . DIRECTORY_SEPARATOR);
         $this->app->shouldReceive('getRootPath')->andReturn($root->url() . DIRECTORY_SEPARATOR);
 
