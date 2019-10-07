@@ -43,10 +43,10 @@ class Http
     protected $path;
 
     /**
-     * 是否域名绑定应用
+     * 是否绑定应用
      * @var bool
      */
-    protected $bindDomain = false;
+    protected $isBind = false;
 
     public function __construct(App $app)
     {
@@ -125,25 +125,25 @@ class Http
     }
 
     /**
-     * 设置应用绑定域名
+     * 设置应用绑定
      * @access public
-     * @param bool $bind 是否绑定域名
+     * @param bool $bind 是否绑定
      * @return $this
      */
-    public function setBindDomain(bool $bind = true)
+    public function setBind(bool $bind = true)
     {
-        $this->bindDomain = $bind;
+        $this->isBind = $bind;
         return $this;
     }
 
     /**
-     * 是否域名绑定应用
+     * 是否绑定应用
      * @access public
      * @return bool
      */
-    public function isBindDomain(): bool
+    public function isBind(): bool
     {
-        return $this->bindDomain;
+        return $this->isBind;
     }
 
     /**
