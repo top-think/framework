@@ -913,7 +913,7 @@ class Route
      */
     public function buildUrl(string $url = '', array $vars = []): UrlBuild
     {
-        return new UrlBuild($this, $this->app, $url, $vars);
+        return $this->app->make(UrlBuild::class, [$this, $this->app, $url, $vars], true);
     }
 
     /**
