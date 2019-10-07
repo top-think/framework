@@ -12,7 +12,7 @@ namespace think\console\command\optimize;
 
 use think\console\Command;
 use think\console\Input;
-use think\console\input\Argument;
+use think\console\input\Option;
 use think\console\Output;
 use think\event\RouteLoaded;
 
@@ -21,37 +21,32 @@ class Route extends Command
     protected function configure()
     {
         $this->setName('optimize:route')
-            ->addArgument('app', Argument::OPTIONAL, 'app name.')
+            ->addOption('dir', 'd', Option::VALUE_OPTIONAL, 'dir name .', '')
             ->setDescription('Build app route cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        $app = $input->getArgument('app');
+        $dir = $input->getOption('dir');
 
-        if (empty($app) && $this->isMultiApp()) {
-            $output->writeln('<error>Miss app name!</error>');
-            return false;
-        }
-
-        $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
+        $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
 
         $filename = $path . 'route.php';
         if (is_file($filename)) {
             unlink($filename);
         }
 
-        file_put_contents($filename, $this->buildRouteCache($app));
+        file_put_contents($filename, $this->buildRouteCache($dir));
         $output->writeln('<info>Succeed!</info>');
     }
 
-    protected function buildRouteCache(string $app = null): string
+    protected function buildRouteCache(string $dir = null): string
     {
         $this->app->route->clear();
         $this->app->route->lazy(false);
 
         // 路由检测
-        $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
+        $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
 
         $files = is_dir($path) ? scandir($path) : [];
 

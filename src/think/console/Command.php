@@ -501,13 +501,4 @@ abstract class Command
         return $content;
     }
 
-    /**
-     * 判断当前应用是否多应用
-     * @return bool
-     */
-    protected function isMultiApp(): bool
-    {
-        $autoMulti = $this->app->config->get('app.auto_multi_app', false);
-        return $autoMulti || !is_dir($this->app->getBasePath() . 'controller');
-    }
 }

@@ -241,36 +241,6 @@ class Url
         } elseif (0 === strpos($url, '@')) {
             // 解析到控制器
             $url = substr($url, 1);
-        } else {
-            // 解析到 应用/控制器/操作
-            $app        = $request->app();
-            $controller = $request->controller();
-
-            if ('' == $url) {
-                $action = $request->action();
-            } else {
-                $path       = explode('/', $url);
-                $action     = array_pop($path);
-                $controller = empty($path) ? $controller : array_pop($path);
-                $app        = empty($path) ? $app : array_pop($path);
-            }
-
-            $url = $controller . '/' . $action;
-
-            if ($app && $this->app->config->get('app.auto_multi_app')) {
-                $bind = $this->app->config->get('app.domain_bind', []);
-                if ($key = array_search($app, $bind)) {
-                    $domain = is_bool($domain) ? $key : $domain;
-                } else {
-                    $map = $this->app->config->get('app.app_map', []);
-
-                    if ($key = array_search($app, $map)) {
-                        $url = $key . '/' . $url;
-                    } else {
-                        $url = $app . '/' . $url;
-                    }
-                }
-            }
         }
 
         return $url;
@@ -430,10 +400,6 @@ class Url
 
             if (!is_null($match[2])) {
                 $suffix = $match[2];
-            }
-
-            if ($request->app() && $this->app->config->get('app.auto_multi_app') && !$this->app->http->isBindDomain()) {
-                $url = $request->app() . '/' . $url;
             }
         } elseif (!empty($rule) && isset($name)) {
             throw new \InvalidArgumentException('route name not exists:' . $name);
