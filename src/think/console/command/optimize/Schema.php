@@ -12,7 +12,6 @@ namespace think\console\command\optimize;
 
 use think\console\Command;
 use think\console\Input;
-use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 
@@ -21,7 +20,7 @@ class Schema extends Command
     protected function configure()
     {
         $this->setName('optimize:schema')
-            ->addArgument('app', Argument::OPTIONAL, 'app name .')
+            ->addOption('dir', 'd', Option::VALUE_OPTIONAL, 'dir name .', '')
             ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
             ->setDescription('Build database schema cache.');
@@ -29,7 +28,7 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $app = $input->getArgument('app');
+        $dir = $input->getOption('dir');
 
         $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
 
@@ -48,9 +47,9 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = $this->app->db->getConnection()->getTables($dbName);
         } else {
-            if ($app) {
-                $appPath   = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
-                $namespace = 'app\\' . $app;
+            if ($dir) {
+                $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
+                $namespace = 'app\\' . $dir;
             } else {
                 $appPath   = $this->app->getBasePath();
                 $namespace = 'app';

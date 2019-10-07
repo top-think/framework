@@ -148,12 +148,6 @@ class Request
     protected $realIP;
 
     /**
-     * 当前应用名
-     * @var string
-     */
-    protected $app;
-
-    /**
      * 当前控制器名
      * @var string
      */
@@ -1843,18 +1837,6 @@ class Request
     }
 
     /**
-     * 设置当前的应用名
-     * @access public
-     * @param  string $app 应用名
-     * @return $this
-     */
-    public function setApp(string $app)
-    {
-        $this->app = $app;
-        return $this;
-    }
-
-    /**
      * 设置当前的控制器名
      * @access public
      * @param  string $controller 控制器名
@@ -1876,16 +1858,6 @@ class Request
     {
         $this->action = $action;
         return $this;
-    }
-
-    /**
-     * 获取当前的应用名
-     * @access public
-     * @return string
-     */
-    public function app(): string
-    {
-        return $this->app ?: '';
     }
 
     /**
