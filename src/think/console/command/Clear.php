@@ -20,8 +20,7 @@ class Clear extends Command
     protected function configure()
     {
         // 指令配置
-        $this
-            ->setName('clear')
+        $this->setName('clear')
             ->addOption('path', 'd', Option::VALUE_OPTIONAL, 'path to clear', null)
             ->addOption('cache', 'c', Option::VALUE_NONE, 'clear cache file')
             ->addOption('log', 'l', Option::VALUE_NONE, 'clear log file')

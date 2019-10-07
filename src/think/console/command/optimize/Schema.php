@@ -12,6 +12,7 @@ namespace think\console\command\optimize;
 
 use think\console\Command;
 use think\console\Input;
+use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 
@@ -20,7 +21,7 @@ class Schema extends Command
     protected function configure()
     {
         $this->setName('optimize:schema')
-            ->addOption('dir', 'd', Option::VALUE_OPTIONAL, 'dir name .', '')
+            ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
             ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
             ->setDescription('Build database schema cache.');
@@ -28,7 +29,7 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $dir = $input->getOption('dir');
+        $dir = $input->getArgument('dir') ?: '';
 
         $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
 

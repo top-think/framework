@@ -31,8 +31,8 @@ class RouteList extends Command
     protected function configure()
     {
         $this->setName('route:list')
+            ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
             ->addArgument('style', Argument::OPTIONAL, "the style of the table.", 'default')
-            ->addOption('dir', 'd', Option::VALUE_OPTIONAL, 'dir name .', '')
             ->addOption('sort', 's', Option::VALUE_OPTIONAL, 'order by rule name.', 0)
             ->addOption('more', 'm', Option::VALUE_NONE, 'show route options.')
             ->setDescription('show route list.');
@@ -40,13 +40,9 @@ class RouteList extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $dir = $input->getOption('dir');
+        $dir = $input->getArgument('dir') ?: '';
 
-        if ($dir) {
-            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . 'route_list.php';
-        } else {
-            $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'route_list.php';
-        }
+        $filename = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($dir ? $dir . DIRECTORY_SEPARATOR : '') . 'route_list.php';
 
         if (is_file($filename)) {
             unlink($filename);

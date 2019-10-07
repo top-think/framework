@@ -12,7 +12,7 @@ namespace think\console\command\optimize;
 
 use think\console\Command;
 use think\console\Input;
-use think\console\input\Option;
+use think\console\input\Argument;
 use think\console\Output;
 use think\event\RouteLoaded;
 
@@ -21,13 +21,13 @@ class Route extends Command
     protected function configure()
     {
         $this->setName('optimize:route')
-            ->addOption('dir', 'd', Option::VALUE_OPTIONAL, 'dir name .', '')
+            ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
             ->setDescription('Build app route cache.');
     }
 
     protected function execute(Input $input, Output $output)
     {
-        $dir = $input->getOption('dir');
+        $dir = $input->getArgument('dir') ?: '';
 
         $path = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
 
