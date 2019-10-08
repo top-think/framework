@@ -63,7 +63,9 @@ class MiddlewareTest extends TestCase
         $this->config->shouldReceive('get')->with('middleware.alias', [])->andReturn(['foo' => ['FooMiddleware', 'FarMiddleware']]);
 
         $this->middleware->add('foo');
-        $this->assertEquals(4, count($this->middleware->all()));
+        $this->assertEquals(3, count($this->middleware->all()));
+        $this->middleware->add(function () {
+        });
         $this->middleware->add(function () {
         });
         $this->assertEquals(5, count($this->middleware->all()));
