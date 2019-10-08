@@ -2121,13 +2121,13 @@ class Request
     }
 
     /**
-     * 检测请求数据的值
+     * 检测中间传递数据的值
      * @access public
      * @param  string $name 名称
      * @return boolean
      */
     public function __isset(string $name): bool
     {
-        return isset($this->param[$name]);
+        return isset($this->middleware[$name]);
     }
 }
