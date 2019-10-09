@@ -12,7 +12,6 @@ namespace think\console\command;
 
 use think\console\Command;
 use think\console\Input;
-use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 
@@ -21,9 +20,7 @@ class Clear extends Command
     protected function configure()
     {
         // 指令配置
-        $this
-            ->setName('clear')
-            ->addArgument('app', Argument::OPTIONAL, 'app name .')
+        $this->setName('clear')
             ->addOption('path', 'd', Option::VALUE_OPTIONAL, 'path to clear', null)
             ->addOption('cache', 'c', Option::VALUE_NONE, 'clear cache file')
             ->addOption('log', 'l', Option::VALUE_NONE, 'clear log file')
@@ -37,8 +34,7 @@ class Clear extends Command
         if ($input->getOption('route')) {
             $this->app->cache->clear('route_cache');
         } else {
-            $app         = $input->getArgument('app');
-            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . ($app ? $app . DIRECTORY_SEPARATOR : '');
+            $runtimePath = $this->app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR;
 
             if ($input->getOption('cache')) {
                 $path = $runtimePath . 'cache';

@@ -31,19 +31,14 @@ class Build extends Command
     protected function configure()
     {
         $this->setName('build')
-            ->addArgument('app', Argument::OPTIONAL, 'app name .')
+            ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
             ->setDescription('Build Application Dirs');
     }
 
     protected function execute(Input $input, Output $output)
     {
         $this->basePath = $this->app->getBasePath();
-        $app            = $input->getArgument('app') ?: '';
-
-        if (empty($app) && !is_dir($this->basePath . 'controller')) {
-            $output->writeln('<error>Miss app name!</error>');
-            return false;
-        }
+        $dir            = $input->getArgument('dir') ?: '';
 
         $list = include $this->basePath . 'build.php';
 
@@ -52,7 +47,7 @@ class Build extends Command
             return;
         }
 
-        $this->buildApp($app, $list);
+        $this->buildApp($dir, $list);
         $output->writeln("Successed");
 
     }
@@ -60,24 +55,24 @@ class Build extends Command
     /**
      * 创建应用
      * @access protected
-     * @param  string $name 应用名
-     * @param  array  $list 应用目录结构
+     * @param  string $dir  目录名
+     * @param  array  $list 目录结构
      * @return void
      */
-    protected function buildApp(string $app, array $list = []): void
+    protected function buildApp(string $dir, array $list = []): void
     {
-        if (!is_dir($this->basePath . $app)) {
+        if (!is_dir($this->basePath . $dir)) {
             // 创建应用目录
-            mkdir($this->basePath . $app);
+            mkdir($this->basePath . $dir);
         }
 
-        $appPath   = $this->basePath . ($app ? $app . DIRECTORY_SEPARATOR : '');
-        $namespace = 'app' . ($app ? '\\' . $app : '');
+        $appPath   = $this->basePath . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
+        $namespace = 'app' . ($dir ? '\\' . $dir : '');
 
         // 创建配置文件和公共文件
-        $this->buildCommon($app);
+        $this->buildCommon($dir);
         // 创建模块的默认页面
-        $this->buildHello($app, $namespace);
+        $this->buildHello($dir, $namespace);
 
         foreach ($list as $path => $file) {
             if ('__dir__' == $path) {
@@ -131,18 +126,18 @@ class Build extends Command
     /**
      * 创建应用的欢迎页面
      * @access protected
-     * @param  string $appName 应用名
-     * @param  string $namespace 应用类库命名空间
+     * @param  string $dir 目录
+     * @param  string $namespace 类库命名空间
      * @return void
      */
-    protected function buildHello(string $appName, string $namespace): void
+    protected function buildHello(string $dir, string $namespace): void
     {
         $suffix   = $this->app->config->get('route.controller_suffix') ? 'Controller' : '';
-        $filename = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . $suffix . '.php';
+        $filename = $this->basePath . ($dir ? $dir . DIRECTORY_SEPARATOR : '') . 'controller' . DIRECTORY_SEPARATOR . 'Index' . $suffix . '.php';
 
         if (!is_file($filename)) {
             $content = file_get_contents($this->app->getThinkPath() . 'tpl' . DIRECTORY_SEPARATOR . 'default_index.tpl');
-            $content = str_replace(['{%name%}', '{%app%}', '{%layer%}', '{%suffix%}'], [$appName, $namespace, 'controller', $suffix], $content);
+            $content = str_replace(['{%name%}', '{%app%}', '{%layer%}', '{%suffix%}'], [$dir, $namespace, 'controller', $suffix], $content);
             $this->checkDirBuild(dirname($filename));
 
             file_put_contents($filename, $content);
@@ -152,20 +147,20 @@ class Build extends Command
     /**
      * 创建应用的公共文件
      * @access protected
-     * @param  string $appName 应用名称
+     * @param  string $dir 目录
      * @return void
      */
-    protected function buildCommon(string $appName): void
+    protected function buildCommon(string $dir): void
     {
-        $appPath = $this->basePath . ($appName ? $appName . DIRECTORY_SEPARATOR : '');
+        $appPath = $this->basePath . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
 
         if (!is_file($appPath . 'common.php')) {
-            file_put_contents($appPath . 'common.php', "<?php" . PHP_EOL . "// 这是系统自动生成的{$appName}应用公共文件" . PHP_EOL);
+            file_put_contents($appPath . 'common.php', "<?php" . PHP_EOL . "// 这是系统自动生成的公共文件" . PHP_EOL);
         }
 
         foreach (['event', 'middleware', 'provider'] as $name) {
             if (!is_file($appPath . $name . '.php')) {
-                file_put_contents($appPath . $name . '.php', "<?php" . PHP_EOL . "// 这是系统自动生成的{$appName}应用{$name}定义文件" . PHP_EOL . "return [" . PHP_EOL . PHP_EOL . "];" . PHP_EOL);
+                file_put_contents($appPath . $name . '.php', "<?php" . PHP_EOL . "// 这是系统自动生成的{$name}定义文件" . PHP_EOL . "return [" . PHP_EOL . PHP_EOL . "];" . PHP_EOL);
             }
         }
     }

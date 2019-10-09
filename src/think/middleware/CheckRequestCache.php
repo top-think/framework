@@ -132,7 +132,7 @@ class CheckRequestCache
 
         // 特殊规则替换
         if (false !== strpos($key, '__')) {
-            $key = str_replace(['__APP__', '__CONTROLLER__', '__ACTION__', '__URL__'], [$request->app(), $request->controller(), $request->action(), md5($request->url(true))], $key);
+            $key = str_replace(['__CONTROLLER__', '__ACTION__', '__URL__'], [$request->controller(), $request->action(), md5($request->url(true))], $key);
         }
 
         if (false !== strpos($key, ':')) {
