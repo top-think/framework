@@ -915,7 +915,7 @@ class Request
     /**
      * 获取路由参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -932,7 +932,7 @@ class Request
     /**
      * 获取GET参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -961,7 +961,7 @@ class Request
     /**
      * 获取POST参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -978,7 +978,7 @@ class Request
     /**
      * 获取PUT参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -1033,7 +1033,7 @@ class Request
     /**
      * 获取request变量
      * @access public
-     * @param  mixed        $name 数据名称
+     * @param  string|array $name 数据名称
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
