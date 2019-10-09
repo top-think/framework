@@ -21,7 +21,7 @@ class Schema extends Command
     protected function configure()
     {
         $this->setName('optimize:schema')
-            ->addArgument('app', Argument::OPTIONAL, 'app name .')
+            ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
             ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
             ->setDescription('Build database schema cache.');
@@ -29,7 +29,7 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $app = $input->getArgument('app');
+        $dir = $input->getArgument('dir') ?: '';
 
         $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
 
@@ -48,9 +48,9 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = $this->app->db->getConnection()->getTables($dbName);
         } else {
-            if ($app) {
-                $appPath   = $this->app->getBasePath() . $app . DIRECTORY_SEPARATOR;
-                $namespace = 'app\\' . $app;
+            if ($dir) {
+                $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
+                $namespace = 'app\\' . $dir;
             } else {
                 $appPath   = $this->app->getBasePath();
                 $namespace = 'app';

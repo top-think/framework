@@ -148,12 +148,6 @@ class Request
     protected $realIP;
 
     /**
-     * 当前应用名
-     * @var string
-     */
-    protected $app;
-
-    /**
      * 当前控制器名
      * @var string
      */
@@ -921,7 +915,7 @@ class Request
     /**
      * 获取路由参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -938,7 +932,7 @@ class Request
     /**
      * 获取GET参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -967,7 +961,7 @@ class Request
     /**
      * 获取POST参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -984,7 +978,7 @@ class Request
     /**
      * 获取PUT参数
      * @access public
-     * @param  mixed        $name 变量名
+     * @param  string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -1039,7 +1033,7 @@ class Request
     /**
      * 获取request变量
      * @access public
-     * @param  mixed        $name 数据名称
+     * @param  string|array $name 数据名称
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
@@ -1843,18 +1837,6 @@ class Request
     }
 
     /**
-     * 设置当前的应用名
-     * @access public
-     * @param  string $app 应用名
-     * @return $this
-     */
-    public function setApp(string $app)
-    {
-        $this->app = $app;
-        return $this;
-    }
-
-    /**
      * 设置当前的控制器名
      * @access public
      * @param  string $controller 控制器名
@@ -1876,16 +1858,6 @@ class Request
     {
         $this->action = $action;
         return $this;
-    }
-
-    /**
-     * 获取当前的应用名
-     * @access public
-     * @return string
-     */
-    public function app(): string
-    {
-        return $this->app ?: '';
     }
 
     /**
@@ -2149,13 +2121,13 @@ class Request
     }
 
     /**
-     * 检测请求数据的值
+     * 检测中间传递数据的值
      * @access public
      * @param  string $name 名称
      * @return boolean
      */
     public function __isset(string $name): bool
     {
-        return isset($this->param[$name]);
+        return isset($this->middleware[$name]);
     }
 }
