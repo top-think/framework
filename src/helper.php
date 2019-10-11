@@ -45,7 +45,7 @@ if (!function_exists('abort')) {
      * @param string           $message 错误信息
      * @param array            $header  参数
      */
-    function abort($code, string $message = null, array $header = [])
+    function abort($code, string $message = '', array $header = [])
     {
         if ($code instanceof Response) {
             throw new HttpResponseException($code);
