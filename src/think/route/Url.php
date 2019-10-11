@@ -241,6 +241,14 @@ class Url
         } elseif (0 === strpos($url, '@')) {
             // 解析到控制器
             $url = substr($url, 1);
+        } else {
+            $controller = $request->controller();
+
+            $path       = explode('/', $url);
+            $action     = array_pop($path);
+            $controller = empty($path) ? $controller : array_pop($path);
+
+            $url = $controller . '/' . $action;
         }
 
         return $url;
