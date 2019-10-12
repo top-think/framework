@@ -297,6 +297,7 @@ class Url
         if (is_string($allowDomain) && false === strpos($allowDomain, '.')) {
             $allowDomain .= '.' . $request->rootDomain();
         }
+        $port = $request->port();
 
         foreach ($rule as $item) {
             $url     = $item->getRule();
@@ -312,8 +313,8 @@ class Url
                 continue;
             }
 
-            if (!in_array($request->port(), [80, 443])) {
-                $domain .= ':' . $request->port();
+            if ($port && !in_array($port, [80, 443])) {
+                $domain .= ':' . $port;
             }
 
             if (empty($pattern)) {
