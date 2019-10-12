@@ -165,7 +165,7 @@ class Handle
                     'POST Data'             => $_POST,
                     'Files'                 => $_FILES,
                     'Cookies'               => $_COOKIE,
-                    'Session'               => $_SESSION ?? [],
+                    'Session'               => $this->app->session->all(),
                     'Server/Request Data'   => $_SERVER,
                     'Environment Variables' => $_ENV,
                     'ThinkPHP Constants'    => $this->getConst(),
