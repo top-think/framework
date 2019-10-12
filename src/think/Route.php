@@ -180,6 +180,10 @@ class Route
     {
         $this->config = array_merge($this->config, $this->app->config->get('route'));
 
+        if (!empty($this->config['middleware'])) {
+            $this->app->middleware->import($this->config['middleware'], 'route');
+        }
+
         $this->lazy($this->config['url_lazy_route']);
         $this->mergeRuleRegex = $this->config['route_rule_merge'];
         $this->removeSlash    = $this->config['remove_slash'];
