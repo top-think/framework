@@ -315,7 +315,7 @@ class Handle
      * @access private
      * @return array 常量列表
      */
-    private static function getConst(): array
+    protected static function getConst(): array
     {
         $const = get_defined_constants(true);
 
