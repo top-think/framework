@@ -63,13 +63,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log  = "[{$data['code']}]{$data['message']}";
+                $log = "[{$data['code']}]{$data['message']}";
             }
 
             if ($this->app->config->get('log.record_trace')) {
@@ -312,10 +312,10 @@ class Handle
 
     /**
      * 获取常量列表
-     * @access private
+     * @access protected
      * @return array 常量列表
      */
-    private static function getConst(): array
+    protected function getConst(): array
     {
         $const = get_defined_constants(true);
 
