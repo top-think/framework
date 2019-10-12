@@ -312,7 +312,7 @@ class Handle
 
     /**
      * 获取常量列表
-     * @access private
+     * @access protected
      * @return array 常量列表
      */
     protected static function getConst(): array
