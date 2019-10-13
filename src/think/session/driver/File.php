@@ -77,7 +77,7 @@ class File implements SessionHandlerInterface
         $now      = time();
 
         $files = $this->findFiles($this->config['path'], function (SplFileInfo $item) use ($lifetime, $now) {
-            return $now > $item->getMTime() + $lifetime;
+            return $now - $lifetime > $item->getMTime();
         });
 
         foreach ($files as $file) {

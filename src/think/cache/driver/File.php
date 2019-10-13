@@ -95,7 +95,7 @@ class File extends Driver
 
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
-            if (0 != $expire && time() > filemtime($filename) + $expire) {
+            if (0 != $expire && time() - $expire > filemtime($filename)) {
                 //缓存过期删除缓存文件
                 $this->unlink($filename);
                 return;
