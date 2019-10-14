@@ -381,6 +381,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public function invokeClass(string $class, array $vars = [])
     {
+        if (!class_exists($class)) {
+            throw new ClassNotFoundException('class not exists: ' . $class, $class);
+        }
+
         $reflect = new ReflectionClass($class);
 
         if ($reflect->hasMethod('__make')) {
