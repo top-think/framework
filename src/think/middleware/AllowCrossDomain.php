@@ -33,6 +33,9 @@ class AllowCrossDomain
     public function __construct(Config $config)
     {
         $this->cookieDomain = $config->get('cookie.domain', '');
+        if(is_string($this->cookieDomain)) {
+            $this->cookieDomain = explode(',', $this->cookieDomain);
+        }
     }
 
     /**
@@ -50,9 +53,9 @@ class AllowCrossDomain
         if (!isset($header['Access-Control-Allow-Origin'])) {
             $origin = $request->header('origin');
 
-            if ($origin && ('' == $this->cookieDomain || strpos($origin, $this->cookieDomain))) {
+            if ($origin && (!empty($this->cookieDomain) && in_array($origin, $this->cookieDomain))) {
                 $header['Access-Control-Allow-Origin'] = $origin;
-            } else {
+            } else if(in_array('*', $this->cookieDomain)) {
                 $header['Access-Control-Allow-Origin'] = '*';
             }
         }
