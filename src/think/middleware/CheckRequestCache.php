@@ -110,6 +110,10 @@ class CheckRequestCache
         $except = $this->config['request_cache_except'];
         $tag    = $this->config['request_cache_tag'];
 
+        if ($key instanceof \Closure) {
+            $key = call_user_func($key, $request);
+        }
+
         if (false === $key) {
             // 关闭当前缓存
             return;
@@ -121,9 +125,7 @@ class CheckRequestCache
             }
         }
 
-        if ($key instanceof \Closure) {
-            $key = call_user_func($key);
-        } elseif (true === $key) {
+        if (true === $key) {
             // 自动缓存功能
             $key = '__URL__';
         } elseif (strpos($key, '|')) {
