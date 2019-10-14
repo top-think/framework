@@ -154,7 +154,8 @@ class Throttle
         return $response;
     }
 
-    public function setRate($rate) {
+    public function setRate($rate)
+    {
         $this->config['visit_rate'] = $rate;
     }
 }
