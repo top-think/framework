@@ -65,7 +65,7 @@ class Throttle
 
         if (false === $key || null === $this->config['visit_rate']) {
             // 关闭当前限制
-            return null;
+            return;
         }
 
         if (true === $key) {
@@ -123,7 +123,7 @@ class Throttle
         $now = time();
 
         // 移除过期的请求的记录
-        $history = array_values(array_filter($history, function($val) use($now, $duration) {
+        $history = array_values(array_filter($history, function($val) use ($now, $duration) {
             return $val >= $now - $duration;
         }));
 
@@ -157,5 +157,4 @@ class Throttle
     public function setRate($rate) {
         $this->config['visit_rate'] = $rate;
     }
-
 }
