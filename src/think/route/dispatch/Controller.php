@@ -139,6 +139,10 @@ class Controller extends Dispatch
                     }
                 }
 
+                if (is_string($val) && strpos($val, ':')) {
+                    $val = explode(':', $val, 2);
+                }
+
                 $this->app->middleware->controller($val);
             }
         }
