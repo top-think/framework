@@ -405,14 +405,16 @@ class Route
     {
         if (is_null($domain)) {
             $domain = $this->host;
-        } elseif (false === strpos($domain, '.')) {
+        } elseif (false === strpos($domain, '.') && $this->request) {
             $domain .= '.' . $this->request->rootDomain();
         }
 
-        $subDomain = $this->request->subDomain();
+        if ($this->request) {
+            $subDomain = $this->request->subDomain();
 
-        if (strpos($subDomain, '.')) {
-            $name = '*' . strstr($subDomain, '.');
+            if (strpos($subDomain, '.')) {
+                $name = '*' . strstr($subDomain, '.');
+            }
         }
 
         if (isset($this->bind[$domain])) {
