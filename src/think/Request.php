@@ -1794,11 +1794,11 @@ class Request
     /**
      * 当前请求 REMOTE_PORT
      * @access public
-     * @return string
+     * @return int
      */
-    public function remotePort(): string
+    public function remotePort(): int
     {
-        return $this->server('REMOTE_PORT', '');
+        return (int) $this->server('REMOTE_PORT', '');
     }
 
     /**
