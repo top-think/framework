@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think;
 
 use Closure;
-use think\cache\Driver;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
 use think\route\dispatch\Url as UrlDispatch;
@@ -64,9 +63,6 @@ class Route
         'remove_slash'          => false,
         // 使用注解路由
         'route_annotation'      => false,
-        // 路由缓存设置
-        'route_check_cache'     => false,
-        'route_check_cache_key' => '',
         // 默认的路由变量规则
         'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
@@ -98,12 +94,6 @@ class Route
      * @var Request
      */
     protected $request;
-
-    /**
-     * 缓存
-     * @var Driver
-     */
-    protected $cache;
 
     /**
      * @var RuleName
@@ -189,10 +179,6 @@ class Route
         $this->removeSlash    = $this->config['remove_slash'];
 
         $this->group->removeSlash($this->removeSlash);
-
-        if ($this->config['route_check_cache']) {
-            $this->cache = $this->app->cache->store(true === $this->config['route_check_cache'] ? '' : $this->config['route_check_cache']);
-        }
     }
 
     public function config(string $name = null)
@@ -746,19 +732,9 @@ class Route
         $this->init();
 
         if ($withRoute) {
-            $checkCallback = function () use ($withRoute) {
-                //加载路由
-                $withRoute();
-                return $this->check();
-            };
-
-            if ($this->config['route_check_cache']) {
-                $dispatch = $this->cache
-                    ->tag('route_cache')
-                    ->remember($this->getRouteCacheKey($request), $checkCallback);
-            } else {
-                $dispatch = $checkCallback();
-            }
+            //加载路由
+            $withRoute();
+            $dispatch = $this->check();
         } else {
             $dispatch = $this->url($this->path());
         }
@@ -770,24 +746,6 @@ class Route
             ->then(function () use ($dispatch) {
                 return $dispatch->run();
             });
-    }
-
-    /**
-     * 获取路由缓存Key
-     * @access protected
-     * @param Request $request
-     * @return string
-     */
-    protected function getRouteCacheKey(Request $request): string
-    {
-        if (!empty($this->config['route_check_cache_key'])) {
-            $closure  = $this->config['route_check_cache_key'];
-            $routeKey = $closure($request);
-        } else {
-            $routeKey = md5($request->baseUrl(true) . ':' . $request->method());
-        }
-
-        return $routeKey;
     }
 
     /**
