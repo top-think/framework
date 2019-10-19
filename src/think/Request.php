@@ -1774,11 +1774,11 @@ class Request
     /**
      * 当前请求URL地址中的port参数
      * @access public
-     * @return string
+     * @return int
      */
-    public function port(): string
+    public function port(): int
     {
-        return $this->server('SERVER_PORT', '');
+        return (int) $this->server('SERVER_PORT', '');
     }
 
     /**
