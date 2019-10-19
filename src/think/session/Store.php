@@ -118,7 +118,7 @@ class Store
      */
     public function setId($id = null): void
     {
-        $this->id = is_string($id) && strlen($id) === 32 ? $id : md5(microtime(true) . uniqid());
+        $this->id = is_string($id) && strlen($id) === 32 ? $id : md5(microtime(true) . uniqid('', true));
     }
 
     /**
