@@ -25,6 +25,11 @@ class File extends Response
     protected $mimeType;
     protected $isContent = false;
 
+    public function __construct($data = '', int $code = 200)
+    {
+        $this->init($data, $code);
+    }
+
     /**
      * 处理数据
      * @access protected

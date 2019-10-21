@@ -27,8 +27,9 @@ class Redirect extends Response
 
     public function __construct(Cookie $cookie, Request $request, Session $session, $data = '', int $code = 302)
     {
-        parent::__construct($cookie, (string) $data, $code);
+        $this->init((string) $data, $code);
 
+        $this->cookie  = $cookie;
         $this->request = $request;
         $this->session = $session;
 

@@ -28,6 +28,7 @@ class Html extends Response
 
     public function __construct(Cookie $cookie, $data = '', int $code = 200)
     {
-        parent::__construct($cookie, $data, $code);
+        $this->init($data, $code);
+        $this->cookie = $cookie;
     }
 }

@@ -135,8 +135,6 @@ class HttpTest extends TestCase
 
         $this->app->shouldReceive('make')->with(Handle::class)->andReturn($handle);
 
-        $response->shouldReceive('setCookie')->andReturn($response);
-
         $this->assertEquals($response, $this->http->run($request));
     }
 

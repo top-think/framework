@@ -79,17 +79,15 @@ abstract class Response
     protected $session;
 
     /**
-     * 架构函数
+     * 初始化
      * @access protected
-     * @param  Cookie $cookie Cookie对象
      * @param  mixed  $data 输出数据
      * @param  int    $code 状态码
      */
-    protected function __construct(Cookie $cookie, $data = '', int $code = 200)
+    protected function init($data = '', int $code = 200)
     {
         $this->data($data);
-        $this->code   = $code;
-        $this->cookie = $cookie;
+        $this->code = $code;
 
         $this->contentType($this->contentType, $this->charset);
     }
@@ -107,18 +105,6 @@ abstract class Response
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
 
         return Container::getInstance()->invokeClass($class, [$data, $code]);
-    }
-
-    /**
-     * 设置Cookie对象
-     * @access public
-     * @param  Cookie $cookie Cookie对象
-     * @return $this
-     */
-    public function setCookie(Cookie $cookie)
-    {
-        $this->cookie = $cookie;
-        return $this;
     }
 
     /**
