@@ -241,6 +241,8 @@ class Url
         } elseif (0 === strpos($url, '@')) {
             // 解析到控制器
             $url = substr($url, 1);
+        } elseif ('' === $url) {
+            $url = $request->controller() . '/' . $request->action();
         } else {
             $controller = $request->controller();
 
