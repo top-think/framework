@@ -1,6 +1,5 @@
 <?php
-
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace {%namespace%};
 
@@ -9,8 +8,8 @@ class {%className%}
     /**
      * 处理请求
      *
-     * @param Request $request
-     * @param \Closure $next
+     * @param \think\Request $request
+     * @param \Closure       $next
      * @return Response
      */
     public function handle($request, \Closure $next)
