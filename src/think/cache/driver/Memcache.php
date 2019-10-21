@@ -138,7 +138,7 @@ class Memcache extends Driver
 
         $key = $this->getCacheKey($name);
 
-        if ($this->has($key)) {
+        if ($this->handler->get($key)) {
             return $this->handler->increment($key, $step);
         }
 
