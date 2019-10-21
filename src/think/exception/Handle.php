@@ -19,7 +19,6 @@ use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;
 use think\Request;
 use think\Response;
-use think\response\Json;
 use Throwable;
 
 /**
@@ -195,9 +194,9 @@ class Handle
     protected function convertExceptionToResponse(Throwable $exception): Response
     {
         if (!$this->isJson) {
-            $response = new Response($this->renderExceptionContent($exception));
+            $response = Response::create($this->renderExceptionContent($exception));
         } else {
-            $response = new Json($this->convertExceptionToArray($exception));
+            $response = Response::create($this->convertExceptionToArray($exception), 'json');
         }
 
         if ($exception instanceof HttpException) {
