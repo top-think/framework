@@ -14,7 +14,6 @@ use Closure;
 use InvalidArgumentException;
 use LogicException;
 use think\console\Command;
-use think\console\command\Build;
 use think\console\command\Clear;
 use think\console\command\Help;
 use think\console\command\Help as HelpCommand;
@@ -58,12 +57,11 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand  = 'list';
+    protected $defaultCommand = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
         'list'             => Lists::class,
-        'build'            => Build::class,
         'clear'            => Clear::class,
         'make:command'     => MakeCommand::class,
         'make:controller'  => Controller::class,
@@ -464,7 +462,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
