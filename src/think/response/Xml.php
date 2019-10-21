@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\response;
 
 use think\Collection;
+use think\Cookie;
 use think\Model;
 use think\Response;
 
@@ -36,6 +37,11 @@ class Xml extends Response
     ];
 
     protected $contentType = 'text/xml';
+
+    public function __construct(Cookie $cookie, $data = '', int $code = 200)
+    {
+        parent::__construct($cookie, $data, $code);
+    }
 
     /**
      * 处理数据

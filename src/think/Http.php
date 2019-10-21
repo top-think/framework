@@ -166,7 +166,7 @@ class Http
             $response = $this->renderException($request, $e);
         }
 
-        return $response->setCookie($this->app->cookie);
+        return $response;
     }
 
     /**

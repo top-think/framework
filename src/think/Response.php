@@ -16,7 +16,7 @@ namespace think;
  * 响应输出基础类
  * @package think
  */
-class Response
+abstract class Response
 {
     /**
      * 原始数据
@@ -80,14 +80,16 @@ class Response
 
     /**
      * 架构函数
-     * @access public
-     * @param  mixed $data    输出数据
-     * @param  int   $code
+     * @access protected
+     * @param  Cookie $cookie Cookie对象
+     * @param  mixed  $data 输出数据
+     * @param  int    $code 状态码
      */
-    public function __construct($data = '', int $code = 200)
+    protected function __construct(Cookie $cookie, $data = '', int $code = 200)
     {
         $this->data($data);
-        $this->code = $code;
+        $this->code   = $code;
+        $this->cookie = $cookie;
 
         $this->contentType($this->contentType, $this->charset);
     }
@@ -95,20 +97,16 @@ class Response
     /**
      * 创建Response对象
      * @access public
-     * @param  mixed  $data    输出数据
-     * @param  string $type    输出类型
-     * @param  int    $code
+     * @param  mixed  $data 输出数据
+     * @param  string $type 输出类型
+     * @param  int    $code 状态码
      * @return Response
      */
-    public static function create($data = '', string $type = '', int $code = 200): Response
+    public static function create($data = '', string $type = 'html', int $code = 200): Response
     {
         $class = false !== strpos($type, '\\') ? $type : '\\think\\response\\' . ucfirst(strtolower($type));
 
-        if (class_exists($class)) {
-            return Container::getInstance()->invokeClass($class, [$data, $code]);
-        }
-
-        return new static($data, $code);
+        return Container::getInstance()->invokeClass($class, [$data, $code]);
     }
 
     /**
@@ -234,6 +232,21 @@ class Response
     public function isAllowCache()
     {
         return $this->allowCache;
+    }
+
+    /**
+     * 设置Cookie
+     * @access public
+     * @param  string $name  cookie名称
+     * @param  string $value cookie值
+     * @param  mixed  $option 可选参数
+     * @return $this
+     */
+    public function cookie(string $name, string $value, $option = null)
+    {
+        $this->cookie->set($name, $value, $option);
+
+        return $this;
     }
 
     /**
