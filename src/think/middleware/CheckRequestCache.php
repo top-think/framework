@@ -77,8 +77,9 @@ class CheckRequestCache
                     return Response::create()->code(304);
                 } elseif (($hit = $this->cache->get($key)) !== null) {
                     list($content, $header, $when) = $hit;
-                    if ($expire === null || $when + $expire > $request->server('REQUEST_TIME'))
+                    if ($expire === null || $when + $expire > $request->server('REQUEST_TIME')) {
                         return Response::create($content)->header($header);
+                    }
                 }
             }
         }
