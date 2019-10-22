@@ -391,7 +391,7 @@
                             } else if(is_bool($val)) { 
                                 echo $val ? 'true' : 'false';
                             } else if(is_scalar($val)) {
-                                echo htmlentities($val);
+                                echo false === stripos($key, 'password') ? htmlentities($val) : '[hidden]';
                             } else {
                                 echo 'Resource';
                             }
