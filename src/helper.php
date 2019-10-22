@@ -238,7 +238,7 @@ if (!function_exists('halt')) {
     {
         dump(...$vars);
 
-        throw new HttpResponseException(new Response);
+        throw new HttpResponseException(Response::create());
     }
 }
 
