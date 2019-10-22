@@ -102,9 +102,7 @@ class Controller extends Dispatch
                     throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
                 }
 
-                $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
-
-                return $this->autoResponse($data);
+                return $this->app->invokeReflectMethod($instance, $reflect, $vars);
             });
     }
 
