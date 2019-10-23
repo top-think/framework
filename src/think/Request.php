@@ -1089,7 +1089,6 @@ class Request
 
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
-            reset($data);
         } else {
             $this->filterValue($data, $name, $filter);
         }
@@ -1276,7 +1275,6 @@ class Request
 
         if (is_array($data)) {
             array_walk_recursive($data, [$this, 'filterValue'], $filter);
-            reset($data);
         } else {
             $this->filterValue($data, $name, $filter);
         }
