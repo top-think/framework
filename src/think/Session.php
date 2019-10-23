@@ -28,7 +28,7 @@ class Session extends Manager
     {
         $handler = parent::createDriver($name);
 
-        return new Store($this->getConfig('name', 'PHPSESSID'), $handler, $this->getConfig('serialize'));
+        return new Store($this->getConfig('name') ?: 'PHPSESSID', $handler, $this->getConfig('serialize'));
     }
 
     /**

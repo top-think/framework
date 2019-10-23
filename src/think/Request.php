@@ -282,18 +282,6 @@ class Request
     protected $input;
 
     /**
-     * 请求缓存
-     * @var array
-     */
-    protected $cache;
-
-    /**
-     * 缓存是否检查
-     * @var bool
-     */
-    protected $isCheckCache;
-
-    /**
      * 请求安全Key
      * @var string
      */
