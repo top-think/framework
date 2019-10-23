@@ -228,6 +228,10 @@ class Socket implements LogHandlerInterface
 
     protected function getClientArg(string $name)
     {
+        if (!$this->app->exists('request')) {
+            return '';
+        }
+
         if (empty($this->clientArg)) {
             if (empty($socketLog = $this->app->request->server('HTTP_SOCKETLOG'))) {
                 if (empty($socketLog = $this->app->request->server('HTTP_USER_AGENT'))) {
