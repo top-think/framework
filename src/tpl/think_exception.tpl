@@ -1,79 +1,93 @@
 <?php
-    if(!function_exists('parse_padding')){
-        function parse_padding($source)
-        {
-            $length  = strlen(strval(count($source['source']) + $source['first']));
-            return 40 + ($length - 1) * 8;
-        }
+/** @var array $traces */
+if (!function_exists('parse_padding')) {
+    function parse_padding($source)
+    {
+        $length  = strlen(strval(count($source['source']) + $source['first']));
+        return 40 + ($length - 1) * 8;
     }
+}
 
-    if(!function_exists('parse_class')){
-        function parse_class($name)
-        {
-            $names = explode('\\', $name);
-            return '<abbr title="'.$name.'">'.end($names).'</abbr>';
-        }
+if (!function_exists('parse_class')) {
+    function parse_class($name)
+    {
+        $names = explode('\\', $name);
+        return '<abbr title="'.$name.'">'.end($names).'</abbr>';
     }
+}
 
-    if(!function_exists('parse_file')){
-        function parse_file($file, $line)
-        {
-            return '<a class="toggle" title="'."{$file} line {$line}".'">'.basename($file)." line {$line}".'</a>';
-        }
+if (!function_exists('parse_file')) {
+    function parse_file($file, $line)
+    {
+        return '<a class="toggle" title="'."{$file} line {$line}".'">'.basename($file)." line {$line}".'</a>';
     }
+}
 
-    if(!function_exists('parse_args')){
-        function parse_args($args)
-        {
-            $result = [];
-
-            foreach ($args as $key => $item) {
-                switch (true) {
-                    case is_object($item):
-                        $value = sprintf('<em>object</em>(%s)', parse_class(get_class($item)));
-                        break;
-                    case is_array($item):
-                        if(count($item) > 3){
-                            $value = sprintf('[%s, ...]', parse_args(array_slice($item, 0, 3)));
-                        } else {
-                            $value = sprintf('[%s]', parse_args($item));
-                        }
-                        break;
-                    case is_string($item):
-                        if(strlen($item) > 20){
-                            $value = sprintf(
-                                '\'<a class="toggle" title="%s">%s...</a>\'',
-                                htmlentities($item),
-                                htmlentities(substr($item, 0, 20))
-                            );
-                        } else {
-                            $value = sprintf("'%s'", htmlentities($item));
-                        }
-                        break;
-                    case is_int($item):
-                    case is_float($item):
-                        $value = $item;
-                        break;
-                    case is_null($item):
-                        $value = '<em>null</em>';
-                        break;
-                    case is_bool($item):
-                        $value = '<em>' . ($item ? 'true' : 'false') . '</em>';
-                        break;
-                    case is_resource($item):
-                        $value = '<em>resource</em>';
-                        break;
-                    default:
-                        $value = htmlentities(str_replace("\n", '', var_export(strval($item), true)));
-                        break;
-                }
-
-                $result[] = is_int($key) ? $value : "'{$key}' => {$value}";
+if (!function_exists('parse_args')) {
+    function parse_args($args)
+    {
+        $result = [];
+        foreach ($args as $key => $item) {
+            switch (true) {
+                case is_object($item):
+                    $value = sprintf('<em>object</em>(%s)', parse_class(get_class($item)));
+                    break;
+                case is_array($item):
+                    if (count($item) > 3) {
+                        $value = sprintf('[%s, ...]', parse_args(array_slice($item, 0, 3)));
+                    } else {
+                        $value = sprintf('[%s]', parse_args($item));
+                    }
+                    break;
+                case is_string($item):
+                    if (strlen($item) > 20) {
+                        $value = sprintf(
+                            '\'<a class="toggle" title="%s">%s...</a>\'',
+                            htmlentities($item),
+                            htmlentities(substr($item, 0, 20))
+                        );
+                    } else {
+                        $value = sprintf("'%s'", htmlentities($item));
+                    }
+                    break;
+                case is_int($item):
+                case is_float($item):
+                    $value = $item;
+                    break;
+                case is_null($item):
+                    $value = '<em>null</em>';
+                    break;
+                case is_bool($item):
+                    $value = '<em>' . ($item ? 'true' : 'false') . '</em>';
+                    break;
+                case is_resource($item):
+                    $value = '<em>resource</em>';
+                    break;
+                default:
+                    $value = htmlentities(str_replace("\n", '', var_export(strval($item), true)));
+                    break;
             }
 
-            return implode(', ', $result);
+            $result[] = is_int($key) ? $value : "'{$key}' => {$value}";
+        }
+
+        return implode(', ', $result);
+    }
+}
+if (function_exists('echo_value')) {
+    function echo_value($val)
+    {
+        if (is_array($val) || is_object($val)) {
+            echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
+        } elseif (is_bool($val)) {
+            echo $val ? 'true' : 'false';
+        } elseif (is_scalar($val)) {
+            echo htmlentities($val);
+        } else {
+            echo 'Resource';
         }
     }
+}
 ?>
 <!DOCTYPE html>
 <html>
@@ -123,11 +137,9 @@
         .line-error{
             background: #f8cbcb;
         }
-
         .echo table {
             width: 100%;
         }
-
         .echo pre {
             padding: 16px;
             overflow: auto;
@@ -138,12 +150,10 @@
             border-radius: 3px;
             font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
         }
-
         .echo pre > pre {
             padding: 0;
             margin: 0;
         }
-    
         /* Exception Info */
         .exception {
             margin-top: 20px;
@@ -156,9 +166,8 @@
             font-size:16px;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑",serif;
         }
-
         .exception .code{
             float: left;
             text-align: center;
@@ -185,8 +194,8 @@
             display: inline-block;
             min-width: 100%;
             box-sizing: border-box;
-        font-size:14px;
-            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
+            font-size:14px;
+            font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana,serif;
             padding-left: <?php echo (isset($source) && !empty($source)) ? parse_padding($source) : 40;  ?>px;
         }
         .exception .source-code pre li{
@@ -199,16 +208,16 @@
             height: 100%;
             display: inline-block;
             border-left: 1px solid #fff;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+            font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑",serif;
         }
         .exception .trace{
             padding: 6px;
             border: 1px solid #ddd;
             border-top: 0 none;
             line-height: 16px;
-        font-size:14px;
-            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
+            font-size:14px;
+            font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑",serif;
         }
         .exception .trace ol{
             margin: 12px;
@@ -227,7 +236,7 @@
             margin: 12px 0;
             box-sizing: border-box;
             table-layout:fixed;
-            word-wrap:break-word;            
+            word-wrap:break-word;
         }
         .exception-var table caption{
             text-align: left;
@@ -243,7 +252,7 @@
         }
         .exception-var table tbody{
             font-size: 13px;
-            font-family: Consolas,"Liberation Mono",Courier,"微软雅黑";
+            font-family: Consolas, "Liberation Mono", Courier, "微软雅黑",serif;
         }
         .exception-var table td{
             padding: 0 6px;
@@ -283,65 +292,63 @@
     </style>
 </head>
 <body>
-    <?php if(\think\facade\App::isDebug()) { ?>
+    <?php if (\think\facade\App::isDebug()) { ?>
+        <?php foreach ($traces as $index => $trace) { ?>
     <div class="exception">
-    <div class="message">
-        
+        <div class="message">
             <div class="info">
                 <div>
-                    <h2>[<?php echo $code; ?>]&nbsp;<?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
+                    <h2><?php echo "#{$index} [{$trace['code']}]" . sprintf('%s in %s', parse_class($trace['name']), parse_file($trace['file'], $trace['line'])); ?></h2>
                 </div>
-                <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
+                <div><h1><?php echo nl2br(htmlentities($trace['message'])); ?></h1></div>
             </div>
-        
-    </div>
-	<?php if(!empty($source)){?>
-        <div class="source-code">
-            <pre class="prettyprint lang-php"><ol start="<?php echo $source['first']; ?>"><?php foreach ((array) $source['source'] as $key => $value) { ?><li class="line-<?php echo $key + $source['first']; ?>"><code><?php echo htmlentities($value); ?></code></li><?php } ?></ol></pre>
         </div>
-	<?php }?>
+            <?php if (!empty($trace['source'])) { ?>
+                <div class="source-code">
+                    <pre class="prettyprint lang-php"><ol start="<?php echo $trace['source']['first']; ?>"><?php foreach ((array) $trace['source']['source'] as $key => $value) { ?><li class="line-<?php echo "{$index}-"; echo $key + $trace['source']['first']; echo $trace['line'] === $key + $trace['source']['first'] ? ' line-error' : ''; ?>"><code><?php echo htmlentities($value); ?></code></li><?php } ?></ol></pre>
+                </div>
+            <?php }?>
         <div class="trace">
             <h2>Call Stack</h2>
             <ol>
-                <li><?php echo sprintf('in %s', parse_file($file, $line)); ?></li>
-                <?php foreach ((array) $trace as $value) { ?>
-                <li>
-                <?php 
-                    // Show Function
-                    if($value['function']){
-                        echo sprintf(
-                            'at %s%s%s(%s)', 
-                            isset($value['class']) ? parse_class($value['class']) : '',
-                            isset($value['type'])  ? $value['type'] : '', 
-                            $value['function'], 
-                            isset($value['args'])?parse_args($value['args']):''
-                        );
-                    }
+                <li><?php echo sprintf('in %s', parse_file($trace['file'], $trace['line'])); ?></li>
+                <?php foreach ((array) $trace['trace'] as $value) { ?>
+                    <li>
+                        <?php
+                        // Show Function
+                        if ($value['function']) {
+                            echo sprintf(
+                                'at %s%s%s(%s)',
+                                isset($value['class']) ? parse_class($value['class']) : '',
+                                isset($value['type'])  ? $value['type'] : '',
+                                $value['function'],
+                                isset($value['args'])?parse_args($value['args']):''
+                            );
+                        }
 
-                    // Show line
-                    if (isset($value['file']) && isset($value['line'])) {
-                        echo sprintf(' in %s', parse_file($value['file'], $value['line']));
-                    }
-                ?>
-                </li>
+                        // Show line
+                        if (isset($value['file']) && isset($value['line'])) {
+                            echo sprintf(' in %s', parse_file($value['file'], $value['line']));
+                        }
+                        ?>
+                    </li>
                 <?php } ?>
             </ol>
         </div>
     </div>
+        <?php } ?>
     <?php } else { ?>
     <div class="exception">
-        
-            <div class="info"><h1><?php echo htmlentities($message); ?></h1></div>
-        
+        <div class="info"><h1><?php echo htmlentities($traces[0]['message']); ?></h1></div>
     </div>
     <?php } ?>
     
-    <?php if(!empty($datas)){ ?>
+    <?php if (!empty($datas)) { ?>
     <div class="exception-var">
         <h2>Exception Datas</h2>
         <?php foreach ((array) $datas as $label => $value) { ?>
         <table>
-            <?php if(empty($value)){ ?>
+            <?php if (empty($value)) { ?>
             <caption><?php echo $label; ?><small>empty</small></caption>
             <?php } else { ?>
             <caption><?php echo $label; ?></caption>
@@ -349,19 +356,7 @@
                 <?php foreach ((array) $value as $key => $val) { ?>
                 <tr>
                     <td><?php echo htmlentities($key); ?></td>
-                    <td>
-                        <?php 
-                            if(is_array($val) || is_object($val)){ 
-                                echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
-                            } else if(is_bool($val)) { 
-                                echo $val ? 'true' : 'false';
-                            } else if(is_scalar($val)) {
-                                echo htmlentities($val);
-                            } else {
-                                echo 'Resource';
-                            }
-                        ?>
-                    </td>
+                    <td><?php echo_value($val); ?></td>
                 </tr>
                 <?php } ?>
             </tbody>
@@ -371,12 +366,12 @@
     </div>
     <?php } ?>
 
-    <?php if(!empty($tables)){ ?>
+    <?php if (!empty($tables)) { ?>
     <div class="exception-var">
         <h2>Environment Variables</h2>
         <?php foreach ((array) $tables as $label => $value) { ?>
         <table>
-            <?php if(empty($value)){ ?>
+            <?php if (empty($value)) { ?>
             <caption><?php echo $label; ?><small>empty</small></caption>
             <?php } else { ?>
             <caption><?php echo $label; ?></caption>
@@ -384,19 +379,7 @@
                 <?php foreach ((array) $value as $key => $val) { ?>
                 <tr>
                     <td><?php echo htmlentities($key); ?></td>
-                    <td>
-                        <?php 
-                            if(is_array($val) || is_object($val)){ 
-                                echo htmlentities(json_encode($val, JSON_PRETTY_PRINT));
-                            } else if(is_bool($val)) { 
-                                echo $val ? 'true' : 'false';
-                            } else if(is_scalar($val)) {
-                                echo htmlentities($val);
-                            } else {
-                                echo 'Resource';
-                            }
-                        ?>
-                    </td>
+                    <td><?php echo_value($val); ?></td>
                 </tr>
                 <?php } ?>
             </tbody>
@@ -412,10 +395,8 @@
         <span>{ 十年磨一剑-为API开发设计的高性能框架 }</span>
         <span>- <a title="官方手册" href="https://www.kancloud.cn/manual/thinkphp6_0/">官方手册</a></span>
     </div>
-    <?php if(\think\facade\App::isDebug()) { ?>
+    <?php if (\think\facade\App::isDebug()) { ?>
     <script>
-        var LINE = <?php echo $line; ?>;
-
         function $(selector, node){
             var elements;
 
@@ -482,10 +463,6 @@
                     this.innerHTML = title;
                 }
             }
-
-            // 设置出错行
-            var err_line = $('.line-' + LINE, ol[0])[0];
-            err_line.className = err_line.className + ' line-error';
 
             $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
                 prettyPrint();
