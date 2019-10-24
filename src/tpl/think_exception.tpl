@@ -74,7 +74,7 @@ if (!function_exists('parse_args')) {
         return implode(', ', $result);
     }
 }
-if (function_exists('echo_value')) {
+if (!function_exists('echo_value')) {
     function echo_value($val)
     {
         if (is_array($val) || is_object($val)) {
@@ -219,6 +219,10 @@ if (function_exists('echo_value')) {
             font-size:14px;
             font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑",serif;
         }
+        .exception .trace h2:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
         .exception .trace ol{
             margin: 12px;
         }
@@ -309,7 +313,7 @@ if (function_exists('echo_value')) {
                 </div>
             <?php }?>
         <div class="trace">
-            <h2>Call Stack</h2>
+            <h2 data-expand="<?php echo 0 === $index ? '1' : '0'; ?>">Call Stack</h2>
             <ol>
                 <li><?php echo sprintf('in %s', parse_file($trace['file'], $trace['line'])); ?></li>
                 <?php foreach ((array) $trace['trace'] as $value) { ?>
@@ -466,14 +470,31 @@ if (function_exists('echo_value')) {
 
             $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
                 prettyPrint();
-
-                // 解决Firefox浏览器一个很诡异的问题
-                // 当代码高亮后，ol的行号莫名其妙的错位
-                // 但是只要刷新li里面的html重新渲染就没有问题了
-                if(window.navigator.userAgent.indexOf('Firefox') >= 0){
-                    ol[0].innerHTML = ol[0].innerHTML;
-                }
             });
+
+            (function () {
+                var expand = function (dom, expand) {
+                    var ol = $('ol', dom.parentNode)[0];
+                    expand = undefined === expand ? dom.attributes['data-expand'].value === '0' : undefined;
+                    if (expand) {
+                        dom.attributes['data-expand'].value = '1';
+                        ol.style.display = 'none';
+                        dom.innerText = 'Call Stack (展开)';
+                    } else {
+                        dom.attributes['data-expand'].value = '0';
+                        ol.style.display = 'block';
+                        dom.innerText = 'Call Stack (收缩)';
+                    }
+                };
+                var traces = $('.trace');
+                for (var i = 0; i < traces.length; i ++) {
+                    var h2 = $('h2', traces[i])[0];
+                    expand(h2);
+                    h2.onclick = function () {
+                        expand(this);
+                    };
+                }
+            })();
 
         })();
     </script>
