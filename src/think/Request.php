@@ -2057,6 +2057,10 @@ class Request
     public function withInput(string $input)
     {
         $this->input = $input;
+        if (!empty($input)) {
+            $this->post = $this->getInputData($input);
+            $this->put  = $this->getInputData($input);
+        }
         return $this;
     }
 
