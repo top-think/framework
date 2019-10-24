@@ -307,15 +307,6 @@ class Request
     {
         $request = new static();
 
-        $request->server  = $_SERVER;
-        $request->env     = $app->env;
-        $request->get     = $_GET;
-        $request->post    = $_POST ?: $request->getInputData($request->input);
-        $request->put     = $request->getInputData($request->input);
-        $request->request = $_REQUEST;
-        $request->cookie  = $_COOKIE;
-        $request->file    = $_FILES ?? [];
-
         if (function_exists('apache_request_headers') && $result = apache_request_headers()) {
             $header = $result;
         } else {
@@ -336,6 +327,15 @@ class Request
         }
 
         $request->header = array_change_key_case($header);
+
+        $request->server  = $_SERVER;
+        $request->env     = $app->env;
+        $request->get     = $_GET;
+        $request->post    = $_POST ?: $request->getInputData($request->input);
+        $request->put     = $request->getInputData($request->input);
+        $request->request = $_REQUEST;
+        $request->cookie  = $_COOKIE;
+        $request->file    = $_FILES ?? [];
 
         return $request;
     }
