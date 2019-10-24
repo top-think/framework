@@ -196,6 +196,11 @@ class Socket implements LogHandlerInterface
         $this->send($this->config['host'], $msg, $address);
     }
 
+    /**
+     * 检测客户授权
+     * @access protected
+     * @return bool
+     */
     protected function check()
     {
         $tabid = $this->getClientArg('tabid');
@@ -226,6 +231,12 @@ class Socket implements LogHandlerInterface
         return true;
     }
 
+    /**
+     * 获取客户参数
+     * @access protected
+     * @param string $name
+     * @return string
+     */
     protected function getClientArg(string $name)
     {
         if (!$this->app->exists('request')) {
@@ -233,8 +244,8 @@ class Socket implements LogHandlerInterface
         }
 
         if (empty($this->clientArg)) {
-            if (empty($socketLog = $this->app->request->server('HTTP_SOCKETLOG'))) {
-                if (empty($socketLog = $this->app->request->server('HTTP_USER_AGENT'))) {
+            if (empty($socketLog = $this->app->request->header('socketlog'))) {
+                if (empty($socketLog = $this->app->request->header('User-Agent'))) {
                     return '';
                 }
             }
