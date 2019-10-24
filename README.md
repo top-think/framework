@@ -38,7 +38,7 @@ ThinkPHP6.0底层架构采用PHP7.1改写和进一步优化。
 ## 安装
 
 ~~~
-composer create-project topthink/think tp 6.0.*-dev
+composer create-project topthink/think tp
 ~~~
 
 启动服务
