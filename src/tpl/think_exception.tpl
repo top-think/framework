@@ -185,7 +185,7 @@
             display: inline-block;
             min-width: 100%;
             box-sizing: border-box;
-            font-size:14px;
+        font-size:14px;
             font-family: "Century Gothic",Consolas,"Liberation Mono",Courier,Verdana;
             padding-left: <?php echo (isset($source) && !empty($source)) ? parse_padding($source) : 40;  ?>px;
         }
@@ -199,7 +199,7 @@
             height: 100%;
             display: inline-block;
             border-left: 1px solid #fff;
-            font-size:14px;
+        font-size:14px;
             font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
         }
         .exception .trace{
@@ -207,7 +207,7 @@
             border: 1px solid #ddd;
             border-top: 0 none;
             line-height: 16px;
-            font-size:14px;
+        font-size:14px;
             font-family: Consolas,"Liberation Mono",Courier,Verdana,"微软雅黑";
         }
         .exception .trace ol{
@@ -227,7 +227,7 @@
             margin: 12px 0;
             box-sizing: border-box;
             table-layout:fixed;
-            word-wrap:break-word;
+            word-wrap:break-word;            
         }
         .exception-var table caption{
             text-align: left;
@@ -284,56 +284,54 @@
 </head>
 <body>
     <?php if(\think\facade\App::isDebug()) { ?>
-        <?php foreach ($traces as $index => $trace) { ?>
-            <div class="exception">
-                <div class="message">
-
-                    <div class="info">
-                        <div>
-                            <h2>#<?php echo $index ?> [<?php echo $trace['code']; ?>]&nbsp;<?php echo sprintf('%s in %s', parse_class($trace['name']), parse_file($trace['file'], $trace['line'])); ?></h2>
-                        </div>
-                        <div><h1><?php echo nl2br(htmlentities($trace['message'])); ?></h1></div>
-                    </div>
-
+    <div class="exception">
+    <div class="message">
+        
+            <div class="info">
+                <div>
+                    <h2>[<?php echo $code; ?>]&nbsp;<?php echo sprintf('%s in %s', parse_class($name), parse_file($file, $line)); ?></h2>
                 </div>
-                <?php if(!empty($trace['source'])){?>
-                    <div class="source-code">
-                        <pre class="prettyprint lang-php"><ol start="<?php echo $trace['source']['first']; ?>"><?php foreach ((array) $trace['source']['source'] as $key => $value) { ?><li class="line-<?php echo $key + $trace['source']['first']; ?>"><code><?php echo htmlentities($value); ?></code></li><?php } ?></ol></pre>
-                    </div>
-                <?php }?>
-                <div class="trace">
-                    <h2>Call Stack</h2>
-                    <ol>
-                        <li><?php echo sprintf('in %s', parse_file($trace['file'], $trace['line'])); ?></li>
-                        <?php foreach ((array) $trace['trace'] as $value) { ?>
-                            <li>
-                                <?php
-                                // Show Function
-                                if($value['function']){
-                                    echo sprintf(
-                                        'at %s%s%s(%s)',
-                                        isset($value['class']) ? parse_class($value['class']) : '',
-                                        isset($value['type'])  ? $value['type'] : '',
-                                        $value['function'],
-                                        isset($value['args'])?parse_args($value['args']):''
-                                    );
-                                }
-
-                                // Show line
-                                if (isset($value['file']) && isset($value['line'])) {
-                                    echo sprintf(' in %s', parse_file($value['file'], $value['line']));
-                                }
-                                ?>
-                            </li>
-                        <?php } ?>
-                    </ol>
-                </div>
+                <div><h1><?php echo nl2br(htmlentities($message)); ?></h1></div>
             </div>
-        <?php } ?>
+        
+    </div>
+	<?php if(!empty($source)){?>
+        <div class="source-code">
+            <pre class="prettyprint lang-php"><ol start="<?php echo $source['first']; ?>"><?php foreach ((array) $source['source'] as $key => $value) { ?><li class="line-<?php echo $key + $source['first']; ?>"><code><?php echo htmlentities($value); ?></code></li><?php } ?></ol></pre>
+        </div>
+	<?php }?>
+        <div class="trace">
+            <h2>Call Stack</h2>
+            <ol>
+                <li><?php echo sprintf('in %s', parse_file($file, $line)); ?></li>
+                <?php foreach ((array) $trace as $value) { ?>
+                <li>
+                <?php 
+                    // Show Function
+                    if($value['function']){
+                        echo sprintf(
+                            'at %s%s%s(%s)', 
+                            isset($value['class']) ? parse_class($value['class']) : '',
+                            isset($value['type'])  ? $value['type'] : '', 
+                            $value['function'], 
+                            isset($value['args'])?parse_args($value['args']):''
+                        );
+                    }
+
+                    // Show line
+                    if (isset($value['file']) && isset($value['line'])) {
+                        echo sprintf(' in %s', parse_file($value['file'], $value['line']));
+                    }
+                ?>
+                </li>
+                <?php } ?>
+            </ol>
+        </div>
+    </div>
     <?php } else { ?>
     <div class="exception">
         
-            <div class="info"><h1><?php echo htmlentities($traces[0]['message']); ?></h1></div>
+            <div class="info"><h1><?php echo htmlentities($message); ?></h1></div>
         
     </div>
     <?php } ?>
