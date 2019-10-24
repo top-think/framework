@@ -468,10 +468,6 @@ if (!function_exists('echo_value')) {
                 }
             }
 
-            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
-                prettyPrint();
-            });
-
             (function () {
                 var expand = function (dom, expand) {
                     var ol = $('ol', dom.parentNode)[0];
@@ -483,7 +479,7 @@ if (!function_exists('echo_value')) {
                     } else {
                         dom.attributes['data-expand'].value = '0';
                         ol.style.display = 'block';
-                        dom.innerText = 'Call Stack (收缩)';
+                        dom.innerText = 'Call Stack (折叠)';
                     }
                 };
                 var traces = $('.trace');
@@ -496,6 +492,9 @@ if (!function_exists('echo_value')) {
                 }
             })();
 
+            $.getScript('//cdn.bootcss.com/prettify/r298/prettify.min.js', function(){
+                prettyPrint();
+            });
         })();
     </script>
     <?php } ?>
