@@ -157,13 +157,15 @@ class Handle
                     'name'    => get_class($nextException),
                     'file'    => $nextException->getFile(),
                     'line'    => $nextException->getLine(),
+                    'code'    => $this->getCode($nextException),
                     'message' => $this->getMessage($nextException),
                     'trace'   => $nextException->getTrace(),
-                    'code'    => $this->getCode($nextException),
                     'source'  => $this->getSourceCode($nextException),
                 ];
             } while ($nextException = $nextException->getPrevious());
             $data = [
+                'code'    => $this->getCode($exception),
+                'message' => $this->getMessage($exception),
                 'traces'  => $traces,
                 'datas'   => $this->getExtendData($exception),
                 'tables'  => [

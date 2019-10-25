@@ -138,8 +138,9 @@ abstract class Response
                 header($name . (!is_null($val) ? ':' . $val : ''));
             }
         }
-
-        $this->cookie->save();
+        if ($this->cookie) {
+            $this->cookie->save();
+        }
 
         $this->sendData($data);
 
