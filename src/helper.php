@@ -370,7 +370,7 @@ if (!function_exists('redirect')) {
      * @param int    $code 状态码
      * @return \think\response\Redirect
      */
-    function redirect(string $url, int $code = 302): Redirect
+    function redirect(string $url = '', int $code = 302): Redirect
     {
         return Response::create($url, 'redirect', $code);
     }
