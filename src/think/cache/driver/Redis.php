@@ -58,9 +58,9 @@ class Redis extends Driver
             $this->handler = new \Redis;
 
             if ($this->options['persistent']) {
-                $this->handler->pconnect($this->options['host'], (int) $this->options['port'], $this->options['timeout'], 'persistent_id_' . $this->options['select']);
+                $this->handler->pconnect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout'], 'persistent_id_' . $this->options['select']);
             } else {
-                $this->handler->connect($this->options['host'], (int) $this->options['port'], $this->options['timeout']);
+                $this->handler->connect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout']);
             }
 
             if ('' != $this->options['password']) {
@@ -115,7 +115,7 @@ class Redis extends Driver
 
         $value = $this->handler->get($this->getCacheKey($name));
 
-        if (false === $value) {
+        if (false === $value || is_null($value)) {
             return $default;
         }
 
