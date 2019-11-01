@@ -523,7 +523,7 @@ if (!function_exists('validate')) {
         } else {
             if (strpos($validate, '.')) {
                 // 支持场景
-                list($validate, $scene) = explode('.', $validate);
+                [$validate, $scene] = explode('.', $validate);
             }
 
             $class = false !== strpos($validate, '\\') ? $validate : app()->parseClass('validate', $validate);

@@ -1126,7 +1126,7 @@ class Request
         if (!empty($files)) {
 
             if (strpos($name, '.')) {
-                list($name, $sub) = explode('.', $name);
+                [$name, $sub] = explode('.', $name);
             }
 
             // 处理上传文件
@@ -1244,7 +1244,7 @@ class Request
         if ('' != $name) {
             // 解析name
             if (strpos($name, '/')) {
-                list($name, $type) = explode('/', $name);
+                [$name, $type] = explode('/', $name);
             }
 
             $data = $this->getData($data, $name);
@@ -1798,7 +1798,7 @@ class Request
 
         if ($contentType) {
             if (strpos($contentType, ';')) {
-                list($type) = explode(';', $contentType);
+                [$type] = explode(';', $contentType);
             } else {
                 $type = $contentType;
             }

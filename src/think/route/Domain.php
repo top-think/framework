@@ -110,7 +110,7 @@ class Domain extends RuleGroup
     protected function parseBindAppendParam(string &$bind): void
     {
         if (false !== strpos($bind, '?')) {
-            list($bind, $query) = explode('?', $bind);
+            [$bind, $query] = explode('?', $bind);
             parse_str($query, $vars);
             $this->append($vars);
         }

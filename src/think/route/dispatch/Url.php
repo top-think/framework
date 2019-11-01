@@ -100,7 +100,7 @@ class Url extends Controller
      */
     protected function hasDefinedRoute(array $route): bool
     {
-        list($controller, $action) = $route;
+        [$controller, $action] = $route;
 
         // 检查地址是否被定义过路由
         $name = strtolower(Str::studly($controller) . '/' . $action);

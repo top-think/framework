@@ -181,7 +181,7 @@ class Cookie
     public function save(): void
     {
         foreach ($this->cookie as $name => $val) {
-            list($value, $expire, $option) = $val;
+            [$value, $expire, $option] = $val;
 
             $this->saveCookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'] ? true : false, $option['httponly'] ? true : false);
         }

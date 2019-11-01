@@ -135,7 +135,7 @@ class Middleware
         return (new Pipeline())
             ->through(array_map(function ($middleware) {
                 return function ($request, $next) use ($middleware) {
-                    list($call, $param) = $middleware;
+                    [$call, $param] = $middleware;
                     if (is_array($call) && is_string($call[0])) {
                         $call = [$this->app->make($call[0]), $call[1]];
                     }
@@ -158,7 +158,7 @@ class Middleware
     {
         foreach ($this->queue as $queue) {
             foreach ($queue as $middleware) {
-                list($call) = $middleware;
+                [$call] = $middleware;
                 if (is_array($call) && is_string($call[0])) {
                     $instance = $this->app->make($call[0]);
                     if (method_exists($instance, 'end')) {
@@ -197,7 +197,7 @@ class Middleware
     protected function buildMiddleware($middleware, string $type): array
     {
         if (is_array($middleware)) {
-            list($middleware, $param) = $middleware;
+            [$middleware, $param] = $middleware;
         }
 
         if ($middleware instanceof Closure) {
@@ -248,7 +248,7 @@ class Middleware
      */
     protected function getMiddlewarePriority($priority, $middleware)
     {
-        list($call) = $middleware;
+        [$call] = $middleware;
         if (is_array($call) && is_string($call[0])) {
             $index = array_search($call[0], array_reverse($priority));
             return false === $index ? -1 : $index;

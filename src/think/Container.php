@@ -304,7 +304,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         if (is_array($method)) {
             [$class, $method] = $method;
-            $class   = is_object($class) ? $class : $this->invokeClass($class);
+
+            $class = is_object($class) ? $class : $this->invokeClass($class);
         } else {
             // 静态方法
             [$class, $method] = explode('::', $method);
@@ -314,8 +315,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $reflect = new ReflectionMethod($class, $method);
         } catch (ReflectionException $e) {
             $class = is_object($class) ? get_class($class) : $class;
-            $message = sprintf('method not exists: %d::%d()', $class, $method);
-            throw new FuncNotFoundException($message, "{$class}::{$method}", $e);
+            throw new FuncNotFoundException('method not exists: ' . $class . '::' . $method . '()', "{$class}::{$method}", $e);
         }
 
         $args = $this->bindParams($reflect, $vars);

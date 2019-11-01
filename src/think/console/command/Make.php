@@ -79,7 +79,7 @@ abstract class Make extends Command
         }
 
         if (strpos($name, '@')) {
-            list($app, $name) = explode('@', $name);
+            [$app, $name] = explode('@', $name);
         } else {
             $app = '';
         }

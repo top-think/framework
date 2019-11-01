@@ -355,7 +355,7 @@ class RuleGroup extends Rule
             $var = [];
             foreach ($match as $key => $val) {
                 if (is_string($key) && '' !== $val) {
-                    list($name, $pos) = explode('_THINK_', $key);
+                    [$name, $pos] = explode('_THINK_', $key);
 
                     $var[$name] = $val;
                 }

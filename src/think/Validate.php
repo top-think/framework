@@ -491,7 +491,7 @@ class Validate
             // field => 'rule1|rule2...' field => ['rule1','rule2',...]
             if (strpos($key, '|')) {
                 // 字段|描述 用于指定属性名称
-                list($key, $title) = explode('|', $key);
+                [$key, $title] = explode('|', $key);
             } else {
                 $title = $this->field[$key] ?? $key;
             }
@@ -560,7 +560,7 @@ class Validate
                 $result = call_user_func_array($rule, [$value]);
             } else {
                 // 判断验证类型
-                list($type, $rule) = $this->getValidateType($key, $rule);
+                [$type, $rule] = $this->getValidateType($key, $rule);
 
                 $callback = $this->type[$type] ?? [$this, $type];
 
@@ -614,7 +614,7 @@ class Validate
                 $info   = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
-                list($type, $rule, $info) = $this->getValidateType($key, $rule);
+                [$type, $rule, $info] = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
 
@@ -682,7 +682,7 @@ class Validate
         }
 
         if (strpos($rule, ':')) {
-            list($type, $rule) = explode(':', $rule, 2);
+            [$type, $rule] = explode(':', $rule, 2);
             if (isset($this->alias[$type])) {
                 // 判断别名
                 $type = $this->alias[$type];
@@ -1072,7 +1072,7 @@ class Validate
         if ($rule) {
             $rule = explode(',', $rule);
 
-            list($width, $height, $type) = getimagesize($file->getRealPath());
+            [$width, $height, $type] = getimagesize($file->getRealPath());
 
             if (isset($rule[2])) {
                 $imageType = strtolower($rule[2]);
@@ -1086,7 +1086,7 @@ class Validate
                 }
             }
 
-            list($w, $h) = $rule;
+            [$w, $h] = $rule;
 
             return $w == $width && $h == $height;
         }
@@ -1173,7 +1173,7 @@ class Validate
     public function filter($value, $rule): bool
     {
         if (is_string($rule) && strpos($rule, ',')) {
-            list($rule, $param) = explode(',', $rule);
+            [$rule, $param] = explode(',', $rule);
         } elseif (is_array($rule)) {
             $param = $rule[1] ?? null;
             $rule  = $rule[0];
@@ -1194,7 +1194,7 @@ class Validate
      */
     public function requireIf($value, $rule, array $data = []): bool
     {
-        list($field, $val) = explode(',', $rule);
+        [$field, $val] = explode(',', $rule);
 
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value) || '0' == $value;
@@ -1296,7 +1296,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        list($min, $max) = $rule;
+        [$min, $max] = $rule;
 
         return $value >= $min && $value <= $max;
     }
@@ -1313,7 +1313,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        list($min, $max) = $rule;
+        [$min, $max] = $rule;
 
         return $value < $min || $value > $max;
     }
@@ -1337,7 +1337,7 @@ class Validate
 
         if (is_string($rule) && strpos($rule, ',')) {
             // 长度区间
-            list($min, $max) = explode(',', $rule);
+            [$min, $max] = explode(',', $rule);
             return $length >= $min && $length <= $max;
         }
 
@@ -1452,7 +1452,7 @@ class Validate
             $rule = explode(',', $rule);
         }
 
-        list($start, $end) = $rule;
+        [$start, $end] = $rule;
 
         if (!is_numeric($start)) {
             $start = strtotime($start);
