@@ -208,7 +208,7 @@ class Cookie
      * @param  string $domain 有效域名/子域名
      * @param  bool   $secure 是否仅仅通过HTTPS
      * @param  bool   $httponly 仅可通过HTTP访问
-     * @param  string $samesite 防止CSRF攻击和用户追踪
+     * @param  mixed  $samesite 防止CSRF攻击和用户追踪
      * @return void
      */
     protected function saveCookie(
@@ -219,7 +219,7 @@ class Cookie
         string $domain,
         bool $secure,
         bool $httponly,
-        string $samesite
+        $samesite
     ): void
     {
         if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
