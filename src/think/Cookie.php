@@ -222,14 +222,18 @@ class Cookie
         string $samesite
     ): void
     {
-        setcookie($name, $value, [
-            'expires' => $expire,
-            'path' => $path,
-            'domain' => $domain,
-            'secure' => $secure,
-            'httponly' => $httponly,
-            'samesite' => $samesite
-        ]);
+        if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
+            setcookie($name, $value, [
+                'expires' => $expire,
+                'path' => $path,
+                'domain' => $domain,
+                'secure' => $secure,
+                'httponly' => $httponly,
+                'samesite' => $samesite
+            ]);
+        } else {
+            setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+        }
     }
 
 }
