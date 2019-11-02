@@ -121,11 +121,11 @@ class CacheTest extends TestCase
         $redis->shouldReceive("decrby")->once()->with('foo', 2)->andReturnTrue();
         $redis->shouldReceive("get")->once()->with('foo')->andReturn(6);
         $redis->shouldReceive("get")->once()->with('foo')->andReturn(4);
-        $redis->shouldReceive("set")->once()->with('bar', \Opis\Closure\serialize(true))->andReturnTrue();
-        $redis->shouldReceive("set")->once()->with('baz', \Opis\Closure\serialize(null))->andReturnTrue();
+        $redis->shouldReceive("set")->once()->with('bar', serialize(true))->andReturnTrue();
+        $redis->shouldReceive("set")->once()->with('baz', serialize(null))->andReturnTrue();
         $redis->shouldReceive("del")->once()->with('baz')->andReturnTrue();
         $redis->shouldReceive("flushDB")->once()->andReturnTrue();
-        $redis->shouldReceive("set")->once()->with('bar', \Opis\Closure\serialize('foobar'))->andReturnTrue();
+        $redis->shouldReceive("set")->once()->with('bar', serialize('foobar'))->andReturnTrue();
         $redis->shouldReceive("sAdd")->once()->with('tag:' . md5('foo'), 'bar')->andReturnTrue();
         $redis->shouldReceive("sMembers")->once()->with('tag:' . md5('foo'))->andReturn(['bar']);
         $redis->shouldReceive("del")->once()->with(['bar'])->andReturnTrue();

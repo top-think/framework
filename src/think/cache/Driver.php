@@ -227,7 +227,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
             return (string) $data;
         }
 
-        $serialize = $this->options['serialize'][0] ?? "\Opis\Closure\serialize";
+        $serialize = $this->options['serialize'][0] ?? "serialize";
 
         return $serialize($data);
     }
@@ -244,7 +244,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
             return $data;
         }
 
-        $unserialize = $this->options['serialize'][1] ?? "\Opis\Closure\unserialize";
+        $unserialize = $this->options['serialize'][1] ?? "unserialize";
 
         return $unserialize($data);
     }
