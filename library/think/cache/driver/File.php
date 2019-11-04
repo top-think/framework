@@ -129,8 +129,11 @@ class File extends Driver
         if (!is_file($filename)) {
             return $default;
         }
-
-        $content      = @file_get_contents($filename);
+        try {
+            $content = file_get_contents($filename);
+        } catch (\Exception $e) {
+            return $default;
+        }
         $this->expire = null;
 
         if (false !== $content) {
@@ -245,11 +248,7 @@ class File extends Driver
     public function rm($name)
     {
         $this->writeTimes++;
-
-        try {
-            return $this->unlink($this->getCacheKey($name));
-        } catch (\Exception $e) {
-        }
+        return $this->unlink($this->getCacheKey($name));
     }
 
     /**
