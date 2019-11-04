@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\log\driver;
 
+use Psr\Container\NotFoundExceptionInterface;
 use think\App;
 use think\contract\LogHandlerInterface;
 
@@ -23,11 +24,11 @@ class Socket implements LogHandlerInterface
 {
     protected $app;
 
-    public $port = 1116; //SocketLog 服务的http的端口号
-
     protected $config = [
         // socket服务器地址
         'host'                => 'localhost',
+        // socket服务器端口
+        'port'                => 1116,
         // 是否显示加载的文件列表
         'show_included_files' => false,
         // 日志强制记录到配置的client_id
@@ -38,6 +39,8 @@ class Socket implements LogHandlerInterface
         'debug'               => false,
         // 输出到浏览器时默认展开的日志级别
         'expand_level'        => ['debug'],
+        // 日志头渲染回调
+        'format_head'         => null,
     ];
 
     protected $css = [
@@ -90,6 +93,14 @@ class Socket implements LogHandlerInterface
                 $current_uri = $this->app->request->url(true);
             } else {
                 $current_uri = 'cmd:' . implode(' ', $_SERVER['argv'] ?? []);
+            }
+
+            if (!empty($this->config['format_head'])) {
+                try {
+                    $current_uri = $this->app->invoke($this->config['format_head'], [$current_uri]);
+                } catch (NotFoundExceptionInterface $notFoundException) {
+                    // Ignore exception
+                }
             }
 
             // 基本信息
@@ -193,7 +204,7 @@ class Socket implements LogHandlerInterface
         $msg     = json_encode($logs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
         $address = '/' . $client_id; //将client_id作为地址， server端通过地址判断将日志发布给谁
 
-        $this->send($this->config['host'], $msg, $address);
+        $this->send($this->config['host'], $this->config['port'], $msg, $address);
     }
 
     /**
@@ -267,13 +278,14 @@ class Socket implements LogHandlerInterface
     /**
      * @access protected
      * @param string $host    - $host of socket server
+     * @param int    $port    - $port of socket server
      * @param string $message - 发送的消息
      * @param string $address - 地址
      * @return bool
      */
-    protected function send($host, $message = '', $address = '/')
+    protected function send($host, $port, $message = '', $address = '/')
     {
-        $url = 'http://' . $host . ':' . $this->port . $address;
+        $url = 'http://' . $host . ':' . $port . $address;
         $ch  = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
