@@ -343,7 +343,7 @@ if (!function_exists('echo_value')) {
         <?php } ?>
     <?php } else { ?>
     <div class="exception">
-        <div class="info"><h1><?php echo htmlentities($traces[0]['message']); ?></h1></div>
+        <div class="info"><h1><?php echo htmlentities($message); ?></h1></div>
     </div>
     <?php } ?>
     
