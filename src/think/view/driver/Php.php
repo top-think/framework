@@ -83,10 +83,6 @@ class Php implements TemplateHandlerInterface
 
         $this->template = $template;
 
-        // 记录视图信息
-        $this->app->log
-            ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
-
         extract($data, EXTR_OVERWRITE);
 
         include $this->template;

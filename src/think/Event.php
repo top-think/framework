@@ -253,6 +253,7 @@ class Event
 
         $result    = [];
         $listeners = $this->listener[$event] ?? [];
+        $listeners = array_unique($listeners, SORT_REGULAR);
 
         foreach ($listeners as $key => $listener) {
             $result[$key] = $this->dispatch($listener, $params);
