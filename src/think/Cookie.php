@@ -36,7 +36,7 @@ class Cookie
         // httponly设置
         'httponly' => false,
         // samesite 设置，支持 'strict' 'lax'
-        'samesite' => ''
+        'samesite' => '',
     ];
 
     /**
@@ -211,25 +211,16 @@ class Cookie
      * @param  string $samesite 防止CSRF攻击和用户追踪
      * @return void
      */
-    protected function saveCookie(
-        string $name,
-        string $value,
-        int $expire,
-        string $path,
-        string $domain,
-        bool $secure,
-        bool $httponly,
-        string $samesite
-    ): void
+    protected function saveCookie(string $name, string $value, int $expire, string $path, string $domain, bool $secure, bool $httponly, string $samesite): void
     {
         if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
             setcookie($name, $value, [
-                'expires' => $expire,
-                'path' => $path,
-                'domain' => $domain,
-                'secure' => $secure,
+                'expires'  => $expire,
+                'path'     => $path,
+                'domain'   => $domain,
+                'secure'   => $secure,
                 'httponly' => $httponly,
-                'samesite' => $samesite
+                'samesite' => $samesite,
             ]);
         } else {
             setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
