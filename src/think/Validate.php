@@ -1077,8 +1077,8 @@ class Validate
             if (isset($rule[2])) {
                 $imageType = strtolower($rule[2]);
 
-                if ('jpeg' == $imageType) {
-                    $imageType = 'jpg';
+                if ('jpg' == $imageType) {
+                    $imageType = 'jpeg';
                 }
 
                 if (image_type_to_extension($type, false) != $imageType) {
