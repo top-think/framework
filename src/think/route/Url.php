@@ -324,11 +324,12 @@ class Url
             }
 
             $type = $this->route->config('url_common_param');
+            $keys = [];
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode((string) $vars[$key]), $url);
-                    unset($vars[$key]);
+                    $url    = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode((string) $vars[$key]), $url);
+                    $keys[] = $key;
                     $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } elseif (2 == $val) {
@@ -336,9 +337,13 @@ class Url
                     $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } else {
+                    $result = null;
+                    $keys   = [];
                     break;
                 }
             }
+
+            $vars = array_diff_key($vars, array_flip($keys));
 
             if (isset($result)) {
                 return $result;
