@@ -213,7 +213,7 @@ class Url
         if ($suffix) {
             $suffix = true === $suffix ? $this->route->config('url_html_suffix') : $suffix;
 
-            if ($pos = strpos($suffix, '|')) {
+            if (is_string($suffix) && $pos = strpos($suffix, '|')) {
                 $suffix = substr($suffix, 0, $pos);
             }
         }
