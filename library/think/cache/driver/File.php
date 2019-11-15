@@ -129,11 +129,9 @@ class File extends Driver
         if (!is_file($filename)) {
             return $default;
         }
-        try {
-            $content = file_get_contents($filename);
-        } catch (\Exception $e) {
-            return $default;
-        }
+
+        $content = @file_get_contents($filename);
+
         $this->expire = null;
 
         if (false !== $content) {
