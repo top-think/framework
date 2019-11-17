@@ -582,12 +582,12 @@ class Query
                 default:
                     if (function_exists($type)) {
                         // 支持指定函数哈希
-                        $seq = (ord(substr($type($value), 0, 1)) % $rule['num']) + 1;
-                    } else {
-                        // 按照字段的首字母的值分表
-                        $seq = (ord($value{0}) % $rule['num']) + 1;
+                        $value = $type($value);
                     }
+
+                    $seq = (ord(substr($value, 0, 1)) % $rule['num']) + 1;
             }
+
             return $this->getTable() . '_' . $seq;
         }
         // 当设置的分表字段不在查询条件或者数据中
