@@ -115,7 +115,7 @@ class Socket implements LogHandlerInterface
 
         foreach ($log as $type => $val) {
             $trace[] = [
-                'type' => ($expand_level[$type] ?? false) ? 'group' : 'groupCollapsed',
+                'type' => isset($expand_level[$type]) ? 'group' : 'groupCollapsed',
                 'msg'  => '[ ' . $type . ' ]',
                 'css'  => $this->css[$type] ?? '',
             ];
