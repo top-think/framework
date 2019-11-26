@@ -57,6 +57,8 @@ class SessionInit
 
         if ($sessionId) {
             $this->session->setId($sessionId);
+        } else {
+            $this->app->cookie->set($cookieName, $this->session->getId());
         }
 
         $this->session->init();
@@ -67,8 +69,6 @@ class SessionInit
         $response = $next($request);
 
         $response->setSession($this->session);
-
-        $this->app->cookie->set($cookieName, $this->session->getId());
 
         return $response;
     }
