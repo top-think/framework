@@ -98,7 +98,7 @@ class File implements SessionHandlerInterface
         /** @var SplFileInfo $item */
         foreach ($items as $item) {
             if ($item->isDir() && !$item->isLink()) {
-                yield from $this->findFiles($item->getPathname(), $filter);
+                yield from$this->findFiles($item->getPathname(), $filter);
             } else {
                 if ($filter($item)) {
                     yield $item;
@@ -152,7 +152,7 @@ class File implements SessionHandlerInterface
 
             if ($this->config['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
-                $content = gzuncompress($content);
+                $content = (string) gzuncompress($content);
             }
 
             return $content;
