@@ -139,16 +139,16 @@ abstract class Dispatch
             $this->createBindModel($option['model'], $this->param);
         }
 
-        // 数据自动验证
-        if (isset($option['validate'])) {
-            $this->autoValidate($option['validate']);
-        }
-
         // 记录当前请求的路由规则
         $this->request->setRule($this->rule);
 
         // 记录路由变量
         $this->request->setRoute($this->param);
+
+        // 数据自动验证
+        if (isset($option['validate'])) {
+            $this->autoValidate($option['validate']);
+        }
     }
 
     /**
