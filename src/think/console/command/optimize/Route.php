@@ -46,7 +46,7 @@ class Route extends Command
         $this->app->route->lazy(false);
 
         // 路由检测
-        $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . ($dir ? $dir . DIRECTORY_SEPARATOR : '');
+        $path = $this->app->getRootPath() . ($dir ? 'app' . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR : '') . 'route' . DIRECTORY_SEPARATOR ;
 
         $files = is_dir($path) ? scandir($path) : [];
 
