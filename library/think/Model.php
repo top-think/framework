@@ -158,6 +158,12 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     protected $globalScope = [];
 
     /**
+     * 数据表后缀
+     * @var string
+     */
+    protected $suffix;
+    
+    /**
      * 架构函数
      * @access public
      * @param  array|object $data 数据
@@ -247,7 +253,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this;
     }
 
-    /**
+       /**
      * 创建新的模型实例
      * @access public
      * @param  array|object $data 数据
@@ -257,7 +263,60 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
      */
     public function newInstance($data = [], $isUpdate = false, $where = null)
     {
-        return (new static($data))->isUpdate($isUpdate, $where);
+        $model = new static($data);
+
+        if ($this->connection) {
+            $model->setConnection($this->connection);
+        }
+
+        if ($this->suffix) {
+            $model->setSuffix($this->suffix);
+        }
+
+        return $model->isUpdate($isUpdate, $where);
+    }
+
+    /**
+     * 设置当前模型的数据库连接
+     * @access public
+     * @param string $connection 数据表连接标识
+     * @return $this
+     */
+    public function setConnection($connection)
+    {
+        $this->connection = $connection;
+        return $this;
+    }
+    /**
+     * 获取当前模型的数据库连接标识
+     * @access public
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection ? $this->connection : '';
+    }
+
+    /**
+     * 设置当前模型数据表的后缀
+     * @access public
+     * @param string $suffix 数据表后缀
+     * @return $this
+     */
+    public function setSuffix($suffix)
+    {
+        $this->suffix = $suffix;
+        return $this;
+    }
+
+    /**
+     * 获取当前模型的数据表后缀
+     * @access public
+     * @return string
+     */
+    public function getSuffix()
+    {
+        return $this->suffix ? $this->suffix : '';
     }
 
     /**
@@ -270,7 +329,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         // 设置当前模型 确保查询返回模型对象
         $query = Db::connect($this->connection, false, $this->query);
         $query->model($this)
-            ->name($this->name)
+            ->name($this->name . $this->suffix)
             ->json($this->json, $this->jsonAssoc)
             ->setJsonFieldType($this->jsonType);
 
@@ -280,7 +339,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 设置当前数据表和模型名
         if (!empty($this->table)) {
-            $query->table($this->table);
+            $query->table($this->table . $this->suffix);
         }
 
         if (!empty($this->pk)) {
