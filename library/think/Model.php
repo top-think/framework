@@ -253,7 +253,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         return $this;
     }
 
-       /**
+    /**
      * 创建新的模型实例
      * @access public
      * @param  array|object $data 数据
@@ -287,6 +287,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
         $this->connection = $connection;
         return $this;
     }
+    
     /**
      * 获取当前模型的数据库连接标识
      * @access public
