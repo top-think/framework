@@ -352,11 +352,11 @@ class Session
      */
     protected function unlock()
     {
+        $this->pause();
+
         if (empty($this->lock)) {
             return;
         }
-
-        $this->pause();
 
         if ($this->lockDriver && method_exists($this->lockDriver, 'unlock')) {
             $sessID = isset($_COOKIE[$this->sessKey]) ? $_COOKIE[$this->sessKey] : '';
