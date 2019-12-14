@@ -156,7 +156,7 @@ class Validate
 
     /**
      * 验证失败错误信息
-     * @var array
+     * @var string|array
      */
     protected $error = [];
 
@@ -1512,7 +1512,10 @@ class Validate
         return is_scalar($value) && 1 === preg_match($rule, (string) $value);
     }
 
-    // 获取错误信息
+    /**
+     * 获取错误信息
+     * @return array|string
+     */
     public function getError()
     {
         return $this->error;
