@@ -16,7 +16,6 @@ use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
-use think\console\output\driver\Buffer;
 
 class Console
 {
