@@ -75,7 +75,9 @@ class Handle
                 $log .= PHP_EOL . $exception->getTraceAsString();
             }
 
-            $this->app->log->record($log, 'error');
+            try {
+                $this->app->log->record($log, 'error');
+            } catch (Exception $e){}
         }
     }
 
