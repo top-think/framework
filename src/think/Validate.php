@@ -1140,6 +1140,18 @@ class Validate
                     $map[] = [$key, '=', $data[$key]];
                 }
             }
+        } elseif (strpos($key, '=')) {
+            // 支持复杂验证条件
+            $fields = explode('&', $key);
+            $map_arr=[];
+            foreach ($fields as $key) {
+                $str_map=explode('=',$key);
+                $map[] = [$str_map[0], '=',$str_map[1]];
+                $map_arr[]=$str_map[0];
+            }
+            if(!in_array($field,$map_arr)){
+                $map[]=[$field,'=',$data[$field]];
+            }
         } elseif (isset($data[$field])) {
             $map[] = [$key, '=', $data[$field]];
         } else {
