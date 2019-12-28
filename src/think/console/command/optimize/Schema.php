@@ -85,8 +85,8 @@ class Schema extends Command
             $model = new $class;
 
             $table  = $model->getTable();
-            $dbName = $model->getConnection()->getConfig('database');
-            $path   = $model->getConnection()->getConfig('schema_cache_path');
+            $dbName = $model->db()->getConnection()->getConfig('database');
+            $path   = $model->db()->getConnection()->getConfig('schema_cache_path');
             if (!is_dir($path)) {
                 mkdir($path, 0755, true);
             }
