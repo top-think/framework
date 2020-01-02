@@ -120,7 +120,9 @@ class View extends Manager
         // 渲染输出
         try {
             $callback();
-        } catch (\Exception $e) {
+        } catch (\think\exception\HttpResponseException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
             ob_end_clean();
             throw $e;
         }
