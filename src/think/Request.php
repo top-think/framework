@@ -327,12 +327,14 @@ class Request
         }
 
         $request->header = array_change_key_case($header);
+        $request->server = $_SERVER;
+        $request->env    = $app->env;
 
-        $request->server  = $_SERVER;
-        $request->env     = $app->env;
+        $inputData = $request->getInputData($request->input);
+
         $request->get     = $_GET;
-        $request->post    = $_POST ?: $request->getInputData($request->input);
-        $request->put     = $request->getInputData($request->input);
+        $request->post    = $_POST ?: $inputData;
+        $request->put     = $inputData;
         $request->request = $_REQUEST;
         $request->cookie  = $_COOKIE;
         $request->file    = $_FILES ?? [];
@@ -2052,7 +2054,7 @@ class Request
     /**
      * 设置php://input数据
      * @access public
-     * @param  string $input RAW数据
+     * @param string $input RAW数据
      * @return $this
      */
     public function withInput(string $input)
@@ -2060,10 +2062,9 @@ class Request
         $this->input = $input;
         if (!empty($input)) {
             $inputData = $this->getInputData($input);
-            if ($this->isPost()) {
+            if (!empty($inputData)) {
                 $this->post = $inputData;
-            } else {
-                $this->put = $inputData;
+                $this->put  = $inputData;
             }
         }
         return $this;
