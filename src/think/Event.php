@@ -216,8 +216,7 @@ class Event
         if ($reflect->hasProperty('eventPrefix')) {
             $reflectProperty = $reflect->getProperty('eventPrefix');
             $reflectProperty->setAccessible(true);
-            $eventPrefix = $reflectProperty->getValue($observer);
-            $prefix = "$prefix$eventPrefix";
+            $prefix = $prefix . $reflectProperty->getValue($observer);
         }
         
         foreach ($methods as $method) {
