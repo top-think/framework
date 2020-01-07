@@ -982,11 +982,12 @@ class Request
 
     protected function getInputData($content): array
     {
-        if (false !== strpos($this->contentType(), 'json')) {
-            return (array) json_decode($content, true);
-        } elseif (strpos($content, '=')) {
+        $contentType = $this->contentType();
+        if ($contentType == 'application/x-www-form-urlencoded') {
             parse_str($content, $data);
             return $data;
+        } elseif (false !== strpos($contentType, 'json')) {
+            return (array) json_decode($content, true);
         }
 
         return [];
@@ -2058,8 +2059,12 @@ class Request
     {
         $this->input = $input;
         if (!empty($input)) {
-            $this->post = $this->getInputData($input);
-            $this->put  = $this->getInputData($input);
+            $inputData = $this->getInputData($input);
+            if ($this->isPost()) {
+                $this->post = $inputData;
+            } else {
+                $this->put = $inputData;
+            }
         }
         return $this;
     }
