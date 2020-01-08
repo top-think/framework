@@ -119,8 +119,8 @@ class CacheTest extends TestCase
         $redis->shouldReceive("set")->once()->with('foo', 5)->andReturnTrue();
         $redis->shouldReceive("incrby")->once()->with('foo', 1)->andReturnTrue();
         $redis->shouldReceive("decrby")->once()->with('foo', 2)->andReturnTrue();
-        $redis->shouldReceive("get")->once()->with('foo')->andReturn(6);
-        $redis->shouldReceive("get")->once()->with('foo')->andReturn(4);
+        $redis->shouldReceive("get")->once()->with('foo')->andReturn('6');
+        $redis->shouldReceive("get")->once()->with('foo')->andReturn('4');
         $redis->shouldReceive("set")->once()->with('bar', serialize(true))->andReturnTrue();
         $redis->shouldReceive("set")->once()->with('baz', serialize(null))->andReturnTrue();
         $redis->shouldReceive("del")->once()->with('baz')->andReturnTrue();
