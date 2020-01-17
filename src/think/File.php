@@ -157,7 +157,7 @@ class File extends SplFileInfo
 
     /**
      * 自动生成文件名
-     * @access protected
+     * @access public
      * @param string|\Closure $rule
      * @return string
      */
