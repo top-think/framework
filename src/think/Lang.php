@@ -169,8 +169,15 @@ class Lang
         $range = $range ?: $this->range;
 
         if ($this->config['allow_group'] && strpos($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 2);
-            return isset($this->lang[$range][strtolower($name1)][$name2]);
+            $names = explode('.', $name);
+            $i = 0;
+            $temp = $this->lang[$range];
+            foreach ($names as $key) {
+                if(!isset($temp[strtolower($key)])) return false;
+                $temp = $temp[strtolower($key)];
+                $i++;
+            }
+            return is_string($temp);
         }
 
         return isset($this->lang[$range][strtolower($name)]);
@@ -194,9 +201,20 @@ class Lang
         }
 
         if ($this->config['allow_group'] && strpos($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 2);
+            $names = explode('.', $name);
+            $i = 0;
+            $temp = $this->lang[$range];
+            foreach ($names as $key) {
+                if(!isset($temp[strtolower($key)])) {
+                    $temp = $name;
+                    break;
+                }
+                $temp = $temp[strtolower($key)];
+                if($i > sizeof($names)) break;
+                $i++;
+            }
 
-            $value = $this->lang[$range][strtolower($name1)][$name2] ?? $name;
+            $value = is_string($temp) ? $temp : $name;
         } else {
             $value = $this->lang[$range][strtolower($name)] ?? $name;
         }
