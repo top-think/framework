@@ -653,6 +653,8 @@ abstract class Rule
     {
         if ($route instanceof Dispatch) {
             $result = $route;
+        } elseif (is_subclass_of($route, Dispatch::class)) {
+            $result = new $route($request, $this, $route, $this->vars);
         } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
