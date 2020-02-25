@@ -63,7 +63,7 @@ class File extends Response
         $this->header['Pragma']                    = 'public';
         $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
         $this->header['Cache-control']             = 'max-age=' . $this->expire;
-        $this->header['Content-Disposition']       = ($this->isForceDownload?'attachment; ' : '') . 'filename="' . $name . '"';
+        $this->header['Content-Disposition']       = ($this->isForceDownload ? 'attachment; ' : '') . 'filename="' . $name . '"';
         $this->header['Content-Length']            = $size;
         $this->header['Content-Transfer-Encoding'] = 'binary';
         $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
