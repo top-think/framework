@@ -118,9 +118,9 @@ class Lang
 
         $lang = [];
 
-        foreach ((array) $file as $_file) {
-            if (is_file($_file)) {
-                $result = $this->parse($_file);
+        foreach ((array) $file as $name) {
+            if (is_file($name)) {
+                $result = $this->parse($name);
                 $lang   = array_change_key_case($result) + $lang;
             }
         }

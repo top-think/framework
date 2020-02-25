@@ -164,9 +164,9 @@ class Url
             $domains = $this->route->getDomains();
 
             if (!empty($domains)) {
-                $route_domain = array_keys($domains);
-                foreach ($route_domain as $domain_prefix) {
-                    if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
+                $routeDomain = array_keys($domains);
+                foreach ($routeDomain as $domainPrefix) {
+                    if (0 === strpos($domainPrefix, '*.') && strpos($domain, ltrim($domainPrefix, '*.')) !== false) {
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
                             if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
