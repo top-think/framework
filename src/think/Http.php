@@ -191,9 +191,6 @@ class Http
         // 加载全局中间件
         $this->loadMiddleware();
 
-        // 设置开启事件机制
-        $this->app->event->withEvent($this->app->config->get('app.with_event', true));
-
         // 监听HttpRun
         $this->app->event->trigger(HttpRun::class);
 
