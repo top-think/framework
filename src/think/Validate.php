@@ -663,7 +663,7 @@ class Validate
             $i++;
         }
 
-        return $result;
+        return $result ?? true;
     }
 
     /**
