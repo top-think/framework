@@ -548,12 +548,10 @@ class App extends Container
     public function routeInit()
     {
         // 路由检测
-        $files = scandir($this->routePath);
-        foreach ($files as $file) {
-            if (strpos($file, '.php')) {
-                $filename = $this->routePath . $file;
-                // 导入路由配置
-                $rules = include $filename;
+        if (is_dir($this->routePath)) {
+            $files = glob($this->routePath . '*.php');
+            foreach ($files as $file) {
+                $rules = include $file;
                 if (is_array($rules)) {
                     $this->route->import($rules);
                 }
