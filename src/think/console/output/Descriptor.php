@@ -216,7 +216,7 @@ class Descriptor
         $description        = new ConsoleDescription($console, $describedNamespace);
 
         if (isset($options['raw_text']) && $options['raw_text']) {
-            $width = $this->getColumnWidth($description->getCommands());
+            $width = $this->getColumnWidth($description->getNamespaces());
 
             foreach ($description->getCommands() as $command) {
                 $this->writeText(sprintf("%-${width}s %s", $command->getName(), $command->getDescription()), $options);
@@ -235,7 +235,7 @@ class Descriptor
             $this->writeText("\n");
             $this->writeText("\n");
 
-            $width = $this->getColumnWidth($description->getCommands());
+            $width = $this->getColumnWidth($description->getNamespaces());
 
             if ($describedNamespace) {
                 $this->writeText(sprintf('<comment>Available commands for the "%s" namespace:</comment>', $describedNamespace), $options);
@@ -254,7 +254,7 @@ class Descriptor
                     $this->writeText("\n");
                     $spacingWidth = $width - strlen($name);
                     $this->writeText(sprintf("  <info>%s</info>%s%s", $name, str_repeat(' ', $spacingWidth), $description->getCommand($name)
-                            ->getDescription()), $options);
+                        ->getDescription()), $options);
                 }
             }
 
@@ -268,7 +268,7 @@ class Descriptor
     private function writeText($content, array $options = [])
     {
         $this->write(isset($options['raw_text'])
-            && $options['raw_text'] ? strip_tags($content) : $content, isset($options['raw_output']) ? !$options['raw_output'] : true);
+        && $options['raw_text'] ? strip_tags($content) : $content, isset($options['raw_output']) ? !$options['raw_output'] : true);
     }
 
     /**
@@ -282,14 +282,16 @@ class Descriptor
     }
 
     /**
-     * @param Command[] $commands
+     * @param array
      * @return int
      */
-    private function getColumnWidth(array $commands)
+    private function getColumnWidth(array $namespaceCommandGroups)
     {
         $width = 0;
-        foreach ($commands as $command) {
-            $width = strlen($command->getName()) > $width ? strlen($command->getName()) : $width;
+        foreach ($namespaceCommandGroups as $namespaceCommandGroup) {
+            foreach ($namespaceCommandGroup['commands'] as $command) {
+                $width = strlen($command) > $width ? strlen($command) : $width;
+            }
         }
 
         return $width + 2;
