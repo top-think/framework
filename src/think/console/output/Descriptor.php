@@ -282,7 +282,7 @@ class Descriptor
     }
 
     /**
-     * @param array $namespaceCommandGroups
+     * @param array
      * @return int
      */
     private function getColumnWidth(array $namespaceCommandGroups)
