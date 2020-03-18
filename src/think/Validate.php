@@ -607,6 +607,10 @@ class Validate
             $rules = array_unique(array_merge($rules, $this->append[$field]), SORT_REGULAR);
         }
 
+        if (empty($rules)) {
+            return true;
+        }
+
         $i = 0;
         foreach ($rules as $key => $rule) {
             if ($rule instanceof Closure) {
@@ -660,7 +664,7 @@ class Validate
             $i++;
         }
 
-        return $result ?? true;
+        return $result;
     }
 
     /**
