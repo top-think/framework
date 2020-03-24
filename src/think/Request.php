@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think;
 
+use ArrayAccess;
 use think\file\UploadedFile;
 use think\route\Rule;
 
@@ -19,7 +20,7 @@ use think\route\Rule;
  * 请求管理类
  * @package think
  */
-class Request
+class Request implements ArrayAccess
 {
     /**
      * 兼容PATH_INFO获取
@@ -985,7 +986,7 @@ class Request
     protected function getInputData($content): array
     {
         $contentType = $this->contentType();
-        if ($contentType == 'application/x-www-form-urlencoded') {
+        if ('application/x-www-form-urlencoded' == $contentType) {
             parse_str($content, $data);
             return $data;
         } elseif (false !== strpos($contentType, 'json')) {
@@ -2126,4 +2127,22 @@ class Request
     {
         return isset($this->middleware[$name]);
     }
+
+    // ArrayAccess
+    public function offsetExists($name): bool
+    {
+        return $this->has($name);
+    }
+
+    public function offsetGet($name)
+    {
+        return $this->param($name);
+    }
+
+    public function offsetSet($name, $value)
+    {}
+
+    public function offsetUnset($name)
+    {}
+
 }
