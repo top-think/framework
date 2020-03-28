@@ -1211,29 +1211,23 @@ class Request
             if ($file instanceof File) {
                 $array[$key] = $file;
             } elseif (is_array($file['name'])) {
-                $item  = [];
                 $keys  = array_keys($file);
-                $count = count($file['name']);
+                $subFileNames=array_keys($file['name']);
 
-                for ($i = 0; $i < $count; $i++) {
-                    if ($file['error'][$i] > 0) {
+                foreach ($subFileNames as $index => $subFileName) {
+                    if ($file['error'][$subFileName] > 0) {
                         if ($name == $key) {
-                            $this->throwUploadFileError($file['error'][$i]);
+                            $this->throwUploadFileError($file['error'][$subFileName]);
                         } else {
                             continue;
                         }
                     }
-
-                    $temp['key'] = $key;
-
+                    $temp['key'] = "{$key}.{$subFileName}";
                     foreach ($keys as $_key) {
-                        $temp[$_key] = $file[$_key][$i];
+                        $temp[$_key] = $file[$_key][$subFileName];
                     }
-
-                    $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
+                    $array[$key][$subFileName] = (new File($temp['tmp_name']))->setUploadInfo($temp);
                 }
-
-                $array[$key] = $item;
             } else {
                 if ($file['error'] > 0) {
                     if ($key == $name) {
