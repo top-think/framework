@@ -1184,13 +1184,11 @@ class Request
 
         $files = $this->file;
         if (!empty($files)) {
-            if (strpos($name, '.')) {
-                list($name, $sub) = explode('.', $name);
-            }
-
+           
             // 处理上传文件
             $array = $this->dealUploadFile($files, $name);
 
+            list($name, $sub) = explode('.', $name);
             if ('' === $name) {
                 // 获取全部文件
                 return $array;
@@ -1212,15 +1210,24 @@ class Request
                 $array[$key] = $file;
             } elseif (is_array($file['name'])) {
                 $keys  = array_keys($file);
+                $array[$key]=[];
+                list($_name,$subName)=explode('.',$name);
                 $subFileNames=array_keys($file['name']);
-
                 foreach ($subFileNames as $index => $subFileName) {
-                    if ($file['error'][$subFileName] > 0) {
-                        if ($name == $key) {
-                            $this->throwUploadFileError($file['error'][$subFileName]);
-                        } else {
-                            continue;
+                    $errorNo=$file['error'][$subFileName];
+                    if ($errorNo > 0) {
+                        if($_name==$name){
+                            //没有.符号时,忽略没上传的文件
+                            if($errorNo==4){
+                                continue;
+                            }
+                        }else {
+                            //有.符号,但是二级名称不匹配时
+                            if ($subName != $subFileName) {
+                                continue;
+                            }
                         }
+                        $this->throwUploadFileError($file['error'][$subFileName]);
                     }
                     $temp['key'] = "{$key}.{$subFileName}";
                     foreach ($keys as $_key) {
