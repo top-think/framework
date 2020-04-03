@@ -472,13 +472,13 @@ class Validate
     {
         $this->error = [];
 
+        if ($this->currentScene) {
+            $this->getScene($this->currentScene);
+        }
+
         if (empty($rules)) {
             // 读取验证规则
             $rules = $this->rule;
-        }
-
-        if ($this->currentScene) {
-            $this->getScene($this->currentScene);
         }
 
         foreach ($this->append as $key => $rule) {
@@ -621,7 +621,6 @@ class Validate
                 [$type, $rule, $info] = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-
                 } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
                     // 规则已经移除
                     $i++;
@@ -1615,7 +1614,8 @@ class Validate
             $msg = str_replace(
                 [':attribute', ':1', ':2', ':3'],
                 [$title, $array[0], $array[1], $array[2]],
-                $msg);
+                $msg
+            );
 
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);
