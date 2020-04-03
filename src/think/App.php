@@ -602,7 +602,7 @@ class App extends Container
      */
     protected function getDefaultRootPath(): string
     {
-        $path = dirname(dirname(dirname(dirname($this->thinkPath))));
+        $path = dirname($this->thinkPath, 4);
 
         return $path . DIRECTORY_SEPARATOR;
     }
