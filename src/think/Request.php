@@ -899,7 +899,8 @@ class Request implements ArrayAccess
      */
     public function setRoute(array $route)
     {
-        $this->route = array_merge($this->route, $route);
+        $this->route      = array_merge($this->route, $route);
+        $this->mergeParam = false;
         return $this;
     }
 
