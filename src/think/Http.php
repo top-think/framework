@@ -227,6 +227,10 @@ class Http
      */
     protected function loadRoutes(): void
     {
+        static $loaded = false;
+        if ($loaded) {
+            return;
+        }
         // 加载路由定义
         $routePath = $this->getRoutePath();
 
@@ -236,7 +240,7 @@ class Http
                 include $file;
             }
         }
-
+        $loaded = true;
         $this->app->event->trigger(RouteLoaded::class);
     }
 
