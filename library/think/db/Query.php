@@ -1764,7 +1764,7 @@ class Query
      *                            var_page:分页变量,
      *                            list_rows:每页数量
      *                            type:分页类名
-     * @return \think\Paginator
+     * @return $this[]|\think\Paginator
      * @throws DbException
      */
     public function paginate($listRows = null, $simple = false, $config = [])
