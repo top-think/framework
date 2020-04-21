@@ -145,7 +145,10 @@ class Controller extends Dispatch
                 }
 
                 if (is_string($val) && strpos($val, ':')) {
-                    $val = explode(':', $val, 2);
+                    $val = explode(':', $val);
+                    if (count($val) > 1) {
+                        $val = [$val[0], array_slice($val, 1)];
+                    }
                 }
 
                 $this->app->middleware->controller($val);
