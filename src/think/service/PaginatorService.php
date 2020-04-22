@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\service;
 
@@ -39,7 +39,6 @@ class PaginatorService extends Service
         });
 
         Paginator::currentPageResolver(function ($varPage = 'page') {
-
             $page = $this->app->request->param($varPage);
 
             if (filter_var($page, FILTER_VALIDATE_INT) !== false && (int) $page >= 1) {

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\route\dispatch;
 
@@ -22,7 +22,6 @@ use think\route\Rule;
  */
 class Url extends Controller
 {
-
     public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
     {
         $this->request = $request;
@@ -114,5 +113,4 @@ class Url extends Controller
 
         return false;
     }
-
 }

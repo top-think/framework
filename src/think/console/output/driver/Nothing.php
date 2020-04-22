@@ -15,7 +15,6 @@ use think\console\Output;
 
 class Nothing
 {
-
     public function __construct(Output $output)
     {
         // do nothing

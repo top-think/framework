@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\route;
 
@@ -179,5 +179,4 @@ class Domain extends RuleGroup
 
         return new ControllerDispatch($request, $this, $controller . '/' . $action, $param);
     }
-
 }

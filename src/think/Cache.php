@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -25,7 +25,6 @@ use think\helper\Arr;
  */
 class Cache extends Manager implements CacheInterface
 {
-
     protected $namespace = '\\think\\cache\\driver\\';
 
     /**

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: Slince <taosikai@yeah.net>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\console\command;
 
@@ -53,5 +53,4 @@ class RunServer extends Command
         $output->writeln(sprintf('Document root is: %s', $root));
         passthru($command);
     }
-
 }

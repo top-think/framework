@@ -76,7 +76,6 @@ class SessionTest extends TestCase
 
     public function testSave()
     {
-
         $id = md5(uniqid());
 
         $this->handler->shouldReceive('read')->once()->with($id)->andReturn("");

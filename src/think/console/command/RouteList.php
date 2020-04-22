@@ -125,5 +125,4 @@ class RouteList extends Command
 
         return $this->table($table);
     }
-
 }

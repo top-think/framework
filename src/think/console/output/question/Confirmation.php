@@ -15,7 +15,6 @@ use think\console\output\Question;
 
 class Confirmation extends Question
 {
-
     private $trueAnswerRegex;
 
     /**

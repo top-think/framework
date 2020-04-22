@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\console;
 
@@ -500,5 +500,4 @@ abstract class Command
         $this->output->writeln($content);
         return $content;
     }
-
 }

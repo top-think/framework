@@ -139,5 +139,4 @@ class LogTest extends TestCase
 
         $this->assertTrue($root->hasChildren());
     }
-
 }

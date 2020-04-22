@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\response;
 
@@ -70,5 +70,4 @@ class Jsonp extends Response
             throw $e;
         }
     }
-
 }

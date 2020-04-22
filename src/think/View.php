@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -20,7 +20,6 @@ use think\helper\Arr;
  */
 class View extends Manager
 {
-
     protected $namespace = '\\think\\view\\driver\\';
 
     /**
@@ -183,5 +182,4 @@ class View extends Manager
     {
         return $this->app->config->get('view.type', 'php');
     }
-
 }

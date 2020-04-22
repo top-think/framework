@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\service;
 
@@ -41,7 +41,6 @@ class ModelService extends Service
                 // 设置时间戳格式
                 $model->setDateFormat($config->get('database.datetime_format', 'Y-m-d H:i:s'));
             }
-
         });
     }
 }

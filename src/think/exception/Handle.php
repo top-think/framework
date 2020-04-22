@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\exception;
 
@@ -77,7 +77,8 @@ class Handle
 
             try {
                 $this->app->log->record($log, 'error');
-            } catch (Exception $e){}
+            } catch (Exception $e) {
+            }
         }
     }
 

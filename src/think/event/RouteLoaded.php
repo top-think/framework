@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\event;
 
@@ -17,5 +17,4 @@ namespace think\event;
  */
 class RouteLoaded
 {
-
 }
