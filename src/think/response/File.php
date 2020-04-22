@@ -113,11 +113,12 @@ class File extends Response
      * 设置文件强制下载
      * @access public
      * @param  bool $force 强制浏览器下载
-     * @return string
+     * @return $this
      */
     public function force(bool $force)
     {
         $this->force = $force;
+        return $this;
     }
 
     /**
