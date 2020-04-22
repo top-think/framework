@@ -150,5 +150,4 @@ class HttpTest extends TestCase
 
         $this->http->end($response);
     }
-
 }

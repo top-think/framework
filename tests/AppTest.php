@@ -22,12 +22,10 @@ class SomeService extends Service
 
     public function register()
     {
-
     }
 
     public function boot()
     {
-
     }
 }
 
@@ -211,5 +209,4 @@ class AppTest extends TestCase
         $this->app->setNamespace('app2');
         $this->assertEquals('app2\\controller\\SomeClass', $this->app->parseClass('controller', 'some_class'));
     }
-
 }

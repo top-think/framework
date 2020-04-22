@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -1129,7 +1129,6 @@ class Request implements ArrayAccess
     {
         $files = $this->file;
         if (!empty($files)) {
-
             if (strpos($name, '.')) {
                 [$name, $sub] = explode('.', $name);
             }
@@ -1465,7 +1464,6 @@ class Request implements ArrayAccess
 
         $item = [];
         foreach ($name as $key => $val) {
-
             if (is_int($key)) {
                 $default = null;
                 $key     = $val;
@@ -2141,9 +2139,10 @@ class Request implements ArrayAccess
     }
 
     public function offsetSet($name, $value)
-    {}
+    {
+    }
 
     public function offsetUnset($name)
-    {}
-
+    {
+    }
 }

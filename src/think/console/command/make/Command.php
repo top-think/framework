@@ -51,5 +51,4 @@ class Command extends Make
     {
         return parent::getNamespace($app) . '\\command';
     }
-
 }

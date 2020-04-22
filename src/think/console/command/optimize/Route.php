@@ -63,5 +63,4 @@ class Route extends Command
         $content .= '\Opis\Closure\unserialize(\'' . \Opis\Closure\serialize($this->app->route->getName()) . '\');';
         return $content;
     }
-
 }

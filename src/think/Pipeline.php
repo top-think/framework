@@ -102,5 +102,4 @@ class Pipeline
         }
         throw $e;
     }
-
 }

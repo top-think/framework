@@ -16,7 +16,6 @@ use think\console\Command;
 
 class Console
 {
-
     const GLOBAL_NAMESPACE = '_global';
 
     /**

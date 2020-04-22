@@ -87,7 +87,6 @@ class Console
             $lines = [];
             foreach (preg_split('/\r?\n/', $e->getMessage()) as $line) {
                 foreach ($this->splitStringByWidth($line, $width - 4) as $line) {
-
                     $lineLength = $this->stringWidth(preg_replace('/\[[^m]*m/', '', $line)) + 4;
                     $lines[]    = [$line, $lineLength];
 
@@ -133,7 +132,6 @@ class Console
                 $this->write('', true, Output::OUTPUT_NORMAL, $stderr);
             }
         } while ($e = $e->getPrevious());
-
     }
 
     /**
@@ -364,5 +362,4 @@ class Console
 
         return function_exists('posix_isatty') && @posix_isatty($stream);
     }
-
 }

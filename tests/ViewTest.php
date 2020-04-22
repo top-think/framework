@@ -62,7 +62,6 @@ class ViewTest extends TestCase
         $this->assertEquals("fetch", $this->view->fetch('foo'));
         $this->assertEquals("display", $this->view->display('foo'));
     }
-
 }
 
 class TestTemplate implements TemplateHandlerInterface

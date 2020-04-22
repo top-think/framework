@@ -13,7 +13,6 @@ namespace think\console\output;
 
 class Question
 {
-
     private $question;
     private $attempts;
     private $hidden         = false;

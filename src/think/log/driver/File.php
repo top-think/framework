@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\log\driver;
 
@@ -133,7 +133,6 @@ class File implements LogHandlerInterface
      */
     protected function getMasterLogFile(): string
     {
-
         if ($this->config['max_files']) {
             $files = glob($this->config['path'] . '*.log');
 
@@ -150,7 +149,6 @@ class File implements LogHandlerInterface
             $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
             $destination = $this->config['path'] . $name . '.log';
         } else {
-
             if ($this->config['max_files']) {
                 $filename = date('Ymd') . '.log';
             } else {
@@ -172,7 +170,6 @@ class File implements LogHandlerInterface
      */
     protected function getApartLevelFile(string $path, string $type): string
     {
-
         if ($this->config['single']) {
             $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
 

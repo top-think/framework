@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -205,5 +205,4 @@ class Memcache extends Driver
             $this->handler->delete($key);
         }
     }
-
 }

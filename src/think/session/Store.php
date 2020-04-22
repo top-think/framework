@@ -336,5 +336,4 @@ class Store
 
         return (array) $unserialize($data);
     }
-
 }

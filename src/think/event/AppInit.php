@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\event;
 
@@ -16,4 +16,5 @@ namespace think\event;
  * AppInit事件类
  */
 class AppInit
-{}
+{
+}

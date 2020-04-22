@@ -15,7 +15,6 @@ use think\console\output\formatter\Style;
 
 class Formatter
 {
-
     private $decorated = false;
     private $styles    = [];
     private $styleStack;

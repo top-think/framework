@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -205,7 +205,8 @@ class Http
     {
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
-        } : null;
+        }
+        : null;
 
         return $this->app->route->dispatch($request, $withRoute);
     }
@@ -278,5 +279,4 @@ class Http
         // 写入日志
         $this->app->log->save();
     }
-
 }

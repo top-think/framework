@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\file;
 
@@ -17,7 +17,6 @@ use think\File;
 
 class UploadedFile extends File
 {
-
     private $test = false;
     private $originalName;
     private $mimeType;

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\route;
 
@@ -136,7 +136,6 @@ class Resource extends RuleGroup
                 if (isset($this->$name[$key])) {
                     call_user_func_array([$ruleItem, $name], (array) $this->$name[$key]);
                 }
-
             }
         }
 
@@ -247,5 +246,4 @@ class Resource extends RuleGroup
 
         return $this;
     }
-
 }

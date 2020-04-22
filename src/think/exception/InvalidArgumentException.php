@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 namespace think\exception;
 
 use Psr\Cache\InvalidArgumentException as Psr6CacheInvalidArgumentInterface;
