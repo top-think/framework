@@ -52,7 +52,7 @@ class Clear extends Command
 
         foreach ($files as $file) {
             if ('.' != $file && '..' != $file && is_dir($path . $file)) {
-                array_map('unlink', glob($path . $file . DIRECTORY_SEPARATOR . '*.*'));
+                $this->clear($path . $file . DIRECTORY_SEPARATOR, $rmdir);
                 if ($rmdir) {
                     rmdir($path . $file);
                 }
