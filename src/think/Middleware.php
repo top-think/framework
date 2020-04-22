@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: Slince <taosikai@yeah.net>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -253,5 +253,4 @@ class Middleware
         }
         return -1;
     }
-
 }

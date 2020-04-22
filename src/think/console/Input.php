@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\console;
 
@@ -165,7 +165,6 @@ class Input
             $arg = $this->definition->getArgument($c);
 
             $this->arguments[$arg->getName()] = $arg->isArray() ? [$token] : $token;
-
         } elseif ($this->definition->hasArgument($c - 1) && $this->definition->getArgument($c - 1)->isArray()) {
             $arg = $this->definition->getArgument($c - 1);
 

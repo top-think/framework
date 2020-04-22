@@ -135,7 +135,6 @@ class ContainerTest extends TestCase
         $this->assertFalse($container->exists('name2'));
 
         foreach ($container as $class => $instance) {
-
         }
     }
 
@@ -309,5 +308,4 @@ class ContainerTest extends TestCase
         Container::setInstance($container);
         return $container;
     }
-
 }

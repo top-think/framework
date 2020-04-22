@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\response;
 
@@ -145,5 +145,4 @@ class View extends Response
     {
         return $this->view->exists($name);
     }
-
 }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: luofei614 <weibo.com/luofei614>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\log\driver;
 

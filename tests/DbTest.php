@@ -40,5 +40,4 @@ class DbTest extends TestCase
         $event->shouldReceive('trigger')->with('db.some', null, false);
         $db->trigger('some');
     }
-
 }

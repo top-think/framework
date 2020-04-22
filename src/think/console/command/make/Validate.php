@@ -35,5 +35,4 @@ class Validate extends Make
     {
         return parent::getNamespace($app) . '\\validate';
     }
-
 }

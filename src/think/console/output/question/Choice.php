@@ -15,7 +15,6 @@ use think\console\output\Question;
 
 class Choice extends Question
 {
-
     private $choices;
     private $multiselect  = false;
     private $prompt       = ' > ';

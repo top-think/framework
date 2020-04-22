@@ -82,7 +82,6 @@ class EventTest extends TestCase
         $listener = m::mock("overload:SomeListener", TestListener::class);
 
         $listener->shouldReceive('subscribe')->andReturnUsing(function (Event $event) use ($listener) {
-
             $listener->shouldReceive('onBar')->once()->andReturnFalse();
 
             $event->listenEvents(['SomeListener::onBar' => [[$listener, 'onBar']]]);
@@ -107,28 +106,23 @@ class EventTest extends TestCase
 
         $this->event->trigger('bar');
     }
-
 }
 
 class TestListener
 {
     public function handle()
     {
-
     }
 
     public function onBar()
     {
-
     }
 
     public function onFoo()
     {
-
     }
 
     public function subscribe()
     {
-
     }
 }

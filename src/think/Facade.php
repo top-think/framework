@@ -53,7 +53,8 @@ class Facade
      * @return string
      */
     protected static function getFacadeClass()
-    {}
+    {
+    }
 
     /**
      * 带参数实例化当前Facade类

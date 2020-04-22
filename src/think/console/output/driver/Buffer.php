@@ -48,5 +48,4 @@ class Buffer
     {
         // do nothing
     }
-
 }

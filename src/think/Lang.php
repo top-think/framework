@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -273,5 +273,4 @@ class Lang
             $cookie->set($this->config['cookie_var'], $this->range);
         }
     }
-
 }

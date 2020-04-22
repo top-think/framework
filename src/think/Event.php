@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -259,5 +259,4 @@ class Event
 
         return $this->app->invoke($call, [$params]);
     }
-
 }

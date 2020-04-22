@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\console\command;
 
@@ -26,7 +26,6 @@ class VendorPublish extends Command
 
     public function handle()
     {
-
         $force = $this->input->getOption('force');
 
         if (is_file($path = $this->app->getRootPath() . 'vendor/composer/installed.json')) {
@@ -37,11 +36,9 @@ class VendorPublish extends Command
                 $configDir = $this->app->getConfigPath();
 
                 if (!empty($package['extra']['think']['config'])) {
-
                     $installPath = $this->app->getRootPath() . 'vendor/' . $package['name'] . DIRECTORY_SEPARATOR;
 
                     foreach ((array) $package['extra']['think']['config'] as $name => $file) {
-
                         $target = $configDir . $name . '.php';
                         $source = $installPath . $file;
 

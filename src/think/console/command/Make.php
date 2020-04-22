@@ -95,5 +95,4 @@ abstract class Make extends Command
     {
         return 'app' . ($app ? '\\' . $app : '');
     }
-
 }

@@ -6,7 +6,7 @@
 // +----------------------------------------------------------------------
 // | Author: zhangyajun <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -46,7 +46,6 @@ use think\console\output\driver\Buffer;
  */
 class Console
 {
-
     protected $app;
 
     /** @var Command[] */
@@ -728,5 +727,4 @@ class Console
 
         return $namespaces;
     }
-
 }

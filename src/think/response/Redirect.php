@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\response;
 
@@ -22,7 +22,6 @@ use think\Session;
  */
 class Redirect extends Response
 {
-
     protected $request;
 
     public function __construct(Cookie $cookie, Request $request, Session $session, $data = '', int $code = 302)

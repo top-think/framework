@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types = 1);
 
 namespace think\route\dispatch;
 
@@ -26,5 +26,4 @@ class Callback extends Dispatch
 
         return $this->app->invoke($this->dispatch, $vars);
     }
-
 }

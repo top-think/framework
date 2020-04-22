@@ -16,7 +16,6 @@ use think\console\input\Option;
 
 class Controller extends Make
 {
-
     protected $type = "Controller";
 
     protected function configure()
@@ -52,5 +51,4 @@ class Controller extends Make
     {
         return parent::getNamespace($app) . '\\controller';
     }
-
 }
