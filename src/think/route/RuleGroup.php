@@ -29,16 +29,7 @@ class RuleGroup extends Rule
      * 分组路由（包括子分组）
      * @var array
      */
-    protected $rules = [
-        '*'       => [],
-        'get'     => [],
-        'post'    => [],
-        'put'     => [],
-        'patch'   => [],
-        'delete'  => [],
-        'head'    => [],
-        'options' => [],
-    ];
+    protected $rules = [];
 
     /**
      * 分组路由规则
@@ -159,7 +150,7 @@ class RuleGroup extends Rule
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->getMethodRules($method);
+        $rules  = $this->getRules($method);
 
         if ($this->parent) {
             // 合并分组参数
@@ -183,7 +174,7 @@ class RuleGroup extends Rule
 
         // 检查分组路由
         foreach ($rules as $key => $item) {
-            $result = $item->check($request, $url, $completeMatch);
+            $result = $item[1]->check($request, $url, $completeMatch);
 
             if (false !== $result) {
                 return $result;
@@ -198,17 +189,6 @@ class RuleGroup extends Rule
         }
 
         return $result;
-    }
-
-    /**
-     * 获取当前请求的路由规则（包括子分组、资源路由）
-     * @access protected
-     * @param  string $method 请求类型
-     * @return array
-     */
-    protected function getMethodRules(string $method): array
-    {
-        return array_merge($this->rules[$method], $this->rules['*']);
     }
 
     /**
@@ -302,7 +282,8 @@ class RuleGroup extends Rule
         $regex = [];
         $items = [];
 
-        foreach ($rules as $key => $item) {
+        foreach ($rules as $key => $val) {
+            $item = $val[1];
             if ($item instanceof RuleItem) {
                 $rule = $depr . str_replace('/', $depr, $item->getRule());
                 if ($depr == $rule && $depr != $url) {
@@ -460,10 +441,10 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $this->rules[$method][] = $rule;
+        $this->rules[] = [$method, $rule];
 
         if ($rule instanceof RuleItem && 'options' != $method) {
-            $this->rules['options'][] = $rule->setAutoOptions();
+            $this->rules[] = ['options', $rule->setAutoOptions()];
         }
 
         return $this;
@@ -517,7 +498,9 @@ class RuleGroup extends Rule
             return $this->rules;
         }
 
-        return $this->rules[strtolower($method)] ?? [];
+        return array_filter($this->rules, function ($item) use ($method) {
+            return $method == $item[0] || $item[0] = '*';
+        });
     }
 
     /**
@@ -527,15 +510,6 @@ class RuleGroup extends Rule
      */
     public function clear(): void
     {
-        $this->rules = [
-            '*'       => [],
-            'get'     => [],
-            'post'    => [],
-            'put'     => [],
-            'patch'   => [],
-            'delete'  => [],
-            'head'    => [],
-            'options' => [],
-        ];
+        $this->rules = [];
     }
 }
