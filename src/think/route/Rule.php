@@ -505,12 +505,12 @@ abstract class Rule
     }
 
     /**
-     * 当前路由到一个模板地址 当使用数组的时候可以传入模板变量
+     * 路由到一个模板地址 需要额外传入的模板变量
      * @access public
-     * @param  bool|array $view 视图
+     * @param  array $view 视图
      * @return $this
      */
-    public function view($view = true)
+    public function view(array $view = [])
     {
         return $this->setOption('view', $view);
     }
@@ -658,8 +658,8 @@ abstract class Rule
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
         } elseif ($route instanceof Response) {
             $result = new ResponseDispatch($request, $this, $route);
-        } elseif (isset($option['view']) && false !== $option['view']) {
-            $result = new ViewDispatch($request, $this, $route, is_array($option['view']) ? $option['view'] : $this->vars);
+        } elseif (isset($option['view'])) {
+            $result = new ViewDispatch($request, $this, $route, array_merge($option['view'], $this->vars));
         } elseif (!empty($option['redirect'])) {
             // 路由到重定向地址
             $result = new RedirectDispatch($request, $this, $route, $this->vars, $option['status'] ?? 301);

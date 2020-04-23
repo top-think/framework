@@ -161,7 +161,7 @@ class File extends SplFileInfo
      * @param string|\Closure $rule
      * @return string
      */
-    public function hashName($rule = 'date'): string
+    public function hashName($rule = ''): string
     {
         if (!$this->hashName) {
             if ($rule instanceof \Closure) {
