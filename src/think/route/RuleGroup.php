@@ -499,7 +499,7 @@ class RuleGroup extends Rule
         }
 
         return array_filter($this->rules, function ($item) use ($method) {
-            return $method == $item[0] || $item[0] = '*';
+            return $method == $item[0] || $item[0] == '*';
         });
     }
 
