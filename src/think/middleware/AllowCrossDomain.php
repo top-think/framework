@@ -57,10 +57,6 @@ class AllowCrossDomain
             }
         }
 
-        if ($request->method(true) == 'OPTIONS') {
-            return Response::create()->code(204)->header($header);
-        }
-
         return $next($request)->header($header);
     }
 }

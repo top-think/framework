@@ -134,7 +134,7 @@ class Route
      * 路由是否延迟解析
      * @var bool
      */
-    protected $lazy = true;
+    protected $lazy = false;
 
     /**
      * 路由是否测试模式
@@ -722,10 +722,10 @@ class Route
     /**
      * 路由调度
      * @param Request $request
-     * @param Closure $withRoute
+     * @param Closure|bool $withRoute
      * @return Response
      */
-    public function dispatch(Request $request, $withRoute = null)
+    public function dispatch(Request $request, $withRoute = true)
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
@@ -733,7 +733,9 @@ class Route
 
         if ($withRoute) {
             //加载路由
-            $withRoute();
+            if ($withRoute instanceof Closure) {
+                $withRoute();
+            }
             $dispatch = $this->check();
         } else {
             $dispatch = $this->url($this->path());
