@@ -516,28 +516,6 @@ abstract class Rule
     }
 
     /**
-     * 当前路由为重定向
-     * @access public
-     * @param  bool $redirect 是否为重定向
-     * @return $this
-     */
-    public function redirect(bool $redirect = true)
-    {
-        return $this->setOption('redirect', $redirect);
-    }
-
-    /**
-     * 设置status
-     * @access public
-     * @param  int $status 状态码
-     * @return $this
-     */
-    public function status(int $status)
-    {
-        return $this->setOption('status', $status);
-    }
-
-    /**
      * 设置路由完整匹配
      * @access public
      * @param  bool $match 是否完整匹配
@@ -651,21 +629,12 @@ abstract class Rule
      */
     protected function dispatch(Request $request, $route, array $option): Dispatch
     {
-        if ($route instanceof Dispatch) {
-            $result = $route;
-        } elseif (is_subclass_of($route, Dispatch::class)) {
+        if (is_subclass_of($route, Dispatch::class)) {
             $result = new $route($request, $this, $route, $this->vars);
         } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
-        } elseif ($route instanceof Response) {
-            $result = new ResponseDispatch($request, $this, $route);
-        } elseif (isset($option['view'])) {
-            $result = new ViewDispatch($request, $this, $route, array_merge($option['view'], $this->vars));
-        } elseif (!empty($option['redirect'])) {
-            // 路由到重定向地址
-            $result = new RedirectDispatch($request, $this, $route, $this->vars, $option['status'] ?? 301);
-        } elseif (false !== strpos($route, '\\')) {
+        } elseif (false !== strpos($route, '@')) {
             // 路由到类的方法
             $result = $this->dispatchMethod($request, $route);
         } else {

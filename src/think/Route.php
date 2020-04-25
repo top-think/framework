@@ -121,7 +121,7 @@ class Route
 
     /**
      * 域名对象
-     * @var array
+     * @var Domain[]
      */
     protected $domains = [];
 
@@ -434,7 +434,7 @@ class Route
      * 批量导入路由标识
      * @access public
      * @param array $name 路由标识
-     * @return $this
+     * @return void
      */
     public function import(array $name): void
     {
@@ -511,6 +511,12 @@ class Route
      */
     public function rule(string $rule, $route = null, string $method = '*'): RuleItem
     {
+        if ($route instanceof Response) {
+            // 兼容之前的路由到响应对象，感觉不需要，使用场景很少，闭包就能实现
+            $route = function () use ($route) {
+                return $route;
+            };
+        }
         return $this->group->addRule($rule, $route, $method);
     }
 
@@ -659,7 +665,9 @@ class Route
      */
     public function view(string $rule, string $template = '', array $vars = []): RuleItem
     {
-        return $this->rule($rule, $template, 'GET')->view($vars);
+        return $this->rule($rule, function () use ($vars, $template) {
+            return Response::create($template, 'view')->assign($vars);
+        }, 'GET');
     }
 
     /**
@@ -672,7 +680,9 @@ class Route
      */
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
     {
-        return $this->rule($rule, $route, '*')->redirect()->status($status);
+        return $this->rule($rule, function () use ($status, $route) {
+            return Response::create($route, 'redirect')->code($status);
+        }, '*');
     }
 
     /**

@@ -8,6 +8,8 @@ use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 use think\helper\Str;
 use think\Request;
+use think\response\Redirect;
+use think\response\View;
 use think\Route;
 
 class RouteTest extends TestCase
@@ -40,8 +42,6 @@ class RouteTest extends TestCase
         $request->shouldReceive('host')->andReturn($host);
         $request->shouldReceive('pathinfo')->andReturn($path);
         $request->shouldReceive('url')->andReturn('/' . $path);
-        $request->shouldReceive('subDomain')->andReturn('');
-        $request->shouldReceive('panDomain')->andReturn('');
         $request->shouldReceive('method')->andReturn(strtoupper($method));
         return $request;
     }
@@ -218,6 +218,60 @@ class RouteTest extends TestCase
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }
+
+    public function testRedirectDispatch()
+    {
+        $this->route->redirect('foo', 'http://localhost', 302);
+
+        $request  = $this->makeRequest('foo');
+        $response = $this->route->dispatch($request);
+
+        $this->assertInstanceOf(Redirect::class, $response);
+        $this->assertEquals(302, $response->getCode());
+        $this->assertEquals('http://localhost', $response->getData());
+    }
+
+    public function testViewDispatch()
+    {
+        $this->route->view('foo', 'index/hello', ['city' => 'shanghai']);
+
+        $request  = $this->makeRequest('foo');
+        $response = $this->route->dispatch($request);
+
+        $this->assertInstanceOf(View::class, $response);
+        $this->assertEquals(['city' => 'shanghai'], $response->getVars());
+        $this->assertEquals('index/hello', $response->getData());
+    }
+
+    public function testResponseDispatch()
+    {
+        $this->route->get('hello/:name', response()
+            ->data('Hello,ThinkPHP')
+            ->code(200)
+            ->contentType('text/plain'));
+
+        $request  = $this->makeRequest('hello/some');
+        $response = $this->route->dispatch($request);
+
+        $this->assertEquals('Hello,ThinkPHP', $response->getContent());
+        $this->assertEquals(200, $response->getCode());
+    }
+
+    public function testDomainBindResponse()
+    {
+        $this->route->domain('test', function () {
+            $this->route->get('/', function () {
+                return 'Hello,ThinkPHP';
+            });
+        });
+
+        $request  = $this->makeRequest('', 'get', 'test.domain.com');
+        $response = $this->route->dispatch($request);
+
+        $this->assertEquals('Hello,ThinkPHP', $response->getContent());
+        $this->assertEquals(200, $response->getCode());
+    }
+
 }
 
 class FooClass
