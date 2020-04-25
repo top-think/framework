@@ -16,9 +16,7 @@ use Closure;
 use think\Container;
 use think\Exception;
 use think\Request;
-use think\Response;
 use think\Route;
-use think\route\dispatch\Response as ResponseDispatch;
 
 /**
  * 路由分组类
