@@ -15,6 +15,7 @@ namespace think;
 use Closure;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
+use think\route\dispatch\Callback;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
@@ -753,10 +754,10 @@ class Route
     /**
      * 检测URL路由
      * @access public
-     * @return Dispatch
+     * @return Dispatch|false
      * @throws RouteNotFoundException
      */
-    public function check(): Dispatch
+    public function check()
     {
         // 自动检测域名路由
         $url = str_replace($this->config['pathinfo_depr'], '|', $this->path());
@@ -809,8 +810,15 @@ class Route
      * @param string $url URL地址
      * @return Dispatch
      */
-    public function url(string $url): UrlDispatch
+    public function url(string $url): Dispatch
     {
+        if ($this->request->method() == 'OPTIONS') {
+            // 自动响应options请求
+            return new Callback($this->request, $this->group, function () {
+                return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
+            });
+        }
+
         return new UrlDispatch($this->request, $this->group, $url);
     }
 

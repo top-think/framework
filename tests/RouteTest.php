@@ -88,6 +88,15 @@ class RouteTest extends TestCase
                 return 'post-foo';
             });
         });
+        $this->route->group('abc', function () {
+            $this->route->post('foo/:id', function () {
+                return 'post-abc-foo';
+            });
+        });
+
+        $this->route->post('foo/:id', function () {
+            return 'post-abc-foo';
+        });
 
         $this->route->resource('bar', 'SomeClass');
 
@@ -105,6 +114,11 @@ class RouteTest extends TestCase
         $response = $this->route->dispatch($request);
         $this->assertEquals(204, $response->getCode());
         $this->assertEquals('GET, PUT, DELETE', $response->getHeader('Allow'));
+
+        $request  = $this->makeRequest('xxxx', 'options');
+        $response = $this->route->dispatch($request);
+        $this->assertEquals(204, $response->getCode());
+        $this->assertEquals('GET, POST, PUT, DELETE', $response->getHeader('Allow'));
     }
 
     public function testAllowCrossDomain()
@@ -119,12 +133,12 @@ class RouteTest extends TestCase
         $this->assertEquals('bar', $response->getHeader('some'));
         $this->assertArrayHasKey('Access-Control-Allow-Credentials', $response->getHeader());
 
-        $request  = $this->makeRequest('foo', 'options');
+        $request  = $this->makeRequest('foo2', 'options');
         $response = $this->route->dispatch($request);
 
         $this->assertEquals(204, $response->getCode());
         $this->assertArrayHasKey('Access-Control-Allow-Credentials', $response->getHeader());
-        $this->assertEquals('GET', $response->getHeader('Allow'));
+        $this->assertEquals('GET, POST, PUT, DELETE', $response->getHeader('Allow'));
     }
 
     public function testControllerDispatch()
@@ -186,6 +200,19 @@ class RouteTest extends TestCase
         $this->app->shouldReceive('make')->with($controller->mockery_getName(), [], true)->andReturn($controller);
 
         $controller->shouldReceive('bar')->once()->andReturn('bar');
+
+        $request  = $this->makeRequest('foo');
+        $response = $this->route->dispatch($request);
+        $this->assertEquals('bar', $response->getContent());
+    }
+
+    public function testUrlDispatch()
+    {
+        $controller = m::mock(FooClass::class);
+        $controller->shouldReceive('index')->andReturn('bar');
+
+        $this->app->shouldReceive('parseClass')->once()->with('controller', 'Foo')->andReturn($controller->mockery_getName());
+        $this->app->shouldReceive('make')->with($controller->mockery_getName(), [], true)->andReturn($controller);
 
         $request  = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
