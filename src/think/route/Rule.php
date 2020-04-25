@@ -18,13 +18,9 @@ use think\middleware\AllowCrossDomain;
 use think\middleware\CheckRequestCache;
 use think\middleware\FormTokenCheck;
 use think\Request;
-use think\Response;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
-use think\route\dispatch\Redirect as RedirectDispatch;
-use think\route\dispatch\Response as ResponseDispatch;
-use think\route\dispatch\View as ViewDispatch;
 
 /**
  * 路由规则基础类

@@ -53,7 +53,6 @@ abstract class Dispatch
      */
     protected $param;
 
-
     public function __construct(Request $request, Rule $rule, $dispatch, array $param = [])
     {
         $this->request  = $request;
