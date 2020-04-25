@@ -333,7 +333,9 @@ class Store
     protected function unserialize(string $data): array
     {
         $unserialize = $this->serialize[1] ?? 'unserialize';
-
+        if ($unserialize === 'json_decode') {
+            return (array) $unserialize($data, true);
+        }
         return (array) $unserialize($data);
     }
 
