@@ -1580,7 +1580,16 @@ class Request
             return $this->realIP;
         }
 
-        $this->realIP = $this->server('REMOTE_ADDR', '');
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $arr = explode(',', $this->server('HTTP_X_FORWARDED_FOR'));
+            $pos = array_search('unknown', $arr);
+            if (false !== $pos) unset($arr[$pos]);
+            $this->realIP = trim($arr[0]);
+        } elseif (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $this->realIP = $this->server('HTTP_CLIENT_IP','');
+        } elseif (isset($_SERVER['REMOTE_ADDR'])) {
+            $this->realIP = $this->server('REMOTE_ADDR', '');
+        }
 
         // 如果指定了前端代理服务器IP以及其会发送的IP头
         // 则尝试获取前端代理服务器发送过来的真实IP
