@@ -1143,6 +1143,8 @@ class Validate
                     $map[] = [$key, '=', $data[$key]];
                 }
             }
+        } elseif (strpos($key, '=')) {
+            parse_str($key, $map);
         } elseif (isset($data[$field])) {
             $map[] = [$key, '=', $data[$field]];
         } else {
