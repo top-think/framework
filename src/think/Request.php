@@ -1769,7 +1769,7 @@ class Request implements ArrayAccess
      */
     public function port(): int
     {
-        return (int) $this->server('HTTP_X_FORWARDED_PORT') ?: $this->server('SERVER_PORT', '');
+        return (int) ($this->server('HTTP_X_FORWARDED_PORT') ?: $this->server('SERVER_PORT', ''));
     }
 
     /**
