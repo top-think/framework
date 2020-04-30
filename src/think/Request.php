@@ -1756,7 +1756,7 @@ class Request implements ArrayAccess
         if ($this->host) {
             $host = $this->host;
         } else {
-            $host = strval($this->server('HTTP_X_REAL_HOST') ?: $this->server('HTTP_HOST'));
+            $host = strval($this->server('HTTP_X_FORWARDED_HOST') ?: $this->server('HTTP_HOST'));
         }
 
         return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
@@ -1769,7 +1769,7 @@ class Request implements ArrayAccess
      */
     public function port(): int
     {
-        return (int) $this->server('SERVER_PORT', '');
+        return (int) $this->server('HTTP_X_FORWARDED_PORT') ?: $this->server('SERVER_PORT', '');
     }
 
     /**
