@@ -38,6 +38,27 @@ abstract class Relation
     // 是否为自关联
     protected $selfRelation;
 
+
+    /**
+     * 获取关联表外键
+     * @access public
+     * @return String
+     */
+    public function getForeignKey()
+    {
+        return $this->foreignKey;
+    }
+
+    /**
+     * 获取关联表主键
+     * @access public
+     * @return String
+     */
+    public function getLocalKey()
+    {
+        return $this->localKey;
+    }
+
     /**
      * 获取关联的所属模型
      * @access public

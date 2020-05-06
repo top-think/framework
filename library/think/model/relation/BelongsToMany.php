@@ -59,6 +59,15 @@ class BelongsToMany extends Relation
     }
 
     /**
+     * 获取中间表名称
+     * @return string
+     */
+    public function getMiddle()
+    {
+        return $this->middle;
+    }
+
+    /**
      * 设置中间表模型
      * @access public
      * @param  $pivot
@@ -690,22 +699,22 @@ class BelongsToMany extends Relation
         return $changes;
     }
 
-    /**
-     * 执行基础查询（仅执行一次）
-     * @access protected
-     * @return void
-     */
-    protected function baseQuery()
-    {
-        if (empty($this->baseQuery) && $this->parent->getData()) {
-            $pk    = $this->parent->getPk();
-            $table = $this->pivot->getTable();
-
-            $this->query
-                ->join([$table => 'pivot'], 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())
-                ->where('pivot.' . $this->localKey, $this->parent->$pk);
-            $this->baseQuery = true;
-        }
-    }
+//    /**
+//     * 执行基础查询（仅执行一次）
+//     * @access protected
+//     * @return void
+//     */
+//    protected function baseQuery()
+//    {
+////        if (empty($this->baseQuery) && $this->parent->getData()) {
+////            $pk    = $this->parent->getPk();
+////            $table = $this->pivot->getTable();
+////
+////            $this->query
+////                ->join([$table => 'pivot'], 'pivot.' . $this->foreignKey . '=' . $this->query->getTable() . '.' . $this->query->getPk())
+////                ->where('pivot.' . $this->localKey, $this->parent->$pk);
+////            $this->baseQuery = true;
+////        }
+//    }
 
 }
