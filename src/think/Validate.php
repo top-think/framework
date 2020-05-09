@@ -496,6 +496,13 @@ class Validate
                 $title = $this->field[$key] ?? $key;
             }
 
+            // 多语言处理
+            if (0 === strpos($title, '{%')) {
+                $title = $this->lang->get(substr($title, 2, -1));
+            } elseif ($this->lang->has($title)) {
+                $title = $this->lang->get($title);
+            }
+
             // 场景检测
             if (!empty($this->only) && !in_array($key, $this->only)) {
                 continue;
