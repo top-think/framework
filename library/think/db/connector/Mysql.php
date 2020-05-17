@@ -97,7 +97,7 @@ class Mysql extends Connection
                 $info[$val['field']] = [
                     'name'    => $val['field'],
                     'type'    => $val['type'],
-                    'notnull' => 'NO' == $val['null']),
+                    'notnull' => 'NO' == $val['null'],
                     'default' => $val['default'],
                     'primary' => strtolower($val['key']) == 'pri',
                     'autoinc' => strtolower($val['extra']) == 'auto_increment',
