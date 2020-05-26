@@ -18,12 +18,12 @@ use think\Facade;
  * @see \think\Middleware
  * @package think\facade
  * @mixin \think\Middleware
- * @method void import(array $middlewares = [], string $type = 'global'): void 导入中间件
- * @method void add(mixed $middleware, string $type = 'global'): void 注册中间件
- * @method void route(mixed $middleware): void 注册路由中间件
- * @method void controller(mixed $middleware): void 注册控制器中间件
+ * @method void import(array $middlewares = [], string $type = 'global') 导入中间件
+ * @method void add(mixed $middleware, string $type = 'global') 注册中间件
+ * @method void route(mixed $middleware) 注册路由中间件
+ * @method void controller(mixed $middleware) 注册控制器中间件
  * @method mixed unshift(mixed $middleware, string $type = 'global') 注册中间件到开始位置
- * @method array all(string $type = 'global'): array 获取注册的中间件
+ * @method array all(string $type = 'global') 获取注册的中间件
  * @method Pipeline pipeline(string $type = 'global') 调度管道
  * @method mixed end(\think\Response $response) 结束调度
  * @method \think\Response handleException(\think\Request $passable, \Throwable $e) 异常处理

@@ -18,15 +18,15 @@ use think\Facade;
  * @see \think\Env
  * @package think\facade
  * @mixin \think\Env
- * @method void load(string $file): void 读取环境变量定义文件
+ * @method void load(string $file) 读取环境变量定义文件
  * @method mixed get(string $name = null, mixed $default = null) 获取环境变量值
- * @method void set(string|array $env, mixed $value = null): void 设置环境变量值
- * @method bool has(string $name): bool 检测是否存在环境变量
- * @method void __set(string $name, mixed $value): void 设置环境变量
+ * @method void set(string|array $env, mixed $value = null) 设置环境变量值
+ * @method bool has(string $name) 检测是否存在环境变量
+ * @method void __set(string $name, mixed $value) 设置环境变量
  * @method mixed __get(string $name) 获取环境变量
- * @method bool __isset(string $name): bool 检测是否存在环境变量
- * @method void offsetSet($name, $value): void
- * @method bool offsetExists($name): bool
+ * @method bool __isset(string $name) 检测是否存在环境变量
+ * @method void offsetSet($name, $value)
+ * @method bool offsetExists($name)
  * @method mixed offsetUnset($name)
  * @method mixed offsetGet($name)
  */

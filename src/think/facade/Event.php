@@ -20,8 +20,8 @@ use think\Facade;
  * @mixin \think\Event
  * @method \think\Event listenEvents(array $events) 批量注册事件监听
  * @method \think\Event listen(string $event, mixed $listener, bool $first = false) 注册事件监听
- * @method bool hasListener(string $event): bool 是否存在事件监听
- * @method void remove(string $event): void 移除事件监听
+ * @method bool hasListener(string $event) 是否存在事件监听
+ * @method void remove(string $event) 移除事件监听
  * @method \think\Event bind(array $events) 指定事件别名标识 便于调用
  * @method \think\Event subscribe(mixed $subscriber) 注册事件订阅者
  * @method \think\Event observe(string|object $observer, null|string $prefix = '') 自动注册事件观察者

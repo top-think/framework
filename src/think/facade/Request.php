@@ -21,37 +21,37 @@ use think\route\Rule;
  * @package think\facade
  * @mixin \think\Request
  * @method \think\Request setDomain(string $domain) 设置当前包含协议的域名
- * @method string domain(bool $port = false): string 获取当前包含协议的域名
- * @method string rootDomain(): string 获取当前根域名
+ * @method string domain(bool $port = false) 获取当前包含协议的域名
+ * @method string rootDomain() 获取当前根域名
  * @method \think\Request setSubDomain(string $domain) 设置当前泛域名的值
- * @method string subDomain(): string 获取当前子域名
+ * @method string subDomain() 获取当前子域名
  * @method \think\Request setPanDomain(string $domain) 设置当前泛域名的值
- * @method string panDomain(): string 获取当前泛域名的值
+ * @method string panDomain() 获取当前泛域名的值
  * @method \think\Request setUrl(string $url) 设置当前完整URL 包括QUERY_STRING
- * @method string url(bool $complete = false): string 获取当前完整URL 包括QUERY_STRING
+ * @method string url(bool $complete = false) 获取当前完整URL 包括QUERY_STRING
  * @method \think\Request setBaseUrl(string $url) 设置当前URL 不含QUERY_STRING
- * @method string baseUrl(bool $complete = false): string 获取当前URL 不含QUERY_STRING
- * @method string baseFile(bool $complete = false): string 获取当前执行的文件 SCRIPT_NAME
+ * @method string baseUrl(bool $complete = false) 获取当前URL 不含QUERY_STRING
+ * @method string baseFile(bool $complete = false) 获取当前执行的文件 SCRIPT_NAME
  * @method \think\Request setRoot(string $url) 设置URL访问根地址
- * @method string root(bool $complete = false): string 获取URL访问根地址
- * @method string rootUrl(): string 获取URL访问根目录
+ * @method string root(bool $complete = false) 获取URL访问根地址
+ * @method string rootUrl() 获取URL访问根目录
  * @method \think\Request setPathinfo(string $pathinfo) 设置当前请求的pathinfo
- * @method string pathinfo(): string 获取当前请求URL的pathinfo信息（含URL后缀）
- * @method string ext(): string 当前URL的访问后缀
+ * @method string pathinfo() 获取当前请求URL的pathinfo信息（含URL后缀）
+ * @method string ext() 当前URL的访问后缀
  * @method integer|float time(bool $float = false) 获取当前请求的时间
- * @method string type(): string 当前请求的资源类型
- * @method void mimeType(string|array $type, string $val = ''): void 设置资源类型
+ * @method string type() 当前请求的资源类型
+ * @method void mimeType(string|array $type, string $val = '') 设置资源类型
  * @method \think\Request setMethod(string $method) 设置请求类型
- * @method string method(bool $origin = false): string 当前的请求类型
- * @method bool isGet(): bool 是否为GET请求
- * @method bool isPost(): bool 是否为POST请求
- * @method bool isPut(): bool 是否为PUT请求
- * @method bool isDelete(): bool 是否为DELTE请求
- * @method bool isHead(): bool 是否为HEAD请求
- * @method bool isPatch(): bool 是否为PATCH请求
- * @method bool isOptions(): bool 是否为OPTIONS请求
- * @method bool isCli(): bool 是否为cli
- * @method bool isCgi(): bool 是否为cgi
+ * @method string method(bool $origin = false) 当前的请求类型
+ * @method bool isGet() 是否为GET请求
+ * @method bool isPost() 是否为POST请求
+ * @method bool isPut() 是否为PUT请求
+ * @method bool isDelete() 是否为DELTE请求
+ * @method bool isHead() 是否为HEAD请求
+ * @method bool isPatch() 是否为PATCH请求
+ * @method bool isOptions() 是否为OPTIONS请求
+ * @method bool isCli() 是否为cli
+ * @method bool isCgi() 是否为cgi
  * @method mixed param(string|array $name = '', mixed $default = null, string|array $filter = '') 获取当前请求的参数
  * @method \think\Request setRule(Rule $rule) 设置路由变量
  * @method Rule|null rule() 获取当前路由对象
@@ -73,34 +73,34 @@ use think\route\Rule;
  * @method mixed input(array $data = [], string|false $name = '', mixed $default = null, string|array $filter = '') 获取变量 支持过滤和默认值
  * @method mixed filter(mixed $filter = null) 设置或获取当前的过滤规则
  * @method mixed filterValue(mixed &$value, mixed $key, array $filters) 递归过滤给定的值
- * @method bool has(string $name, string $type = 'param', bool $checkEmpty = false): bool 是否存在某个请求参数
- * @method array only(array $name, mixed $data = 'param', string|array $filter = ''): array 获取指定的参数
- * @method mixed except(array $name, string $type = 'param'): array 排除指定参数获取
- * @method bool isSsl(): bool 当前是否ssl
- * @method bool isJson(): bool 当前是否JSON请求
- * @method bool isAjax(bool $ajax = false): bool 当前是否Ajax请求
- * @method bool isPjax(bool $pjax = false): bool 当前是否Pjax请求
- * @method string ip(): string 获取客户端IP地址
- * @method boolean isValidIP(string $ip, string $type = ''): bool 检测是否是合法的IP地址
- * @method string ip2bin(string $ip): string 将IP地址转换为二进制字符串
- * @method bool isMobile(): bool 检测是否使用手机访问
- * @method string scheme(): string 当前URL地址中的scheme参数
- * @method string query(): string 当前请求URL地址中的query参数
+ * @method bool has(string $name, string $type = 'param', bool $checkEmpty = false) 是否存在某个请求参数
+ * @method array only(array $name, mixed $data = 'param', string|array $filter = '') 获取指定的参数
+ * @method mixed except(array $name, string $type = 'param') 排除指定参数获取
+ * @method bool isSsl() 当前是否ssl
+ * @method bool isJson() 当前是否JSON请求
+ * @method bool isAjax(bool $ajax = false) 当前是否Ajax请求
+ * @method bool isPjax(bool $pjax = false) 当前是否Pjax请求
+ * @method string ip() 获取客户端IP地址
+ * @method boolean isValidIP(string $ip, string $type = '') 检测是否是合法的IP地址
+ * @method string ip2bin(string $ip) 将IP地址转换为二进制字符串
+ * @method bool isMobile() 检测是否使用手机访问
+ * @method string scheme() 当前URL地址中的scheme参数
+ * @method string query() 当前请求URL地址中的query参数
  * @method \think\Request setHost(string $host) 设置当前请求的host（包含端口）
- * @method string host(bool $strict = false): string 当前请求的host
- * @method int port(): int 当前请求URL地址中的port参数
- * @method string protocol(): string 当前请求 SERVER_PROTOCOL
- * @method int remotePort(): int 当前请求 REMOTE_PORT
- * @method string contentType(): string 当前请求 HTTP_CONTENT_TYPE
- * @method string secureKey(): string 获取当前请求的安全Key
+ * @method string host(bool $strict = false) 当前请求的host
+ * @method int port() 当前请求URL地址中的port参数
+ * @method string protocol() 当前请求 SERVER_PROTOCOL
+ * @method int remotePort() 当前请求 REMOTE_PORT
+ * @method string contentType() 当前请求 HTTP_CONTENT_TYPE
+ * @method string secureKey() 获取当前请求的安全Key
  * @method \think\Request setController(string $controller) 设置当前的控制器名
  * @method \think\Request setAction(string $action) 设置当前的操作名
- * @method string controller(bool $convert = false): string 获取当前的控制器名
- * @method string action(bool $convert = false): string 获取当前的操作名
- * @method string getContent(): string 设置或者获取当前请求的content
- * @method string getInput(): string 获取当前请求的php://input
- * @method string buildToken(string $name = '__token__', mixed $type = 'md5'): string 生成请求令牌
- * @method bool checkToken(string $token = '__token__', array $data = []): bool 检查请求令牌
+ * @method string controller(bool $convert = false) 获取当前的控制器名
+ * @method string action(bool $convert = false) 获取当前的操作名
+ * @method string getContent() 设置或者获取当前请求的content
+ * @method string getInput() 获取当前请求的php://input
+ * @method string buildToken(string $name = '__token__', mixed $type = 'md5') 生成请求令牌
+ * @method bool checkToken(string $token = '__token__', array $data = []) 检查请求令牌
  * @method \think\Request withMiddleware(array $middleware) 设置在中间件传递的数据
  * @method \think\Request withGet(array $get) 设置GET数据
  * @method \think\Request withPost(array $post) 设置POST数据
@@ -114,8 +114,8 @@ use think\route\Rule;
  * @method \think\Request withRoute(array $route) 设置ROUTE变量
  * @method mixed __set(string $name, mixed $value) 设置中间传递数据
  * @method mixed __get(string $name) 获取中间传递数据的值
- * @method boolean __isset(string $name): bool 检测中间传递数据的值
- * @method bool offsetExists($name): bool
+ * @method boolean __isset(string $name) 检测中间传递数据的值
+ * @method bool offsetExists($name)
  * @method mixed offsetGet($name)
  * @method mixed offsetSet($name, $value)
  * @method mixed offsetUnset($name)
