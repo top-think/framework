@@ -18,6 +18,13 @@ use think\Facade;
  * @see \think\Cookie
  * @package think\facade
  * @mixin \think\Cookie
+ * @method mixed get(mixed $name = '', string $default = null) 获取cookie
+ * @method bool has(string $name): bool 是否存在Cookie参数
+ * @method void set(string $name, string $value, mixed $option = null): void Cookie 设置
+ * @method void forever(string $name, string $value = '', mixed $option = null): void 永久保存Cookie数据
+ * @method void delete(string $name): void Cookie删除
+ * @method array getCookie(): array 获取cookie保存数据
+ * @method void save(): void 保存Cookie
  */
 class Cookie extends Facade
 {
