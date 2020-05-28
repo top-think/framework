@@ -18,17 +18,17 @@ use think\Facade;
  * @see \think\Env
  * @package think\facade
  * @mixin \think\Env
- * @method void load(string $file) 读取环境变量定义文件
- * @method mixed get(string $name = null, mixed $default = null) 获取环境变量值
- * @method void set(string|array $env, mixed $value = null) 设置环境变量值
- * @method bool has(string $name) 检测是否存在环境变量
- * @method void __set(string $name, mixed $value) 设置环境变量
- * @method mixed __get(string $name) 获取环境变量
- * @method bool __isset(string $name) 检测是否存在环境变量
- * @method void offsetSet($name, $value)
- * @method bool offsetExists($name)
- * @method mixed offsetUnset($name)
- * @method mixed offsetGet($name)
+ * @method static void load(string $file) 读取环境变量定义文件
+ * @method static mixed get(string $name = null, mixed $default = null) 获取环境变量值
+ * @method static void set(string|array $env, mixed $value = null) 设置环境变量值
+ * @method static bool has(string $name) 检测是否存在环境变量
+ * @method static void __set(string $name, mixed $value) 设置环境变量
+ * @method static mixed __get(string $name) 获取环境变量
+ * @method static bool __isset(string $name) 检测是否存在环境变量
+ * @method static void offsetSet($name, $value)
+ * @method static bool offsetExists($name)
+ * @method static mixed offsetUnset($name)
+ * @method static mixed offsetGet($name)
  */
 class Env extends Facade
 {
