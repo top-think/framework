@@ -31,7 +31,7 @@ class Schema extends Command
     {
         $dir = $input->getArgument('dir') ?: '';
 
-        $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
+        $schemaPath = $this->app->db->connect()->getConfig('schema_cache_path');
 
         if (!is_dir($schemaPath)) {
             mkdir($schemaPath, 0755, true);
@@ -40,13 +40,13 @@ class Schema extends Command
         if ($input->hasOption('table')) {
             $table = $input->getOption('table');
             if (false === strpos($table, '.')) {
-                $dbName = $this->app->db->getConnection()->getConfig('database');
+                $dbName = $this->app->db->connect()->getConfig('database');
             }
 
             $tables[] = $table;
         } elseif ($input->hasOption('db')) {
             $dbName = $input->getOption('db');
-            $tables = $this->app->db->getConnection()->getTables($dbName);
+            $tables = $this->app->db->connect()->getTables($dbName);
         } else {
             if ($dir) {
                 $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
@@ -85,13 +85,13 @@ class Schema extends Command
             $model = new $class;
 
             $table  = $model->getTable();
-            $dbName = $model->db()->getConnection()->getConfig('database');
-            $path   = $model->db()->getConnection()->getConfig('schema_cache_path');
+            $dbName = $model->db()->connect()->getConfig('database');
+            $path   = $model->db()->connect()->getConfig('schema_cache_path');
             if (!is_dir($path)) {
                 mkdir($path, 0755, true);
             }
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $model->db()->getConnection()->getTableFieldsInfo($table);
+            $info    = $model->db()->connect()->getTableFieldsInfo($table);
             $content .= var_export($info, true) . ';';
 
             file_put_contents($path . $dbName . '.' . $table . '.php', $content);
@@ -101,14 +101,14 @@ class Schema extends Command
     protected function buildDataBaseSchema(string $path, array $tables, string $db): void
     {
         if ('' == $db) {
-            $dbName = $this->app->db->getConnection()->getConfig('database') . '.';
+            $dbName = $this->app->db->connect()->getConfig('database') . '.';
         } else {
             $dbName = $db;
         }
 
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $this->app->db->getConnection()->getTableFieldsInfo($db . $table);
+            $info    = $this->app->db->connect()->getTableFieldsInfo($db . $table);
             $content .= var_export($info, true) . ';';
             file_put_contents($path . $dbName . $table . '.php', $content);
         }
