@@ -84,7 +84,7 @@ class Schema extends Command
             if ($connection instanceof PDOConnection) {
                 $table = $model->getTable();
                 //预读字段信息
-                $connection->getTableInfo($table);
+                $connection->getSchemaInfo($table, true);
             }
         }
     }
@@ -93,7 +93,7 @@ class Schema extends Command
     {
         foreach ($tables as $table) {
             //预读字段信息
-            $connection->getTableInfo("{$dbName}.{$table}");
+            $connection->getSchemaInfo("{$dbName}.{$table}", true);
         }
     }
 }
