@@ -25,6 +25,7 @@ class Clear extends Command
             ->addOption('cache', 'c', Option::VALUE_NONE, 'clear cache file')
             ->addOption('log', 'l', Option::VALUE_NONE, 'clear log file')
             ->addOption('dir', 'r', Option::VALUE_NONE, 'clear empty dir')
+            ->addOption('expire', 'e', Option::VALUE_NONE, 'clear cache file if cache has expired')
             ->setDescription('Clear runtime file');
     }
 
@@ -41,24 +42,44 @@ class Clear extends Command
         }
 
         $rmdir = $input->getOption('dir') ? true : false;
-        $this->clear(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR, $rmdir);
+        // --expire 仅当 --cache 时生效
+        $cache_expire = $input->getOption('expire') && $input->getOption('cache') ? true : false;
+        $this->clear(rtrim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR, $rmdir, $cache_expire);
 
         $output->writeln("<info>Clear Successed</info>");
     }
 
-    protected function clear(string $path, bool $rmdir): void
+    protected function clear(string $path, bool $rmdir, bool $cache_expire): void
     {
         $files = is_dir($path) ? scandir($path) : [];
 
         foreach ($files as $file) {
             if ('.' != $file && '..' != $file && is_dir($path . $file)) {
-                $this->clear($path . $file . DIRECTORY_SEPARATOR, $rmdir);
+                $this->clear($path . $file . DIRECTORY_SEPARATOR, $rmdir, $cache_expire);
                 if ($rmdir) {
-                    rmdir($path . $file);
+                    @rmdir($path . $file);
                 }
             } elseif ('.gitignore' != $file && is_file($path . $file)) {
-                unlink($path . $file);
+                if ($cache_expire) {
+                    if ($this->cache_has_expired($path . $file)) {
+                        unlink($path . $file);
+                    }
+                } else {
+                    unlink($path . $file);
+                }
             }
         }
     }
+
+    /**
+     * 缓存文件是否已过期
+     * @param $filename string 文件路径
+     * @return bool
+     */
+    protected function cache_has_expired($filename) {
+        $content = file_get_contents($filename);
+        $expire = (int) substr($content, 8, 12);
+        return 0 != $expire && time() - $expire > filemtime($filename);
+    }
+
 }
