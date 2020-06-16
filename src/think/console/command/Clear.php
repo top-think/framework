@@ -61,7 +61,7 @@ class Clear extends Command
                 }
             } elseif ('.gitignore' != $file && is_file($path . $file)) {
                 if ($cache_expire) {
-                    if ($this->cache_has_expired($path . $file)) {
+                    if ($this->cacheHasExpired($path . $file)) {
                         unlink($path . $file);
                     }
                 } else {
@@ -76,7 +76,7 @@ class Clear extends Command
      * @param $filename string 文件路径
      * @return bool
      */
-    protected function cache_has_expired($filename) {
+    protected function cacheHasExpired($filename) {
         $content = file_get_contents($filename);
         $expire = (int) substr($content, 8, 12);
         return 0 != $expire && time() - $expire > filemtime($filename);
