@@ -237,6 +237,17 @@ class Route
 
         return $this;
     }
+    
+     /**
+     * 设置request属性
+     * @param Request $request
+     * @return $this
+     */
+    public function setRequest(Request $request)
+    {
+        $this->request = $request;
+        return $this;
+    }
 
     /**
      * 初始化默认域名
