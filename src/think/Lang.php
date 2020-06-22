@@ -33,6 +33,8 @@ class Lang
         'extend_list'     => [],
         // 多语言cookie变量
         'cookie_var'      => 'think_lang',
+        // 多语言header变量
+        'header_var'      => 'think-lang',
         // 多语言自动侦测变量名
         'detect_var'      => 'lang',
         // Accept-Language转义为对应语言包名称
@@ -242,6 +244,9 @@ class Lang
         } elseif ($request->cookie($this->config['cookie_var'])) {
             // Cookie中设置了语言变量
             $langSet = strtolower($request->cookie($this->config['cookie_var']));
+        } elseif ($request->header($this->config['header_var'])) {
+            // Header中设置了语言变量
+            $langSet = strtolower($request->header($this->config['header_var']));
         } elseif ($request->server('HTTP_ACCEPT_LANGUAGE')) {
             // 自动侦测浏览器语言
             $match = preg_match('/^([a-z\d\-]+)/i', $request->server('HTTP_ACCEPT_LANGUAGE'), $matches);
