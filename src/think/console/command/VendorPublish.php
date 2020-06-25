@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\console\command;
 
@@ -40,7 +40,7 @@ class VendorPublish extends Command
 
                     $installPath = $this->app->getRootPath() . 'vendor/' . $package['name'] . DIRECTORY_SEPARATOR;
 
-                    foreach ((array) $package['extra']['think']['config'] as $name => $file) {
+                    foreach ((array)$package['extra']['think']['config'] as $name => $file) {
 
                         $target = $configDir . $name . '.php';
                         $source = $installPath . $file;
@@ -55,7 +55,11 @@ class VendorPublish extends Command
                             continue;
                         }
 
-                        copy($source, $target);
+                        try {
+                            copy($source, $target);
+                        } catch (\Exception $e) {
+                            $this->output->error($e->getMessage());
+                        }
                     }
                 }
             }
