@@ -630,8 +630,9 @@ abstract class Rule
         } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
-        } elseif (false !== strpos($route, '@')) {
+        } elseif (false !== strpos($route, '@') || false !== strpos($route, '::')) {
             // 路由到类的方法
+            $route  = str_replace('::', '@', $route);
             $result = $this->dispatchMethod($request, $route);
         } else {
             // 路由到控制器/操作
