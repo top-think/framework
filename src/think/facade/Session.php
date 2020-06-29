@@ -18,6 +18,8 @@ use think\Facade;
  * @see \think\Session
  * @package think\facade
  * @mixin \think\Session
+ * @method static mixed getConfig(null|string $name = null, mixed $default = null) 获取Session配置
+ * @method static string|null getDefaultDriver() 默认驱动
  */
 class Session extends Facade
 {

@@ -18,6 +18,7 @@ use DateTime;
 use DateTimeInterface;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
+use think\Container;
 use think\contract\CacheHandlerInterface;
 use think\exception\InvalidArgumentException;
 use throwable;
@@ -156,7 +157,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
             if ($value instanceof Closure) {
                 // 获取缓存数据
-                $value = $value();
+                $value = Container::getInstance()->invokeFunction($value);
             }
 
             // 缓存数据

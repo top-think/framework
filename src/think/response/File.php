@@ -24,6 +24,7 @@ class File extends Response
     protected $name;
     protected $mimeType;
     protected $isContent = false;
+    protected $force     = true;
 
     public function __construct($data = '', int $code = 200)
     {
@@ -62,7 +63,7 @@ class File extends Response
         $this->header['Pragma']                    = 'public';
         $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
         $this->header['Cache-control']             = 'max-age=' . $this->expire;
-        $this->header['Content-Disposition']       = 'attachment; filename="' . $name . '"';
+        $this->header['Content-Disposition']       = ($this->force ? 'attachment; ' : '') . 'filename="' . $name . '"';
         $this->header['Content-Length']            = $size;
         $this->header['Content-Transfer-Encoding'] = 'binary';
         $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
@@ -105,6 +106,18 @@ class File extends Response
     public function mimeType(string $mimeType)
     {
         $this->mimeType = $mimeType;
+        return $this;
+    }
+
+    /**
+     * 设置文件强制下载
+     * @access public
+     * @param  bool $force 强制浏览器下载
+     * @return $this
+     */
+    public function force(bool $force)
+    {
+        $this->force = $force;
         return $this;
     }
 

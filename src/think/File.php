@@ -157,11 +157,11 @@ class File extends SplFileInfo
 
     /**
      * 自动生成文件名
-     * @access protected
+     * @access public
      * @param string|\Closure $rule
      * @return string
      */
-    public function hashName($rule = 'date'): string
+    public function hashName($rule = ''): string
     {
         if (!$this->hashName) {
             if ($rule instanceof \Closure) {

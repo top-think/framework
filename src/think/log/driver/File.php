@@ -72,7 +72,7 @@ class File implements LogHandlerInterface
         $info = [];
 
         // 日志信息封装
-        $time = date($this->config['time_format']);
+        $time = \DateTime::createFromFormat('0.u00 U', microtime())->setTimezone(new \DateTimeZone(date_default_timezone_get()))->format($this->config['time_format']);
 
         foreach ($log as $type => $val) {
             $message = [];

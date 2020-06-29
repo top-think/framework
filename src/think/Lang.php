@@ -33,6 +33,8 @@ class Lang
         'extend_list'     => [],
         // 多语言cookie变量
         'cookie_var'      => 'think_lang',
+        // 多语言header变量
+        'header_var'      => 'think-lang',
         // 多语言自动侦测变量名
         'detect_var'      => 'lang',
         // Accept-Language转义为对应语言包名称
@@ -118,9 +120,9 @@ class Lang
 
         $lang = [];
 
-        foreach ((array) $file as $_file) {
-            if (is_file($_file)) {
-                $result = $this->parse($_file);
+        foreach ((array) $file as $name) {
+            if (is_file($name)) {
+                $result = $this->parse($name);
                 $lang   = array_change_key_case($result) + $lang;
             }
         }
@@ -239,6 +241,9 @@ class Lang
         if ($request->get($this->config['detect_var'])) {
             // url中设置了语言变量
             $langSet = strtolower($request->get($this->config['detect_var']));
+        } elseif ($request->header($this->config['header_var'])) {
+            // Header中设置了语言变量
+            $langSet = strtolower($request->header($this->config['header_var']));
         } elseif ($request->cookie($this->config['cookie_var'])) {
             // Cookie中设置了语言变量
             $langSet = strtolower($request->cookie($this->config['cookie_var']));

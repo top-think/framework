@@ -66,7 +66,7 @@ class Middleware
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
-        if ($middleware) {
+        if (!empty($middleware)) {
             $this->queue[$type][] = $middleware;
             $this->queue[$type]   = array_unique($this->queue[$type], SORT_REGULAR);
         }
@@ -135,11 +135,11 @@ class Middleware
         return (new Pipeline())
             ->through(array_map(function ($middleware) {
                 return function ($request, $next) use ($middleware) {
-                    [$call, $param] = $middleware;
+                    [$call, $params] = $middleware;
                     if (is_array($call) && is_string($call[0])) {
                         $call = [$this->app->make($call[0]), $call[1]];
                     }
-                    $response = call_user_func($call, $request, $next, $param);
+                    $response = call_user_func($call, $request, $next, ...$params);
 
                     if (!$response instanceof Response) {
                         throw new LogicException('The middleware must return Response instance');
@@ -182,9 +182,7 @@ class Middleware
 
         $handler->report($e);
 
-        $response = $handler->render($passable, $e);
-
-        return $response;
+        return $handler->render($passable, $e);
     }
 
     /**
@@ -197,11 +195,11 @@ class Middleware
     protected function buildMiddleware($middleware, string $type): array
     {
         if (is_array($middleware)) {
-            [$middleware, $param] = $middleware;
+            [$middleware, $params] = $middleware;
         }
 
         if ($middleware instanceof Closure) {
-            return [$middleware, $param ?? null];
+            return [$middleware, $params ?? []];
         }
 
         if (!is_string($middleware)) {
@@ -220,7 +218,7 @@ class Middleware
             return [];
         }
 
-        return [[$middleware, 'handle'], $param ?? null];
+        return [[$middleware, 'handle'], $params ?? []];
     }
 
     /**

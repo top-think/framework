@@ -15,6 +15,7 @@ use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
+use think\db\PDOConnection;
 
 class Schema extends Command
 {
@@ -22,7 +23,7 @@ class Schema extends Command
     {
         $this->setName('optimize:schema')
             ->addArgument('dir', Argument::OPTIONAL, 'dir name .')
-            ->addOption('db', null, Option::VALUE_REQUIRED, 'db name .')
+            ->addOption('connection', null, Option::VALUE_REQUIRED, 'connection name .')
             ->addOption('table', null, Option::VALUE_REQUIRED, 'table name .')
             ->setDescription('Build database schema cache.');
     }
@@ -31,22 +32,24 @@ class Schema extends Command
     {
         $dir = $input->getArgument('dir') ?: '';
 
-        $schemaPath = $this->app->db->getConnection()->getConfig('schema_cache_path');
-
-        if (!is_dir($schemaPath)) {
-            mkdir($schemaPath, 0755, true);
-        }
-
         if ($input->hasOption('table')) {
+            $connection = $this->app->db->connect($input->getOption('connection'));
+            if (!$connection instanceof PDOConnection) {
+                $output->error("only PDO connection support schema cache!");
+                return;
+            }
             $table = $input->getOption('table');
             if (false === strpos($table, '.')) {
-                $dbName = $this->app->db->getConnection()->getConfig('database');
+                $dbName = $connection->getConfig('database');
+            } else {
+                [$dbName, $table] = explode('.', $table);
             }
 
-            $tables[] = $table;
-        } elseif ($input->hasOption('db')) {
-            $dbName = $input->getOption('db');
-            $tables = $this->app->db->getConnection()->getTables($dbName);
+            if ($table == '*') {
+                $table = $connection->getTables($dbName);
+            }
+
+            $this->buildDataBaseSchema($connection, (array) $table, $dbName);
         } else {
             if ($dir) {
                 $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
@@ -66,13 +69,7 @@ class Schema extends Command
                 $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
                 $this->buildModelSchema($class);
             }
-
-            $output->writeln('<info>Succeed!</info>');
-            return;
         }
-
-        $db = isset($dbName) ? $dbName . '.' : '';
-        $this->buildDataBaseSchema($schemaPath, $tables, $db);
 
         $output->writeln('<info>Succeed!</info>');
     }
@@ -82,35 +79,21 @@ class Schema extends Command
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
             /** @var \think\Model $model */
-            $model = new $class;
-
-            $table  = $model->getTable();
-            $dbName = $model->getConnection()->getConfig('database');
-            $path   = $model->getConnection()->getConfig('schema_cache_path');
-            if (!is_dir($path)) {
-                mkdir($path, 0755, true);
+            $model      = new $class;
+            $connection = $model->db()->getConnection();
+            if ($connection instanceof PDOConnection) {
+                $table = $model->getTable();
+                //预读字段信息
+                $connection->getSchemaInfo($table, true);
             }
-            $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $model->db()->getConnection()->getTableFieldsInfo($table);
-            $content .= var_export($info, true) . ';';
-
-            file_put_contents($path . $dbName . '.' . $table . '.php', $content);
         }
     }
 
-    protected function buildDataBaseSchema(string $path, array $tables, string $db): void
+    protected function buildDataBaseSchema(PDOConnection $connection, array $tables, string $dbName): void
     {
-        if ('' == $db) {
-            $dbName = $this->app->db->getConnection()->getConfig('database') . '.';
-        } else {
-            $dbName = $db;
-        }
-
         foreach ($tables as $table) {
-            $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $this->app->db->getConnection()->getTableFieldsInfo($db . $table);
-            $content .= var_export($info, true) . ';';
-            file_put_contents($path . $dbName . $table . '.php', $content);
+            //预读字段信息
+            $connection->getSchemaInfo("{$dbName}.{$table}", true);
         }
     }
 }

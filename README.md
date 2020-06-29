@@ -13,6 +13,8 @@ ThinkPHP 6.0
 
 ThinkPHP6.0底层架构采用PHP7.1改写和进一步优化。
 
+[官方应用服务市场](https://www.thinkphp.cn/service) | [`ThinkPHP`开发者扶持计划](https://sites.thinkphp.cn/1782366)
+
 ## 主要新特性
 
 * 采用`PHP7`强类型（严格模式）
@@ -69,7 +71,7 @@ composer update topthink/framework
 
 ## 参与开发
 
-请参阅 [ThinkPHP核心框架包](https://github.com/top-think/framework)。
+直接提交PR或者Issue即可
 
 ## 版权信息
 
@@ -77,9 +79,7 @@ ThinkPHP遵循Apache2开源协议发布，并提供免费使用。
 
 本项目包含的第三方源码和二进制文件之版权信息另行标注。
 
-版权所有Copyright © 2006-2019 by ThinkPHP (http://thinkphp.cn)
-
-All rights reserved。
+版权所有Copyright © 2006-2020 by ThinkPHP (http://thinkphp.cn) All rights reserved。
 
 ThinkPHP® 商标和著作权所有者为上海顶想信息科技有限公司。
 
