@@ -39,7 +39,7 @@ class File implements SessionHandlerInterface
         $this->config = array_merge($this->config, $config);
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = $app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+            $this->config['path'] = $app->getRuntimePath() . 'session' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->config['path'] .= DIRECTORY_SEPARATOR;
         }
