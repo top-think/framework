@@ -191,7 +191,7 @@ class RuleItem extends Rule
         }
 
         // 合并分组参数
-        $option = $this->mergeGroupOptions();
+        $option = $this->getMergeOptions();
 
         $url = $this->urlSuffixCheck($request, $url, $option);
 

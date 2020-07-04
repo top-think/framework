@@ -552,23 +552,26 @@ abstract class Rule
     }
 
     /**
-     * 合并分组参数
+     * 获取合并后的路由参数
      * @access public
+     * @param  bool  $groupMerge 是否分组合并
      * @return array
      */
-    public function mergeGroupOptions(): array
+    public function getMergeOptions(bool $groupMerge = false): array
     {
         $parentOption = $this->parent->getOption();
+        $option       = $this->option;
+
         // 合并分组参数
-        foreach ($this->mergeOptions as $item) {
-            if (isset($parentOption[$item]) && isset($this->option[$item])) {
-                $this->option[$item] = array_merge($parentOption[$item], $this->option[$item]);
+        if ($groupMerge) {
+            foreach ($this->mergeOptions as $item) {
+                if (isset($parentOption[$item]) && isset($option[$item])) {
+                    $option[$item] = array_merge($parentOption[$item], $option[$item]);
+                }
             }
         }
 
-        $this->option = array_merge($parentOption, $this->option);
-
-        return $this->option;
+        return array_merge($parentOption, $option);
     }
 
     /**
