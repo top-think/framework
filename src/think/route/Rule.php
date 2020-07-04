@@ -559,19 +559,23 @@ abstract class Rule
      */
     public function getMergeOptions(bool $groupMerge = false): array
     {
-        $parentOption = $this->parent->getOption();
-        $option       = $this->option;
+        if ($this->parent) {
+            $parentOption = $this->parent->getOption();
+            $option       = $this->option;
 
-        // 合并分组参数
-        if ($groupMerge) {
-            foreach ($this->mergeOptions as $item) {
-                if (isset($parentOption[$item]) && isset($option[$item])) {
-                    $option[$item] = array_merge($parentOption[$item], $option[$item]);
+            // 合并分组参数
+            if ($groupMerge) {
+                foreach ($this->mergeOptions as $item) {
+                    if (isset($parentOption[$item]) && isset($option[$item])) {
+                        $option[$item] = array_merge($parentOption[$item], $option[$item]);
+                    }
                 }
             }
-        }
 
-        return array_merge($parentOption, $option);
+            return array_merge($parentOption, $option);
+        } else {
+            return $this->getOption();
+        }
     }
 
     /**
