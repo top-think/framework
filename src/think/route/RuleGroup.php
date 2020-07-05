@@ -145,15 +145,15 @@ class RuleGroup extends Rule
         }
 
         // 获取当前路由规则
-        $method  = strtolower($request->method());
-        $rules   = $this->getRules($method);
-        $options = $this->parent ? $this->getMergeOptions() : $this->option;
+        $method = strtolower($request->method());
+        $rules  = $this->getRules($method);
+        $option = $this->getOption();
 
-        if (isset($options['complete_match'])) {
-            $completeMatch = $options['complete_match'];
+        if (isset($option['complete_match'])) {
+            $completeMatch = $option['complete_match'];
         }
 
-        if (!empty($options['merge_rule_regex'])) {
+        if (!empty($option['merge_rule_regex'])) {
             // 合并路由正则规则进行路由匹配检查
             $result = $this->checkMergeRuleRegex($request, $rules, $url, $completeMatch);
 
@@ -173,7 +173,7 @@ class RuleGroup extends Rule
 
         if ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
-            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getMergeOptions());
+            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
         } else {
             $result = false;
         }

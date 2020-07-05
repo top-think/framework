@@ -116,7 +116,7 @@ abstract class Dispatch
      */
     protected function doRouteAfter(): void
     {
-        $option = $this->rule->getMergeOptions(true);
+        $option = $this->rule->getOption();
 
         // 添加中间件
         if (!empty($option['middleware'])) {

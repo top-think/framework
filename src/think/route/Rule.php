@@ -237,11 +237,17 @@ abstract class Rule
      */
     public function getPattern(string $name = '')
     {
-        if ('' === $name) {
-            return $this->pattern;
+        $pattern = $this->pattern;
+
+        if ($this->parent) {
+            $pattern = array_merge($this->parent->getPattern(), $pattern);
         }
 
-        return $this->pattern[$name] ?? null;
+        if ('' === $name) {
+            return $pattern;
+        }
+
+        return $pattern[$name] ?? null;
     }
 
     /**
@@ -253,11 +259,26 @@ abstract class Rule
      */
     public function getOption(string $name = '', $default = null)
     {
-        if ('' === $name) {
-            return $this->option;
+        $option = $this->option;
+
+        if ($this->parent) {
+            $parentOption = $this->parent->getOption();
+
+            // 合并分组参数
+            foreach ($this->mergeOptions as $item) {
+                if (isset($parentOption[$item]) && isset($option[$item])) {
+                    $option[$item] = array_merge($parentOption[$item], $option[$item]);
+                }
+            }
+
+            $option = array_merge($parentOption, $option);
         }
 
-        return $this->option[$name] ?? $default;
+        if ('' === $name) {
+            return $option;
+        }
+
+        return $option[$name] ?? $default;
     }
 
     /**
@@ -549,33 +570,6 @@ abstract class Rule
         $this->router->setCrossDomainRule($this, $method);
 
         return $this;
-    }
-
-    /**
-     * 获取合并后的路由参数
-     * @access public
-     * @param  bool  $groupMerge 是否分组合并
-     * @return array
-     */
-    public function getMergeOptions(bool $groupMerge = false): array
-    {
-        if ($this->parent) {
-            $parentOption = $this->parent->getOption();
-            $option       = $this->option;
-
-            // 合并分组参数
-            if ($groupMerge) {
-                foreach ($this->mergeOptions as $item) {
-                    if (isset($parentOption[$item]) && isset($option[$item])) {
-                        $option[$item] = array_merge($parentOption[$item], $option[$item]);
-                    }
-                }
-            }
-
-            return array_merge($parentOption, $option);
-        } else {
-            return $this->getOption();
-        }
     }
 
     /**
