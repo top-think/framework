@@ -147,7 +147,7 @@ class Console
 
         if (isset($components['port'])) {
             $server['SERVER_PORT'] = $components['port'];
-            $server['HTTP_HOST']   .= ':' . $components['port'];
+            $server['HTTP_HOST'] .= ':' . $components['port'];
         }
 
         $server['REQUEST_URI'] = $uri;
@@ -622,7 +622,7 @@ class Console
     {
         if (true === $input->hasParameterOption(['--ansi'])) {
             $output->setDecorated(true);
-        } else if (true === $input->hasParameterOption(['--no-ansi'])) {
+        } elseif (true === $input->hasParameterOption(['--no-ansi'])) {
             $output->setDecorated(false);
         }
 
@@ -632,11 +632,11 @@ class Console
 
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
             $output->setVerbosity(Output::VERBOSITY_QUIET);
-        } else if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
+        } elseif ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
-        } else if ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
+        } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
             $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
-        } else if ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
+        } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
             $output->setVerbosity(Output::VERBOSITY_VERBOSE);
         }
     }
@@ -734,14 +734,14 @@ class Console
                 if (!isset($parts[$i]) && $exists) {
                     $alternatives[$collectionName] += $threshold;
                     continue;
-                } else if (!isset($parts[$i])) {
+                } elseif (!isset($parts[$i])) {
                     continue;
                 }
 
                 $lev = levenshtein($subname, $parts[$i]);
                 if ($lev <= strlen($subname) / 3 || '' !== $subname && false !== strpos($parts[$i], $subname)) {
                     $alternatives[$collectionName] = $exists ? $alternatives[$collectionName] + $lev : $lev;
-                } else if ($exists) {
+                } elseif ($exists) {
                     $alternatives[$collectionName] += $threshold;
                 }
             }
