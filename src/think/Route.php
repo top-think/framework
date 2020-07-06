@@ -165,12 +165,12 @@ class Route
             // 读取路由映射文件
             $this->import(include $this->app->getRuntimePath() . 'route.php');
         }
+
+        $this->config = array_merge($this->config, $this->app->config->get('route'));
     }
 
     protected function init()
     {
-        $this->config = array_merge($this->config, $this->app->config->get('route'));
-
         if (!empty($this->config['middleware'])) {
             $this->app->middleware->import($this->config['middleware'], 'route');
         }
