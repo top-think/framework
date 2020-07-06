@@ -153,7 +153,7 @@ class Console
         $server['REQUEST_URI'] = $uri;
 
         /** @var Request $request */
-        $request = $this->app->make('request', [], true);
+        $request = $this->app->make('request');
 
         $request->withServer($server);
     }
