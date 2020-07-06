@@ -43,6 +43,12 @@ class Http
     protected $path;
 
     /**
+     * 路由路径
+     * @var string
+     */
+    protected $routePath;
+
+    /**
      * 是否绑定应用
      * @var bool
      */
@@ -117,7 +123,6 @@ class Http
      * 设置路由目录
      * @access public
      * @param string $path 路由定义目录
-     * @return string
      */
     public function setRoutePath(string $path): void
     {

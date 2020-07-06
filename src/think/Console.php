@@ -57,7 +57,7 @@ class Console
     protected $catchExceptions = true;
     protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand = 'list';
+    protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
         'help'             => Help::class,
@@ -91,9 +91,7 @@ class Console
     {
         $this->app = $app;
 
-        if (!$this->app->initialized()) {
-            $this->app->initialize();
-        }
+        $this->initialize();
 
         $this->definition = $this->getDefaultInputDefinition();
 
@@ -101,6 +99,63 @@ class Console
         $this->loadCommands();
 
         $this->start();
+    }
+
+    /**
+     * 初始化
+     */
+    protected function initialize()
+    {
+        if (!$this->app->initialized()) {
+            $this->app->initialize();
+        }
+        $this->makeRequest();
+    }
+
+    /**
+     * 构造request
+     */
+    protected function makeRequest()
+    {
+        $uri = $this->app->config->get('app.url', 'http://localhost');
+
+        $components = parse_url($uri);
+
+        $server = $_SERVER;
+
+        if (isset($components['path'])) {
+            $server = array_merge($server, [
+                'SCRIPT_FILENAME' => $components['path'],
+                'SCRIPT_NAME'     => $components['path'],
+            ]);
+        }
+
+        if (isset($components['host'])) {
+            $server['SERVER_NAME'] = $components['host'];
+            $server['HTTP_HOST']   = $components['host'];
+        }
+
+        if (isset($components['scheme'])) {
+            if ('https' === $components['scheme']) {
+                $server['HTTPS']       = 'on';
+                $server['SERVER_PORT'] = 443;
+            } else {
+                unset($server['HTTPS']);
+                $server['SERVER_PORT'] = 80;
+            }
+        }
+
+        if (isset($components['port'])) {
+            $server['SERVER_PORT'] = $components['port'];
+            $server['HTTP_HOST']   .= ':' . $components['port'];
+        }
+
+        $server['REQUEST_URI'] = $uri;
+
+        /** @var Request $request */
+        $request = $this->app->make('request', [], true);
+
+        $request->withServer($server);
     }
 
     /**
@@ -161,7 +216,7 @@ class Console
     /**
      * @access public
      * @param string $command
-     * @param array  $parameters
+     * @param array $parameters
      * @param string $driver
      * @return Output|Buffer
      */
@@ -226,7 +281,7 @@ class Console
     /**
      * 执行指令
      * @access public
-     * @param Input  $input
+     * @param Input $input
      * @param Output $output
      * @return int
      */
@@ -344,7 +399,7 @@ class Console
      * 添加一个指令
      * @access public
      * @param string|Command $command 指令对象或者指令类名
-     * @param string         $name    指令名 留空则自动获取
+     * @param string $name 指令名 留空则自动获取
      * @return Command|void
      */
     public function addCommand($command, string $name = '')
@@ -462,7 +517,7 @@ class Console
         $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -560,14 +615,14 @@ class Console
     /**
      * 配置基于用户的参数和选项的输入和输出实例。
      * @access protected
-     * @param Input  $input  输入实例
+     * @param Input $input 输入实例
      * @param Output $output 输出实例
      */
     protected function configureIO(Input $input, Output $output): void
     {
         if (true === $input->hasParameterOption(['--ansi'])) {
             $output->setDecorated(true);
-        } elseif (true === $input->hasParameterOption(['--no-ansi'])) {
+        } else if (true === $input->hasParameterOption(['--no-ansi'])) {
             $output->setDecorated(false);
         }
 
@@ -577,11 +632,11 @@ class Console
 
         if (true === $input->hasParameterOption(['--quiet', '-q'])) {
             $output->setVerbosity(Output::VERBOSITY_QUIET);
-        } elseif ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
+        } else if ($input->hasParameterOption('-vvv') || $input->hasParameterOption('--verbose=3') || $input->getParameterOption('--verbose') === 3) {
             $output->setVerbosity(Output::VERBOSITY_DEBUG);
-        } elseif ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
+        } else if ($input->hasParameterOption('-vv') || $input->hasParameterOption('--verbose=2') || $input->getParameterOption('--verbose') === 2) {
             $output->setVerbosity(Output::VERBOSITY_VERY_VERBOSE);
-        } elseif ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
+        } else if ($input->hasParameterOption('-v') || $input->hasParameterOption('--verbose=1') || $input->hasParameterOption('--verbose') || $input->getParameterOption('--verbose')) {
             $output->setVerbosity(Output::VERBOSITY_VERBOSE);
         }
     }
@@ -590,8 +645,8 @@ class Console
      * 执行指令
      * @access protected
      * @param Command $command 指令实例
-     * @param Input   $input   输入实例
-     * @param Output  $output  输出实例
+     * @param Input $input 输入实例
+     * @param Output $output 输出实例
      * @return int
      * @throws \Exception
      */
@@ -644,8 +699,8 @@ class Console
     /**
      * 返回命名空间部分
      * @access public
-     * @param string $name  指令
-     * @param int    $limit 部分的命名空间的最大数量
+     * @param string $name 指令
+     * @param int $limit 部分的命名空间的最大数量
      * @return string
      */
     public function extractNamespace(string $name, int $limit = 0): string
@@ -659,7 +714,7 @@ class Console
     /**
      * 查找可替代的建议
      * @access private
-     * @param string             $name
+     * @param string $name
      * @param array|\Traversable $collection
      * @return array
      */
@@ -679,14 +734,14 @@ class Console
                 if (!isset($parts[$i]) && $exists) {
                     $alternatives[$collectionName] += $threshold;
                     continue;
-                } elseif (!isset($parts[$i])) {
+                } else if (!isset($parts[$i])) {
                     continue;
                 }
 
                 $lev = levenshtein($subname, $parts[$i]);
                 if ($lev <= strlen($subname) / 3 || '' !== $subname && false !== strpos($parts[$i], $subname)) {
                     $alternatives[$collectionName] = $exists ? $alternatives[$collectionName] + $lev : $lev;
-                } elseif ($exists) {
+                } else if ($exists) {
                     $alternatives[$collectionName] += $threshold;
                 }
             }
