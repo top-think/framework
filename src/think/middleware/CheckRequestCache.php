@@ -61,6 +61,11 @@ class CheckRequestCache
     public function handle($request, Closure $next, $cache = null)
     {
         if ($request->isGet() && false !== $cache) {
+            if (false === $this->config['request_cache_key']) {
+                // 关闭当前缓存
+                $cache = false;
+            }
+
             $cache = $cache ?? $this->getRequestCache($request);
 
             if ($cache) {
