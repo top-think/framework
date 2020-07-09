@@ -987,7 +987,7 @@ class Validate
             $mime = explode(',', $mime);
         }
 
-        return in_array(strtolower($file->getMime()), $mime);
+        return in_array(strtolower($file->getOriginalMime()), $mime);
     }
 
     /**
