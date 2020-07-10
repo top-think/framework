@@ -302,17 +302,20 @@ class Handle
 
     /**
      * 获取异常扩展信息
-     * 用于非调试模式html返回类型显示
+     * 用于调试模式html返回类型显示
      * @access protected
      * @param Throwable $exception
      * @return array                 异常类定义的扩展数据
      */
     protected function getExtendData(Throwable $exception): array
     {
-        $data = [];
-
-        if ($exception instanceof \think\Exception) {
+        if (
+            $exception instanceof \think\Exception
+            || (class_exists('\think\db\exception\DbException') && $exception instanceof \think\db\exception\DbException)
+        ) {
             $data = $exception->getData();
+        } else {
+            $data = [];
         }
 
         return $data;
