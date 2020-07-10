@@ -681,6 +681,18 @@ class Route
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
     {
         return $this->rule($rule, function () use ($status, $route) {
+            $search  = $replace  = [];
+            $matches = $this->request->rule()->getVars();
+
+            foreach ($matches as $key => $value) {
+                $search[]  = '<' . $key . '>';
+                $replace[] = $value;
+
+                $search[]  = ':' . $key;
+                $replace[] = $value;
+            }
+
+            $route = str_replace($search, $replace, $route);
             return Response::create($route, 'redirect')->code($status);
         }, '*');
     }
