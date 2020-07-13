@@ -159,6 +159,9 @@ class Http
      */
     public function run(Request $request = null): Response
     {
+        //初始化
+        $this->initialize();
+
         //自动创建request对象
         $request = $request ?? $this->app->make('request', [], true);
         $this->app->instance('request', $request);
@@ -191,8 +194,6 @@ class Http
      */
     protected function runWithRequest(Request $request)
     {
-        $this->initialize();
-
         // 加载全局中间件
         $this->loadMiddleware();
 

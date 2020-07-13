@@ -152,8 +152,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $this->instance($abstract, $concrete);
         } else {
             $abstract = $this->getAlias($abstract);
-
-            $this->bind[$abstract] = $concrete;
+            if ($abstract != $concrete) {
+                $this->bind[$abstract] = $concrete;
+            }
         }
 
         return $this;
