@@ -423,7 +423,7 @@ class Route
      * @param string $name   路由标识
      * @param string $domain 域名
      * @param string $method 请求类型
-     * @return RuleItem[]
+     * @return array
      */
     public function getName(string $name = null, string $domain = null, string $method = '*'): array
     {

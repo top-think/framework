@@ -302,10 +302,10 @@ class Url
         $port = $request->port();
 
         foreach ($rule as $item) {
-            $url     = $item->getRule();
+            $url     = $item['rule'];
             $pattern = $this->parseVar($url);
-            $domain  = $item->getDomain();
-            $suffix  = $item->getSuffix();
+            $domain  = $item['domain'];
+            $suffix  = $item['suffix'];
 
             if ('-' == $domain) {
                 $domain = is_string($allowDomain) ? $allowDomain : $request->host(true);
