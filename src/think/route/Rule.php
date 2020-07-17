@@ -591,24 +591,31 @@ abstract class Rule
         }
 
         // 替换路由地址中的变量
-        if (is_string($route) && !empty($matches)) {
-            $search = $replace = [];
+        $extraParams = true;
+        $search      = $replace      = [];
+        $depr        = $this->router->config('pathinfo_depr');
+        foreach ($matches as $key => $value) {
+            $search[]  = '<' . $key . '>';
+            $replace[] = $value;
 
-            foreach ($matches as $key => $value) {
-                $search[]  = '<' . $key . '>';
-                $replace[] = $value;
+            $search[]  = ':' . $key;
+            $replace[] = $value;
 
-                $search[]  = ':' . $key;
-                $replace[] = $value;
+            if (strpos($value, $depr)) {
+                $extraParams = false;
             }
+        }
 
+        if (is_string($route)) {
             $route = str_replace($search, $replace, $route);
         }
 
         // 解析额外参数
-        $count = substr_count($rule, '/');
-        $url   = array_slice(explode('|', $url), $count + 1);
-        $this->parseUrlParams(implode('|', $url), $matches);
+        if ($extraParams) {
+            $count = substr_count($rule, '/');
+            $url   = array_slice(explode('|', $url), $count + 1);
+            $this->parseUrlParams(implode('|', $url), $matches);
+        }
 
         $this->vars = $matches;
 
