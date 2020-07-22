@@ -2592,11 +2592,11 @@ class Query
             } elseif (is_array($relation)) {
                 $relation = $key;
             } elseif (is_string($relation)) {
-            	// 去处首尾空格
-            	$relation = trim($relation);
-				if (strpos($relation, '.')) {
-					list($relation, $subRelation) = explode('.', $relation, 2);
-				}
+                // 去处首尾空格
+                $relation = trim($relation);
+                if (strpos($relation, '.')) {
+                    list($relation, $subRelation) = explode('.', $relation, 2);
+                }
             }
 
             /** @var Relation $model */
@@ -2652,11 +2652,11 @@ class Query
                 $field    = $relation;
                 $relation = $key;
             } elseif (is_string($relation)) {
-            	// 去处首尾空格
-            	$relation = trim($relation);
-				if (strpos($relation, '.')) {
-					list($relation, $subRelation) = explode('.', $relation, 2);
-				}
+                // 去处首尾空格
+                $relation = trim($relation);
+                if (strpos($relation, '.')) {
+                    list($relation, $subRelation) = explode('.', $relation, 2);
+                }
             }
 
             /** @var Relation $model */
