@@ -12,6 +12,7 @@
 namespace think\model;
 
 use think\Model;
+use think\Db;
 
 class Pivot extends Model
 {
@@ -37,6 +38,12 @@ class Pivot extends Model
         }
 
         parent::__construct($data);
+        
+         if (true === $this->autoWriteTimestamp) {
+            $config = Db::getConfig();
+            // 自动写入时间戳
+            $this->autoWriteTimestamp = $config['auto_timestamp'];
+        }
     }
 
 }
