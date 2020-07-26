@@ -116,6 +116,10 @@ class Config
      */
     public function has(string $name): bool
     {
+        if (false === strpos($name, '.') && !isset($this->config[strtolower($name)])) {
+            return false;
+        }
+
         return !is_null($this->get($name));
     }
 
