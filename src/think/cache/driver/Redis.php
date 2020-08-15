@@ -158,13 +158,19 @@ class Redis extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc(string $name, int $step = 1)
+    public function inc(string $name, $step = 1)
     {
         $this->writeTimes++;
 
         $key = $this->getCacheKey($name);
-
-        return $this->handler->incrby($key, $step);
+        
+        if(is_int($step)) {
+            return $this->handler->incrby($key, $step);
+        } else if(is_float($step)){
+            return $this->handler->incrbyfloat($key, $step);
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -174,13 +180,19 @@ class Redis extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec(string $name, int $step = 1)
+    public function dec(string $name, $step = 1)
     {
         $this->writeTimes++;
 
         $key = $this->getCacheKey($name);
 
-        return $this->handler->decrby($key, $step);
+        if(is_int($step)) {
+            return $this->handler->decrby($key, $step);
+        } else if(is_float($step)){
+            return $this->handler->decrbyfloat($key, $step);
+        } else {
+            return false;
+        }
     }
 
     /**
