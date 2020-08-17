@@ -154,6 +154,18 @@ class Lang
                     $result = yaml_parse_file($file);
                 }
                 break;
+            case 'json':
+                $data = file_get_contents($file);
+
+                if($data !== false) {
+                    $data = json_decode($data, true);
+
+                    if(json_last_error() === JSON_ERROR_NONE) {
+                        $result = $data;
+                    }
+                }
+
+                break;
         }
 
         return isset($result) && is_array($result) ? $result : [];
