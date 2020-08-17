@@ -60,7 +60,7 @@ class CheckRequestCache
      */
     public function handle($request, Closure $next, $cache = null)
     {
-        if ($request->isGet() && false !== $cache && false === app()->isDebug()) {
+        if ($request->isGet() && false !== $cache) {
             $cache = $cache ?: $this->getRequestCache($request);
 
             if ($cache) {
@@ -86,7 +86,7 @@ class CheckRequestCache
 
         $response = $next($request);
 
-        if (isset($key) && 200 == $response->getCode() && $response->isAllowCache() && false === app()->isDebug()) {
+        if (isset($key) && 200 == $response->getCode() && $response->isAllowCache()) {
             $header                  = $response->getHeader();
             $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
