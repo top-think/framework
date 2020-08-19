@@ -136,7 +136,7 @@ class File extends Driver
 
         $raw = $this->getRaw($name);
 
-        return is_null($raw) ? $default : $this->unserialize($raw['content']);
+        return is_null($raw) || !is_string($raw['content']) ? $default : $this->unserialize($raw['content']);
     }
 
     /**
