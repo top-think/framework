@@ -57,6 +57,27 @@ class TagSet
 
         return true;
     }
+    
+     /**
+     * 通过标签获取缓存数据
+     * @access public
+     * @param string $name
+     * @param string $default
+     * @param string $itemDefault
+     * @return array|mixed|string
+     * @throws \Psr\SimpleCache\InvalidArgumentException
+     */
+    public function get($name = '', $default = null, $itemDefault = null)
+    {
+        $data = [];
+        foreach ($this->tag as $tag) {
+            $names = $this->handler->getTagItems($tag);
+            foreach ($names as $tname) {
+                $data[$tname] = $this->handler->get($tname, $itemDefault);
+            }
+        }
+        return $name === '' ? $data : ($data[$name] ?? $default);
+    }
 
     /**
      * 追加缓存标识到标签
@@ -66,8 +87,6 @@ class TagSet
      */
     public function append(string $name): void
     {
-        $name = $this->handler->getCacheKey($name);
-
         foreach ($this->tag as $tag) {
             $this->handler->push($tag, $name);
         }
@@ -120,6 +139,10 @@ class TagSet
         // 指定标签清除
         foreach ($this->tag as $tag) {
             $names = $this->handler->getTagItems($tag);
+            
+            foreach ($names as $key => $name) {
+                $names[$key] = $this->handler->getCacheKey($name);
+            }
 
             $this->handler->clearTag($names);
             $this->handler->delete($tag);
