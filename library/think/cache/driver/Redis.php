@@ -32,6 +32,7 @@ class Redis extends Driver
         'persistent' => false,
         'prefix'     => '',
         'serialize'  => true,
+        'serialize_prefix'  => '',
     ];
 
     /**
@@ -44,7 +45,9 @@ class Redis extends Driver
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-
+        if (isset($this->options['serialize_prefix'])){
+            self::registerSerialize(self::$serialize[0],self::$serialize[1],$this->options['serialize_prefix']);
+        }
         if (extension_loaded('redis')) {
             $this->handler = new \Redis;
 
