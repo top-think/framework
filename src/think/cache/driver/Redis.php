@@ -87,7 +87,7 @@ class Redis extends Driver
         }
 
         if (0 != $this->options['select']) {
-            $this->handler->select($this->options['select']);
+            $this->handler->select( (int) $this->options['select']);
         }
     }
 
