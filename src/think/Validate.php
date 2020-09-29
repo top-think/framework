@@ -484,6 +484,7 @@ class Validate
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
                 $rules[$key] = $rule;
+                unset($this->append[$key]);
             }
         }
 
