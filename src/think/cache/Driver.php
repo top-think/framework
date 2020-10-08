@@ -185,9 +185,6 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
         $key  = implode('-', $name);
 
         if (!isset($this->tag[$key])) {
-            $name = array_map(function ($val) {
-                return $this->getTagKey($val);
-            }, $name);
             $this->tag[$key] = new TagSet($name, $this);
         }
 
@@ -202,7 +199,8 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      */
     public function getTagItems(string $tag): array
     {
-        return $this->get($tag, []);
+        $name = $this->getTagKey($tag);
+        return $this->get($name, []);
     }
 
     /**
