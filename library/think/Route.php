@@ -871,7 +871,7 @@ class Route
      * @access public
      * @param  string    $url URL地址
      * @param  bool      $must 是否强制路由
-     * @return Dispatch
+     * @return UrlDispatch
      * @throws RouteNotFoundException
      */
     public function check($url, $must = false)
