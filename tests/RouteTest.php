@@ -223,7 +223,8 @@ class RouteTest extends TestCase
     {
         $this->route->redirect('foo', 'http://localhost', 302);
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
+        $this->app->shouldReceive('make')->with(Request::class)->andReturn($request);
         $response = $this->route->dispatch($request);
 
         $this->assertInstanceOf(Redirect::class, $response);
