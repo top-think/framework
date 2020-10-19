@@ -3464,7 +3464,7 @@ class Query
     }
 
     /**
-     * 查找单条记录 如果不存在则抛出异常
+     * 查找单条记录 不存在则返回空模型
      * @access public
      * @param  array|string|Query|\Closure $data
      * @return array|\PDOStatement|string|Model
