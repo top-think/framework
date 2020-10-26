@@ -35,7 +35,10 @@ class Local extends Driver
         : LocalAdapter::DISALLOW_LINKS;
 
         return new LocalAdapter(
-            $this->config['root'], LOCK_EX, $links, $permissions
+            $this->config['root'],
+            LOCK_EX,
+            $links,
+            $permissions
         );
     }
 }
