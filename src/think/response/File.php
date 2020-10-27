@@ -44,7 +44,7 @@ class File extends Response
             throw new Exception('file not exists:' . $data);
         }
 
-        ob_end_clean();
+        @ob_end_clean();
 
         if (!empty($this->name)) {
             $name = $this->name;
