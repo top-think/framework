@@ -1184,13 +1184,11 @@ class Request
 
         $files = $this->file;
         if (!empty($files)) {
-            if (strpos($name, '.')) {
-                list($name, $sub) = explode('.', $name);
-            }
-
+           
             // 处理上传文件
             $array = $this->dealUploadFile($files, $name);
 
+            list($name, $sub) = explode('.', $name);
             if ('' === $name) {
                 // 获取全部文件
                 return $array;
@@ -1211,29 +1209,32 @@ class Request
             if ($file instanceof File) {
                 $array[$key] = $file;
             } elseif (is_array($file['name'])) {
-                $item  = [];
                 $keys  = array_keys($file);
-                $count = count($file['name']);
-
-                for ($i = 0; $i < $count; $i++) {
-                    if ($file['error'][$i] > 0) {
-                        if ($name == $key) {
-                            $this->throwUploadFileError($file['error'][$i]);
-                        } else {
-                            continue;
+                $array[$key]=[];
+                list($_name,$subName)=explode('.',$name);
+                $subFileNames=array_keys($file['name']);
+                foreach ($subFileNames as $index => $subFileName) {
+                    $errorNo=$file['error'][$subFileName];
+                    if ($errorNo > 0) {
+                        if($_name==$name){
+                            //没有.符号时,忽略没上传的文件
+                            if($errorNo==4){
+                                continue;
+                            }
+                        }else {
+                            //有.符号,但是二级名称不匹配时
+                            if ($subName != $subFileName) {
+                                continue;
+                            }
                         }
+                        $this->throwUploadFileError($file['error'][$subFileName]);
                     }
-
-                    $temp['key'] = $key;
-
+                    $temp['key'] = "{$key}.{$subFileName}";
                     foreach ($keys as $_key) {
-                        $temp[$_key] = $file[$_key][$i];
+                        $temp[$_key] = $file[$_key][$subFileName];
                     }
-
-                    $item[] = (new File($temp['tmp_name']))->setUploadInfo($temp);
+                    $array[$key][$subFileName] = (new File($temp['tmp_name']))->setUploadInfo($temp);
                 }
-
-                $array[$key] = $item;
             } else {
                 if ($file['error'] > 0) {
                     if ($key == $name) {
