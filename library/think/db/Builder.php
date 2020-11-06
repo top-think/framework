@@ -386,7 +386,7 @@ abstract class Builder
                     $array[] = $key . ' ' . $exp . ' ' . $this->parseValue($item, $field);
                 }
                 $logic = isset($val[2]) ? $val[2] : 'AND';
-                $whereStr .= '(' . implode($array, ' ' . strtoupper($logic) . ' ') . ')';
+                $whereStr .= '(' . implode(' ' . strtoupper($logic) . ' ', $array) . ')';
             } else {
                 $whereStr .= $key . ' ' . $exp . ' ' . $this->parseValue($value, $field);
             }
