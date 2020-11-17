@@ -42,7 +42,7 @@ use think\db\Query;
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method $this find(mixed $data = null) static 查询单个记录
  * @method $this findOrFail(mixed $data = null) 查询单个记录
- * @method \think\Collection|$this[] select(mixed $data = null) static 查询多个记录
+ * @method Collection|$this[] select(mixed $data = null) static 查询多个记录
  * @method $this get(mixed $data = null,mixed $with = [],bool $cache = false, bool $failException = false) static 查询单个记录 支持关联预载入
  * @method $this getOrFail(mixed $data = null,mixed $with = [],bool $cache = false) static 查询单个记录 不存在则抛出异常
  * @method $this findOrEmpty(mixed $data = null) static 查询单个记录  不存在则返回空模型
