@@ -18,6 +18,7 @@ use think\db\Query;
  * Class Model
  * @package think
  * @mixin Query
+ * @method $this scope(string|array $scope) static 查询范围
  * @method $this where(mixed $field, string $op = null, mixed $condition = null) static 查询条件
  * @method $this whereRaw(string $where, array $bind = [], string $logic = 'AND') static 表达式查询
  * @method $this whereExp(string $field, string $condition, array $bind = [], string $logic = 'AND') static 字段表达式查询
@@ -40,12 +41,20 @@ use think\db\Query;
  * @method mixed value(string $field, mixed $default = null) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method $this find(mixed $data = null) static 查询单个记录
- * @method $this[] select(mixed $data = null) static 查询多个记录
+ * @method $this findOrFail(mixed $data = null) 查询单个记录
+ * @method \think\Collection|$this[] select(mixed $data = null) static 查询多个记录
  * @method $this get(mixed $data = null,mixed $with = [],bool $cache = false, bool $failException = false) static 查询单个记录 支持关联预载入
  * @method $this getOrFail(mixed $data = null,mixed $with = [],bool $cache = false) static 查询单个记录 不存在则抛出异常
  * @method $this findOrEmpty(mixed $data = null) static 查询单个记录  不存在则返回空模型
- * @method $this[] all(mixed $data = null,mixed $with = [],bool $cache = false) static 查询多个记录 支持关联预载入
- * @method \think\Model withAttr(array $name,\Closure $closure = null) 动态定义获取器
+ * @method Collection|$this[] all(mixed $data = null,mixed $with = [],bool $cache = false) static 查询多个记录 支持关联预载入
+ * @method $this withAttr(array $name,\Closure $closure = null) static 动态定义获取器
+ * @method $this withJoin(string|array $with, string $joinType = '') static
+ * @method $this withCount(string|array $relation, bool $subQuery = true) static 关联统计
+ * @method $this withSum(string|array $relation, string $field, bool $subQuery = true) static 关联SUM统计
+ * @method $this withMax(string|array $relation, string $field, bool $subQuery = true) static 关联MAX统计
+ * @method $this withMin(string|array $relation, string $field, bool $subQuery = true) static 关联Min统计
+ * @method $this withAvg(string|array $relation, string $field, bool $subQuery = true) static 关联Avg统计
+ * @method Paginator|$this paginate() static 分页
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
