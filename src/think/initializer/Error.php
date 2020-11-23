@@ -56,6 +56,7 @@ class Error
             $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
             $handler->render($this->app->request, $e)->send();
+            $this->app->log->save();
         }
     }
 
