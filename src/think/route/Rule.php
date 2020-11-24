@@ -806,7 +806,8 @@ abstract class Rule
         }
 
         $regex = str_replace(array_unique($match), array_unique($replace), $rule);
-        $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
+        $regex = str_replace('/', '\/', $regex);
+        $regex = str_replace([')?\/', ')?-', ')-', '\\\\/'], [')\/', ')\-', ')\-', '\/'], $regex);
 
         if (isset($hasSlash)) {
             $regex .= '\/';
