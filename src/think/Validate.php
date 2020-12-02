@@ -1605,6 +1605,11 @@ class Validate
             return $this->errorMsgIsArray($msg, $rule, $title);
         }
 
+        // rule若是数组则转为字符串
+        if (is_array($rule)) {
+            $rule = implode(',', $rule);
+        }
+
         if (is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (is_string($rule) && strpos($rule, ',')) {
