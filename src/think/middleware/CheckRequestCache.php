@@ -162,7 +162,7 @@ class CheckRequestCache
 
             foreach ($param as $item => $val) {
                 if (is_string($val) && false !== strpos($key, ':' . $item)) {
-                    $key = str_replace(':' . $item, $val, $key);
+                    $key = str_replace(':' . $item, (string) $val, $key);
                 }
             }
         } elseif (strpos($key, ']')) {
