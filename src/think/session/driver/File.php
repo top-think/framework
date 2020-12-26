@@ -39,7 +39,7 @@ class File implements SessionHandlerInterface
         $this->config = array_merge($this->config, $config);
 
         if (empty($this->config['path'])) {
-            $this->config['path'] = $app->getRootPath() . 'runtime' . DIRECTORY_SEPARATOR . 'session' . DIRECTORY_SEPARATOR;
+            $this->config['path'] = $app->getRuntimePath() . 'session' . DIRECTORY_SEPARATOR;
         } elseif (substr($this->config['path'], -1) != DIRECTORY_SEPARATOR) {
             $this->config['path'] .= DIRECTORY_SEPARATOR;
         }
@@ -152,7 +152,7 @@ class File implements SessionHandlerInterface
 
             if ($this->config['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
-                $content = gzuncompress($content);
+                $content = (string) gzuncompress($content);
             }
 
             return $content;

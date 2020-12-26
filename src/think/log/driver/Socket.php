@@ -12,6 +12,7 @@ declare (strict_types = 1);
 
 namespace think\log\driver;
 
+use Psr\Container\NotFoundExceptionInterface;
 use think\App;
 use think\contract\LogHandlerInterface;
 
@@ -23,11 +24,11 @@ class Socket implements LogHandlerInterface
 {
     protected $app;
 
-    public $port = 1116; //SocketLog 服务的http的端口号
-
     protected $config = [
         // socket服务器地址
         'host'                => 'localhost',
+        // socket服务器端口
+        'port'                => 1116,
         // 是否显示加载的文件列表
         'show_included_files' => false,
         // 日志强制记录到配置的client_id
@@ -38,6 +39,13 @@ class Socket implements LogHandlerInterface
         'debug'               => false,
         // 输出到浏览器时默认展开的日志级别
         'expand_level'        => ['debug'],
+        // 日志头渲染回调
+        'format_head'         => null,
+        // curl opt
+        'curl_opt'            => [
+            CURLOPT_CONNECTTIMEOUT => 1,
+            CURLOPT_TIMEOUT        => 10,
+        ],
     ];
 
     protected $css = [
@@ -87,24 +95,32 @@ class Socket implements LogHandlerInterface
 
         if ($this->config['debug']) {
             if ($this->app->exists('request')) {
-                $current_uri = $this->app->request->url(true);
+                $currentUri = $this->app->request->url(true);
             } else {
-                $current_uri = 'cmd:' . implode(' ', $_SERVER['argv'] ?? []);
+                $currentUri = 'cmd:' . implode(' ', $_SERVER['argv'] ?? []);
+            }
+
+            if (!empty($this->config['format_head'])) {
+                try {
+                    $currentUri = $this->app->invoke($this->config['format_head'], [$currentUri]);
+                } catch (NotFoundExceptionInterface $notFoundException) {
+                    // Ignore exception
+                }
             }
 
             // 基本信息
             $trace[] = [
                 'type' => 'group',
-                'msg'  => $current_uri,
+                'msg'  => $currentUri,
                 'css'  => $this->css['page'],
             ];
         }
 
-        $expand_level = array_flip($this->config['expand_level']);
+        $expandLevel = array_flip($this->config['expand_level']);
 
         foreach ($log as $type => $val) {
             $trace[] = [
-                'type' => ($expand_level[$type] ?? false) ? 'group' : 'groupCollapsed',
+                'type' => isset($expandLevel[$type]) ? 'group' : 'groupCollapsed',
                 'msg'  => '[ ' . $type . ' ]',
                 'css'  => $this->css[$type] ?? '',
             ];
@@ -155,18 +171,18 @@ class Socket implements LogHandlerInterface
 
         $tabid = $this->getClientArg('tabid');
 
-        if (!$client_id = $this->getClientArg('client_id')) {
-            $client_id = '';
+        if (!$clientId = $this->getClientArg('client_id')) {
+            $clientId = '';
         }
 
         if (!empty($this->allowForceClientIds)) {
             //强制推送到多个client_id
-            foreach ($this->allowForceClientIds as $force_client_id) {
-                $client_id = $force_client_id;
-                $this->sendToClient($tabid, $client_id, $trace, $force_client_id);
+            foreach ($this->allowForceClientIds as $forceClientId) {
+                $clientId = $forceClientId;
+                $this->sendToClient($tabid, $clientId, $trace, $forceClientId);
             }
         } else {
-            $this->sendToClient($tabid, $client_id, $trace, '');
+            $this->sendToClient($tabid, $clientId, $trace, '');
         }
 
         return true;
@@ -177,23 +193,23 @@ class Socket implements LogHandlerInterface
      * @access protected
      * @author Zjmainstay
      * @param  $tabid
-     * @param  $client_id
+     * @param  $clientId
      * @param  $logs
-     * @param  $force_client_id
+     * @param  $forceClientId
      */
-    protected function sendToClient($tabid, $client_id, $logs, $force_client_id)
+    protected function sendToClient($tabid, $clientId, $logs, $forceClientId)
     {
         $logs = [
             'tabid'           => $tabid,
-            'client_id'       => $client_id,
+            'client_id'       => $clientId,
             'logs'            => $logs,
-            'force_client_id' => $force_client_id,
+            'force_client_id' => $forceClientId,
         ];
 
         $msg     = json_encode($logs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
-        $address = '/' . $client_id; //将client_id作为地址， server端通过地址判断将日志发布给谁
+        $address = '/' . $clientId; //将client_id作为地址， server端通过地址判断将日志发布给谁
 
-        $this->send($this->config['host'], $msg, $address);
+        $this->send($this->config['host'], $this->config['port'], $msg, $address);
     }
 
     /**
@@ -211,17 +227,17 @@ class Socket implements LogHandlerInterface
         }
 
         //用户认证
-        $allow_client_ids = $this->config['allow_client_ids'];
+        $allowClientIds = $this->config['allow_client_ids'];
 
-        if (!empty($allow_client_ids)) {
+        if (!empty($allowClientIds)) {
             //通过数组交集得出授权强制推送的client_id
-            $this->allowForceClientIds = array_intersect($allow_client_ids, $this->config['force_client_ids']);
+            $this->allowForceClientIds = array_intersect($allowClientIds, $this->config['force_client_ids']);
             if (!$tabid && count($this->allowForceClientIds)) {
                 return true;
             }
 
-            $client_id = $this->getClientArg('client_id');
-            if (!in_array($client_id, $allow_client_ids)) {
+            $clientId = $this->getClientArg('client_id');
+            if (!in_array($clientId, $allowClientIds)) {
                 return false;
             }
         } else {
@@ -267,21 +283,22 @@ class Socket implements LogHandlerInterface
     /**
      * @access protected
      * @param string $host    - $host of socket server
+     * @param int    $port    - $port of socket server
      * @param string $message - 发送的消息
      * @param string $address - 地址
      * @return bool
      */
-    protected function send($host, $message = '', $address = '/')
+    protected function send($host, $port, $message = '', $address = '/')
     {
-        $url = 'http://' . $host . ':' . $this->port . $address;
+        $url = 'http://' . $host . ':' . $port . $address;
         $ch  = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $message);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->config['curl_opt'][CURLOPT_CONNECTTIMEOUT] ?? 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->config['curl_opt'][CURLOPT_TIMEOUT] ?? 10);
 
         $headers = [
             "Content-Type: application/json;charset=UTF-8",

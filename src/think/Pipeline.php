@@ -60,7 +60,8 @@ class Pipeline
                 } catch (Throwable | Exception $e) {
                     return $this->handleException($passable, $e);
                 }
-            });
+            }
+        );
 
         return $pipeline($this->passable);
     }

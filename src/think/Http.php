@@ -43,6 +43,12 @@ class Http
     protected $path;
 
     /**
+     * 路由路径
+     * @var string
+     */
+    protected $routePath;
+
+    /**
      * 是否绑定应用
      * @var bool
      */
@@ -117,7 +123,6 @@ class Http
      * 设置路由目录
      * @access public
      * @param string $path 路由定义目录
-     * @return string
      */
     public function setRoutePath(string $path): void
     {
@@ -154,6 +159,9 @@ class Http
      */
     public function run(Request $request = null): Response
     {
+        //初始化
+        $this->initialize();
+
         //自动创建request对象
         $request = $request ?? $this->app->make('request', [], true);
         $this->app->instance('request', $request);
@@ -186,13 +194,8 @@ class Http
      */
     protected function runWithRequest(Request $request)
     {
-        $this->initialize();
-
         // 加载全局中间件
         $this->loadMiddleware();
-
-        // 设置开启事件机制
-        $this->app->event->withEvent($this->app->config->get('app.with_event', true));
 
         // 监听HttpRun
         $this->app->event->trigger(HttpRun::class);

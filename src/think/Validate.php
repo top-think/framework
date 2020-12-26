@@ -126,12 +126,12 @@ class Validate
         'alpha'       => '/^[A-Za-z]+$/',
         'alphaNum'    => '/^[A-Za-z0-9]+$/',
         'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
-        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
-        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
-        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
-        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
+        'chs'         => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}]+$/u',
+        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z]+$/u',
+        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z0-9]+$/u',
+        'chsDash'     => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z0-9\_\-]+$/u',
         'mobile'      => '/^1[3-9]\d{9}$/',
-        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
+        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/',
         'zip'         => '/\d{6}/',
     ];
 
@@ -156,7 +156,7 @@ class Validate
 
     /**
      * 验证失败错误信息
-     * @var array
+     * @var string|array
      */
     protected $error = [];
 
@@ -472,18 +472,19 @@ class Validate
     {
         $this->error = [];
 
+        if ($this->currentScene) {
+            $this->getScene($this->currentScene);
+        }
+
         if (empty($rules)) {
             // 读取验证规则
             $rules = $this->rule;
         }
 
-        if ($this->currentScene) {
-            $this->getScene($this->currentScene);
-        }
-
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
                 $rules[$key] = $rule;
+                unset($this->append[$key]);
             }
         }
 
@@ -491,7 +492,7 @@ class Validate
             // field => 'rule1|rule2...' field => ['rule1','rule2',...]
             if (strpos($key, '|')) {
                 // 字段|描述 用于指定属性名称
-                list($key, $title) = explode('|', $key);
+                [$key, $title] = explode('|', $key);
             } else {
                 $title = $this->field[$key] ?? $key;
             }
@@ -560,7 +561,7 @@ class Validate
                 $result = call_user_func_array($rule, [$value]);
             } else {
                 // 判断验证类型
-                list($type, $rule) = $this->getValidateType($key, $rule);
+                [$type, $rule] = $this->getValidateType($key, $rule);
 
                 $callback = $this->type[$type] ?? [$this, $type];
 
@@ -605,6 +606,11 @@ class Validate
         if (isset($this->append[$field])) {
             // 追加额外的验证规则
             $rules = array_unique(array_merge($rules, $this->append[$field]), SORT_REGULAR);
+            unset($this->append[$field]);
+        }
+
+        if (empty($rules)) {
+            return true;
         }
 
         $i = 0;
@@ -614,10 +620,9 @@ class Validate
                 $info   = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
-                list($type, $rule, $info) = $this->getValidateType($key, $rule);
+                [$type, $rule, $info] = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-
                 } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
                     // 规则已经移除
                     $i++;
@@ -660,7 +665,7 @@ class Validate
             $i++;
         }
 
-        return $result;
+        return $result ?? true;
     }
 
     /**
@@ -682,7 +687,7 @@ class Validate
         }
 
         if (strpos($rule, ':')) {
-            list($type, $rule) = explode(':', $rule, 2);
+            [$type, $rule] = explode(':', $rule, 2);
             if (isset($this->alias[$type])) {
                 // 判断别名
                 $type = $this->alias[$type];
@@ -1072,13 +1077,13 @@ class Validate
         if ($rule) {
             $rule = explode(',', $rule);
 
-            list($width, $height, $type) = getimagesize($file->getRealPath());
+            [$width, $height, $type] = getimagesize($file->getRealPath());
 
             if (isset($rule[2])) {
                 $imageType = strtolower($rule[2]);
 
-                if ('jpeg' == $imageType) {
-                    $imageType = 'jpg';
+                if ('jpg' == $imageType) {
+                    $imageType = 'jpeg';
                 }
 
                 if (image_type_to_extension($type, false) != $imageType) {
@@ -1086,7 +1091,7 @@ class Validate
                 }
             }
 
-            list($w, $h) = $rule;
+            [$w, $h] = $rule;
 
             return $w == $width && $h == $height;
         }
@@ -1173,7 +1178,7 @@ class Validate
     public function filter($value, $rule): bool
     {
         if (is_string($rule) && strpos($rule, ',')) {
-            list($rule, $param) = explode(',', $rule);
+            [$rule, $param] = explode(',', $rule);
         } elseif (is_array($rule)) {
             $param = $rule[1] ?? null;
             $rule  = $rule[0];
@@ -1194,7 +1199,7 @@ class Validate
      */
     public function requireIf($value, $rule, array $data = []): bool
     {
-        list($field, $val) = explode(',', $rule);
+        [$field, $val] = explode(',', $rule);
 
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value) || '0' == $value;
@@ -1296,7 +1301,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        list($min, $max) = $rule;
+        [$min, $max] = $rule;
 
         return $value >= $min && $value <= $max;
     }
@@ -1313,7 +1318,7 @@ class Validate
         if (is_string($rule)) {
             $rule = explode(',', $rule);
         }
-        list($min, $max) = $rule;
+        [$min, $max] = $rule;
 
         return $value < $min || $value > $max;
     }
@@ -1337,7 +1342,7 @@ class Validate
 
         if (is_string($rule) && strpos($rule, ',')) {
             // 长度区间
-            list($min, $max) = explode(',', $rule);
+            [$min, $max] = explode(',', $rule);
             return $length >= $min && $length <= $max;
         }
 
@@ -1452,7 +1457,7 @@ class Validate
             $rule = explode(',', $rule);
         }
 
-        list($start, $end) = $rule;
+        [$start, $end] = $rule;
 
         if (!is_numeric($start)) {
             $start = strtotime($start);
@@ -1512,7 +1517,10 @@ class Validate
         return is_scalar($value) && 1 === preg_match($rule, (string) $value);
     }
 
-    // 获取错误信息
+    /**
+     * 获取错误信息
+     * @return array|string
+     */
     public function getError()
     {
         return $this->error;
@@ -1608,7 +1616,8 @@ class Validate
             $msg = str_replace(
                 [':attribute', ':1', ':2', ':3'],
                 [$title, $array[0], $array[1], $array[2]],
-                $msg);
+                $msg
+            );
 
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);

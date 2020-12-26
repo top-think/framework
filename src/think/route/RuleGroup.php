@@ -16,9 +16,7 @@ use Closure;
 use think\Container;
 use think\Exception;
 use think\Request;
-use think\Response;
 use think\Route;
-use think\route\dispatch\Response as ResponseDispatch;
 
 /**
  * 路由分组类
@@ -29,16 +27,7 @@ class RuleGroup extends Rule
      * 分组路由（包括子分组）
      * @var array
      */
-    protected $rules = [
-        '*'       => [],
-        'get'     => [],
-        'post'    => [],
-        'put'     => [],
-        'patch'   => [],
-        'delete'  => [],
-        'head'    => [],
-        'options' => [],
-    ];
+    protected $rules = [];
 
     /**
      * 分组路由规则
@@ -151,28 +140,20 @@ class RuleGroup extends Rule
         // 解析分组路由
         if ($this instanceof Resource) {
             $this->buildResourceRule();
-        } elseif ($this->rule instanceof Response) {
-            return new ResponseDispatch($request, $this, $this->rule);
         } else {
             $this->parseGroupRule($this->rule);
         }
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->getMethodRules($method);
+        $rules  = $this->getRules($method);
+        $option = $this->getOption();
 
-        if ($this->parent) {
-            // 合并分组参数
-            $this->mergeGroupOptions();
-            // 合并分组变量规则
-            $this->pattern = array_merge($this->parent->getPattern(), $this->pattern);
+        if (isset($option['complete_match'])) {
+            $completeMatch = $option['complete_match'];
         }
 
-        if (isset($this->option['complete_match'])) {
-            $completeMatch = $this->option['complete_match'];
-        }
-
-        if (!empty($this->option['merge_rule_regex'])) {
+        if (!empty($option['merge_rule_regex'])) {
             // 合并路由正则规则进行路由匹配检查
             $result = $this->checkMergeRuleRegex($request, $rules, $url, $completeMatch);
 
@@ -183,7 +164,7 @@ class RuleGroup extends Rule
 
         // 检查分组路由
         foreach ($rules as $key => $item) {
-            $result = $item->check($request, $url, $completeMatch);
+            $result = $item[1]->check($request, $url, $completeMatch);
 
             if (false !== $result) {
                 return $result;
@@ -192,23 +173,12 @@ class RuleGroup extends Rule
 
         if ($this->miss && in_array($this->miss->getMethod(), ['*', $method])) {
             // 未匹配所有路由的路由规则处理
-            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->mergeGroupOptions());
+            $result = $this->parseRule($request, '', $this->miss->getRoute(), $url, $this->miss->getOption());
         } else {
             $result = false;
         }
 
         return $result;
-    }
-
-    /**
-     * 获取当前请求的路由规则（包括子分组、资源路由）
-     * @access protected
-     * @param  string $method 请求类型
-     * @return array
-     */
-    protected function getMethodRules(string $method): array
-    {
-        return array_merge($this->rules[$method], $this->rules['*']);
     }
 
     /**
@@ -302,7 +272,8 @@ class RuleGroup extends Rule
         $regex = [];
         $items = [];
 
-        foreach ($rules as $key => $item) {
+        foreach ($rules as $key => $val) {
+            $item = $val[1];
             if ($item instanceof RuleItem) {
                 $rule = $depr . str_replace('/', $depr, $item->getRule());
                 if ($depr == $rule && $depr != $url) {
@@ -355,7 +326,7 @@ class RuleGroup extends Rule
             $var = [];
             foreach ($match as $key => $val) {
                 if (is_string($key) && '' !== $val) {
-                    list($name, $pos) = explode('_THINK_', $key);
+                    [$name, $pos] = explode('_THINK_', $key);
 
                     $var[$name] = $val;
                 }
@@ -460,10 +431,10 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $this->rules[$method][] = $rule;
+        $this->rules[] = [$method, $rule];
 
         if ($rule instanceof RuleItem && 'options' != $method) {
-            $this->rules['options'][] = $rule->setAutoOptions();
+            $this->rules[] = ['options', $rule->setAutoOptions()];
         }
 
         return $this;
@@ -517,7 +488,9 @@ class RuleGroup extends Rule
             return $this->rules;
         }
 
-        return $this->rules[strtolower($method)] ?? [];
+        return array_filter($this->rules, function ($item) use ($method) {
+            return $method == $item[0] || '*' == $item[0];
+        });
     }
 
     /**
@@ -527,15 +500,6 @@ class RuleGroup extends Rule
      */
     public function clear(): void
     {
-        $this->rules = [
-            '*'       => [],
-            'get'     => [],
-            'post'    => [],
-            'put'     => [],
-            'patch'   => [],
-            'delete'  => [],
-            'head'    => [],
-            'options' => [],
-        ];
+        $this->rules = [];
     }
 }

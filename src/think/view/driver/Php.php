@@ -83,10 +83,6 @@ class Php implements TemplateHandlerInterface
 
         $this->template = $template;
 
-        // 记录视图信息
-        $this->app->log
-            ->record('[ VIEW ] ' . $template . ' [ ' . var_export(array_keys($data), true) . ' ]');
-
         extract($data, EXTR_OVERWRITE);
 
         include $this->template;
@@ -119,8 +115,8 @@ class Php implements TemplateHandlerInterface
 
         // 获取视图根目录
         if (strpos($template, '@')) {
-            // 跨模块调用
-            list($app, $template) = explode('@', $template);
+            // 跨应用调用
+            [$app, $template] = explode('@', $template);
         }
 
         if ($this->config['view_path'] && !isset($app)) {

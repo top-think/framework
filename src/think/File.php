@@ -100,13 +100,13 @@ class File extends SplFileInfo
         set_error_handler(function ($type, $msg) use (&$error) {
             $error = $msg;
         });
-        $renamed = rename($this->getPathname(), $target);
+        $renamed = rename($this->getPathname(), (string) $target);
         restore_error_handler();
         if (!$renamed) {
             throw new FileException(sprintf('Could not move the file "%s" to "%s" (%s)', $this->getPathname(), $target, strip_tags($error)));
         }
 
-        @chmod($target, 0666 & ~umask());
+        @chmod((string) $target, 0666 & ~umask());
 
         return $target;
     }
@@ -157,11 +157,11 @@ class File extends SplFileInfo
 
     /**
      * 自动生成文件名
-     * @access protected
+     * @access public
      * @param string|\Closure $rule
      * @return string
      */
-    public function hashName($rule = 'date'): string
+    public function hashName($rule = ''): string
     {
         if (!$this->hashName) {
             if ($rule instanceof \Closure) {

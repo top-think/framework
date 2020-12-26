@@ -5,6 +5,7 @@ namespace think\tests;
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
 use think\Cache;
+use think\cache\Driver;
 use think\Config;
 use think\Db;
 use think\Event;
@@ -23,6 +24,10 @@ class DbTest extends TestCase
         $config = m::mock(Config::class);
         $log    = m::mock(Log::class);
         $cache  = m::mock(Cache::class);
+        $store  = m::mock(Driver::class);
+
+        $config->shouldReceive('get')->with('database.cache_store', null)->andReturn(null);
+        $cache->shouldReceive('store')->with(null)->andReturn($store);
 
         $db = Db::__make($event, $config, $log, $cache);
 

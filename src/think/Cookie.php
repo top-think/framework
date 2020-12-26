@@ -35,6 +35,8 @@ class Cookie
         'secure'   => false,
         // httponly设置
         'httponly' => false,
+        // samesite 设置，支持 'strict' 'lax'
+        'samesite' => '',
     ];
 
     /**
@@ -181,9 +183,18 @@ class Cookie
     public function save(): void
     {
         foreach ($this->cookie as $name => $val) {
-            list($value, $expire, $option) = $val;
+            [$value, $expire, $option] = $val;
 
-            $this->saveCookie($name, $value, $expire, $option['path'], $option['domain'], $option['secure'] ? true : false, $option['httponly'] ? true : false);
+            $this->saveCookie(
+                $name,
+                $value,
+                $expire,
+                $option['path'],
+                $option['domain'],
+                $option['secure'] ? true : false,
+                $option['httponly'] ? true : false,
+                $option['samesite']
+            );
         }
     }
 
@@ -197,11 +208,23 @@ class Cookie
      * @param  string $domain 有效域名/子域名
      * @param  bool   $secure 是否仅仅通过HTTPS
      * @param  bool   $httponly 仅可通过HTTP访问
+     * @param  string $samesite 防止CSRF攻击和用户追踪
      * @return void
      */
-    protected function saveCookie(string $name, string $value, int $expire, string $path, string $domain, bool $secure, bool $httponly): void
+    protected function saveCookie(string $name, string $value, int $expire, string $path, string $domain, bool $secure, bool $httponly, string $samesite): void
     {
-        setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+        if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
+            setcookie($name, $value, [
+                'expires'  => $expire,
+                'path'     => $path,
+                'domain'   => $domain,
+                'secure'   => $secure,
+                'httponly' => $httponly,
+                'samesite' => $samesite,
+            ]);
+        } else {
+            setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+        }
     }
 
 }

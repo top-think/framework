@@ -23,14 +23,14 @@ use think\route\Rule;
 class Url extends Controller
 {
 
-    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
+    public function __construct(Request $request, Rule $rule, $dispatch)
     {
         $this->request = $request;
         $this->rule    = $rule;
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
-        parent::__construct($request, $rule, $dispatch, $this->param, $code);
+        parent::__construct($request, $rule, $dispatch, $this->param);
     }
 
     /**
@@ -100,7 +100,7 @@ class Url extends Controller
      */
     protected function hasDefinedRoute(array $route): bool
     {
-        list($controller, $action) = $route;
+        [$controller, $action] = $route;
 
         // 检查地址是否被定义过路由
         $name = strtolower(Str::studly($controller) . '/' . $action);

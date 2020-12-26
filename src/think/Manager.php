@@ -48,7 +48,8 @@ abstract class Manager
 
         if (is_null($name)) {
             throw new InvalidArgumentException(sprintf(
-                'Unable to resolve NULL driver for [%s].', static::class
+                'Unable to resolve NULL driver for [%s].',
+                static::class
             ));
         }
 

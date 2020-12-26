@@ -40,12 +40,6 @@ class Event
     ];
 
     /**
-     * 是否需要事件响应
-     * @var bool
-     */
-    protected $withEvent = true;
-
-    /**
      * 应用对象
      * @var App
      */
@@ -57,18 +51,6 @@ class Event
     }
 
     /**
-     * 设置是否开启事件响应
-     * @access protected
-     * @param bool $event 是否需要事件响应
-     * @return $this
-     */
-    public function withEvent(bool $event)
-    {
-        $this->withEvent = $event;
-        return $this;
-    }
-
-    /**
      * 批量注册事件监听
      * @access public
      * @param array $events 事件定义
@@ -76,10 +58,6 @@ class Event
      */
     public function listenEvents(array $events)
     {
-        if (!$this->withEvent) {
-            return $this;
-        }
-
         foreach ($events as $event => $listeners) {
             if (isset($this->bind[$event])) {
                 $event = $this->bind[$event];
@@ -101,10 +79,6 @@ class Event
      */
     public function listen(string $event, $listener, bool $first = false)
     {
-        if (!$this->withEvent) {
-            return $this;
-        }
-
         if (isset($this->bind[$event])) {
             $event = $this->bind[$event];
         }
@@ -169,10 +143,6 @@ class Event
      */
     public function subscribe($subscriber)
     {
-        if (!$this->withEvent) {
-            return $this;
-        }
-
         $subscribers = (array) $subscriber;
 
         foreach ($subscribers as $subscriber) {
@@ -201,10 +171,6 @@ class Event
      */
     public function observe($observer, string $prefix = '')
     {
-        if (!$this->withEvent) {
-            return $this;
-        }
-
         if (is_string($observer)) {
             $observer = $this->app->make($observer);
         }
@@ -238,10 +204,6 @@ class Event
      */
     public function trigger($event, $params = null, bool $once = false)
     {
-        if (!$this->withEvent) {
-            return;
-        }
-
         if (is_object($event)) {
             $params = $event;
             $event  = get_class($event);
@@ -253,6 +215,7 @@ class Event
 
         $result    = [];
         $listeners = $this->listener[$event] ?? [];
+        $listeners = array_unique($listeners, SORT_REGULAR);
 
         foreach ($listeners as $key => $listener) {
             $result[$key] = $this->dispatch($listener, $params);
