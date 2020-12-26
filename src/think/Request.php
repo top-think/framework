@@ -1659,7 +1659,7 @@ class Request implements ArrayAccess
                 $flag = FILTER_FLAG_IPV6;
                 break;
             default:
-                $flag = null;
+                $flag = 0;
                 break;
         }
 
