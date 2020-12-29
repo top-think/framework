@@ -353,6 +353,11 @@ class Url
         return [];
     }
 
+    /**
+     * 生成URL地址
+     * @access public
+     * @return string
+     */
     public function build()
     {
         // 解析URL
