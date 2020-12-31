@@ -380,8 +380,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         if ($reflect->hasMethod('__make')) {
             $method = $reflect->getMethod('__make');
             if ($method->isPublic() && $method->isStatic()) {
-                $args = $this->bindParams($method, $vars);
-                return $method->invokeArgs(null, $args);
+                $args   = $this->bindParams($method, $vars);
+                $object = $method->invokeArgs(null, $args);
+                $this->invokeAfter($class, $object);
+                return $object;
             }
         }
 
