@@ -176,7 +176,7 @@ class Handle
                     'Files'               => $this->app->request->file(),
                     'Cookies'             => $this->app->request->cookie(),
                     'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
-                    'Server/Request Data' => $this->app->request->server(),
+                    'Server/Request Data' => $this->changeToUtf8($this->app->request->server()),
                 ],
             ];
         } else {
@@ -328,5 +328,21 @@ class Handle
         $const = get_defined_constants(true);
 
         return $const['user'] ?? [];
+    }
+    
+    /**
+     * 将获取的服务器信息中的中文编码转为utf-8
+     * 修复在开启debug模式时出现的Malformed UTF-8 characters 错误
+     * @access protected
+     * @param $data array
+     * @return array                 转化后的数组
+     */
+    protected function changeToUtf8(array $data): array
+    {
+        foreach ($data as $key => $value) {
+            $data[$key] =  mb_convert_encoding($value, "UTF-8","GBK, GBK2312");
+        }
+
+        return $data;
     }
 }
