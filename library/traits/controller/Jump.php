@@ -60,7 +60,7 @@ trait Jump
 
         $response = Response::create($result, $type)->header($header)->options(['jump_template' => $this->app['config']->get('dispatch_success_tmpl')]);
 
-        throw new HttpResponseException($response);
+        $response->send();
     }
 
     /**
