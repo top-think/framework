@@ -340,7 +340,7 @@ class Handle
     protected function changeToUtf8(array $data): array
     {
         foreach ($data as $key => $value) {
-            $data[$key] =  mb_convert_encoding($value, "UTF-8","GBK, GBK2312");
+            $data[$key] =  mb_convert_encoding($value, "UTF-8", "GBK, GBK2312");
         }
 
         return $data;
