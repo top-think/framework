@@ -1180,10 +1180,10 @@ class Validate
         if (is_string($rule) && strpos($rule, ',')) {
             [$rule, $param] = explode(',', $rule);
         } elseif (is_array($rule)) {
-            $param = $rule[1] ?? null;
+            $param = $rule[1] ?? 0;
             $rule  = $rule[0];
         } else {
-            $param = null;
+            $param = 0;
         }
 
         return false !== filter_var($value, is_int($rule) ? $rule : filter_id($rule), $param);
