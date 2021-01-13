@@ -70,7 +70,7 @@ class TagSet
 
         foreach ($this->tag as $tag) {
             $key = $this->handler->getTagKey($tag);
-            $this->handler->push($key, $name);
+            $this->handler->append($key, $name);
         }
     }
 

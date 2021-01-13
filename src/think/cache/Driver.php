@@ -131,6 +131,18 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
     }
 
     /**
+     * 追加TagSet数据
+     * @access public
+     * @param string $name  缓存变量名
+     * @param mixed  $value 存储数据
+     * @return void
+     */
+    public function append(string $name, $value): void
+    {
+        $this->push($name, $value);
+    }
+
+    /**
      * 如果不存在则写入缓存
      * @access public
      * @param string $name   缓存变量名

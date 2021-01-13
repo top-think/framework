@@ -221,13 +221,13 @@ class Redis extends Driver
     }
 
     /**
-     * 追加（数组）缓存数据
+     * 追加TagSet数据
      * @access public
      * @param string $name  缓存标识
      * @param mixed  $value 数据
      * @return void
      */
-    public function push(string $name, $value): void
+    public function append(string $name, $value): void
     {
         $key = $this->getCacheKey($name);
         $this->handler->sAdd($key, $value);
