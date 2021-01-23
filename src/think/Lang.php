@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -157,10 +157,10 @@ class Lang
             case 'json':
                 $data = file_get_contents($file);
 
-                if($data !== false) {
+                if (false !== $data) {
                     $data = json_decode($data, true);
 
-                    if(json_last_error() === JSON_ERROR_NONE) {
+                    if (json_last_error() === JSON_ERROR_NONE) {
                         $result = $data;
                     }
                 }
