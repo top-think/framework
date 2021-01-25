@@ -317,7 +317,7 @@ class RuleGroup extends Rule
         }
 
         try {
-            $result = preg_match('/^(?:' . implode('|', $regex) . ')/u', $url, $match);
+            $result = preg_match('~^(?:' . implode('|', $regex) . ')~u', $url, $match);
         } catch (\Exception $e) {
             throw new Exception('route pattern error');
         }
