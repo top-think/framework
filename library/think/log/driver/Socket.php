@@ -269,6 +269,7 @@ class Socket
 
         $headers = [
             "Content-Type: application/json;charset=UTF-8",
+            'Expect:',
         ];
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers); //设置header
