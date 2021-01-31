@@ -486,7 +486,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
             $class     = $param->getClass();
 
             if ($class) {
-                $args[] = $this->getObjectParam($class->getName(), $vars);
+                $varsTmp =  isset($vars[$name]) ? [$name => $vars[$name]] : (isset($vars[$lowerName]) ? [$lowerName => $vars[$lowerName]] : $vars);
+                $args[] = $this->getObjectParam($class->getName(), $varsTmp);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif (0 == $type && isset($vars[$name])) {

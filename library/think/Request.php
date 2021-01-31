@@ -2153,6 +2153,18 @@ class Request
     }
 
     /**
+     * 设置param数据
+     * @access public
+     * @param array $param
+     * @return $this
+     */
+    public function withParam(array $param)
+    {
+        $this->param = $param;
+        return $this;
+    }
+
+    /**
      * 设置文件上传数据
      * @access public
      * @param  array $files 上传信息
