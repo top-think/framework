@@ -1137,7 +1137,6 @@ class Validate
         $key = $rule[1] ?? $field;
         $map = [];
 
-
         if (strpos($key, '^')) {
             // 支持多个字段验证
             $fields = explode('^', $key);
