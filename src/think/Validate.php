@@ -1132,12 +1132,25 @@ class Validate
         $key = $rule[1] ?? $field;
         $map = [];
 
+
         if (strpos($key, '^')) {
             // 支持多个字段验证
             $fields = explode('^', $key);
-            foreach ($fields as $key) {
-                if (isset($data[$key])) {
-                    $map[] = [$key, '=', $data[$key]];
+            foreach ($fields as $k) {
+                if (isset($data[$k])) {
+                    $map[] = [$k, '=', $data[$k]];
+                }
+            }
+        } elseif (strpos($key, '=')) {
+            // 支持复杂验证条件
+            $fields = explode('&', $key);
+            foreach ($fields as $k) {
+                //判断验证条件是否传参，没有传参就使用$data中对应的值
+                if (strpos($k, '=')) {
+                    $str_map = explode('=', $k);
+                    $map[] = [$str_map[0], '=', $str_map[1]];
+                }else{
+                    $map[] = [$k, '=', $data[$k]];
                 }
             }
         } elseif (isset($data[$field])) {
