@@ -1621,10 +1621,7 @@ class Validate
                 $array = array_pad([], 3, '');
             }
 
-            $msg = str_replace(
-                [':attribute', ':1', ':2', ':3'],
-                [$title, $array[0], $array[1], $array[2]],
-                $msg);
+            $msg = str_replace([':attribute', ':1', ':2', ':3'], [$title, $array[0], $array[1], $array[2]], $msg);
 
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);
