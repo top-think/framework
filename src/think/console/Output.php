@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2015 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2020 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -42,16 +42,22 @@ use Throwable;
  */
 class Output
 {
+    // 不显示信息(静默)
     const VERBOSITY_QUIET        = 0;
+    // 正常信息
     const VERBOSITY_NORMAL       = 1;
+    // 详细信息
     const VERBOSITY_VERBOSE      = 2;
+    // 非常详细的信息
     const VERBOSITY_VERY_VERBOSE = 3;
+    // 调试信息
     const VERBOSITY_DEBUG        = 4;
 
     const OUTPUT_NORMAL = 0;
     const OUTPUT_RAW    = 1;
     const OUTPUT_PLAIN  = 2;
 
+    // 输出信息级别
     private $verbosity = self::VERBOSITY_NORMAL;
 
     /** @var Buffer|Console|Nothing */
@@ -162,7 +168,8 @@ class Output
     }
 
     /**
-     * {@inheritdoc}
+     * 设置输出信息级别
+     * @param int $level 输出信息级别
      */
     public function setVerbosity(int $level)
     {
@@ -170,7 +177,8 @@ class Output
     }
 
     /**
-     * {@inheritdoc}
+     * 获取输出信息级别
+     * @return int
      */
     public function getVerbosity(): int
     {
@@ -220,5 +228,4 @@ class Output
             throw new Exception('method not exists:' . __CLASS__ . '->' . $method);
         }
     }
-
 }

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -18,6 +18,13 @@ use think\Facade;
  * @see \think\Cookie
  * @package think\facade
  * @mixin \think\Cookie
+ * @method static mixed get(mixed $name = '', string $default = null) 获取cookie
+ * @method static bool has(string $name) 是否存在Cookie参数
+ * @method static void set(string $name, string $value, mixed $option = null) Cookie 设置
+ * @method static void forever(string $name, string $value = '', mixed $option = null) 永久保存Cookie数据
+ * @method static void delete(string $name) Cookie删除
+ * @method static array getCookie() 获取cookie保存数据
+ * @method static void save() 保存Cookie
  */
 class Cookie extends Facade
 {

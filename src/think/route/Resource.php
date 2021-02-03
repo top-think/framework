@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -132,7 +132,7 @@ class Resource extends RuleGroup
 
             $ruleItem = $this->addRule(trim($prefix . $val[1], '/'), $this->route . '/' . $val[2], $val[0]);
 
-            foreach (['model', 'validate', 'middleware'] as $name) {
+            foreach (['model', 'validate', 'middleware', 'pattern'] as $name) {
                 if (isset($this->$name[$key])) {
                     call_user_func_array([$ruleItem, $name], (array) $this->$name[$key]);
                 }

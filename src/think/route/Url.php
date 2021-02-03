@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -164,9 +164,9 @@ class Url
             $domains = $this->route->getDomains();
 
             if (!empty($domains)) {
-                $route_domain = array_keys($domains);
-                foreach ($route_domain as $domain_prefix) {
-                    if (0 === strpos($domain_prefix, '*.') && strpos($domain, ltrim($domain_prefix, '*.')) !== false) {
+                $routeDomain = array_keys($domains);
+                foreach ($routeDomain as $domainPrefix) {
+                    if (0 === strpos($domainPrefix, '*.') && strpos($domain, ltrim($domainPrefix, '*.')) !== false) {
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
                             if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
@@ -302,10 +302,10 @@ class Url
         $port = $request->port();
 
         foreach ($rule as $item) {
-            $url     = $item->getRule();
+            $url     = $item['rule'];
             $pattern = $this->parseVar($url);
-            $domain  = $item->getDomain();
-            $suffix  = $item->getSuffix();
+            $domain  = $item['domain'];
+            $suffix  = $item['suffix'];
 
             if ('-' == $domain) {
                 $domain = is_string($allowDomain) ? $allowDomain : $request->host(true);
@@ -328,7 +328,7 @@ class Url
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url    = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode((string) $vars[$key]), $url);
+                    $url    = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? (string) $vars[$key] : urlencode((string) $vars[$key]), $url);
                     $keys[] = $key;
                     $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?/-'), $domain, $suffix];
@@ -353,6 +353,11 @@ class Url
         return [];
     }
 
+    /**
+     * 生成URL地址
+     * @access public
+     * @return string
+     */
     public function build()
     {
         // 解析URL
@@ -473,7 +478,7 @@ class Url
             // 添加参数
             if ($this->route->config('url_common_param')) {
                 $vars = http_build_query($vars);
-                $url .= $suffix . '?' . $vars . $anchor;
+                $url .= $suffix . ($vars ? '?' . $vars : '') . $anchor;
             } else {
                 foreach ($vars as $var => $val) {
                     $val = (string) $val;

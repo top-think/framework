@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006-2016 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006-2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -77,7 +77,7 @@ class Handle
 
             try {
                 $this->app->log->record($log, 'error');
-            } catch (Exception $e){}
+            } catch (Exception $e) {}
         }
     }
 
@@ -152,7 +152,7 @@ class Handle
     {
         if ($this->app->isDebug()) {
             // 调试模式，获取详细的错误信息
-            $traces = [];
+            $traces        = [];
             $nextException = $exception;
             do {
                 $traces[] = [
@@ -171,14 +171,12 @@ class Handle
                 'traces'  => $traces,
                 'datas'   => $this->getExtendData($exception),
                 'tables'  => [
-                    'GET Data'              => $this->app->request->get(),
-                    'POST Data'             => $this->app->request->post(),
-                    'Files'                 => $this->app->request->file(),
-                    'Cookies'               => $this->app->request->cookie(),
-                    'Session'               => $this->app->session->all(),
-                    'Server/Request Data'   => $this->app->request->server(),
-                    'Environment Variables' => $this->app->request->env(),
-                    'ThinkPHP Constants'    => $this->getConst(),
+                    'GET Data'            => $this->app->request->get(),
+                    'POST Data'           => $this->app->request->post(),
+                    'Files'               => $this->app->request->file(),
+                    'Cookies'             => $this->app->request->cookie(),
+                    'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
+                    'Server/Request Data' => $this->app->request->server(),
                 ],
             ];
         } else {

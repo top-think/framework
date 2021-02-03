@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -152,8 +152,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $this->instance($abstract, $concrete);
         } else {
             $abstract = $this->getAlias($abstract);
-
-            $this->bind[$abstract] = $concrete;
+            if ($abstract != $concrete) {
+                $this->bind[$abstract] = $concrete;
+            }
         }
 
         return $this;
@@ -379,8 +380,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         if ($reflect->hasMethod('__make')) {
             $method = $reflect->getMethod('__make');
             if ($method->isPublic() && $method->isStatic()) {
-                $args = $this->bindParams($method, $vars);
-                return $method->invokeArgs(null, $args);
+                $args   = $this->bindParams($method, $vars);
+                $object = $method->invokeArgs(null, $args);
+                $this->invokeAfter($class, $object);
+                return $object;
             }
         }
 
@@ -437,17 +440,17 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $args   = [];
 
         foreach ($params as $param) {
-            $name      = $param->getName();
-            $lowerName = Str::snake($name);
-            $class     = $param->getClass();
+            $name           = $param->getName();
+            $lowerName      = Str::snake($name);
+            $reflectionType = $param->getType();
 
-            if ($class) {
-                $args[] = $this->getObjectParam($class->getName(), $vars);
+            if ($reflectionType && $reflectionType->isBuiltin() === false) {
+                $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
-            } elseif (0 == $type && isset($vars[$name])) {
+            } elseif (0 == $type && array_key_exists($name, $vars)) {
                 $args[] = $vars[$name];
-            } elseif (0 == $type && isset($vars[$lowerName])) {
+            } elseif (0 == $type && array_key_exists($lowerName, $vars)) {
                 $args[] = $vars[$lowerName];
             } elseif ($param->isDefaultValueAvailable()) {
                 $args[] = $param->getDefaultValue();

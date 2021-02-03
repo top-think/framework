@@ -11,18 +11,49 @@
 
 namespace think\console\input;
 
+/**
+ * 命令行选项
+ * @package think\console\input
+ */
 class Option
 {
-
+    // 无需传值
     const VALUE_NONE     = 1;
+    // 必须传值
     const VALUE_REQUIRED = 2;
+    // 可选传值
     const VALUE_OPTIONAL = 4;
+    // 传数组值
     const VALUE_IS_ARRAY = 8;
 
+    /**
+     * 选项名
+     * @var string
+     */
     private $name;
+
+    /**
+     * 选项短名称
+     * @var string
+     */
     private $shortcut;
+
+    /**
+     * 选项类型
+     * @var int
+     */
     private $mode;
+
+    /**
+     * 选项默认值
+     * @var mixed
+     */
     private $default;
+
+    /**
+     * 选项描述
+     * @var string
+     */
     private $description;
 
     /**

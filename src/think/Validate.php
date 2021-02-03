@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -126,12 +126,12 @@ class Validate
         'alpha'       => '/^[A-Za-z]+$/',
         'alphaNum'    => '/^[A-Za-z0-9]+$/',
         'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
-        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
-        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
-        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
-        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
+        'chs'         => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}]+$/u',
+        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z]+$/u',
+        'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z0-9]+$/u',
+        'chsDash'     => '/^[\x{4e00}-\x{9fa5}\x{9fa6}-\x{9fef}\x{3400}-\x{4db5}\x{20000}-\x{2ebe0}a-zA-Z0-9\_\-]+$/u',
         'mobile'      => '/^1[3-9]\d{9}$/',
-        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
+        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/',
         'zip'         => '/\d{6}/',
     ];
 
@@ -472,18 +472,19 @@ class Validate
     {
         $this->error = [];
 
+        if ($this->currentScene) {
+            $this->getScene($this->currentScene);
+        }
+
         if (empty($rules)) {
             // 读取验证规则
             $rules = $this->rule;
         }
 
-        if ($this->currentScene) {
-            $this->getScene($this->currentScene);
-        }
-
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
                 $rules[$key] = $rule;
+                unset($this->append[$key]);
             }
         }
 
@@ -605,6 +606,11 @@ class Validate
         if (isset($this->append[$field])) {
             // 追加额外的验证规则
             $rules = array_unique(array_merge($rules, $this->append[$field]), SORT_REGULAR);
+            unset($this->append[$field]);
+        }
+
+        if (empty($rules)) {
+            return true;
         }
 
         $i = 0;
@@ -617,7 +623,6 @@ class Validate
                 [$type, $rule, $info] = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-
                 } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
                     // 规则已经移除
                     $i++;
@@ -660,7 +665,7 @@ class Validate
             $i++;
         }
 
-        return $result;
+        return $result ?? true;
     }
 
     /**
@@ -1188,10 +1193,10 @@ class Validate
         if (is_string($rule) && strpos($rule, ',')) {
             [$rule, $param] = explode(',', $rule);
         } elseif (is_array($rule)) {
-            $param = $rule[1] ?? null;
+            $param = $rule[1] ?? 0;
             $rule  = $rule[0];
         } else {
-            $param = null;
+            $param = 0;
         }
 
         return false !== filter_var($value, is_int($rule) ? $rule : filter_id($rule), $param);
@@ -1613,6 +1618,11 @@ class Validate
             return $this->errorMsgIsArray($msg, $rule, $title);
         }
 
+        // rule若是数组则转为字符串
+        if (is_array($rule)) {
+            $rule = implode(',', $rule);
+        }
+
         if (is_scalar($rule) && false !== strpos($msg, ':')) {
             // 变量替换
             if (is_string($rule) && strpos($rule, ',')) {
@@ -1620,8 +1630,11 @@ class Validate
             } else {
                 $array = array_pad([], 3, '');
             }
-
-            $msg = str_replace([':attribute', ':1', ':2', ':3'], [$title, $array[0], $array[1], $array[2]], $msg);
+            $msg = str_replace(
+                [':attribute', ':1', ':2', ':3'],
+                [$title, $array[0], $array[1], $array[2]],
+                $msg
+            );
 
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);

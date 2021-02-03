@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -53,19 +53,12 @@ abstract class Dispatch
      */
     protected $param;
 
-    /**
-     * 状态码
-     * @var int
-     */
-    protected $code;
-
-    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [], int $code = null)
+    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [])
     {
         $this->request  = $request;
         $this->rule     = $rule;
         $this->dispatch = $dispatch;
         $this->param    = $param;
-        $this->code     = $code;
     }
 
     public function init(App $app)
@@ -244,7 +237,7 @@ abstract class Dispatch
 
     public function __sleep()
     {
-        return ['rule', 'dispatch', 'param', 'code', 'controller', 'actionName'];
+        return ['rule', 'dispatch', 'param', 'controller', 'actionName'];
     }
 
     public function __wakeup()
@@ -258,7 +251,6 @@ abstract class Dispatch
         return [
             'dispatch' => $this->dispatch,
             'param'    => $this->param,
-            'code'     => $this->code,
             'rule'     => $this->rule,
         ];
     }
