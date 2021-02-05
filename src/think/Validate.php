@@ -1591,7 +1591,7 @@ class Validate
      * @param string $msg   错误信息
      * @param mixed  $rule  验证规则数据
      * @param string $title 字段描述名
-     * @return string
+     * @return string|array
      */
     protected function parseErrorMsg(string $msg, $rule, string $title)
     {
