@@ -246,6 +246,11 @@ class RuleGroup extends Rule
      */
     public function parseGroupRule($rule): void
     {
+        if (is_string($rule) && is_subclass_of($rule, Dispatch::class)) {
+            $this->dispatcher($rule);
+            return;
+        }
+
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 
