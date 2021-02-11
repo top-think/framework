@@ -403,7 +403,9 @@ class Validate
         }
 
         // 获取场景定义
-        $this->getScene($scene);
+        if ($this->currentScene) {
+            $this->getScene($scene);
+        }
 
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
