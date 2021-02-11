@@ -722,7 +722,7 @@ abstract class Builder
 
         if (isset($info)) {
             if (is_string($value)) {
-                $value = strtotime($value) ?: $value;
+                $value = strtotime($value) !== false ? strtotime($value) : $value;
             }
 
             if (preg_match('/(datetime|timestamp)/is', $info)) {
