@@ -1147,7 +1147,7 @@ class Validate
                     $map_arr[]=$k;
                 }
             }
-            if(!in_array($field,$map_arr)){
+            if(!in_array($field, $map_arr)){
                 $map[] = [$field, '=', $data[$field]];
             }
         } elseif (strpos($key, '=')) {
@@ -1165,7 +1165,7 @@ class Validate
                     $map_arr[]=$k;
                 }
             }
-            if(!in_array($field,$map_arr)){
+            if(!in_array($field, $map_arr)){
                 $map[] = [$field, '=', $data[$field]];
             }
         } elseif (isset($data[$field])) {
