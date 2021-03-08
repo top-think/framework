@@ -214,7 +214,7 @@ abstract class Response
     /**
      * 是否允许请求缓存
      * @access public
-     * @return $this
+     * @return bool
      */
     public function isAllowCache()
     {
