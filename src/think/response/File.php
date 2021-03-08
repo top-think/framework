@@ -25,6 +25,7 @@ class File extends Response
     protected $mimeType;
     protected $isContent = false;
     protected $force     = true;
+    protected $isSwoole  = false;
 
     public function __construct($data = '', int $code = 200)
     {
@@ -66,7 +67,9 @@ class File extends Response
         $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
         $this->header['Cache-control']             = 'max-age=' . $this->expire;
         $this->header['Content-Disposition']       = ($this->force ? 'attachment; ' : '') . 'filename="' . $name . '"';
-        $this->header['Content-Length']            = $size;
+        if (!$this->getIsSwoole()) {
+            $this->header['Content-Length']        = $size;
+        }
         $this->header['Content-Transfer-Encoding'] = 'binary';
         $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
 
@@ -124,8 +127,34 @@ class File extends Response
     }
 
     /**
-     * 获取文件类型信息
+     * 设置是否为 Swoole 环境下使用
      * @access public
+     * @param bool $isSwoole
+     * @return $this
+     */
+    public function isSwoole(bool $isSwoole)
+    {
+        $this->isSwoole = $isSwoole;
+        return $this;
+    }
+
+    /**
+     * 获取是否为 Swoole 环境下使用
+     * @access protected
+     * @return bool
+     */
+    protected function getIsSwoole(): bool
+    {
+        if ($this->isSwoole === true && defined('SWOOLE_VERSION_ID') && SWOOLE_VERSION_ID >= 40603) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 获取文件类型信息
+     * @access protected
      * @param  string $filename 文件名
      * @return string
      */
