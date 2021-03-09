@@ -268,7 +268,7 @@ class File extends SplFileObject
     {
         $extension = strtolower(pathinfo($this->getInfo('name'), PATHINFO_EXTENSION));
 
-        /* 对图像文件进行严格检测 */
+        /* 检测文件是否是修改拓展名伪装成图片的其他文件 */
         if (in_array($extension, ['gif', 'jpg', 'jpeg', 'bmp', 'png', 'swf']) && !in_array($this->getImageType($this->filename), [1, 2, 3, 4, 6, 13])) {
             $this->error = 'illegal image files';
             return false;
