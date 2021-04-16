@@ -414,6 +414,22 @@ class App extends Container
     }
 
     /**
+     * 加载环境变量定义
+     * @access public
+     * @param string $envName 环境标识
+     * @return void
+     */
+    public function loadEnv(string $envName = ''): void
+    {
+        // 加载环境变量
+        $envFile = $envName ? $this->rootPath . '.env.' . $envName : $this->rootPath . '.env';
+
+        if (is_file($envFile)) {
+            $this->env->load($envFile);
+        }
+    }
+
+    /**
      * 初始化应用
      * @access public
      * @return $this
@@ -425,10 +441,7 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        // 加载环境变量
-        if (is_file($this->rootPath . $this->envName . '.env')) {
-            $this->env->load($this->rootPath . $this->envName . '.env');
-        }
+        $this->loadEnv($this->envName);
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -608,7 +621,7 @@ class App extends Container
      * 是否运行在命令行下
      * @return bool
      */
-    public function runningInConsole()
+    public function runningInConsole(): bool
     {
         return php_sapi_name() === 'cli' || php_sapi_name() === 'phpdbg';
     }
