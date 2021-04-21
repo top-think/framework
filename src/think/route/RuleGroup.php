@@ -234,7 +234,7 @@ class RuleGroup extends Rule
                 $str = $this->fullName;
             }
 
-            if ($str && 0 !== stripos(str_replace('|', '/', $url), $str)) {
+            if ($str && 0 !== stripos(rtrim(str_replace('|', '/', $url), '/') . '/', rtrim($str, '/') . '/')) {
                 return false;
             }
         }
