@@ -153,7 +153,7 @@ class Validate
      * @var array
      */
     protected $scene = [];
-    
+
     /**
      * 验证失败错误键名
      * @var string
@@ -1526,7 +1526,7 @@ class Validate
 
     /**
      * 获取错误键名
-     * @return string 
+     * @return string
      */
     public function getErrorKey()
     {
