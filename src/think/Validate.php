@@ -153,6 +153,12 @@ class Validate
      * @var array
      */
     protected $scene = [];
+    
+    /**
+     * 验证失败错误键名
+     * @var string
+     */
+    protected $errorKey = '';
 
     /**
      * 验证失败错误信息
@@ -524,6 +530,7 @@ class Validate
                     throw new ValidateException($result);
                 } else {
                     $this->error = $result;
+                    $this->errorKey = $key;
                     return false;
                 }
             }
@@ -1515,6 +1522,15 @@ class Validate
         }
 
         return is_scalar($value) && 1 === preg_match($rule, (string) $value);
+    }
+
+    /**
+     * 获取错误键名
+     * @return string 
+     */
+    public function getErrorKey()
+    {
+        return $this->errorKey;
     }
 
     /**
