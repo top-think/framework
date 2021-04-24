@@ -178,12 +178,13 @@ class Event
         $reflect = new ReflectionClass($observer);
         $methods = $reflect->getMethods(ReflectionMethod::IS_PUBLIC);
 
-        if (empty($prefix) && $reflect->hasProperty('eventPrefix')) {
+        // 支持think-swoole subscribe 类eventPrefix属性
+        if ($reflect->hasProperty('eventPrefix')) {
             $reflectProperty = $reflect->getProperty('eventPrefix');
             $reflectProperty->setAccessible(true);
-            $prefix = $reflectProperty->getValue($observer);
+            $prefix = $prefix . $reflectProperty->getValue($observer);
         }
-
+        
         foreach ($methods as $method) {
             $name = $method->getName();
             if (0 === strpos($name, 'on')) {
