@@ -37,6 +37,7 @@ class Event
         'HttpEnd'     => event\HttpEnd::class,
         'RouteLoaded' => event\RouteLoaded::class,
         'LogWrite'    => event\LogWrite::class,
+        'LogRecord'   => event\LogRecord::class,
     ];
 
     /**
