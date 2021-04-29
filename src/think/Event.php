@@ -217,9 +217,11 @@ class Event
         $result    = [];
         $listeners = $this->listener[$event] ?? [];
 
-        if (empty($listeners) && strpos($event, '.')) {
+        if (strpos($event, '.')) {
             [$prefix, $event] = explode($event, '.', 2);
-            $listeners        = $this->listener[$prefix . '.*'] ?? [];
+            if (isset($this->listener[$prefix . '.*'])) {
+                $listeners = array_merge($listeners, $this->listener[$prefix . '.*']);
+            }
         }
 
         $listeners = array_unique($listeners, SORT_REGULAR);
