@@ -60,7 +60,7 @@ class AllowCrossDomain
 
         $method = $_SERVER["REQUEST_METHOD"];
         if ($method == "OPTIONS"){
-            return Response('',200,$header);
+            return Response('', 200, $header);
         }
 
         return $next($request)->header($header);
