@@ -58,8 +58,7 @@ class AllowCrossDomain
             }
         }
 
-        $method = $_SERVER["REQUEST_METHOD"];
-        if ($method == "OPTIONS"){
+        if ($request->isOptions()){
             return Response('', 200, $header);
         }
 
