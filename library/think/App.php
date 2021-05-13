@@ -454,6 +454,10 @@ class App extends Container
 
     protected function loadLangPack()
     {
+        // 设置语言配置
+        $this->lang->setLangCookieVar($this->config('app.lang_cookie_var'));
+        $this->lang->setAllowLangList($this->config('app.allow_lang_list'));
+
         // 读取默认语言
         $this->lang->range($this->config('app.default_lang'));
 
