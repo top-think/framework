@@ -165,17 +165,16 @@ class Config implements \ArrayAccess
         return $default;
     }
 
+    /**
+     * 加载配置文件
+     * @param $file 文件名
+     * @param $name 一级配置名
+     * @return mixed
+     */
     protected function loadFile($file, $name)
     {
         $name = strtolower($name);
         $type = pathinfo($file, PATHINFO_EXTENSION);
-
-        if ('php' == $type) {
-            return $this->set(include $file, $name);
-        } elseif ('yaml' == $type && function_exists('yaml_parse_file')) {
-            return $this->set(yaml_parse_file($file), $name);
-        }
-
         return $this->parse($file, $type, $name);
     }
 
