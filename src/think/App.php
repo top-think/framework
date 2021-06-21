@@ -562,8 +562,8 @@ class App extends Container
     protected function debugModeInit(): void
     {
         // 应用调试模式
+        $this->appDebug = $this->env->get('app_debug') ? true : false;
         if (!$this->appDebug) {
-            $this->appDebug = $this->env->get('app_debug') ? true : false;
             ini_set('display_errors', 'Off');
         }
 
