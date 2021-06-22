@@ -1274,7 +1274,7 @@ class Validate
      */
     public function in($value, $rule): bool
     {
-        return in_array($value, is_array($rule) ? $rule : explode(',', $rule));
+        return in_array($value, is_array($rule) ? $rule : explode(',', $rule), true);
     }
 
     /**
