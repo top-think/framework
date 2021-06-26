@@ -152,7 +152,17 @@ class File extends SplFileInfo
      */
     public function extension(): string
     {
-        return $this->getExtension();
+        $extension = $this->getExtension();
+        if(!$extension) {
+            $finfo     = finfo_open(FILEINFO_EXTENSION);
+            $extension = finfo_file($finfo, $file->getPathname());
+            finfo_close($finfo);
+        }
+        if (false !== strpos($extension, '/') && '???' !== $extension) {
+            $extensions = explode('/', $extension);
+            $extension  = $extensions[0];
+        }
+        return $extension;
     }
 
     /**
