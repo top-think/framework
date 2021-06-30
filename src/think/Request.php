@@ -1313,7 +1313,7 @@ class Request implements ArrayAccess
      * @param  string $type
      * @return mixed
      */
-    private function typeCast(&$data, string $type)
+    protected function typeCast(&$data, string $type)
     {
         switch (strtolower($type)) {
             // 数组
