@@ -208,9 +208,14 @@ class Lang
         }
 
         if ($this->config['allow_group'] && strpos($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 2);
-
-            $value = $this->lang[$range][strtolower($name1)][$name2] ?? $name;
+            $value = $this->lang[$range];
+            foreach (explode('.', $name) as $segment) {
+                if (is_array($value) && array_key_exists($segment, $value)) {
+                    $value = $value[$segment];
+                } else {
+                    $value = $name;
+                }
+            }
         } else {
             $value = $this->lang[$range][strtolower($name)] ?? $name;
         }
