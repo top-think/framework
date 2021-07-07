@@ -19,6 +19,11 @@ use think\console\Output;
 
 class RunServer extends Command
 {
+    /**
+     * @var int 尝试启动服务次数
+     */
+    protected $tries = 10;
+    
     public function configure()
     {
         $this->setName('run')
@@ -66,7 +71,13 @@ class RunServer extends Command
         $output->writeln(sprintf('ThinkPHP Development server is started On <http://%s:%s/>', $host, $port));
         $output->writeln(sprintf('You can exit with <info>`CTRL-C`</info>'));
         $output->writeln(sprintf('Document root is: %s', $root));
-        passthru($command);
+        
+        passthru($command, $status);
+        if ($status && $this->tries > 0) {
+            $this->tries -= 1;
+            $input->setOption('port', $input->getOption('port') + 1);
+            $this->execute($input, $output);
+        }
     }
 
 }
