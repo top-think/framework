@@ -1344,6 +1344,10 @@ class Validate
             // 长度区间
             [$min, $max] = explode(',', $rule);
             return $length >= $min && $length <= $max;
+        } elseif (is_array($rule)) {
+            // 长度区间
+            [$min, $max] = $rule;
+            return $length >= $min && $length <= $max;
         }
 
         // 指定长度
