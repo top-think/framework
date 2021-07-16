@@ -408,7 +408,8 @@ class Request implements ArrayAccess
             $rootDomain = $this->rootDomain();
 
             if ($rootDomain) {
-                $this->subDomain = rtrim(stristr($this->host(), $rootDomain, true), '.');
+                $sub             = stristr($this->host(), $rootDomain, true);
+                $this->subDomain = $sub ? rtrim($sub, '.') : '';
             } else {
                 $this->subDomain = '';
             }
@@ -1307,12 +1308,12 @@ class Request implements ArrayAccess
 
     /**
      * 强制类型转换
-     * @access public
+     * @access protected
      * @param  mixed  $data
      * @param  string $type
      * @return mixed
      */
-    private function typeCast(&$data, string $type)
+    protected function typeCast(&$data, string $type)
     {
         switch (strtolower($type)) {
             // 数组
@@ -1344,7 +1345,7 @@ class Request implements ArrayAccess
 
     /**
      * 获取数据
-     * @access public
+     * @access protected
      * @param  array  $data 数据源
      * @param  string $name 字段名
      * @param  mixed  $default 默认值
