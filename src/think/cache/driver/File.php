@@ -26,6 +26,7 @@ class File extends Driver
      * @var array
      */
     protected $options = [
+        'ext'           =>'.php',
         'expire'        => 0,
         'cache_subdir'  => true,
         'prefix'        => '',
@@ -45,6 +46,10 @@ class File extends Driver
     {
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
+        }
+        
+        if (empty($this->options['ext'])){
+            $this->options['ext'] = '.php';
         }
 
         if (empty($this->options['path'])) {
@@ -75,7 +80,7 @@ class File extends Driver
             $name = $this->options['prefix'] . DIRECTORY_SEPARATOR . $name;
         }
 
-        return $this->options['path'] . $name . '.php';
+        return $this->options['path'] . $name . $this->options['ext'];
     }
 
     /**
