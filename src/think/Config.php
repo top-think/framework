@@ -116,11 +116,20 @@ class Config
      */
     public function has(string $name): bool
     {
-        if (false === strpos($name, '.') && !isset($this->config[strtolower($name)])) {
-            return false;
+        $name    = explode('.', $name);
+        $name[0] = strtolower($name[0]);
+        $config  = $this->config;
+
+        // 按.拆分成多维数组进行判断
+        foreach ($name as $val) {
+            if (array_key_exists($val, $config)) {
+                $config = $config[$val];
+            } else {
+                return false;
+            }
         }
 
-        return !is_null($this->get($name));
+        return true;
     }
 
     /**
