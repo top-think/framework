@@ -879,10 +879,12 @@ class Request implements ArrayAccess
      */
     public function all($name = '', $filter = '')
     {
-        $data = array_merge($this->param(), $this->file());
+        $data = array_merge($this->param(), $this->file() ?: []);
 
         if (is_array($name)) {
             $data = $this->only($name, $data, $filter);
+        } elseif ($name) {
+            $data = $data[$name] ?? null;
         }
 
         return $data;
@@ -1148,7 +1150,6 @@ class Request implements ArrayAccess
     {
         $files = $this->file;
         if (!empty($files)) {
-
             if (strpos($name, '.')) {
                 [$name, $sub] = explode('.', $name);
             }
