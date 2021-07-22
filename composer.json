@@ -19,7 +19,7 @@
         }
     ],
     "require": {
-        "php": ">=7.1.0",
+        "php": ">=7.2.5",
         "ext-json": "*",
         "ext-mbstring": "*",
         "league/flysystem": "^1.1.4",
