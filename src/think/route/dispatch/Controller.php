@@ -174,7 +174,7 @@ class Controller extends Dispatch
 
         if (class_exists($class)) {
             return $this->app->make($class, [], true);
-        } elseif ($emptyController && class_exists($emptyClass = $this->app->parseClass($controllerLayer, $emptyController . $suffix))) {
+        } else if ($emptyController && (class_exists($emptyClass = $this->app->parseClass($controllerLayer, $emptyController . $suffix)) or (strpos($emptyController, 'app') !== false and class_exists($emptyClass = $emptyController)))) {
             return $this->app->make($emptyClass, [], true);
         }
 
