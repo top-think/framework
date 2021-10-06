@@ -1875,11 +1875,15 @@ class Request implements ArrayAccess
      * 获取当前的控制器名
      * @access public
      * @param  bool $convert 转换为小写
+     * @param  bool $prefix 去除多层控制器前缀
      * @return string
      */
-    public function controller(bool $convert = false): string
+    public function controller(bool $convert = false, bool $prefix = false): string
     {
         $name = $this->controller ?: '';
+        if ($prefix and strpos($name, '.')) {
+            $name = substr($name, strripos($name, '.') + 1);
+        }
         return $convert ? strtolower($name) : $name;
     }
 
