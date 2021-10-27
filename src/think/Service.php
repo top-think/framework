@@ -37,7 +37,7 @@ abstract class Service
     protected function loadRoutesFrom($path)
     {
         $this->registerRoutes(function () use ($path) {
-            include $path;
+            include_once $path;
         });
     }
 

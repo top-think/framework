@@ -69,7 +69,7 @@ class RouteList extends Command
 
         foreach ($files as $file) {
             if (strpos($file, '.php')) {
-                include $path . $file;
+                include_once $path . $file;
             }
         }
 

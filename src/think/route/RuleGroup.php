@@ -438,10 +438,18 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $this->rules[] = [$method, $rule];
+        if (is_callable($rule->getRule())) {
+            $ruleName = "Callable#" . spl_object_id($rule->getRule());
+        } else {
+            $ruleName = $rule->getRule();
+        }
+
+        $ruleItemKey = "{$method}-{$ruleName}";
+        $this->rules[$ruleItemKey] = [$method, $rule];
 
         if ($rule instanceof RuleItem && 'options' != $method) {
-            $this->rules[] = ['options', $rule->setAutoOptions()];
+            $ruleItemKey = "options-{$ruleName}";
+            $this->rules[$ruleItemKey] = ['options', $rule->setAutoOptions()];
         }
 
         return $this;

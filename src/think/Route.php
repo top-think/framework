@@ -547,15 +547,21 @@ class Route
      */
     public function group($name, $route = null): RuleGroup
     {
+        static $ruleGroups = [];
+
         if ($name instanceof Closure) {
             $route = $name;
-            $name  = '';
+            $name  = 'Closure#' . spl_object_id($name);
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route))
-            ->lazy($this->lazy)
-            ->removeSlash($this->removeSlash)
-            ->mergeRuleRegex($this->mergeRuleRegex);
+        if (!in_array($name, $ruleGroups)) {
+            $ruleGroups[$name] = (new RuleGroup($this, $this->group, $name, $route))
+                ->lazy($this->lazy)
+                ->removeSlash($this->removeSlash)
+                ->mergeRuleRegex($this->mergeRuleRegex);
+        }
+
+        return $ruleGroups[$name];
     }
 
     /**

@@ -50,7 +50,9 @@ class RuleName
         if ($first && isset($this->item[$name])) {
             array_unshift($this->item[$name], $item);
         } else {
-            $this->item[$name][] = $item;
+            if (!in_array($item, $this->item[$name] ?? [])) {
+                $this->item[$name][] = $item;
+            }
         }
     }
 

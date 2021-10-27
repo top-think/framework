@@ -239,7 +239,7 @@ class Http
         if (is_dir($routePath)) {
             $files = glob($routePath . '*.php');
             foreach ($files as $file) {
-                include $file;
+                include_once $file;
             }
         }
 
