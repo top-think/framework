@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think;
 
 use ArrayAccess;
+use think\facade\Lang;
 use think\file\UploadedFile;
 use think\route\Rule;
 
@@ -1227,7 +1228,7 @@ class Request implements ArrayAccess
             7 => 'file write error',
         ];
 
-        $msg = $fileUploadErrors[$error];
+        $msg = Lang::get($fileUploadErrors[$error]);
         throw new Exception($msg, $error);
     }
 
