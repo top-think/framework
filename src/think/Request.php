@@ -1177,10 +1177,12 @@ class Request implements ArrayAccess
                 $keys  = array_keys($file);
                 $count = count($file['name']);
 
-                for ($i = 0; $i < $count; $i++) {
-                    if ($file['error'][$i] > 0) {
+                
+                //for ($i = 0; $i < $count; $i++) {
+                foreach ($file['name'] as $tempKey=>$tempValue){
+                    if ($file['error'][$tempKey] > 0) {
                         if ($name == $key) {
-                            $this->throwUploadFileError($file['error'][$i]);
+                            $this->throwUploadFileError($file['error'][$tempKey]);
                         } else {
                             continue;
                         }
@@ -1189,7 +1191,7 @@ class Request implements ArrayAccess
                     $temp['key'] = $key;
 
                     foreach ($keys as $_key) {
-                        $temp[$_key] = $file[$_key][$i];
+                        $temp[$_key] = $file[$_key][$tempKey];
                     }
 
                     $item[] = new UploadedFile($temp['tmp_name'], $temp['name'], $temp['type'], $temp['error']);
