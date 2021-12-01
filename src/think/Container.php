@@ -445,7 +445,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $reflectionType = $param->getType();
 
             if ($reflectionType && $reflectionType->isBuiltin() === false) {
-                $args[] = $this->getObjectParam($param, $vars);
+                $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif (0 == $type && array_key_exists($name, $vars)) {
@@ -481,21 +481,18 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     /**
      * 获取对象类型的参数值
      * @access protected
-     * @param string $param     非内置对象类型的参数反射
+     * @param string $className 类名
      * @param array  $vars      参数
      * @return mixed
      */
-    protected function getObjectParam(\ReflectionParameter $param, array &$vars)
+    protected function getObjectParam(string $className, array &$vars)
     {
         $array = $vars;
         $value = array_shift($array);
-        $className = $param->getType()->getName();
 
         if ($value instanceof $className) {
             $result = $value;
             array_shift($vars);
-        } elseif ($param->isDefaultValueAvailable()) {
-            $result = $param->getDefaultValue();
         } else {
             $result = $this->make($className);
         }

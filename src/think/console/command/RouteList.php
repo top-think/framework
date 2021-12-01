@@ -91,7 +91,7 @@ class RouteList extends Command
 
         foreach ($routeList as $item) {
             $item['route'] = $item['route'] instanceof \Closure ? '<Closure>' : $item['route'];
-            $row = [$item['rule'], $item['route'], $item['method'], $item['name']];
+            $row           = [$item['rule'], $item['route'], $item['method'], $item['name']];
 
             if ($this->input->hasOption('more')) {
                 array_push($row, $item['domain'], json_encode($item['option']), json_encode($item['pattern']));
