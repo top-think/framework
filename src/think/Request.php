@@ -2151,19 +2151,23 @@ class Request implements ArrayAccess
     }
 
     // ArrayAccess
+    #[\ReturnTypeWillChange]
     public function offsetExists($name): bool
     {
         return $this->has($name);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($name)
     {
         return $this->param($name);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($name, $value)
     {}
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($name)
     {}
 
