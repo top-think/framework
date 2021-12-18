@@ -94,7 +94,8 @@ return [
 
     'The middleware must return Response instance'              => '中间件方法必须返回Response对象实例',
     'The queue was exhausted, with no response returned'        => '中间件队列为空',
-    // Validate Error Message
+
+    // 验证错误信息
     ':attribute require'                                        => ':attribute不能为空',
     ':attribute must'                                           => ':attribute必须',
     ':attribute must be numeric'                                => ':attribute必须是数字',
@@ -104,6 +105,8 @@ return [
     ':attribute not a valid email address'                      => ':attribute格式不符',
     ':attribute not a valid mobile'                             => ':attribute格式不符',
     ':attribute must be a array'                                => ':attribute必须是数组',
+    ':attribute must be a string'                               => ':attribute必须是字符型',
+    ':attribute must be a scalar'                               => ':attribute必须是标量',
     ':attribute must be yes,on or 1'                            => ':attribute必须是yes、on或者1',
     ':attribute not a valid datetime'                           => ':attribute不是一个有效的日期或时间格式',
     ':attribute not a valid file'                               => ':attribute不是有效的上传文件',

@@ -69,6 +69,8 @@ class Validate
         'email'       => ':attribute not a valid email address',
         'mobile'      => ':attribute not a valid mobile',
         'array'       => ':attribute must be a array',
+        'string'      => ':attribute must be string',
+        'scalar'      => ':attribute must be scalar',
         'accepted'    => ':attribute must be yes,on or 1',
         'date'        => ':attribute not a valid datetime',
         'file'        => ':attribute not a valid file',
@@ -857,6 +859,14 @@ class Validate
             case 'array':
                 // 是否为数组
                 $result = is_array($value);
+                break;
+            case 'string':
+                // 是否为字符型
+                $result = is_string($value);
+                break;
+            case 'scalar':
+                // 是否为标量
+                $result = is_scalar($value);
                 break;
             case 'file':
                 $result = $value instanceof File;
