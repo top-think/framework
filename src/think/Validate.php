@@ -1126,7 +1126,7 @@ class Validate
      * 验证是否唯一
      * @access public
      * @param mixed  $value 字段值
-     * @param mixed  $rule  验证规则 格式：数据表,字段名,排除ID,主键名
+     * @param mixed  $rule  验证规则 格式：数据表,字段名,排除ID,主键名,软删除
      * @param array  $data  数据
      * @param string $field 验证字段名
      * @return bool
@@ -1157,8 +1157,6 @@ class Validate
             }
         } elseif (isset($data[$field])) {
             $map[] = [$key, '=', $data[$field]];
-        } else {
-            $map = [];
         }
 
         $pk = !empty($rule[3]) ? $rule[3] : $db->getPk();
@@ -1168,6 +1166,17 @@ class Validate
                 $map[] = [$pk, '<>', $rule[2]];
             } elseif (isset($data[$pk])) {
                 $map[] = [$pk, '<>', $data[$pk]];
+            }
+        }
+
+        // 软删除数据条件
+        if (isset($rule[4]) && false != $rule[4]) {
+            if (is_array($rule[4])) {
+                // 数组则直接设置为查询条件
+                $map[] = $rule[4];
+            } else {
+                // 其它则按照默认规则设置软删除条件
+                $map[] = ['delete_time', 'null', null];
             }
         }
 
