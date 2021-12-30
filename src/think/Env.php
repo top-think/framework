@@ -39,7 +39,7 @@ class Env implements ArrayAccess
      */
     public function load(string $file): void
     {
-        $env = parse_ini_file($file, true) ?: [];
+        $env = parse_ini_file($file, true, INI_SCANNER_RAW) ?: [];
         $this->set($env);
     }
 
