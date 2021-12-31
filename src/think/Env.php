@@ -26,6 +26,17 @@ class Env implements ArrayAccess
      */
     protected $data = [];
 
+    /**
+     * 数据转换映射
+     * @var array
+     */
+    protected $convert = [
+        'true'  => true,
+        'false' => false,
+        'off'   => false,
+        'on'    => true,
+    ];
+
     public function __construct()
     {
         $this->data = $_ENV;
@@ -57,9 +68,14 @@ class Env implements ArrayAccess
         }
 
         $name = strtoupper(str_replace('.', '_', $name));
-
         if (isset($this->data[$name])) {
-            return $this->data[$name];
+            $result = $this->data[$name];
+
+            if (is_string($result) && isset($this->convert[$result])) {
+                return $this->convert[$result];
+            }
+
+            return $result;
         }
 
         return $this->getEnv($name, $default);
