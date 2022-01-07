@@ -155,7 +155,7 @@ class Descriptor
 
             $this->writeText('<comment>Options:</comment>', $options);
             foreach ($definition->getOptions() as $option) {
-                if (strlen($option->getShortcut()) > 1) {
+                if ($option->getShortcut() && strlen($option->getShortcut()) > 1) {
                     $laterOptions[] = $option;
                     continue;
                 }
