@@ -533,6 +533,17 @@ abstract class Rule
     }
 
     /**
+     * 闭包检测
+     * @access public
+     * @param  callable $call 闭包
+     * @return $this
+     */
+    public function call(callable $call)
+    {
+        return $this->setOption('call', $call);
+    }
+
+    /**
      * 设置路由完整匹配
      * @access public
      * @param  bool $match 是否完整匹配
@@ -734,6 +745,13 @@ abstract class Rule
                 if ($request->param($name, '', null) != $value) {
                     return false;
                 }
+            }
+        }
+
+        // 闭包检查
+        if (isset($option['call']) && is_callable($option['call'])) {
+            if (false === $option['call']($this, $request)) {
+                return false;
             }
         }
 
