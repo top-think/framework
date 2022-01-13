@@ -533,14 +533,14 @@ abstract class Rule
     }
 
     /**
-     * 闭包检测
+     * 通过闭包检查路由是否匹配
      * @access public
-     * @param  callable $call 闭包
+     * @param  callable $match 闭包
      * @return $this
      */
-    public function call(callable $call)
+    public function match(callable $match)
     {
-        return $this->setOption('call', $call);
+        return $this->setOption('match', $match);
     }
 
     /**
@@ -705,6 +705,13 @@ abstract class Rule
      */
     protected function checkOption(array $option, Request $request): bool
     {
+        // 检查当前路由是否匹配
+        if (isset($option['match']) && is_callable($option['match'])) {
+            if (false === $option['match']($this, $request)) {
+                return false;
+            }
+        }
+
         // 请求类型检测
         if (!empty($option['method'])) {
             if (is_string($option['method']) && false === stripos($option['method'], $request->method())) {
@@ -745,13 +752,6 @@ abstract class Rule
                 if ($request->param($name, '', null) != $value) {
                     return false;
                 }
-            }
-        }
-
-        // 闭包检查
-        if (isset($option['call']) && is_callable($option['call'])) {
-            if (false === $option['call']($this, $request)) {
-                return false;
             }
         }
 
