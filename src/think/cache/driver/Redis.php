@@ -121,6 +121,23 @@ class Redis extends Driver
 
         return $this->unserialize($value);
     }
+    
+    /**
+     * 模糊查询
+     * @access public
+     * @param string $name    缓存变量名
+     * @return mixed
+     */
+    public function keys($name)
+    {
+        $this->readTimes++;
+        $value = $this->handler->keys($name);
+
+        if (false === $value || is_null($value)) {
+            return null;
+        }
+        return  $value;
+    }
 
     /**
      * 写入缓存
