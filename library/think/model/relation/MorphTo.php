@@ -179,10 +179,8 @@ class MorphTo extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
-            // 关联属性名
-            $attr = Loader::parseName($relation);
-
             foreach ($range as $key => $val) {
                 // 多态类型映射
                 $model = $this->parseModel($key);
@@ -197,27 +195,29 @@ class MorphTo extends Relation
                     }
                 }
                 $list  = $obj->all($val, $subRelation);
-                $data  = [];
 
                 foreach ($list as $k => $vo) {
-                    $data[$vo->$pk] = $vo;
-                }
-
-                foreach ($resultSet as $result) {
-                    if ($key == $result->$morphType) {
-                        // 关联模型
-                        if (!isset($data[$result->$morphKey])) {
-                            $relationModel = null;
-                        } else {
-                            $relationModel = $data[$result->$morphKey];
-                            $relationModel->setParent(clone $result);
-                            $relationModel->isUpdate(true);
-                        }
-
-                        $result->setRelation($attr, $relationModel);
-                    }
+                    $uniqKey = $vo->$pk. '@'. $key;
+                    $data[$uniqKey] = $vo;
                 }
             }
+        }
+
+        // 关联属性名
+        $attr = Loader::parseName($relation);
+
+        foreach ($resultSet as $result) {
+            // 关联模型
+            $uniqKey = $result->$morphKey. '@'. $result->$morphType;
+            if (!isset($data[$uniqKey])) {
+                $relationModel = null;
+            } else {
+                $relationModel = $data[$uniqKey];
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            }
+
+            $result->setRelation($attr, $relationModel);
         }
     }
 

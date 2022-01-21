@@ -120,29 +120,30 @@ class MorphMany extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
             $where = [
                 [$morphKey, 'in', $range],
                 [$morphType, '=', $type],
             ];
             $data = $this->eagerlyMorphToMany($where, $relation, $subRelation, $closure);
+        }
 
-            // 关联属性名
-            $attr = Loader::parseName($relation);
+        // 关联属性名
+        $attr = Loader::parseName($relation);
 
-            // 关联数据封装
-            foreach ($resultSet as $result) {
-                if (!isset($data[$result->$pk])) {
-                    $data[$result->$pk] = [];
-                }
-
-                foreach ($data[$result->$pk] as &$relationModel) {
-                    $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
-                }
-
-                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
+        // 关联数据封装
+        foreach ($resultSet as $result) {
+            if (!isset($data[$result->$pk])) {
+                $data[$result->$pk] = [];
             }
+
+            foreach ($data[$result->$pk] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
+            }
+
+            $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
         }
     }
 

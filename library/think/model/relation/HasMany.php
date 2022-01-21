@@ -88,28 +88,29 @@ class HasMany extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
             $where = [
                 [$this->foreignKey, 'in', $range],
             ];
             $data = $this->eagerlyOneToMany($where, $relation, $subRelation, $closure);
+        }
 
-            // 关联属性名
-            $attr = Loader::parseName($relation);
+        // 关联属性名
+        $attr = Loader::parseName($relation);
 
-            // 关联数据封装
-            foreach ($resultSet as $result) {
-                $pk = $result->$localKey;
-                if (!isset($data[$pk])) {
-                    $data[$pk] = [];
-                }
-
-                foreach ($data[$pk] as &$relationModel) {
-                    $relationModel->setParent(clone $result);
-                }
-
-                $result->setRelation($attr, $this->resultSetBuild($data[$pk]));
+        // 关联数据封装
+        foreach ($resultSet as $result) {
+            $pk = $result->$localKey;
+            if (!isset($data[$pk])) {
+                $data[$pk] = [];
             }
+
+            foreach ($data[$pk] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+            }
+
+            $result->setRelation($attr, $this->resultSetBuild($data[$pk]));
         }
     }
 
