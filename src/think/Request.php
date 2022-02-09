@@ -664,7 +664,7 @@ class Request implements ArrayAccess
      */
     public function type(): string
     {
-        $accept = $this->server('HTTP_ACCEPT');
+        $accept = $this->server('HTTP_CONTENT_TYPE');
 
         if (empty($accept)) {
             return '';
