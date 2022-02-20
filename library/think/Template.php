@@ -1120,6 +1120,7 @@ class Template
                     break;
                 case 'include':
                     $name = 'file';
+                    // no break
                 case 'taglib':
                 case 'layout':
                 case 'extend':

@@ -31,11 +31,13 @@ class hookTest extends \PHPUnit_Framework_TestCase
         Hook::listen('my_pos', $data);
         $this->assertEquals(2, $data['id']);
         $this->assertEquals('thinkphp', $data['name']);
-        $this->assertEquals([
+        $this->assertEquals(
+            [
             '\tests\thinkphp\library\think\behavior\Three',
             '\tests\thinkphp\library\think\behavior\One',
             '\tests\thinkphp\library\think\behavior\Two'],
-            Hook::get('my_pos'));
+            Hook::get('my_pos')
+        );
     }
 
     public function testImport()

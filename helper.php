@@ -28,7 +28,6 @@ use think\Request;
 use think\Response;
 use think\Session;
 use think\Url;
-use think\View;
 
 if (!function_exists('load_trait')) {
     /**

@@ -16,7 +16,6 @@ use think\console\input\Argument as InputArgument;
 use think\console\input\Definition as InputDefinition;
 use think\console\input\Option as InputOption;
 use think\console\Output;
-use think\console\output\driver\Buffer;
 
 class Console
 {
@@ -471,12 +470,14 @@ class Console
 
         foreach ($this->commands as $command) {
             $namespaces = array_merge(
-                $namespaces, $this->extractAllNamespaces($command->getName())
+                $namespaces,
+                $this->extractAllNamespaces($command->getName())
             );
 
             foreach ($command->getAliases() as $alias) {
                 $namespaces = array_merge(
-                    $namespaces, $this->extractAllNamespaces($alias)
+                    $namespaces,
+                    $this->extractAllNamespaces($alias)
                 );
             }
         }
@@ -502,7 +503,8 @@ class Console
 
         if (empty($namespaces)) {
             $message = sprintf(
-                'There are no commands defined in the "%s" namespace.', $namespace
+                'There are no commands defined in the "%s" namespace.',
+                $namespace
             );
 
             if ($alternatives = $this->findAlternatives($namespace, $allNamespaces)) {
@@ -525,7 +527,8 @@ class Console
                 sprintf(
                     'The namespace "%s" is ambiguous (%s).',
                     $namespace,
-                    $this->getAbbreviationSuggestions(array_values($namespaces)))
+                    $this->getAbbreviationSuggestions(array_values($namespaces))
+                )
             );
         }
 

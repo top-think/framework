@@ -106,8 +106,13 @@ class Cookie
 
         if ($config['setcookie']) {
             setcookie(
-                $name, $value, $expire, $config['path'], $config['domain'],
-                $config['secure'], $config['httponly']
+                $name,
+                $value,
+                $expire,
+                $config['path'],
+                $config['domain'],
+                $config['secure'],
+                $config['httponly']
             );
         }
 
@@ -208,8 +213,13 @@ class Cookie
 
         if ($config['setcookie']) {
             setcookie(
-                $name, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'],
-                $config['domain'], $config['secure'], $config['httponly']
+                $name,
+                '',
+                $_SERVER['REQUEST_TIME'] - 3600,
+                $config['path'],
+                $config['domain'],
+                $config['secure'],
+                $config['httponly']
             );
         }
 
@@ -240,8 +250,13 @@ class Cookie
                 if (0 === strpos($key, $prefix)) {
                     if ($config['setcookie']) {
                         setcookie(
-                            $key, '', $_SERVER['REQUEST_TIME'] - 3600, $config['path'],
-                            $config['domain'], $config['secure'], $config['httponly']
+                            $key,
+                            '',
+                            $_SERVER['REQUEST_TIME'] - 3600,
+                            $config['path'],
+                            $config['domain'],
+                            $config['secure'],
+                            $config['httponly']
                         );
                     }
 

@@ -725,7 +725,9 @@ abstract class Builder
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
                 $this->parseForce($options['force']),
-            ], $this->selectSql);
+            ],
+            $this->selectSql
+        );
         return $sql;
     }
 
@@ -755,7 +757,9 @@ abstract class Builder
                 implode(' , ', $fields),
                 implode(' , ', $values),
                 $this->parseComment($options['comment']),
-            ], $this->insertSql);
+            ],
+            $this->insertSql
+        );
 
         return $sql;
     }
@@ -817,7 +821,9 @@ abstract class Builder
                 implode(' , ', $insertFields),
                 implode(' UNION ALL ', $values),
                 $this->parseComment($options['comment']),
-            ], $this->insertAllSql);
+            ],
+            $this->insertAllSql
+        );
     }
 
     /**
@@ -868,7 +874,9 @@ abstract class Builder
                 $this->parseLimit($options['limit']),
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
-            ], $this->updateSql);
+            ],
+            $this->updateSql
+        );
 
         return $sql;
     }
@@ -892,7 +900,9 @@ abstract class Builder
                 $this->parseLimit($options['limit']),
                 $this->parseLock($options['lock']),
                 $this->parseComment($options['comment']),
-            ], $this->deleteSql);
+            ],
+            $this->deleteSql
+        );
 
         return $sql;
     }
