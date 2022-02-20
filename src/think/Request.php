@@ -1416,6 +1416,10 @@ class Request implements ArrayAccess
         foreach ($filters as $filter) {
             if (is_callable($filter)) {
                 // 调用函数或者方法过滤
+                if (is_null($value)) {
+                    continue;
+                }
+
                 $value = call_user_func($filter, $value);
             } elseif (is_scalar($value)) {
                 if (is_string($filter) && false !== strpos($filter, '/')) {
