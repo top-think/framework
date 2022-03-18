@@ -27,6 +27,7 @@ use ReflectionMethod;
 use think\exception\ClassNotFoundException;
 use think\exception\FuncNotFoundException;
 use think\helper\Str;
+use Traversable;
 
 /**
  * 容器管理类 支持PSR-11
@@ -107,11 +108,11 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 获取容器中的对象实例 不存在则创建
-     * @access public
-     * @param string     $abstract    类名或者标识
-     * @param array|true $vars        变量
-     * @param bool       $newInstance 是否每次创建新的实例
-     * @return object
+     * @template T
+     * @param string|class-string<T> $abstract    类名或者标识
+     * @param array                  $vars        变量
+     * @param bool                   $newInstance 是否每次创建新的实例
+     * @return T|object
      */
     public static function pull(string $abstract, array $vars = [], bool $newInstance = false)
     {
@@ -120,9 +121,9 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 获取容器中的对象实例
-     * @access public
-     * @param string $abstract 类名或者标识
-     * @return object
+     * @template T
+     * @param string|class-string<T> $abstract 类名或者标识
+     * @return T|object
      */
     public function get($abstract)
     {
@@ -231,11 +232,11 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 创建类的实例 已经存在则直接获取
-     * @access public
-     * @param string $abstract    类名或者标识
-     * @param array  $vars        变量
-     * @param bool   $newInstance 是否每次创建新的实例
-     * @return mixed
+     * @template T
+     * @param string|class-string<T> $abstract    类名或者标识
+     * @param array                  $vars        变量
+     * @param bool                   $newInstance 是否每次创建新的实例
+     * @return T|object
      */
     public function make(string $abstract, array $vars = [], bool $newInstance = false)
     {
@@ -520,34 +521,38 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $this->delete($name);
     }
 
-    public function offsetExists($key)
+    #[\ReturnTypeWillChange]
+    public function offsetExists($key): bool
     {
         return $this->exists($key);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetGet($key)
     {
         return $this->make($key);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetSet($key, $value)
     {
         $this->bind($key, $value);
     }
 
+    #[\ReturnTypeWillChange]
     public function offsetUnset($key)
     {
         $this->delete($key);
     }
 
     //Countable
-    public function count()
+    public function count(): int
     {
         return count($this->instances);
     }
 
     //IteratorAggregate
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         return new ArrayIterator($this->instances);
     }

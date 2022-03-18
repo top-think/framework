@@ -167,6 +167,8 @@ class Route
         }
 
         $this->config = array_merge($this->config, $this->app->config->get('route'));
+
+        $this->init();
     }
 
     protected function init()
@@ -752,7 +754,6 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
-        $this->init();
 
         if ($withRoute) {
             //加载路由
