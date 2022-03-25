@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -221,13 +221,13 @@ class Redis extends Driver
     }
 
     /**
-     * 追加（数组）缓存数据
+     * 追加TagSet数据
      * @access public
      * @param string $name  缓存标识
      * @param mixed  $value 数据
      * @return void
      */
-    public function push(string $name, $value): void
+    public function append(string $name, $value): void
     {
         $key = $this->getCacheKey($name);
         $this->handler->sAdd($key, $value);

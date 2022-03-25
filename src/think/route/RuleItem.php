@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -196,7 +196,7 @@ class RuleItem extends Rule
         $url     = $this->urlSuffixCheck($request, $url, $option);
 
         if (is_null($match)) {
-            $match = $this->match($url, $option, $pattern, $completeMatch);
+            $match = $this->checkMatch($url, $option, $pattern, $completeMatch);
         }
 
         if (false !== $match) {
@@ -252,7 +252,7 @@ class RuleItem extends Rule
      * @param  bool      $completeMatch   是否完全匹配
      * @return array|false
      */
-    private function match(string $url, array $option, array $pattern, bool $completeMatch)
+    private function checkMatch(string $url, array $option, array $pattern, bool $completeMatch)
     {
         if (isset($option['complete_match'])) {
             $completeMatch = $option['complete_match'];
@@ -292,7 +292,7 @@ class RuleItem extends Rule
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             try {
-                if (!preg_match('/^' . $regex . '/u', $url, $match)) {
+                if (!preg_match('~^' . $regex . '~u', $url, $match)) {
                     return false;
                 }
             } catch (\Exception $e) {

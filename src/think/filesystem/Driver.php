@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -17,6 +17,7 @@ use League\Flysystem\Adapter\AbstractAdapter;
 use League\Flysystem\Cached\CachedAdapter;
 use League\Flysystem\Cached\Storage\Memory as MemoryStore;
 use League\Flysystem\Filesystem;
+use RuntimeException;
 use think\Cache;
 use think\File;
 
@@ -91,6 +92,16 @@ abstract class Driver
         return $path;
     }
 
+    protected function concatPathToUrl($url, $path)
+    {
+        return rtrim($url, '/') . '/' . ltrim($path, '/');
+    }
+
+    public function url(string $path): string
+    {
+        throw new RuntimeException('This driver does not support retrieving URLs.');
+    }
+
     /**
      * 保存文件
      * @param string               $path    路径
@@ -115,7 +126,7 @@ abstract class Driver
     public function putFileAs(string $path, File $file, string $name, array $options = [])
     {
         $stream = fopen($file->getRealPath(), 'r');
-        $path = trim($path . '/' . $name, '/');
+        $path   = trim($path . '/' . $name, '/');
 
         $result = $this->putStream($path, $stream, $options);
 

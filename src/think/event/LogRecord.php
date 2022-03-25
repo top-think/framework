@@ -6,18 +6,24 @@
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
-// | Author: liu21st <liu21st@gmail.com>
+// | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
-
-namespace think\contract;
+namespace think\event;
 
 /**
- * Session驱动接口
+ * LogRecord事件类
  */
-interface SessionHandlerInterface
+class LogRecord
 {
-    public function read(string $sessionId): string;
-    public function delete(string $sessionId): bool;
-    public function write(string $sessionId, string $data): bool;
+    /** @var string */
+    public $type;
+
+    /** @var string */
+    public $message;
+
+    public function __construct($type, $message)
+    {
+        $this->type    = $type;
+        $this->message = $message;
+    }
 }

@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2019 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -533,6 +533,17 @@ abstract class Rule
     }
 
     /**
+     * 通过闭包检查路由是否匹配
+     * @access public
+     * @param  callable $match 闭包
+     * @return $this
+     */
+    public function match(callable $match)
+    {
+        return $this->setOption('match', $match);
+    }
+
+    /**
      * 设置路由完整匹配
      * @access public
      * @param  bool $match 是否完整匹配
@@ -694,6 +705,13 @@ abstract class Rule
      */
     protected function checkOption(array $option, Request $request): bool
     {
+        // 检查当前路由是否匹配
+        if (isset($option['match']) && is_callable($option['match'])) {
+            if (false === $option['match']($this, $request)) {
+                return false;
+            }
+        }
+
         // 请求类型检测
         if (!empty($option['method'])) {
             if (is_string($option['method']) && false === stripos($option['method'], $request->method())) {
@@ -792,7 +810,11 @@ abstract class Rule
     protected function buildRuleRegex(string $rule, array $match, array $pattern = [], array $option = [], bool $completeMatch = false, string $suffix = ''): string
     {
         foreach ($match as $name) {
-            $replace[] = $this->buildNameRegex($name, $pattern, $suffix);
+            $value = $this->buildNameRegex($name, $pattern, $suffix);
+            if ($value) {
+                $origin[]  = $name;
+                $replace[] = $value;
+            }
         }
 
         // 是否区分 / 地址访问
@@ -805,11 +827,11 @@ abstract class Rule
             }
         }
 
-        $regex = str_replace(array_unique($match), array_unique($replace), $rule);
-        $regex = str_replace([')?/', ')/', ')?-', ')-', '\\\\/'], [')\/', ')\/', ')\-', ')\-', '\/'], $regex);
+        $regex = isset($replace) ? str_replace($origin, $replace, $rule) : $rule;
+        $regex = str_replace([')?/', ')?-'], [')/', ')-'], $regex);
 
         if (isset($hasSlash)) {
-            $regex .= '\/';
+            $regex .= '/';
         }
 
         return $regex . ($completeMatch ? '$' : '');
@@ -829,7 +851,7 @@ abstract class Rule
         $slash    = substr($name, 0, 1);
 
         if (in_array($slash, ['/', '-'])) {
-            $prefix = '\\' . $slash;
+            $prefix = $slash;
             $name   = substr($name, 1);
             $slash  = substr($name, 0, 1);
         } else {
@@ -837,7 +859,7 @@ abstract class Rule
         }
 
         if ('<' != $slash) {
-            return $prefix . preg_quote($name, '/');
+            return '';
         }
 
         if (strpos($name, '?')) {
