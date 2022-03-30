@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -39,11 +39,18 @@ class View extends Manager
      * 获取模板引擎
      * @access public
      * @param string $type 模板引擎类型
+     * @param bool $return_driver 是否返回引擎驱动
      * @return $this
      */
-    public function engine(string $type = null)
+    public function engine(string $type = null, $return_driver = false)
     {
-        return $this->driver($type);
+        $driver = $this->driver($type);
+
+        if ($return_driver) {
+            return $driver;
+        }
+
+        return $this;
     }
 
     /**
@@ -87,7 +94,7 @@ class View extends Manager
     public function fetch(string $template = '', array $vars = []): string
     {
         return $this->getContent(function () use ($vars, $template) {
-            $this->engine()->fetch($template, array_merge($this->data, $vars));
+            $this->engine(null, true)->fetch($template, array_merge($this->data, $vars));
         });
     }
 
@@ -101,7 +108,7 @@ class View extends Manager
     public function display(string $content, array $vars = []): string
     {
         return $this->getContent(function () use ($vars, $content) {
-            $this->engine()->display($content, array_merge($this->data, $vars));
+            $this->engine(null, true)->display($content, array_merge($this->data, $vars));
         });
     }
 
@@ -187,5 +194,4 @@ class View extends Manager
     {
         return $this->app->config->get('view.type', 'php');
     }
-
 }
