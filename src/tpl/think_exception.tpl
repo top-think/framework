@@ -97,6 +97,12 @@ if (!function_exists('echo_value')) {
     <meta name="robots" content="noindex,nofollow" />
     <style>
         /* Base */
+        @media (prefers-color-scheme: dark) {
+           body{background-color: #1a202c;}*{color: #fff;}
+        }
+        @media (prefers-color-scheme: light) {
+            body{background-color: #fff;}  *{color: #1a202c;}
+        }
         body {
             color: #333;
             font: 16px Verdana, "Helvetica Neue", helvetica, Arial, 'Microsoft YaHei', sans-serif;
