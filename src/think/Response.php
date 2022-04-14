@@ -127,9 +127,6 @@ abstract class Response
      */
     public function send(): void
     {
-        // 处理输出数据
-        $data = $this->getContent();
-
         if (!headers_sent()) {
             if (!empty($this->header)) {
                 // 发送状态码
@@ -144,6 +141,9 @@ abstract class Response
                 $this->cookie->save();
             }
         }
+        
+        // 处理输出数据
+        $data = $this->getContent();
 
         $this->sendData($data);
 
