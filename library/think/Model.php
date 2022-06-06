@@ -37,24 +37,24 @@ use think\db\Query;
  * @method $this limit(mixed $offset, integer $length = null) static 查询LIMIT
  * @method $this order(mixed $field, string $order = null) static 查询ORDER
  * @method $this orderRaw(string $field, array $bind = []) static 查询ORDER
- * @method $this cache(mixed $key = null , integer|\DateTime $expire = null, string $tag = null) static 设置查询缓存
+ * @method $this cache(mixed $key = null, integer|\DateTime $expire = null, string $tag = null) static 设置查询缓存
  * @method mixed value(string $field, mixed $default = null) static 获取某个字段的值
  * @method array column(string $field, string $key = '') static 获取某个列的值
  * @method $this find(mixed $data = null) static 查询单个记录
  * @method $this findOrFail(mixed $data = null) 查询单个记录
  * @method Collection|$this[] select(mixed $data = null) static 查询多个记录
- * @method $this get(mixed $data = null,mixed $with = [],bool $cache = false, bool $failException = false) static 查询单个记录 支持关联预载入
- * @method $this getOrFail(mixed $data = null,mixed $with = [],bool $cache = false) static 查询单个记录 不存在则抛出异常
+ * @method $this get(mixed $data = null, mixed $with = [], bool $cache = false, bool $failException = false) static 查询单个记录 支持关联预载入
+ * @method $this getOrFail(mixed $data = null, mixed $with = [], bool $cache = false) static 查询单个记录 不存在则抛出异常
  * @method $this findOrEmpty(mixed $data = null) static 查询单个记录  不存在则返回空模型
- * @method Collection|$this[] all(mixed $data = null,mixed $with = [],bool $cache = false) static 查询多个记录 支持关联预载入
- * @method $this withAttr(array $name,\Closure $closure = null) static 动态定义获取器
+ * @method Collection|$this[] all(mixed $data = null, mixed $with = [], bool $cache = false) static 查询多个记录 支持关联预载入
+ * @method $this withAttr(array $name, \Closure $closure = null) static 动态定义获取器
  * @method $this withJoin(string|array $with, string $joinType = '') static
  * @method $this withCount(string|array $relation, bool $subQuery = true) static 关联统计
  * @method $this withSum(string|array $relation, string $field, bool $subQuery = true) static 关联SUM统计
  * @method $this withMax(string|array $relation, string $field, bool $subQuery = true) static 关联MAX统计
  * @method $this withMin(string|array $relation, string $field, bool $subQuery = true) static 关联Min统计
  * @method $this withAvg(string|array $relation, string $field, bool $subQuery = true) static 关联Avg统计
- * @method Paginator|$this paginate() static 分页
+ * @method Paginator|$this paginate(int|array $listRows = null, int|bool $simple = false, array $config = []) static 分页
  */
 abstract class Model implements \JsonSerializable, \ArrayAccess
 {
