@@ -125,7 +125,7 @@ abstract class Driver
      */
     public function putFileAs(string $path, File $file, string $name, array $options = [])
     {
-        $stream = fopen($file->getRealPath(), 'r');
+        $stream = fopen($file->getPathName(),'r');
         $path   = trim($path . '/' . $name, '/');
 
         $result = $this->putStream($path, $stream, $options);
