@@ -266,7 +266,7 @@ class Event
             $call = [$obj, 'handle'];
         }
 
-        return $this->app->invoke($call, [$params]);
+        return $this->app->invoke($call, is_array($params) ? $params : [$params]);
     }
 
 }
