@@ -230,7 +230,8 @@ class File extends SplFileObject
         if ((isset($rule['size']) && !$this->checkSize($rule['size']))
             || (isset($rule['type']) && !$this->checkMime($rule['type']))
             || (isset($rule['ext']) && !$this->checkExt($rule['ext']))
-            || !$this->checkImg()) {
+            || !$this->checkImg()
+        ) {
             return false;
         }
 
@@ -406,7 +407,26 @@ class File extends SplFileObject
         }
 
         if ($autoAppendExt && false === strpos($savename, '.')) {
-            $savename .= '.' . pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
+            // TODO 这样修改存在安全隐患 我还是想pr一下 测试一下github的pr体验
+            $ext = pathinfo($this->getInfo('name'), PATHINFO_EXTENSION);
+            if (!$ext) {
+                $info = $this->getInfo();
+                $type = $info['type'] ?? "";
+                switch ($type) {
+                    case "image/jpeg":
+                        $ext = "jpg";
+                        break;
+                    case "image/png":
+                        $ext = "png";
+                        break;
+                    case "image/gif":
+                        $ext = "gif";
+                        break;
+                    default:
+                        $ext = "jpg";
+                }
+            }
+            $savename .= '.' . $ext;
         }
 
         return $savename;
