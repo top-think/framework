@@ -633,6 +633,18 @@ class Route
     }
 
     /**
+     * 注册HEAD路由
+     * @access public
+     * @param string $rule  路由规则
+     * @param mixed  $route 路由地址
+     * @return RuleItem
+     */
+    public function head(string $rule, $route): RuleItem
+    {
+        return $this->rule($rule, $route, 'HEAD');
+    }
+
+    /**
      * 注册OPTIONS路由
      * @access public
      * @param string $rule  路由规则
