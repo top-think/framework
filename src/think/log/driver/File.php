@@ -138,7 +138,7 @@ class File implements LogHandlerInterface
             $files = glob($this->config['path'] . '*.log');
 
             try {
-                if (count($files) > $this->config['max_files']) {
+                if (count($files) > $this->config['max_files'] && count($files) > count($this->config['apart_level'])) {
                     set_error_handler(function ($errno, $errstr, $errfile, $errline) {});
                     unlink($files[0]);
                     restore_error_handler();
