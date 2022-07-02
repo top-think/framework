@@ -1237,7 +1237,7 @@ class Request implements ArrayAccess
      * @access public
      * @param  string $name header名称
      * @param  string $default 默认值
-     * @return string|array
+     * @return string|array|null
      */
     public function header(string $name = '', string $default = null)
     {
