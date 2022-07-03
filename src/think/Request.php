@@ -1494,7 +1494,7 @@ class Request implements ArrayAccess
             if (is_int($key)) {
                 $default = null;
                 $key     = $val;
-                if (!isset($data[$key])) {
+                if (!key_exists($key, $data)) {
                     continue;
                 }
             } else {
