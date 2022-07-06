@@ -426,29 +426,45 @@ class Validate
                 continue;
             }
 
-            // 获取数据 支持多维数组
-            $value = $this->getDataValue($data, $key);
+            if ($this->batch) {
+                //  批量验证
+                foreach ($data as $item) {
+                    // 获取数据 支持多维数组
+                    $value = $this->getDataValue($item, $key);
 
-            // 字段验证
-            if ($rule instanceof \Closure) {
-                $result = call_user_func_array($rule, [$value, $data, $title, $this]);
-            } elseif ($rule instanceof ValidateRule) {
-                //  验证因子
-                $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
-            } else {
-                $result = $this->checkItem($key, $value, $rule, $data, $title);
-            }
-
-            if (true !== $result) {
-                // 没有返回true 则表示验证失败
-                if (!empty($this->batch)) {
-                    // 批量验证
-                    if (is_array($result)) {
-                        $this->error = array_merge($this->error, $result);
+                    // 字段验证
+                    if ($rule instanceof \Closure) {
+                        $result = call_user_func_array($rule, [$value, $data, $title, $this]);
+                    } elseif ($rule instanceof ValidateRule) {
+                        //  验证因子
+                        $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
                     } else {
-                        $this->error[$key] = $result;
+                        $result = $this->checkItem($key, $value, $rule, $data, $title);
                     }
+
+                    if (true !== $result) {
+                        // 批量验证
+                        if (is_array($result)) {
+                            $this->error = array_merge($this->error, $result);
+                        } else {
+                            $this->error[$key] = $result;
+                        }
+                    }
+                }
+            } else {
+                $value = $this->getDataValue($data, $key);
+
+                // 字段验证
+                if ($rule instanceof \Closure) {
+                    $result = call_user_func_array($rule, [$value, $data, $title, $this]);
+                } elseif ($rule instanceof ValidateRule) {
+                    //  验证因子
+                    $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
                 } else {
+                    $result = $this->checkItem($key, $value, $rule, $data, $title);
+                }
+
+                if (true !== $result) {
                     $this->error = $result;
                     return false;
                 }
@@ -536,7 +552,6 @@ class Validate
                 list($type, $rule, $info) = $this->getValidateType($key, $rule);
 
                 if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-
                 } elseif (array_key_exists($field, $this->remove) && (null === $this->remove[$field] || in_array($info, $this->remove[$field]))) {
                     // 规则已经移除
                     $i++;
@@ -1494,7 +1509,8 @@ class Validate
             $msg = str_replace(
                 [':attribute', ':1', ':2', ':3'],
                 [$title, $array[0], $array[1], $array[2]],
-                $msg);
+                $msg
+            );
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);
             }
