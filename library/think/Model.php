@@ -26,11 +26,11 @@ use think\db\Query;
  * @method $this join(mixed $join, mixed $condition = null, string $type = 'INNER', array $bind = []) static JOIN查询
  * @method $this view(mixed $join, mixed $field = null, mixed $on = null, string $type = 'INNER') static 视图查询
  * @method $this with(mixed $with, callable $callback = null) static 关联预载入
- * @method $this count(string $field = '*') static Count统计查询
- * @method $this min(string $field, bool $force = true) static Min统计查询
- * @method $this max(string $field, bool $force = true) static Max统计查询
- * @method $this sum(string $field) static SUM统计查询
- * @method $this avg(string $field) static Avg统计查询
+ * @method int|string count(string $field = '*') static Count统计查询
+ * @method mixed min(string $field, bool $force = true) static Min统计查询
+ * @method mixed max(string $field, bool $force = true) static Max统计查询
+ * @method float sum(string $field) static SUM统计查询
+ * @method float avg(string $field) static Avg统计查询
  * @method $this field(mixed $field, boolean $except = false, string $tableName = '', string $prefix = '', string $alias = '') static 指定查询字段
  * @method $this fieldRaw(string $field) static 指定查询字段
  * @method $this union(mixed $union, boolean $all = false) static UNION查询
