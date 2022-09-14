@@ -87,6 +87,8 @@ class LoadLangPack
             if (isset($this->config['accept_language'][$langSet])) {
                 $langSet = $this->config['accept_language'][$langSet];
             }
+        } else {
+            $langSet = $this->lang->getLangSet();
         }
 
         if (empty($this->config['allow_lang_list']) || in_array($langSet, $this->config['allow_lang_list'])) {
