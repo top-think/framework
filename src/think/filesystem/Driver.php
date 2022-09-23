@@ -104,6 +104,28 @@ abstract class Driver
         return $this->prefixer->prefixPath( $path );
     }
 
+    /**
+     * Determine if a file or directory exists.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function exists($path)
+    {
+        return $this->adapter->fileExists( $path ) || $this->adapter->directoryExists( $path );
+    }
+
+    /**
+     * Determine if a file or directory is missing.
+     *
+     * @param string $path
+     * @return bool
+     */
+    public function missing($path)
+    {
+        return !$this->exists( $path );
+    }
+
 
     /**
      * Set the visibility for the given path.
