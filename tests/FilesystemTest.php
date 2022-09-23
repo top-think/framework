@@ -2,6 +2,7 @@
 
 namespace think\tests;
 
+use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Mockery as m;
 use Mockery\MockInterface;
@@ -123,7 +124,7 @@ class FilesystemTest extends TestCase
 
 class LocalDriver extends Driver
 {
-    protected function createAdapter()
+    protected function createAdapter():FilesystemAdapter
     {
         $config = ['root' => ''];
         return new LocalFilesystemAdapter( $config['root'] );
