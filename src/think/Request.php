@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -620,7 +620,7 @@ class Request implements ArrayAccess
                 foreach ($this->pathinfoFetch as $type) {
                     if ($this->server($type)) {
                         $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
-                        substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
+                            substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
                         break;
                     }
                 }
@@ -1318,23 +1318,23 @@ class Request implements ArrayAccess
     protected function typeCast(&$data, string $type)
     {
         switch (strtolower($type)) {
-            // 数组
+                // 数组
             case 'a':
                 $data = (array) $data;
                 break;
-            // 数字
+                // 数字
             case 'd':
                 $data = (int) $data;
                 break;
-            // 浮点
+                // 浮点
             case 'f':
                 $data = (float) $data;
                 break;
-            // 布尔
+                // 布尔
             case 'b':
-                $data = (boolean) $data;
+                $data = (bool) $data;
                 break;
-            // 字符串
+                // 字符串
             case 's':
                 if (is_scalar($data)) {
                     $data = (string) $data;
@@ -1419,7 +1419,9 @@ class Request implements ArrayAccess
                 if (is_null($value)) {
                     continue;
                 }
-
+                if (is_bool($value)) {
+                    continue;
+                }
                 $value = call_user_func($filter, $value);
             } elseif (is_scalar($value)) {
                 if (is_string($filter) && false !== strpos($filter, '/')) {
@@ -2169,10 +2171,11 @@ class Request implements ArrayAccess
 
     #[\ReturnTypeWillChange]
     public function offsetSet($name, $value)
-    {}
+    {
+    }
 
     #[\ReturnTypeWillChange]
     public function offsetUnset($name)
-    {}
-
+    {
+    }
 }
