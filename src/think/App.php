@@ -152,7 +152,6 @@ class App extends Container
         'session'                 => Session::class,
         'validate'                => Validate::class,
         'view'                    => View::class,
-        'filesystem'              => Filesystem::class,
         'think\DbManager'         => Db::class,
         'think\LogManager'        => Log::class,
         'think\CacheManager'      => Cache::class,
