@@ -217,6 +217,12 @@ class Lang
             }
         }
 
+        if (preg_match('/^([a-z\d\-]+)/i', $langSet, $matches)) {
+            $langSet = strtolower($matches[1]);
+        } else {
+            $langSet = $this->range;
+        }
+
         if (empty($this->allowLangList) || in_array($langSet, $this->allowLangList)) {
             // 合法的语言
             $this->range = $langSet ?: $this->range;
