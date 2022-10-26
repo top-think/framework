@@ -115,6 +115,21 @@ class RuleItem extends Rule
 
         return $suffix;
     }
+    
+    /**
+     * 单独关闭前缀
+     * @access public
+     * @param bool $prefix
+     * @return $this
+     */
+    public function closePrefix (bool $prefix = true)
+    {
+        if ($prefix === false) {
+            $this->setOption('prefix', '');
+        }
+
+        return $this;
+    }
 
     /**
      * 路由规则预处理
