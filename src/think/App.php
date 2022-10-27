@@ -35,7 +35,6 @@ use think\initializer\RegisterService;
  * @property Cookie     $cookie
  * @property Session    $session
  * @property Validate   $validate
- * @property Filesystem $filesystem
  */
 class App extends Container
 {
