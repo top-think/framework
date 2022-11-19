@@ -2320,7 +2320,7 @@ class Query
         if ($this->model) {
             // 检查模型类的查询范围方法
             foreach ($scope as $name) {
-                $method = 'scope' . trim($name);
+                $method = 'scope' . Loader::parseName(trim($name), 1);
 
                 if (method_exists($this->model, $method)) {
                     call_user_func_array([$this->model, $method], $args);
