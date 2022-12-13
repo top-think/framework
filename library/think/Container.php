@@ -461,7 +461,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $type   = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
 
-        if (PHP_VERSION > 8.0) {
+        if (version_compare(PHP_VERSION, '8.0', '>=')) {
             $args = $this->parseParamsForPHP8($params, $vars, $type);
         } else {
             $args = $this->parseParams($params, $vars, $type);
