@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -182,6 +182,12 @@ class File extends SplFileInfo
             }
         }
 
-        return $this->hashName . '.' . $this->extension();
+        $extension = $this->extension();
+
+        if (empty($extension)) {
+            return $this->hashName;
+        }
+
+        return $this->hashName . '.' . $extension;
     }
 }
