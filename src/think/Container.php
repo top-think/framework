@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -316,7 +316,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         try {
             $reflect = new ReflectionMethod($class, $method);
         } catch (ReflectionException $e) {
-            $class = is_object($class) ? get_class($class) : $class;
+            $class = is_object($class) ? $class::class : $class;
             throw new FuncNotFoundException('method not exists: ' . $class . '::' . $method . '()', "{$class}::{$method}", $e);
         }
 
@@ -356,7 +356,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     {
         if ($callable instanceof Closure) {
             return $this->invokeFunction($callable, $vars);
-        } elseif (is_string($callable) && false === strpos($callable, '::')) {
+        } elseif (is_string($callable) && !str_contains($callable, '::')) {
             return $this->invokeFunction($callable, $vars);
         } else {
             return $this->invokeMethod($callable, $vars, $accessible);
@@ -476,7 +476,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      */
     public static function factory(string $name, string $namespace = '', ...$args)
     {
-        $class = false !== strpos($name, '\\') ? $name : $namespace . ucwords($name);
+        $class = str_contains($name, '\\') ? $name : $namespace . ucwords($name);
 
         return Container::getInstance()->invokeClass($class, $args);
     }
@@ -523,26 +523,26 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $this->delete($name);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetExists($key): bool
+
+    public function offsetExists(mixed $key): bool
     {
         return $this->exists($key);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($key)
+
+    public function offsetGet(mixed $key): mixed
     {
         return $this->make($key);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($key, $value)
+
+    public function offsetSet(mixed $key, $value): void
     {
         $this->bind($key, $value);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($key)
+
+    public function offsetUnset(mixed $key): void
     {
         $this->delete($key);
     }

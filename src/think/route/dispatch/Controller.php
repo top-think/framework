@@ -51,7 +51,7 @@ class Controller extends Dispatch
         // 获取控制器名
         $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
 
-        if (strpos($controller, '.')) {
+        if (str_contains($controller, '.')) {
             $pos              = strrpos($controller, '.');
             $this->controller = substr($controller, 0, $pos) . '.' . Str::studly(substr($controller, $pos + 1));
         } else {
@@ -104,7 +104,7 @@ class Controller extends Dispatch
                     }
                 } else {
                     // 操作不存在
-                    throw new HttpException(404, 'method not exists:' . get_class($instance) . '->' . $action . '()');
+                    throw new HttpException(404, 'method not exists:' . $instance::class . '->' . $action . '()');
                 }
 
                 $data = $this->app->invokeReflectMethod($instance, $reflect, $vars);
@@ -155,7 +155,7 @@ class Controller extends Dispatch
                     continue;
                 }
 
-                if (is_string($middleware) && strpos($middleware, ':')) {
+                if (is_string($middleware) && str_contains($middleware, ':')) {
                     $middleware = explode(':', $middleware);
                     if (count($middleware) > 1) {
                         $middleware = [$middleware[0], array_slice($middleware, 1)];

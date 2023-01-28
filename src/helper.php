@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 //------------------------
 // ThinkPHP 助手函数
@@ -100,7 +100,7 @@ if (!function_exists('cache')) {
 
         if ('' === $value) {
             // 获取缓存
-            return 0 === strpos($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
+            return str_starts_with($name, '?') ? Cache::has(substr($name, 1)) : Cache::get($name);
         } elseif (is_null($value)) {
             // 删除缓存
             return Cache::delete($name);
@@ -134,7 +134,7 @@ if (!function_exists('config')) {
             return Config::set($name, $value);
         }
 
-        return 0 === strpos($name, '?') ? Config::has(substr($name, 1)) : Config::get($name, $value);
+        return str_starts_with($name, '?') ? Config::has(substr($name, 1)) : Config::get($name, $value);
     }
 }
 
@@ -153,7 +153,7 @@ if (!function_exists('cookie')) {
             Cookie::delete($name, $option ?: []);
         } elseif ('' === $value) {
             // 获取
-            return 0 === strpos($name, '?') ? Cookie::has(substr($name, 1)) : Cookie::get($name);
+            return str_starts_with($name, '?') ? Cookie::has(substr($name, 1)) : Cookie::get($name);
         } else {
             // 设置
             return Cookie::set($name, $value, $option);
@@ -253,7 +253,7 @@ if (!function_exists('input')) {
      */
     function input(string $key = '', $default = null, $filter = '')
     {
-        if (0 === strpos($key, '?')) {
+        if (str_starts_with($key, '?')) {
             $key = substr($key, 1);
             $has = true;
         }
@@ -275,8 +275,8 @@ if (!function_exists('input')) {
         }
 
         return isset($has) ?
-        request()->has($key, $method) :
-        request()->$method($key, $default, $filter);
+            request()->has($key, $method) :
+            request()->$method($key, $default, $filter);
     }
 }
 
@@ -422,7 +422,7 @@ if (!function_exists('session')) {
             Session::delete($name);
         } elseif ('' === $value) {
             // 判断或获取
-            return 0 === strpos($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
+            return str_starts_with($name, '?') ? Session::has(substr($name, 1)) : Session::get($name);
         } else {
             // 设置
             Session::set($name, $value);
@@ -522,12 +522,12 @@ if (!function_exists('validate')) {
                 $v->rule($validate);
             }
         } else {
-            if (strpos($validate, '.')) {
+            if (str_contains($validate, '.')) {
                 // 支持场景
                 [$validate, $scene] = explode('.', $validate);
             }
 
-            $class = false !== strpos($validate, '\\') ? $validate : app()->parseClass('validate', $validate);
+            $class = str_contains($validate, '\\') ? $validate : app()->parseClass('validate', $validate);
 
             $v = new $class();
 

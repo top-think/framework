@@ -4,9 +4,9 @@ language: php
 matrix:
   fast_finish: true
   include:
-    - php: 7.2
-    - php: 7.3
     - php: 8.0
+    - php: 8.1
+    - php: 8.2
 
 cache:
   directories:

@@ -20,11 +20,12 @@ use think\event\LogWrite;
 
 class Channel implements LoggerInterface
 {
-    protected $name;
-    protected $logger;
+    /**
+     * 事件
+     * @var Event
+     */
     protected $event;
-
-    protected $lazy = true;
+    
     /**
      * 日志信息
      * @var array
@@ -37,19 +38,8 @@ class Channel implements LoggerInterface
      */
     protected $close = false;
 
-    /**
-     * 允许写入类型
-     * @var array
-     */
-    protected $allow = [];
-
-    public function __construct(string $name, LogHandlerInterface $logger, array $allow, bool $lazy = true, Event $event = null)
+    public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow=[], protected bool $lazy = true, Event $event = null)
     {
-        $this->name   = $name;
-        $this->logger = $logger;
-        $this->allow  = $allow;
-        $this->lazy   = $lazy;
-        $this->event  = $event;
     }
 
     /**

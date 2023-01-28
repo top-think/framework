@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\middleware;
 
@@ -148,24 +148,24 @@ class CheckRequestCache
         if (true === $key) {
             // 自动缓存功能
             $key = '__URL__';
-        } elseif (strpos($key, '|')) {
+        } elseif (str_contains($key, '|')) {
             [$key, $fun] = explode('|', $key);
         }
 
         // 特殊规则替换
-        if (false !== strpos($key, '__')) {
+        if (str_contains($key, '__')) {
             $key = str_replace(['__CONTROLLER__', '__ACTION__', '__URL__'], [$request->controller(), $request->action(), md5($request->url(true))], $key);
         }
 
-        if (false !== strpos($key, ':')) {
+        if (str_contains($key, ':')) {
             $param = $request->param();
 
             foreach ($param as $item => $val) {
-                if (is_string($val) && false !== strpos($key, ':' . $item)) {
+                if (is_string($val) && str_contains($key, ':' . $item)) {
                     $key = str_replace(':' . $item, (string) $val, $key);
                 }
             }
-        } elseif (strpos($key, ']')) {
+        } elseif (str_contains($key, ']')) {
             if ('[' . $request->ext() . ']' == $key) {
                 // 缓存某个后缀的请求
                 $key = md5($request->url());

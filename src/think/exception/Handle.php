@@ -156,7 +156,7 @@ class Handle
             $nextException = $exception;
             do {
                 $traces[] = [
-                    'name'    => get_class($nextException),
+                    'name'    => $nextException::class,
                     'file'    => $nextException->getFile(),
                     'line'    => $nextException->getLine(),
                     'code'    => $this->getCode($nextException),
@@ -261,10 +261,10 @@ class Handle
 
         $lang = $this->app->lang;
 
-        if (strpos($message, ':')) {
+        if (str_contains($message, ':')) {
             $name    = strstr($message, ':', true);
             $message = $lang->has($name) ? $lang->get($name) . strstr($message, ':') : $message;
-        } elseif (strpos($message, ',')) {
+        } elseif (str_contains($message, ',')) {
             $name    = strstr($message, ',', true);
             $message = $lang->has($name) ? $lang->get($name) . ':' . substr(strstr($message, ','), 1) : $message;
         } elseif ($lang->has($message)) {

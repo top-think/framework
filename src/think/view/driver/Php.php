@@ -114,7 +114,7 @@ class Php implements TemplateHandlerInterface
         $request = $this->app->request;
 
         // 获取视图根目录
-        if (strpos($template, '@')) {
+        if (str_contains($template, '@')) {
             // 跨应用调用
             [$app, $template] = explode('@', $template);
         }
@@ -134,10 +134,10 @@ class Php implements TemplateHandlerInterface
 
         $depr = $this->config['view_depr'];
 
-        if (0 !== strpos($template, '/')) {
+        if (!str_starts_with($template, '/')) {
             $template   = str_replace(['/', ':'], $depr, $template);
             $controller = $request->controller();
-            if (strpos($controller, '.')) {
+            if (str_contains($controller, '.')) {
                 $pos        = strrpos($controller, '.');
                 $controller = substr($controller, 0, $pos) . '.' . Str::snake(substr($controller, $pos + 1));
             } else {
@@ -156,7 +156,7 @@ class Php implements TemplateHandlerInterface
                     }
 
                     $template = str_replace('.', DIRECTORY_SEPARATOR, $controller) . $depr . $template;
-                } elseif (false === strpos($template, $depr)) {
+                } elseif (!str_contains($template, $depr)) {
                     $template = str_replace('.', DIRECTORY_SEPARATOR, $controller) . $depr . $template;
                 }
             }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\route;
 
@@ -124,7 +124,7 @@ class RuleItem extends Rule
      */
     public function setRule(string $rule): void
     {
-        if ('$' == substr($rule, -1, 1)) {
+        if (str_ends_with($rule, '$')) {
             // 是否完整匹配
             $rule = substr($rule, 0, -1);
 
@@ -137,7 +137,7 @@ class RuleItem extends Rule
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
         }
 
-        if (false !== strpos($rule, ':')) {
+        if (str_contains($rule, ':')) {
             $this->rule = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $rule);
         } else {
             $this->rule = $rule;
@@ -258,10 +258,15 @@ class RuleItem extends Rule
             $completeMatch = $option['complete_match'];
         }
 
-        $depr = $this->router->config('pathinfo_depr');
+        $depr = $this->config('pathinfo_depr');
+        if (isset($option['case_sensitive'])) {
+            $case = $option['case_sensitive'];
+        } else {
+            $case = $this->config('url_case_sensitive');
+        }
 
         // 检查完整规则定义
-        if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . ($completeMatch ? '$' : '') . '/', str_replace('|', $depr, $url))) {
+        if (isset($pattern['__url__']) && !preg_match(str_starts_with($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . ($completeMatch ? '$' : '') . '/', str_replace('|', $depr, $url))) {
             return false;
         }
 
@@ -273,8 +278,10 @@ class RuleItem extends Rule
             return false;
         }
 
-        if (false === strpos($rule, '<')) {
-            if (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule . $depr, $url . $depr, strlen($rule . $depr)))) {
+        if (!str_contains($rule, '<')) {
+            if ($case && (0 === strcmp($rule, $url) || (!$completeMatch && 0 === strncmp($rule . $depr, $url . $depr, strlen($rule . $depr))))) {
+                return $var;
+            } elseif (!$case && (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule . $depr, $url . $depr, strlen($rule . $depr))))) {
                 return $var;
             }
             return false;
@@ -292,7 +299,7 @@ class RuleItem extends Rule
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             try {
-                if (!preg_match('~^' . $regex . '~u', $url, $match)) {
+                if (!preg_match('~^' . $regex . '~u' . ($case ? '' : 'i'), $url, $match)) {
                     return false;
                 }
             } catch (\Exception $e) {

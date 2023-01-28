@@ -1,6 +1,6 @@
 ![](https://box.kancloud.cn/5a0aaa69a5ff42657b5c4715f3d49221) 
 
-ThinkPHP 6.1
+ThinkPHP 8.0
 ===============
 
 [![Build Status](https://travis-ci.org/top-think/framework.svg?branch=6.0)](https://travis-ci.org/top-think/framework)
@@ -16,7 +16,7 @@ ThinkPHP 6.1
 
 ## 主要新特性
 
-* 采用`PHP7`强类型（严格模式）
+* 采用`PHP8`强类型（严格模式）
 * 支持更多的`PSR`规范
 * 原生多应用支持
 * 系统服务注入支持
@@ -33,7 +33,7 @@ ThinkPHP 6.1
 * 统一和精简大量用法
 
 
-> ThinkPHP6.1的运行环境要求PHP7.2.5+，最高兼容PHP8.2
+> ThinkPHP8.0的运行环境要求PHP8.0.0+
 
 ## 安装
 
@@ -77,7 +77,7 @@ ThinkPHP遵循Apache2开源协议发布，并提供免费使用。
 
 本项目包含的第三方源码和二进制文件之版权信息另行标注。
 
-版权所有Copyright © 2006-2021 by ThinkPHP (http://thinkphp.cn) All rights reserved。
+版权所有Copyright © 2006-2023 by ThinkPHP (http://thinkphp.cn) All rights reserved。
 
 ThinkPHP® 商标和著作权所有者为上海顶想信息科技有限公司。
 

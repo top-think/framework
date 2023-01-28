@@ -57,7 +57,7 @@ class Cache extends Manager implements CacheInterface
      * 获取驱动配置
      * @param string $store
      * @param string $name
-     * @param null   $default
+     * @param mixed  $default
      * @return array
      */
     public function getStoreConfig(string $store, string $name = null, $default = null)

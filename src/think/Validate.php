@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -490,7 +490,7 @@ class Validate
 
         foreach ($rules as $key => $rule) {
             // field => 'rule1|rule2...' field => ['rule1','rule2',...]
-            if (strpos($key, '|')) {
+            if (str_contains($key, '|')) {
                 // 字段|描述 用于指定属性名称
                 [$key, $title] = explode('|', $key);
             } else {
@@ -631,7 +631,7 @@ class Validate
 
                 if (isset($this->type[$type])) {
                     $result = call_user_func_array($this->type[$type], [$value, $rule, $data, $field, $title]);
-                } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
+                } elseif ('must' == $info || str_starts_with($info, 'require') || (!is_null($value) && '' !== $value)) {
                     $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
@@ -642,7 +642,7 @@ class Validate
                 // 验证失败 返回错误信息
                 if (!empty($msg[$i])) {
                     $message = $msg[$i];
-                    if (is_string($message) && strpos($message, '{%') === 0) {
+                    if (is_string($message) && str_starts_with($message, '{%')) {
                         $message = $this->lang->get(substr($message, 2, -1));
                     }
                 } else {
@@ -652,10 +652,10 @@ class Validate
                 return $message;
             } elseif (true !== $result) {
                 // 返回自定义错误信息
-                if (is_string($result) && false !== strpos($result, ':')) {
+                if (is_string($result) && str_contains($result, ':')) {
                     $result = str_replace(':attribute', $title, $result);
 
-                    if (strpos($result, ':rule') && is_scalar($rule)) {
+                    if (str_contains($result, ':rule') && is_scalar($rule)) {
                         $result = str_replace(':rule', (string) $rule, $result);
                     }
                 }
@@ -686,7 +686,7 @@ class Validate
             return [$key, $rule, $key];
         }
 
-        if (strpos($rule, ':')) {
+        if (str_contains($rule, ':')) {
             [$type, $rule] = explode(':', $rule, 2);
             if (isset($this->alias[$type])) {
                 // 判断别名
@@ -717,7 +717,7 @@ class Validate
     public function confirm($value, $rule, array $data = [], string $field = ''): bool
     {
         if ('' == $rule) {
-            if (strpos($field, '_confirm')) {
+            if (str_contains($field, '_confirm')) {
                 $rule = strstr($field, '_confirm', true);
             } else {
                 $rule = $field . '_confirm';
@@ -1127,7 +1127,7 @@ class Validate
             $rule = explode(',', $rule);
         }
 
-        if (false !== strpos($rule[0], '\\')) {
+        if (str_contains($rule[0], '\\')) {
             // 指定模型类
             $db = new $rule[0];
         } else {
@@ -1137,7 +1137,7 @@ class Validate
         $key = $rule[1] ?? $field;
         $map = [];
 
-        if (strpos($key, '^')) {
+        if (str_contains($key, '^')) {
             // 支持多个字段验证
             $fields = explode('^', $key);
             foreach ($fields as $key) {
@@ -1177,7 +1177,7 @@ class Validate
      */
     public function filter($value, $rule): bool
     {
-        if (is_string($rule) && strpos($rule, ',')) {
+        if (is_string($rule) && str_contains($rule, ',')) {
             [$rule, $param] = explode(',', $rule);
         } elseif (is_array($rule)) {
             $param = $rule[1] ?? 0;
@@ -1340,7 +1340,7 @@ class Validate
             $length = mb_strlen((string) $value);
         }
 
-        if (is_string($rule) && strpos($rule, ',')) {
+        if (is_string($rule) && str_contains($rule, ',')) {
             // 长度区间
             [$min, $max] = explode(',', $rule);
             return $length >= $min && $length <= $max;
@@ -1509,7 +1509,7 @@ class Validate
             $rule = $this->defaultRegex[$rule];
         }
 
-        if (is_string($rule) && 0 !== strpos($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
+        if (is_string($rule) && !str_starts_with($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
             $rule = '/^' . $rule . '$/';
         }
@@ -1537,7 +1537,7 @@ class Validate
     {
         if (is_numeric($key)) {
             $value = $key;
-        } elseif (is_string($key) && strpos($key, '.')) {
+        } elseif (is_string($key) && str_contains($key, '.')) {
             // 支持多维数组验证
             foreach (explode('.', $key) as $key) {
                 if (!isset($data[$key])) {
@@ -1572,7 +1572,7 @@ class Validate
             $msg = $this->message[$attribute];
         } elseif (isset($this->typeMsg[$type])) {
             $msg = $this->typeMsg[$type];
-        } elseif (0 === strpos($type, 'require')) {
+        } elseif (str_starts_with($type, 'require')) {
             $msg = $this->typeMsg['require'];
         } else {
             $msg = $title . $this->lang->get('not conform to the rules');
@@ -1595,7 +1595,7 @@ class Validate
      */
     protected function parseErrorMsg(string $msg, $rule, string $title)
     {
-        if (0 === strpos($msg, '{%')) {
+        if (str_starts_with($msg, '{%')) {
             $msg = $this->lang->get(substr($msg, 2, -1));
         } elseif ($this->lang->has($msg)) {
             $msg = $this->lang->get($msg);
@@ -1610,9 +1610,9 @@ class Validate
             $rule = implode(',', $rule);
         }
 
-        if (is_scalar($rule) && false !== strpos($msg, ':')) {
+        if (is_scalar($rule) && str_contains($msg, ':')) {
             // 变量替换
-            if (is_string($rule) && strpos($rule, ',')) {
+            if (is_string($rule) && str_contains($rule, ',')) {
                 $array = array_pad(explode(',', $rule), 3, '');
             } else {
                 $array = array_pad([], 3, '');
@@ -1624,7 +1624,7 @@ class Validate
                 $msg
             );
 
-            if (strpos($msg, ':rule')) {
+            if (str_contains($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);
             }
         }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -38,7 +38,7 @@ use think\initializer\RegisterService;
  */
 class App extends Container
 {
-    const VERSION = '6.1.0';
+    const VERSION = '8.0.0';
 
     /**
      * 应用调试模式
@@ -188,7 +188,7 @@ class App extends Container
      * @param bool           $force   强制重新注册
      * @return Service|null
      */
-    public function register($service, bool $force = false)
+    public function register(Service|string $service, bool $force = false)
     {
         $registered = $this->getService($service);
 
@@ -217,7 +217,7 @@ class App extends Container
      * @param Service $service 服务
      * @return mixed
      */
-    public function bootService($service)
+    public function bootService(Service $service)
     {
         if (method_exists($service, 'boot')) {
             return $this->invoke([$service, 'boot']);
@@ -229,9 +229,9 @@ class App extends Container
      * @param string|Service $service
      * @return Service|null
      */
-    public function getService($service)
+    public function getService(Service|string $service)
     {
-        $name = is_string($service) ? $service : get_class($service);
+        $name = is_string($service) ? $service : $service::class;
         return array_values(array_filter($this->services, function ($value) use ($name) {
             return $value instanceof $name;
         }, ARRAY_FILTER_USE_BOTH))[0] ?? null;
@@ -477,7 +477,7 @@ class App extends Container
      * 加载语言包
      * @return void
      */
-    public function loadLangPack()
+    public function loadLangPack():void
     {
         // 加载默认语言包
         $langSet = $this->lang->defaultLangSet();
@@ -616,5 +616,4 @@ class App extends Container
     {
         return dirname($this->thinkPath, 4) . DIRECTORY_SEPARATOR;
     }
-
 }

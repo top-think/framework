@@ -93,8 +93,8 @@ abstract class Manager
      */
     protected function resolveClass(string $type): string
     {
-        if ($this->namespace || false !== strpos($type, '\\')) {
-            $class = false !== strpos($type, '\\') ? $type : $this->namespace . Str::studly($type);
+        if ($this->namespace || str_contains($type, '\\')) {
+            $class = str_contains($type, '\\') ? $type : $this->namespace . Str::studly($type);
 
             if (class_exists($class)) {
                 return $class;

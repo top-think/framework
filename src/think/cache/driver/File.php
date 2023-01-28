@@ -51,7 +51,7 @@ class File extends Driver
             $this->options['path'] = $app->getRuntimePath() . 'cache';
         }
 
-        if (substr($this->options['path'], -1) != DIRECTORY_SEPARATOR) {
+        if (!str_ends_with($this->options['path'], DIRECTORY_SEPARATOR)) {
             $this->options['path'] .= DIRECTORY_SEPARATOR;
         }
     }

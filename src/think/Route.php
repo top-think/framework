@@ -56,6 +56,8 @@ class Route
         'url_lazy_route'        => false,
         // 是否强制使用路由
         'url_route_must'        => false,
+        // 是否区分大小写
+        'url_case_sensitive'    => false,
         // 合并路由规则
         'route_rule_merge'      => false,
         // 路由是否完全匹配
@@ -394,14 +396,14 @@ class Route
     {
         if (is_null($domain)) {
             $domain = $this->host;
-        } elseif (false === strpos($domain, '.') && $this->request) {
+        } elseif (!str_contains($domain, '.') && $this->request) {
             $domain .= '.' . $this->request->rootDomain();
         }
 
         if ($this->request) {
             $subDomain = $this->request->subDomain();
 
-            if (strpos($subDomain, '.')) {
+            if (str_contains($subDomain, '.')) {
                 $name = '*' . strstr($subDomain, '.');
             }
         }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\response;
 
@@ -151,7 +151,7 @@ class File extends Response
     {
         $this->name = $filename;
 
-        if ($extension && false === strpos($filename, '.')) {
+        if ($extension && !str_contains($filename, '.')) {
             $this->name .= '.' . pathinfo($this->data, PATHINFO_EXTENSION);
         }
 

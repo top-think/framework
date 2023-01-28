@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -89,10 +89,8 @@ class Env implements ArrayAccess
             return $default;
         }
 
-        if ('false' === $result) {
-            $result = false;
-        } elseif ('true' === $result) {
-            $result = true;
+        if (isset($this->convert[$result])) {
+            $result = $this->convert[$result];
         }
 
         if (!isset($this->data[$name])) {

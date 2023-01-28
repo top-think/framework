@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\route;
 
@@ -87,7 +87,7 @@ class RuleGroup extends Rule
      */
     protected function setFullName(): void
     {
-        if (false !== strpos($this->name, ':')) {
+        if (str_contains($this->name, ':')) {
             $this->name = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $this->name);
         }
 
@@ -274,7 +274,7 @@ class RuleGroup extends Rule
      */
     protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, bool $completeMatch)
     {
-        $depr  = $this->router->config('pathinfo_depr');
+        $depr  = $this->config('pathinfo_depr');
         $url   = $depr . str_replace('|', $depr, $url);
         $regex = [];
         $items = [];
@@ -290,7 +290,7 @@ class RuleGroup extends Rule
 
                 $complete = $item->getOption('complete_match', $completeMatch);
 
-                if (false === strpos($rule, '<')) {
+                if (!str_contains($rule, '<')) {
                     if (0 === strcasecmp($rule, $url) || (!$complete && 0 === strncasecmp($rule, $url, strlen($rule)))) {
                         return $item->checkRule($request, $url, []);
                     }
@@ -341,7 +341,7 @@ class RuleGroup extends Rule
 
             if (!isset($pos)) {
                 foreach ($regex as $key => $item) {
-                    if (0 === strpos(str_replace(['\/', '\-', '\\' . $depr], ['/', '-', $depr], $item), $match[0])) {
+                    if (str_starts_with(str_replace(['\/', '\-', '\\' . $depr], ['/', '-', $depr], $item), $match[0])) {
                         $pos = $key;
                         break;
                     }
@@ -370,7 +370,7 @@ class RuleGroup extends Rule
      * @access public
      * @return RuleItem|null
      */
-    public function getMissRule():  ? RuleItem
+    public function getMissRule(): ?RuleItem
     {
         return $this->miss;
     }
@@ -382,7 +382,7 @@ class RuleGroup extends Rule
      * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss($route, string $method = '*') : RuleItem
+    public function miss($route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));
@@ -433,7 +433,7 @@ class RuleGroup extends Rule
      */
     public function addRuleItem(Rule $rule, string $method = '*')
     {
-        if (strpos($method, '|')) {
+        if (str_contains($method, '|')) {
             $rule->method($method);
             $method = '*';
         }

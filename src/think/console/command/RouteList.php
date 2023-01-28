@@ -68,7 +68,7 @@ class RouteList extends Command
         $files = is_dir($path) ? scandir($path) : [];
 
         foreach ($files as $file) {
-            if (strpos($file, '.php')) {
+            if (str_contains($file, '.php')) {
                 include $path . $file;
             }
         }

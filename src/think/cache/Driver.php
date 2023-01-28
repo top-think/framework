@@ -64,7 +64,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param integer|DateTimeInterface|DateInterval $expire 有效期
      * @return int
      */
-    protected function getExpireTime($expire): int
+    protected function getExpireTime(int|DateTimeInterface|DateInterval $expire): int
     {
         if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
@@ -74,7 +74,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
                 ->format('U') - time();
         }
 
-        return (int) $expire;
+        return $expire;
     }
 
     /**

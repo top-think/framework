@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -315,7 +315,7 @@ class Request implements ArrayAccess
             $header = [];
             $server = $_SERVER;
             foreach ($server as $key => $val) {
-                if (0 === strpos($key, 'HTTP_')) {
+                if (str_starts_with($key, 'HTTP_')) {
                     $key          = str_replace('_', '-', strtolower(substr($key, 5)));
                     $header[$key] = $val;
                 }
@@ -500,7 +500,7 @@ class Request implements ArrayAccess
     {
         if (!$this->baseUrl) {
             $str           = $this->url();
-            $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
+            $this->baseUrl = str_contains($str, '?') ? strstr($str, '?', true) : $str;
         }
 
         return $complete ? $this->domain() . $this->baseUrl : $this->baseUrl;
@@ -526,7 +526,7 @@ class Request implements ArrayAccess
                     $url = $this->server('ORIG_SCRIPT_NAME');
                 } elseif (($pos = strpos($this->server('PHP_SELF'), '/' . $script_name)) !== false) {
                     $url = substr($this->server('SCRIPT_NAME'), 0, $pos) . '/' . $script_name;
-                } elseif ($this->server('DOCUMENT_ROOT') && strpos($this->server('SCRIPT_FILENAME'), $this->server('DOCUMENT_ROOT')) === 0) {
+                } elseif ($this->server('DOCUMENT_ROOT') && str_starts_with($this->server('SCRIPT_FILENAME'), $this->server('DOCUMENT_ROOT'))) {
                     $url = str_replace('\\', '/', str_replace($this->server('DOCUMENT_ROOT'), '', $this->server('SCRIPT_FILENAME')));
                 }
             }
@@ -558,7 +558,7 @@ class Request implements ArrayAccess
     {
         if (!$this->root) {
             $file = $this->baseFile();
-            if ($file && 0 !== strpos($this->url(), $file)) {
+            if ($file && !str_starts_with($this->url(), $file)) {
                 $file = str_replace('\\', '/', dirname($file));
             }
             $this->root = rtrim($file, '/');
@@ -575,7 +575,7 @@ class Request implements ArrayAccess
     public function rootUrl(): string
     {
         $base = $this->root();
-        $root = strpos($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
+        $root = str_contains($base, '.') ? ltrim(dirname($base), DIRECTORY_SEPARATOR) : $base;
 
         if ('' != $root) {
             $root = '/' . ltrim($root, '/');
@@ -611,16 +611,16 @@ class Request implements ArrayAccess
                 unset($this->get[$this->varPathinfo]);
             } elseif ($this->server('PATH_INFO')) {
                 $pathinfo = $this->server('PATH_INFO');
-            } elseif (false !== strpos(PHP_SAPI, 'cli')) {
-                $pathinfo = strpos($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
+            } elseif (str_contains(PHP_SAPI, 'cli')) {
+                $pathinfo = str_contains($this->server('REQUEST_URI'), '?') ? strstr($this->server('REQUEST_URI'), '?', true) : $this->server('REQUEST_URI');
             }
 
             // 分析PATHINFO信息
             if (!isset($pathinfo)) {
                 foreach ($this->pathinfoFetch as $type) {
                     if ($this->server($type)) {
-                        $pathinfo = (0 === strpos($this->server($type), $this->server('SCRIPT_NAME'))) ?
-                        substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
+                        $pathinfo = str_starts_with($this->server($type), $this->server('SCRIPT_NAME')) ?
+                            substr($this->server($type), strlen($this->server('SCRIPT_NAME'))) : $this->server($type);
                         break;
                     }
                 }
@@ -828,7 +828,7 @@ class Request implements ArrayAccess
      */
     public function isCgi(): bool
     {
-        return strpos(PHP_SAPI, 'cgi') === 0;
+        return str_starts_with(PHP_SAPI, 'cgi');
     }
 
     /**
@@ -1012,7 +1012,7 @@ class Request implements ArrayAccess
         if ('application/x-www-form-urlencoded' == $contentType) {
             parse_str($content, $data);
             return $data;
-        } elseif (false !== strpos($contentType, 'json')) {
+        } elseif (str_contains($contentType, 'json')) {
             return (array) json_decode($content, true);
         }
 
@@ -1151,7 +1151,7 @@ class Request implements ArrayAccess
     {
         $files = $this->file;
         if (!empty($files)) {
-            if (strpos($name, '.')) {
+            if (str_contains($name, '.')) {
                 [$name, $sub] = explode('.', $name);
             }
 
@@ -1269,7 +1269,7 @@ class Request implements ArrayAccess
         $name = (string) $name;
         if ('' != $name) {
             // 解析name
-            if (strpos($name, '/')) {
+            if (str_contains($name, '/')) {
                 [$name, $type] = explode('/', $name);
             }
 
@@ -1318,23 +1318,23 @@ class Request implements ArrayAccess
     protected function typeCast(&$data, string $type)
     {
         switch (strtolower($type)) {
-            // 数组
+                // 数组
             case 'a':
                 $data = (array) $data;
                 break;
-            // 数字
+                // 数字
             case 'd':
                 $data = (int) $data;
                 break;
-            // 浮点
+                // 浮点
             case 'f':
                 $data = (float) $data;
                 break;
-            // 布尔
+                // 布尔
             case 'b':
-                $data = (boolean) $data;
+                $data = (bool) $data;
                 break;
-            // 字符串
+                // 字符串
             case 's':
                 if (is_scalar($data)) {
                     $data = (string) $data;
@@ -1389,7 +1389,7 @@ class Request implements ArrayAccess
             $filter = [];
         } else {
             $filter = $filter ?: $this->filter;
-            if (is_string($filter) && false === strpos($filter, '/')) {
+            if (is_string($filter) && !str_contains($filter, '/')) {
                 $filter = explode(',', $filter);
             } else {
                 $filter = (array) $filter;
@@ -1422,7 +1422,7 @@ class Request implements ArrayAccess
 
                 $value = call_user_func($filter, $value);
             } elseif (is_scalar($value)) {
-                if (is_string($filter) && false !== strpos($filter, '/')) {
+                if (is_string($filter) && str_contains($filter, '/')) {
                     // 正则过滤
                     if (!preg_match($filter, $value)) {
                         // 匹配不成功返回默认值
@@ -1558,7 +1558,7 @@ class Request implements ArrayAccess
     {
         $acceptType = $this->type();
 
-        return false !== strpos($acceptType, 'json');
+        return str_contains($acceptType, 'json');
     }
 
     /**
@@ -1726,7 +1726,7 @@ class Request implements ArrayAccess
     {
         if ($this->server('HTTP_VIA') && stristr($this->server('HTTP_VIA'), "wap")) {
             return true;
-        } elseif ($this->server('HTTP_ACCEPT') && strpos(strtoupper($this->server('HTTP_ACCEPT')), "VND.WAP.WML")) {
+        } elseif ($this->server('HTTP_ACCEPT') && str_contains(strtoupper($this->server('HTTP_ACCEPT')), "VND.WAP.WML")) {
             return true;
         } elseif ($this->server('HTTP_X_WAP_PROFILE') || $this->server('HTTP_PROFILE')) {
             return true;
@@ -1784,7 +1784,7 @@ class Request implements ArrayAccess
             $host = strval($this->server('HTTP_X_FORWARDED_HOST') ?: $this->server('HTTP_HOST'));
         }
 
-        return true === $strict && strpos($host, ':') ? strstr($host, ':', true) : $host;
+        return true === $strict && str_contains($host, ':') ? strstr($host, ':', true) : $host;
     }
 
     /**
@@ -1827,7 +1827,7 @@ class Request implements ArrayAccess
         $contentType = $this->header('Content-Type');
 
         if ($contentType) {
-            if (strpos($contentType, ';')) {
+            if (str_contains($contentType, ';')) {
                 [$type] = explode(';', $contentType);
             } else {
                 $type = $contentType;
@@ -2169,10 +2169,11 @@ class Request implements ArrayAccess
 
     #[\ReturnTypeWillChange]
     public function offsetSet($name, $value)
-    {}
+    {
+    }
 
     #[\ReturnTypeWillChange]
     public function offsetUnset($name)
-    {}
-
+    {
+    }
 }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\route;
 
@@ -337,6 +337,17 @@ abstract class Rule
     }
 
     /**
+     * 是否区分大小写
+     * @access public
+     * @param  bool $case 是否区分
+     * @return $this
+     */
+    public function caseUrl(bool $case)
+    {
+        return $this->setOption('case_sensitive', $case);
+    }
+
+    /**
      * 设置参数过滤检查
      * @access public
      * @param  array $filter 参数过滤
@@ -604,7 +615,7 @@ abstract class Rule
         // 替换路由地址中的变量
         $extraParams = true;
         $search      = $replace      = [];
-        $depr        = $this->router->config('pathinfo_depr');
+        $depr        = $this->config('pathinfo_depr');
         foreach ($matches as $key => $value) {
             $search[]  = '<' . $key . '>';
             $replace[] = $value;
@@ -612,7 +623,7 @@ abstract class Rule
             $search[]  = ':' . $key;
             $replace[] = $value;
 
-            if (strpos($value, $depr)) {
+            if (str_contains($value, $depr)) {
                 $extraParams = false;
             }
         }
@@ -649,7 +660,7 @@ abstract class Rule
         } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
-        } elseif (false !== strpos($route, '@') || false !== strpos($route, '::') || false !== strpos($route, '\\')) {
+        } elseif (str_contains($route, '@') || str_contains($route, '::') ||  str_contains($route, '\\')) {
             // 路由到类的方法
             $route  = str_replace('::', '@', $route);
             $result = $this->dispatchMethod($request, $route);
@@ -673,7 +684,7 @@ abstract class Rule
         $path = $this->parseUrlPath($route);
 
         $route  = str_replace('/', '@', implode('/', $path));
-        $method = strpos($route, '@') ? explode('@', $route) : $route;
+        $method = str_contains($route, '@') ? explode('@', $route) : $route;
 
         return new CallbackDispatch($request, $this, $method, $this->vars);
     }
@@ -742,7 +753,8 @@ abstract class Rule
 
         // HTTPS检查
         if ((isset($option['https']) && $option['https'] && !$request->isSsl())
-            || (isset($option['https']) && !$option['https'] && $request->isSsl())) {
+            || (isset($option['https']) && !$option['https'] && $request->isSsl())
+        ) {
             return false;
         }
 
@@ -786,7 +798,7 @@ abstract class Rule
         $url = str_replace('|', '/', $url);
         $url = trim($url, '/');
 
-        if (strpos($url, '/')) {
+        if (str_contains($url, '/')) {
             // [控制器/操作]
             $path = explode('/', $url);
         } else {
@@ -821,7 +833,7 @@ abstract class Rule
         if ('/' != $rule) {
             if (!empty($option['remove_slash'])) {
                 $rule = rtrim($rule, '/');
-            } elseif (substr($rule, -1) == '/') {
+            } elseif (str_ends_with($rule, '/')) {
                 $rule     = rtrim($rule, '/');
                 $hasSlash = true;
             }
@@ -862,20 +874,20 @@ abstract class Rule
             return '';
         }
 
-        if (strpos($name, '?')) {
+        if (str_contains($name, '?')) {
             $name     = substr($name, 1, -2);
             $optional = '?';
-        } elseif (strpos($name, '>')) {
+        } elseif (str_contains($name, '>')) {
             $name = substr($name, 1, -1);
         }
 
         if (isset($pattern[$name])) {
             $nameRule = $pattern[$name];
-            if (0 === strpos($nameRule, '/') && '/' == substr($nameRule, -1)) {
+            if (str_starts_with($nameRule, '/') && str_ends_with($nameRule, '/')) {
                 $nameRule = substr($nameRule, 1, -1);
             }
         } else {
-            $nameRule = $this->router->config('default_route_pattern');
+            $nameRule = $this->config('default_route_pattern');
         }
 
         return '(' . $prefix . '(?<' . $name . $suffix . '>' . $nameRule . '))' . $optional;

@@ -47,7 +47,7 @@ class Url extends Controller
         if ($bind && preg_match('/^[a-z]/is', $bind)) {
             $bind = str_replace('/', $depr, $bind);
             // 如果有域名绑定
-            $url = $bind . ('.' != substr($bind, -1) ? $depr : '') . ltrim($url, $depr);
+            $url = $bind . (!str_ends_with($bind, '.') ? $depr : '') . ltrim($url, $depr);
         }
 
         $path = $this->rule->parseUrlPath($url);

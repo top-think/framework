@@ -30,36 +30,8 @@ abstract class Dispatch
      */
     protected $app;
 
-    /**
-     * 请求对象
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * 路由规则
-     * @var Rule
-     */
-    protected $rule;
-
-    /**
-     * 调度信息
-     * @var mixed
-     */
-    protected $dispatch;
-
-    /**
-     * 路由变量
-     * @var array
-     */
-    protected $param;
-
-    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [])
+    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [])
     {
-        $this->request  = $request;
-        $this->rule     = $rule;
-        $this->dispatch = $dispatch;
-        $this->param    = $param;
     }
 
     public function init(App $app)
@@ -73,7 +45,7 @@ abstract class Dispatch
     /**
      * 执行路由调度
      * @access public
-     * @return mixed
+     * @return Response
      */
     public function run(): Response
     {
@@ -192,7 +164,7 @@ abstract class Dispatch
 
             if (!empty($result)) {
                 // 注入容器
-                $this->app->instance(get_class($result), $result);
+                $this->app->instance($result::class, $result);
             }
         }
     }
@@ -214,7 +186,7 @@ abstract class Dispatch
             $v->rule($validate);
         } else {
             // 调用验证器
-            $class = false !== strpos($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
+            $class = str_contains($validate, '\\') ? $validate : $this->app->parseClass('validate', $validate);
 
             $v = new $class();
 

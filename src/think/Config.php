@@ -116,7 +116,7 @@ class Config
      */
     public function has(string $name): bool
     {
-        if (false === strpos($name, '.') && !isset($this->config[strtolower($name)])) {
+        if (!str_contains($name, '.') && !isset($this->config[strtolower($name)])) {
             return false;
         }
 
@@ -150,7 +150,7 @@ class Config
             return $this->config;
         }
 
-        if (false === strpos($name, '.')) {
+        if (!str_contains($name, '.')) {
             return $this->pull($name);
         }
 

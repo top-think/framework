@@ -71,7 +71,7 @@ class Resource extends RuleGroup
         $this->parent   = $parent;
         $this->resource = $name;
         $this->route    = $route;
-        $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
+        $this->name     = str_contains($name, '.') ? strstr($name, '.', true) : $name;
 
         $this->setFullName();
 
@@ -102,7 +102,7 @@ class Resource extends RuleGroup
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 
-        if (strpos($rule, '.')) {
+        if (str_contains($rule, '.')) {
             // 注册嵌套资源路由
             $array = explode('.', $rule);
             $last  = array_pop($array);
@@ -124,9 +124,9 @@ class Resource extends RuleGroup
                 continue;
             }
 
-            if (isset($last) && strpos($val[1], '<id>') && isset($option['var'][$last])) {
+            if (isset($last) && str_contains($val[1], '<id>') && isset($option['var'][$last])) {
                 $val[1] = str_replace('<id>', '<' . $option['var'][$last] . '>', $val[1]);
-            } elseif (strpos($val[1], '<id>') && isset($option['var'][$rule])) {
+            } elseif (str_contains($val[1], '<id>') && isset($option['var'][$rule])) {
                 $val[1] = str_replace('<id>', '<' . $option['var'][$rule] . '>', $val[1]);
             }
 

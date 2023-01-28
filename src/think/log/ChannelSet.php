@@ -21,13 +21,8 @@ use think\Log;
  */
 class ChannelSet
 {
-    protected $log;
-    protected $channels;
-
-    public function __construct(Log $log, array $channels)
+    public function __construct(protected Log $log, protected array $channels)
     {
-        $this->log      = $log;
-        $this->channels = $channels;
     }
 
     public function __call($method, $arguments)
