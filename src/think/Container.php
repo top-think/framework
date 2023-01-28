@@ -94,7 +94,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param Closure|null   $callback
      * @return void
      */
-    public function resolving($abstract, Closure $callback = null): void
+    public function resolving(string|Closure $abstract, Closure $callback = null): void
     {
         if ($abstract instanceof Closure) {
             $this->invokeCallback['*'][] = $abstract;
@@ -125,7 +125,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param string|class-string<T> $abstract 类名或者标识
      * @return T|object
      */
-    public function get($abstract)
+    public function get(string $abstract)
     {
         if ($this->has($abstract)) {
             return $this->make($abstract);
@@ -141,7 +141,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param mixed        $concrete 要绑定的类、闭包或者实例
      * @return $this
      */
-    public function bind($abstract, $concrete = null)
+    public function bind(string|array $abstract, $concrete = null)
     {
         if (is_array($abstract)) {
             foreach ($abstract as $key => $val) {
@@ -212,7 +212,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param string $name 类名或者标识
      * @return bool
      */
-    public function has($name): bool
+    public function has(string $name): bool
     {
         return $this->bound($name);
     }
@@ -265,7 +265,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param string $name 类名或者标识
      * @return void
      */
-    public function delete($name)
+    public function delete(string $name)
     {
         $name = $this->getAlias($name);
 
@@ -281,7 +281,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array          $vars     参数
      * @return mixed
      */
-    public function invokeFunction($function, array $vars = [])
+    public function invokeFunction(string|Closure $function, array $vars = [])
     {
         try {
             $reflect = new ReflectionFunction($function);
@@ -536,7 +536,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     }
 
 
-    public function offsetSet(mixed $key, $value): void
+    public function offsetSet(mixed $key, mixed $value): void
     {
         $this->bind($key, $value);
     }

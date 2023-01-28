@@ -254,7 +254,7 @@ class RuleGroup extends Rule
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 
-        if ($rule instanceof \Closure) {
+        if ($rule instanceof Closure) {
             Container::getInstance()->invokeFunction($rule);
         } elseif (is_string($rule) && $rule) {
             $this->router->bind($rule, $this->domain);
@@ -382,7 +382,7 @@ class RuleGroup extends Rule
      * @param  string         $method 请求类型
      * @return RuleItem
      */
-    public function miss($route, string $method = '*'): RuleItem
+    public function miss(string|Closure $route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
         $ruleItem = new RuleItem($this->router, $this, null, '', $route, strtolower($method));

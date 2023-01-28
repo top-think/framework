@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\log;
 
@@ -25,7 +25,7 @@ class Channel implements LoggerInterface
      * @var Event
      */
     protected $event;
-    
+
     /**
      * 日志信息
      * @var array
@@ -38,14 +38,14 @@ class Channel implements LoggerInterface
      */
     protected $close = false;
 
-    public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow=[], protected bool $lazy = true, Event $event = null)
+    public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow = [], protected bool $lazy = true, Event $event = null)
     {
     }
 
     /**
      * 关闭通道
      */
-    public function close()
+    public function close():void
     {
         $this->clear();
         $this->close = true;
@@ -54,7 +54,7 @@ class Channel implements LoggerInterface
     /**
      * 清空日志
      */
-    public function clear()
+    public function clear():void
     {
         $this->log = [];
     }

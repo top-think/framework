@@ -56,7 +56,7 @@ class File implements SessionHandlerInterface
     {
         try {
             !is_dir($this->config['path']) && mkdir($this->config['path'], 0755, true);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // 写入失败
         }
 
@@ -129,7 +129,7 @@ class File implements SessionHandlerInterface
         if ($auto && !is_dir($dir)) {
             try {
                 mkdir($dir, 0755, true);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 // 创建失败
             }
         }
@@ -230,7 +230,7 @@ class File implements SessionHandlerInterface
     {
         try {
             return $this->unlink($this->getFileName($sessID));
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
     }

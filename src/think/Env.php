@@ -173,26 +173,22 @@ class Env implements ArrayAccess
     }
 
     // ArrayAccess
-    #[\ReturnTypeWillChange]
-    public function offsetSet($name, $value): void
+    public function offsetSet(mixed $name, mixed $value): void
     {
         $this->set($name, $value);
     }
-
-    #[\ReturnTypeWillChange]
-    public function offsetExists($name): bool
+    
+    public function offsetExists(mixed $name): bool
     {
         return $this->__isset($name);
     }
-
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($name): void
+    
+    public function offsetUnset(mixed $name): void
     {
         throw new Exception('not support: unset');
     }
-
-    #[\ReturnTypeWillChange]
-    public function offsetGet($name)
+    
+    public function offsetGet(mixed $name)
     {
         return $this->get($name);
     }

@@ -115,10 +115,10 @@ use think\route\Rule;
  * @method static mixed __set(string $name, mixed $value) 设置中间传递数据
  * @method static mixed __get(string $name) 获取中间传递数据的值
  * @method static boolean __isset(string $name) 检测中间传递数据的值
- * @method static bool offsetExists($name)
- * @method static mixed offsetGet($name)
- * @method static mixed offsetSet($name, $value)
- * @method static mixed offsetUnset($name)
+ * @method static bool offsetExists(mixed $name)
+ * @method static mixed offsetGet(mixed $name)
+ * @method static mixed offsetSet(mixed $name, $value)
+ * @method static mixed offsetUnset(mixed $name)
  */
 class Request extends Facade
 {

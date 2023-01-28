@@ -21,30 +21,6 @@ use think\Route;
 class Url
 {
     /**
-     * 应用对象
-     * @var App
-     */
-    protected $app;
-
-    /**
-     * 路由对象
-     * @var Route
-     */
-    protected $route;
-
-    /**
-     * URL变量
-     * @var array
-     */
-    protected $vars = [];
-
-    /**
-     * 路由URL
-     * @var string
-     */
-    protected $url;
-
-    /**
      * URL 根地址
      * @var string
      */
@@ -71,15 +47,13 @@ class Url
     /**
      * 架构函数
      * @access public
+     * @param  Route  $route URL地址
+     * @param  App    $app App对象
      * @param  string $url URL地址
      * @param  array  $vars 参数
      */
-    public function __construct(Route $route, App $app, string $url = '', array $vars = [])
+    public function __construct(protected Route $route, protected App $app, protected string $url = '', protected array $vars = [])
     {
-        $this->route = $route;
-        $this->app   = $app;
-        $this->url   = $url;
-        $this->vars  = $vars;
     }
 
     /**
@@ -100,7 +74,7 @@ class Url
      * @param  string|bool $suffix URL后缀
      * @return $this
      */
-    public function suffix($suffix)
+    public function suffix(string|bool $suffix)
     {
         $this->suffix = $suffix;
         return $this;
@@ -112,7 +86,7 @@ class Url
      * @param  string|bool $domain URL域名
      * @return $this
      */
-    public function domain($domain)
+    public function domain(string|bool $domain)
     {
         $this->domain = $domain;
         return $this;
@@ -149,7 +123,7 @@ class Url
      * @param  string|true $domain 域名
      * @return string
      */
-    protected function parseDomain(string &$url, $domain): string
+    protected function parseDomain(string &$url, string|bool $domain): string
     {
         if (!$domain) {
             return '';
@@ -208,7 +182,7 @@ class Url
      * @param  string|bool $suffix 后缀
      * @return string
      */
-    protected function parseSuffix($suffix): string
+    protected function parseSuffix(string|bool $suffix): string
     {
         if ($suffix) {
             $suffix = true === $suffix ? $this->route->config('url_html_suffix') : $suffix;
@@ -228,7 +202,7 @@ class Url
      * @param  string|bool $domain Domain
      * @return string
      */
-    protected function parseUrl(string $url, &$domain): string
+    protected function parseUrl(string $url, string|bool &$domain): string
     {
         $request = $this->app->request;
 
@@ -290,10 +264,10 @@ class Url
      * @access protected
      * @param  array $rule 路由规则
      * @param  array $vars 路由变量
-     * @param  mixed $allowDomain 允许域名
+     * @param  string|bool $allowDomain 允许域名
      * @return array
      */
-    protected function getRuleUrl(array $rule, array &$vars = [], $allowDomain = ''): array
+    protected function getRuleUrl(array $rule, array &$vars = [], string|bool $allowDomain = ''): array
     {
         $request = $this->app->request;
         if (is_string($allowDomain) && !str_contains($allowDomain, '.')) {
@@ -358,7 +332,7 @@ class Url
      * @access public
      * @return string
      */
-    public function build()
+    public function build(): string
     {
         // 解析URL
         $url     = $this->url;

@@ -136,7 +136,7 @@ class CheckRequestCache
      */
     protected function parseCacheKey($request, $key)
     {
-        if ($key instanceof \Closure) {
+        if ($key instanceof Closure) {
             $key = call_user_func($key, $request);
         }
 

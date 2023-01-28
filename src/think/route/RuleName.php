@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\route;
 
@@ -101,7 +101,7 @@ class RuleName
      * @param  string $name 路由分组标识
      * @return RuleGroup|null
      */
-    public function getGroup(string $name)
+    public function getGroup(string $name): ?RuleGroup
     {
         return $this->group[strtolower($name)] ?? null;
     }

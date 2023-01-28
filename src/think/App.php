@@ -188,7 +188,7 @@ class App extends Container
      * @param bool           $force   强制重新注册
      * @return Service|null
      */
-    public function register(Service|string $service, bool $force = false)
+    public function register(Service|string $service, bool $force = false): ?Service
     {
         $registered = $this->getService($service);
 
@@ -229,7 +229,7 @@ class App extends Container
      * @param string|Service $service
      * @return Service|null
      */
-    public function getService(Service|string $service)
+    public function getService(Service|string $service): ?Service
     {
         $name = is_string($service) ? $service : $service::class;
         return array_values(array_filter($this->services, function ($value) use ($name) {
@@ -477,7 +477,7 @@ class App extends Container
      * 加载语言包
      * @return void
      */
-    public function loadLangPack():void
+    public function loadLangPack(): void
     {
         // 加载默认语言包
         $langSet = $this->lang->defaultLangSet();

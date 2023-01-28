@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -27,14 +27,14 @@ use think\log\ChannelSet;
 class Log extends Manager implements LoggerInterface
 {
     const EMERGENCY = 'emergency';
-    const ALERT     = 'alert';
-    const CRITICAL  = 'critical';
-    const ERROR     = 'error';
-    const WARNING   = 'warning';
-    const NOTICE    = 'notice';
-    const INFO      = 'info';
-    const DEBUG     = 'debug';
-    const SQL       = 'sql';
+    const ALERT = 'alert';
+    const CRITICAL = 'critical';
+    const ERROR = 'error';
+    const WARNING = 'warning';
+    const NOTICE = 'notice';
+    const INFO = 'info';
+    const DEBUG = 'debug';
+    const SQL = 'sql';
 
     protected $namespace = '\\think\\log\\driver\\';
 
@@ -42,7 +42,7 @@ class Log extends Manager implements LoggerInterface
      * 默认驱动
      * @return string|null
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver():?string
     {
         return $this->getConfig('default');
     }
@@ -66,11 +66,11 @@ class Log extends Manager implements LoggerInterface
     /**
      * 获取渠道配置
      * @param string $channel
-     * @param null   $name
-     * @param null   $default
+     * @param string $name
+     * @param mixed  $default
      * @return array
      */
-    public function getChannelConfig($channel, $name = null, $default = null)
+    public function getChannelConfig(string $channel, string $name = null, $default = null)
     {
         if ($config = $this->getConfig("channels.{$channel}")) {
             return Arr::get($config, $name, $default);
@@ -84,7 +84,7 @@ class Log extends Manager implements LoggerInterface
      * @param string|array $name 渠道名
      * @return Channel|ChannelSet
      */
-    public function channel($name = null)
+    public function channel(string|array $name = null)
     {
         if (is_array($name)) {
             return new ChannelSet($this, $name);
@@ -102,7 +102,7 @@ class Log extends Manager implements LoggerInterface
     {
         $driver = parent::createDriver($name);
 
-        $lazy  = !$this->getChannelConfig($name, "realtime_write", false) && !$this->app->runningInConsole();
+        $lazy = !$this->getChannelConfig($name, "realtime_write", false) && !$this->app->runningInConsole();
         $allow = array_merge($this->getConfig("level", []), $this->getChannelConfig($name, "level", []));
 
         return new Channel($name, $driver, $allow, $lazy, $this->app->event);

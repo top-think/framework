@@ -46,7 +46,7 @@ class Db extends DbManager
      * @access public
      * @return void
      */
-    protected function modelMaker()
+    protected function modelMaker():void
     {
     }
 

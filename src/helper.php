@@ -274,7 +274,7 @@ if (!function_exists('input')) {
             $method = 'param';
         }
 
-        return isset($has) ?
+        return isset($has) ? 
             request()->has($key, $method) :
             request()->$method($key, $default, $filter);
     }

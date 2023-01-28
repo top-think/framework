@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\middleware;
 
@@ -44,7 +44,7 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, ? array $header = [])
+    public function handle($request, Closure $next, array $header = []): Response
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 

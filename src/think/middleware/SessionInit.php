@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\middleware;
 
@@ -23,17 +23,8 @@ use think\Session;
  */
 class SessionInit
 {
-
-    /** @var App */
-    protected $app;
-
-    /** @var Session */
-    protected $session;
-
-    public function __construct(App $app, Session $session)
+    public function __construct(protected App $app, protected Session $session)
     {
-        $this->app     = $app;
-        $this->session = $session;
     }
 
     /**
@@ -43,7 +34,7 @@ class SessionInit
      * @param Closure $next
      * @return Response
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         // Session初始化
         $varSessionId = $this->app->config->get('session.var_session_id');
@@ -73,7 +64,7 @@ class SessionInit
         return $response;
     }
 
-    public function end(Response $response)
+    public function end(Response $response): void
     {
         $this->session->save();
     }

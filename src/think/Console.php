@@ -46,9 +46,6 @@ use think\console\output\driver\Buffer;
  */
 class Console
 {
-
-    protected $app;
-
     /** @var Command[] */
     protected $commands = [];
 
@@ -87,10 +84,8 @@ class Console
      */
     protected static $startCallbacks = [];
 
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app = $app;
-
         $this->initialize();
 
         $this->definition = $this->getDefaultInputDefinition();
@@ -104,7 +99,7 @@ class Console
     /**
      * 初始化
      */
-    protected function initialize()
+    protected function initialize():void
     {
         if (!$this->app->initialized()) {
             $this->app->initialize();
@@ -115,7 +110,7 @@ class Console
     /**
      * 构造request
      */
-    protected function makeRequest()
+    protected function makeRequest():void
     {
         $url = $this->app->config->get('app.url', 'http://localhost');
 
@@ -401,7 +396,7 @@ class Console
      * @param string $name 指令名 留空则自动获取
      * @return Command|void
      */
-    public function addCommand($command, string $name = '')
+    public function addCommand(string|Command $command, string $name = '')
     {
         if ($name) {
             $this->commands[$name] = $command;
@@ -717,7 +712,7 @@ class Console
      * @param array|\Traversable $collection
      * @return array
      */
-    private function findAlternatives(string $name, $collection): array
+    private function findAlternatives(string $name, array|\Traversable $collection): array
     {
         $threshold    = 1e3;
         $alternatives = [];

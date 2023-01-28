@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -25,25 +25,11 @@ class Config
     protected $config = [];
 
     /**
-     * 配置文件目录
-     * @var string
-     */
-    protected $path;
-
-    /**
-     * 配置文件后缀
-     * @var string
-     */
-    protected $ext;
-
-    /**
      * 构造方法
      * @access public
      */
-    public function __construct(string $path = null, string $ext = '.php')
+    public function __construct(protected string $path = '', protected string $ext = '.php')
     {
-        $this->path = $path ?: '';
-        $this->ext  = $ext;
     }
 
     public static function __make(App $app)
@@ -179,19 +165,19 @@ class Config
      */
     public function set(array $config, string $name = null): array
     {
-        if (!empty($name)) {
-            if (isset($this->config[$name])) {
-                $result = array_merge($this->config[$name], $config);
-            } else {
-                $result = $config;
-            }
-
-            $this->config[$name] = $result;
-        } else {
-            $result = $this->config = array_merge($this->config, array_change_key_case($config));
+        if (empty($name)) {
+            $this->config = array_merge($this->config, array_change_key_case($config));
+            return $this->config;
         }
+
+        if (isset($this->config[$name])) {
+            $result = array_merge($this->config[$name], $config);
+        } else {
+            $result = $config;
+        }
+
+        $this->config[$name] = $result;
 
         return $result;
     }
-
 }

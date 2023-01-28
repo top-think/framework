@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\route;
 
@@ -120,7 +120,8 @@ class Resource extends RuleGroup
         // 注册资源路由
         foreach ($this->rest as $key => $val) {
             if ((isset($option['only']) && !in_array($key, $option['only']))
-                || (isset($option['except']) && in_array($key, $option['except']))) {
+                || (isset($option['except']) && in_array($key, $option['except']))
+            ) {
                 continue;
             }
 
@@ -136,7 +137,6 @@ class Resource extends RuleGroup
                 if (isset($this->$name[$key])) {
                     call_user_func_array([$ruleItem, $name], (array) $this->$name[$key]);
                 }
-
             }
         }
 
@@ -183,7 +183,7 @@ class Resource extends RuleGroup
      * @param  array|string $validate 验证信息
      * @return $this
      */
-    public function withValidate($name, $validate = [])
+    public function withValidate(array|string $name, array|string $validate = [])
     {
         if (is_array($name)) {
             $this->validate = array_merge($this->validate, $name);
@@ -201,7 +201,7 @@ class Resource extends RuleGroup
      * @param  array|string $model 模型绑定
      * @return $this
      */
-    public function withModel($name, $model = [])
+    public function withModel(array|string $name, array|string $model = [])
     {
         if (is_array($name)) {
             $this->model = array_merge($this->model, $name);
@@ -219,7 +219,7 @@ class Resource extends RuleGroup
      * @param  array|string $middleware 中间件定义
      * @return $this
      */
-    public function withMiddleware($name, $middleware = [])
+    public function withMiddleware(array|string $name, array|string $middleware = [])
     {
         if (is_array($name)) {
             $this->middleware = array_merge($this->middleware, $name);
@@ -237,7 +237,7 @@ class Resource extends RuleGroup
      * @param  array|bool    $resource 资源
      * @return $this
      */
-    public function rest($name, $resource = [])
+    public function rest(array|string $name, array|bool $resource = [])
     {
         if (is_array($name)) {
             $this->rest = $resource ? $name : array_merge($this->rest, $name);
@@ -247,5 +247,4 @@ class Resource extends RuleGroup
 
         return $this;
     }
-
 }

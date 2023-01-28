@@ -929,12 +929,12 @@ class Request implements ArrayAccess
     /**
      * 获取路由参数
      * @access public
-     * @param  string|array $name 变量名
+     * @param  string|array|bool $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function route($name = '', $default = null, $filter = '')
+    public function route(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         if (is_array($name)) {
             return $this->only($name, $this->route, $filter);
@@ -946,12 +946,12 @@ class Request implements ArrayAccess
     /**
      * 获取GET参数
      * @access public
-     * @param  string|array $name 变量名
+     * @param  string|array|bool $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function get($name = '', $default = null, $filter = '')
+    public function get(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         if (is_array($name)) {
             return $this->only($name, $this->get, $filter);
@@ -975,12 +975,12 @@ class Request implements ArrayAccess
     /**
      * 获取POST参数
      * @access public
-     * @param  string|array $name 变量名
+     * @param  bool|string|array $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function post($name = '', $default = null, $filter = '')
+    public function post(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         if (is_array($name)) {
             return $this->only($name, $this->post, $filter);
@@ -992,12 +992,12 @@ class Request implements ArrayAccess
     /**
      * 获取PUT参数
      * @access public
-     * @param  string|array $name 变量名
+     * @param  string|array|bool $name 变量名
      * @param  mixed        $default 默认值
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function put($name = '', $default = null, $filter = '')
+    public function put(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         if (is_array($name)) {
             return $this->only($name, $this->put, $filter);
@@ -2155,25 +2155,21 @@ class Request implements ArrayAccess
     }
 
     // ArrayAccess
-    #[\ReturnTypeWillChange]
-    public function offsetExists($name): bool
+    public function offsetExists(mixed $name): bool
     {
         return $this->has($name);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetGet($name)
+    public function offsetGet(mixed $name): mixed
     {
         return $this->param($name);
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetSet($name, $value)
+    public function offsetSet(mixed $name, mixed $value): void
     {
     }
 
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($name)
+    public function offsetUnset(mixed $name): void
     {
     }
 }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think;
 
@@ -32,7 +32,7 @@ class Cache extends Manager implements CacheInterface
      * 默认驱动
      * @return string|null
      */
-    public function getDefaultDriver()
+    public function getDefaultDriver(): ?string
     {
         return $this->getConfig('default');
     }
@@ -85,7 +85,7 @@ class Cache extends Manager implements CacheInterface
      * @param string $name 连接配置名
      * @return Driver
      */
-    public function store(string $name = null)
+    public function store(string $name = null): Driver
     {
         return $this->driver($name);
     }

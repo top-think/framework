@@ -103,7 +103,7 @@ class RuleItem extends Rule
      * @access public
      * @return string|null
      */
-    public function getSuffix()
+    public function getSuffix(): ?string
     {
         if (isset($this->option['ext'])) {
             $suffix = $this->option['ext'];
@@ -183,7 +183,7 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule(Request $request, string $url, $match = null, bool $completeMatch = false)
+    public function checkRule(Request $request, string $url, array $match = null, bool $completeMatch = false)
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {
