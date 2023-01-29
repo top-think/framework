@@ -345,7 +345,7 @@ class Descriptor
         $replace = PHP_EOL . str_repeat(' ', $space_length);
 
         // 不能使用 /\s*\R\s*/u，如果描述存在 U+0085 字符会导致 preg_replace 返回空，参考：https://www.php.net/manual/zh/reference.pcre.pattern.modifiers.php
-        // 使用 (\r\n|\n|\r|\f) 和 while 替换 \R，参考：https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions#Newline/linebreak_options
+        // 使用 (\r\n|\n|\r|\f) 和 foreach 替换 \R，参考：https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions#Newline/linebreak_options
         $desc = preg_replace('/\s*(\r\n|\n|\r|\f)\s*/', $replace, $desc);
 
         $next_line = chr(0x85);
