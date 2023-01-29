@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -42,7 +42,7 @@ class Log extends Manager implements LoggerInterface
      * 默认驱动
      * @return string|null
      */
-    public function getDefaultDriver():?string
+    public function getDefaultDriver(): ?string
     {
         return $this->getConfig('default');
     }

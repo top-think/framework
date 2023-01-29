@@ -2,13 +2,13 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace think\response;
 
@@ -88,8 +88,8 @@ class View extends Response
         // 渲染模板输出
         $this->view->filter($this->filter);
         return $this->isContent ?
-        $this->view->display($data, $this->vars) :
-        $this->view->fetch($data, $this->vars);
+            $this->view->display($data, $this->vars) :
+            $this->view->fetch($data, $this->vars);
     }
 
     /**
@@ -147,5 +147,4 @@ class View extends Response
     {
         return $this->view->exists($name);
     }
-
 }

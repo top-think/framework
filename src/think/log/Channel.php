@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -45,7 +45,7 @@ class Channel implements LoggerInterface
     /**
      * 关闭通道
      */
-    public function close():void
+    public function close(): void
     {
         $this->clear();
         $this->close = true;
@@ -54,7 +54,7 @@ class Channel implements LoggerInterface
     /**
      * 清空日志
      */
-    public function clear():void
+    public function clear(): void
     {
         $this->log = [];
     }

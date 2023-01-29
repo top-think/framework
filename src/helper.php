@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -274,7 +274,7 @@ if (!function_exists('input')) {
             $method = 'param';
         }
 
-        return isset($has) ? 
+        return isset($has) ?
             request()->has($key, $method) :
             request()->$method($key, $default, $filter);
     }

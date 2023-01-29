@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2021 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -177,17 +177,17 @@ class Env implements ArrayAccess
     {
         $this->set($name, $value);
     }
-    
+
     public function offsetExists(mixed $name): bool
     {
         return $this->__isset($name);
     }
-    
+
     public function offsetUnset(mixed $name): void
     {
         throw new Exception('not support: unset');
     }
-    
+
     public function offsetGet(mixed $name)
     {
         return $this->get($name);
