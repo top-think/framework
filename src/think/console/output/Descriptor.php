@@ -73,7 +73,8 @@ class Descriptor
      */
     protected function describeInputArgument(InputArgument $argument, array $options = [])
     {
-        if (null !== $argument->getDefault()
+        if (
+            null !== $argument->getDefault()
             && (!is_array($argument->getDefault())
                 || count($argument->getDefault()))
         ) {
@@ -85,8 +86,13 @@ class Descriptor
         $totalWidth   = $options['total_width'] ?? strlen($argument->getName());
         $spacingWidth = $totalWidth - strlen($argument->getName()) + 2;
 
-        $this->writeText(sprintf("  <info>%s</info>%s%s%s", $argument->getName(), str_repeat(' ', $spacingWidth), // + 17 = 2 spaces + <info> + </info> + 2 spaces
-            preg_replace('/\s*\R\s*/', PHP_EOL . str_repeat(' ', $totalWidth + 17), $argument->getDescription()), $default), $options);
+        $this->writeText(sprintf(
+            "  <info>%s</info>%s%s%s",
+            $argument->getName(),
+            str_repeat(' ', $spacingWidth),
+            $this->formatDescription($argument->getDescription(), $totalWidth + 17), // + 17 = 2 spaces + <info> + </info> + 2 spaces
+            $default
+        ), $options);
     }
 
     /**
@@ -97,7 +103,8 @@ class Descriptor
      */
     protected function describeInputOption(InputOption $option, array $options = [])
     {
-        if ($option->acceptValue() && null !== $option->getDefault()
+        if (
+            $option->acceptValue() && null !== $option->getDefault()
             && (!is_array($option->getDefault())
                 || count($option->getDefault()))
         ) {
@@ -120,8 +127,14 @@ class Descriptor
 
         $spacingWidth = $totalWidth - strlen($synopsis) + 2;
 
-        $this->writeText(sprintf("  <info>%s</info>%s%s%s%s", $synopsis, str_repeat(' ', $spacingWidth), // + 17 = 2 spaces + <info> + </info> + 2 spaces
-            preg_replace('/\s*\R\s*/', "\n" . str_repeat(' ', $totalWidth + 17), $option->getDescription()), $default, $option->isArray() ? '<comment> (multiple values allowed)</comment>' : ''), $options);
+        $this->writeText(sprintf(
+            "  <info>%s</info>%s%s%s%s",
+            $synopsis,
+            str_repeat(' ', $spacingWidth),
+            $this->formatDescription($option->getDescription(), $totalWidth + 17), // + 17 = 2 spaces + <info> + </info> + 2 spaces
+            $default,
+            $option->isArray() ? '<comment> (multiple values allowed)</comment>' : ''
+        ), $options);
     }
 
     /**
@@ -254,7 +267,7 @@ class Descriptor
                     $this->writeText("\n");
                     $spacingWidth = $width - strlen($name);
                     $this->writeText(sprintf("  <info>%s</info>%s%s", $name, str_repeat(' ', $spacingWidth), $description->getCommand($name)
-                            ->getDescription()), $options);
+                        ->getDescription()), $options);
                 }
             }
 
@@ -319,5 +332,54 @@ class Descriptor
         }
 
         return $totalWidth;
+    }
+
+    /**
+     * 格式化描述
+     * @param string $desc
+     * @param int    $space_length
+     * @return string
+     */
+    protected function formatDescription(string $desc, int $space_length): string
+    {
+        $replace = PHP_EOL . str_repeat(' ', $space_length);
+
+        // 不能使用 /\s*\R\s*/u，如果描述存在 U+0085 字符会导致 preg_replace 返回空，参考：https://www.php.net/manual/zh/reference.pcre.pattern.modifiers.php
+        // 使用 (\r\n|\n|\r|\f) 和 while 替换 \R，参考：https://en.wikipedia.org/wiki/Perl_Compatible_Regular_Expressions#Newline/linebreak_options
+        $desc = preg_replace('/\s*(\r\n|\n|\r|\f)\s*/', $replace, $desc);
+
+        $next_line = chr(0x85);
+        if (false === mb_strpos($desc, $next_line, 0, 'UTF-8')) {
+            return $desc;
+        }
+
+        $desc_split = $this->descriptionSplit($desc);
+        foreach ($desc_split as &$char) {
+            if ($char === $next_line) {
+                $char = $replace;
+            }
+        }
+
+        return implode($desc_split);
+    }
+
+    /**
+     * 将描述转换为数组
+     * @param string $desc
+     * @return array
+     */
+    protected function descriptionSplit(string $desc): array
+    {
+        if (function_exists('mb_str_split')) {
+            return mb_str_split($desc, 1, 'UTF-8');
+        }
+
+        $split = [];
+        $len = mb_strlen($desc, 'UTF-8');
+        for ($i = 0; $i < $len; $i++) {
+            $split[] = mb_substr($desc, $i, 1, 'UTF-8');
+        }
+
+        return $split;
     }
 }
