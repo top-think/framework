@@ -188,7 +188,7 @@ class Env implements ArrayAccess
         throw new Exception('not support: unset');
     }
 
-    public function offsetGet(mixed $name)
+    public function offsetGet(mixed $name): mixed
     {
         return $this->get($name);
     }

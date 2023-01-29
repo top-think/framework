@@ -52,7 +52,7 @@ class Exception extends \Exception
      * @access public
      * @return array 由setData设置的Debug数据
      */
-    final public function getData()
+    final public function getData(): array
     {
         return $this->data;
     }
