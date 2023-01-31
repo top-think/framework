@@ -461,8 +461,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         $type   = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
 
-        if (version_compare(PHP_VERSION, '8.0', '>=')) {
-            $args = $this->parseParamsForPHP8($params, $vars, $type);
+        if (version_compare(PHP_VERSION, '7.0', '>=')) {
+            $args = $this->parseParamsForPHP7($params, $vars, $type);
         } else {
             $args = $this->parseParams($params, $vars, $type);
         }
@@ -510,7 +510,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @param  int   $type 参数类别
      * @return array
      */
-    protected function parseParamsForPHP8($params, $vars, $type)
+    protected function parseParamsForPHP7($params, $vars, $type)
     {
         foreach ($params as $param) {
             $name           = $param->getName();
