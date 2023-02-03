@@ -55,7 +55,7 @@ class Middleware
      * @param string $type 中间件类型
      * @return void
      */
-    public function add($middleware, string $type = 'global'): void
+    public function add(array|string|Closure $middleware, string $type = 'global'): void
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
@@ -71,7 +71,7 @@ class Middleware
      * @param mixed $middleware
      * @return void
      */
-    public function route($middleware): void
+    public function route(array|string|Closure $middleware): void
     {
         $this->add($middleware, 'route');
     }
@@ -82,7 +82,7 @@ class Middleware
      * @param mixed $middleware
      * @return void
      */
-    public function controller($middleware): void
+    public function controller(array|string|Closure $middleware): void
     {
         $this->add($middleware, 'controller');
     }
@@ -93,7 +93,7 @@ class Middleware
      * @param mixed  $middleware
      * @param string $type 中间件类型
      */
-    public function unshift($middleware, string $type = 'global')
+    public function unshift(array|string|Closure $middleware, string $type = 'global')
     {
         $middleware = $this->buildMiddleware($middleware, $type);
 
@@ -181,11 +181,11 @@ class Middleware
     /**
      * 解析中间件
      * @access protected
-     * @param mixed  $middleware
+     * @param array|string|Closure  $middleware
      * @param string $type 中间件类型
      * @return array
      */
-    protected function buildMiddleware($middleware, string $type): array
+    protected function buildMiddleware(array|string|Closure $middleware, string $type): array
     {
         if (is_array($middleware)) {
             [$middleware, $params] = $middleware;
@@ -193,10 +193,6 @@ class Middleware
 
         if ($middleware instanceof Closure) {
             return [$middleware, $params ?? []];
-        }
-
-        if (!is_string($middleware)) {
-            throw new InvalidArgumentException('The middleware is invalid');
         }
 
         //中间件别名检查

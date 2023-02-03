@@ -34,7 +34,7 @@ abstract class Service
      * @access protected
      * @param string $path 路由路径
      */
-    protected function loadRoutesFrom($path)
+    protected function loadRoutesFrom(string $path)
     {
         $this->registerRoutes(function () use ($path) {
             include $path;

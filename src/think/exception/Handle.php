@@ -26,9 +26,6 @@ use Throwable;
  */
 class Handle
 {
-    /** @var App */
-    protected $app;
-
     protected $ignoreReport = [
         HttpException::class,
         HttpResponseException::class,
@@ -39,9 +36,8 @@ class Handle
 
     protected $isJson = false;
 
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app = $app;
     }
 
     /**

@@ -193,7 +193,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag($name): TagSet
+    public function tag(string|array $name): TagSet
     {
         $name = (array) $name;
         $key  = implode('-', $name);
@@ -251,7 +251,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param string $data 缓存数据
      * @return mixed
      */
-    protected function unserialize($data)
+    protected function unserialize(string $data)
     {
         if (is_numeric($data)) {
             return $data;

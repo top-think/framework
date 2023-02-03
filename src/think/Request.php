@@ -878,7 +878,7 @@ class Request implements ArrayAccess
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function all($name = '', $filter = '')
+    public function all(string|array $name = '', string|array $filter = '')
     {
         $data = array_merge($this->param(), $this->file() ?: []);
 
@@ -963,11 +963,11 @@ class Request implements ArrayAccess
     /**
      * 获取中间件传递的参数
      * @access public
-     * @param  mixed $name 变量名
+     * @param  string $name 变量名
      * @param  mixed $default 默认值
      * @return mixed
      */
-    public function middleware($name, $default = null)
+    public function middleware(string $name, $default = null)
     {
         return $this->middleware[$name] ?? $default;
     }
@@ -1006,7 +1006,7 @@ class Request implements ArrayAccess
         return $this->input($this->put, $name, $default, $filter);
     }
 
-    protected function getInputData($content): array
+    protected function getInputData(string $content): array
     {
         $contentType = $this->contentType();
         if ('application/x-www-form-urlencoded' == $contentType) {
@@ -1027,7 +1027,7 @@ class Request implements ArrayAccess
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function delete($name = '', $default = null, $filter = '')
+    public function delete(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         return $this->put($name, $default, $filter);
     }
@@ -1040,7 +1040,7 @@ class Request implements ArrayAccess
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function patch($name = '', $default = null, $filter = '')
+    public function patch(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         return $this->put($name, $default, $filter);
     }
@@ -1053,7 +1053,7 @@ class Request implements ArrayAccess
      * @param  string|array $filter 过滤方法
      * @return mixed
      */
-    public function request($name = '', $default = null, $filter = '')
+    public function request(string|array|bool $name = '', $default = null, string|array $filter = '')
     {
         if (is_array($name)) {
             return $this->only($name, $this->request, $filter);
@@ -1073,11 +1073,8 @@ class Request implements ArrayAccess
     {
         if (empty($name)) {
             return $this->env->get();
-        } else {
-            $name = strtoupper($name);
         }
-
-        return $this->env->get($name, $default);
+        return $this->env->get(strtoupper($name), $default);
     }
 
     /**
@@ -1134,11 +1131,8 @@ class Request implements ArrayAccess
     {
         if (empty($name)) {
             return $this->server;
-        } else {
-            $name = strtoupper($name);
         }
-
-        return $this->server[$name] ?? $default;
+        return $this->server[strtoupper($name)] ?? $default;
     }
 
     /**
@@ -1246,7 +1240,6 @@ class Request implements ArrayAccess
         }
 
         $name = str_replace('_', '-', strtolower($name));
-
         return $this->header[$name] ?? $default;
     }
 
@@ -1259,7 +1252,7 @@ class Request implements ArrayAccess
      * @param  string|array $filter 过滤函数
      * @return mixed
      */
-    public function input(array $data = [], $name = '', $default = null, $filter = '')
+    public function input(array $data = [], string|bool $name = '', $default = null, string|array $filter = '')
     {
         if (false === $name) {
             // 获取原始数据

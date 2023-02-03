@@ -87,12 +87,6 @@ class Route
     ];
 
     /**
-     * 当前应用
-     * @var App
-     */
-    protected $app;
-
-    /**
      * 请求对象
      * @var Request
      */
@@ -157,9 +151,8 @@ class Route
      */
     protected $removeSlash = false;
 
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app      = $app;
         $this->ruleName = new RuleName();
         $this->setDefaultDomain();
 
