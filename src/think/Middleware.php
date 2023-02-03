@@ -13,7 +13,6 @@ declare(strict_types=1);
 namespace think;
 
 use Closure;
-use InvalidArgumentException;
 use LogicException;
 use think\exception\Handle;
 use Throwable;
