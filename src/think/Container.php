@@ -524,24 +524,20 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         $this->delete($name);
     }
 
-
     public function offsetExists(mixed $key): bool
     {
         return $this->exists($key);
     }
-
 
     public function offsetGet(mixed $key): mixed
     {
         return $this->make($key);
     }
 
-
     public function offsetSet(mixed $key, mixed $value): void
     {
         $this->bind($key, $value);
     }
-
 
     public function offsetUnset(mixed $key): void
     {
