@@ -447,7 +447,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
             if ($param->isVariadic()) {
                 return array_merge($args, array_values($vars));
-            } elseif ($reflectionType && $reflectionType->isBuiltin() === false) {
+            } elseif ($reflectionType && $reflectionType instanceof \ReflectionNamedType && $reflectionType->isBuiltin() === false) {
                 $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
