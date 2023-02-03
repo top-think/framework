@@ -660,7 +660,7 @@ abstract class Rule
         } elseif ($route instanceof Closure) {
             // 执行闭包
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
-        } elseif (str_contains($route, '@') || str_contains($route, '::') ||  str_contains($route, '\\')) {
+        } elseif (str_contains($route, '@') || str_contains($route, '::') || str_contains($route, '\\')) {
             // 路由到类的方法
             $route  = str_replace('::', '@', $route);
             $result = $this->dispatchMethod($request, $route);
