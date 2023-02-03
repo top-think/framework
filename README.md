@@ -5,8 +5,8 @@ ThinkPHP 6.1
 
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
-[![PHP Version](https://img.shields.io/packagist/dependency-v/topthink/framework/php)](http://www.php.net/)
-[![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/topthink/framework/php?version=8.0.x-dev)](http://www.php.net/)
+[![License](https://poser.pugx.org/topthink/framework/license?version=8.0.x-dev)](https://packagist.org/packages/topthink/framework)
 
 
 [官方服务](https://www.topthink.com) | [`ThinkAPI`——官方统一API](https://doc.topthink.com/think-api)
