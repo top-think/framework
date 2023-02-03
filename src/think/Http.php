@@ -24,12 +24,6 @@ use Throwable;
  */
 class Http
 {
-
-    /**
-     * @var App
-     */
-    protected $app;
-
     /**
      * 应用名称
      * @var string
@@ -54,10 +48,8 @@ class Http
      */
     protected $isBind = false;
 
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app = $app;
-
         $this->routePath = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
     }
 

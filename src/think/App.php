@@ -188,7 +188,7 @@ class App extends Container
      * @param bool           $force   强制重新注册
      * @return Service|null
      */
-    public function register(Service|string $service, bool $force = false): ?Service
+    public function register(Service|string $service, bool $force = false)
     {
         $registered = $this->getService($service);
 
