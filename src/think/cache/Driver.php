@@ -147,10 +147,10 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @access public
      * @param string $name   缓存变量名
      * @param mixed  $value  存储数据
-     * @param int    $expire 有效时间 0为永久
+     * @param int|DateInterval    $expire 有效时间 0为永久
      * @return mixed
      */
-    public function remember(string $name, $value, $expire = null)
+    public function remember(string $name, $value, int|DateInterval $expire = null)
     {
         if ($this->has($name)) {
             if (($hit = $this->get($name)) !== null) {
@@ -301,7 +301,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @return iterable
      * @throws InvalidArgumentException
      */
-    public function getMultiple($keys, $default = null): iterable
+    public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         $result = [];
 
@@ -319,7 +319,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param null|int|\DateInterval $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple($values, $ttl = null): bool
+    public function setMultiple(iterable $values, int|DateInterval $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);
@@ -339,7 +339,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple($keys): bool
+    public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key) {
             $result = $this->delete($key);
