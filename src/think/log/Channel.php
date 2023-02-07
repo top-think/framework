@@ -78,6 +78,10 @@ class Channel implements LoggerInterface
             return $this;
         }
 
+        if ($msg instanceof Stringable) {
+            $msg = $msg->__toString();
+        }
+        
         if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
