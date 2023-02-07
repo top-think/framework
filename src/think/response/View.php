@@ -114,7 +114,7 @@ class View extends Response
      * @param  mixed        $value 变量值
      * @return $this
      */
-    public function assign($name, $value = null)
+    public function assign(string|array $name, $value = null)
     {
         if (is_array($name)) {
             $this->vars = array_merge($this->vars, $name);

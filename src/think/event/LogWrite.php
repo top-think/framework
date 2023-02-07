@@ -23,9 +23,7 @@ class LogWrite
     /** @var array */
     public $log;
 
-    public function __construct($channel, $log)
+    public function __construct(public string $channel, public array $log)
     {
-        $this->channel = $channel;
-        $this->log     = $log;
     }
 }

@@ -44,7 +44,7 @@ class AllowCrossDomain
      * @param array   $header
      * @return Response
      */
-    public function handle($request, Closure $next, array $header = []): Response
+    public function handle(Request $request, Closure $next, array $header = []): Response
     {
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
 

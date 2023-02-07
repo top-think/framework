@@ -378,7 +378,7 @@ class Input
      * @param string|int $name 参数名或位置
      * @return bool
      */
-    public function hasArgument($name): bool
+    public function hasArgument(string|int $name): bool
     {
         return $this->definition->hasArgument($name);
     }

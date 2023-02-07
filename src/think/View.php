@@ -53,7 +53,7 @@ class View extends Manager
      * @param mixed        $value 变量值
      * @return $this
      */
-    public function assign($name, $value = null)
+    public function assign(string|array $name, $value = null)
     {
         if (is_array($name)) {
             $this->data = array_merge($this->data, $name);

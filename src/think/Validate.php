@@ -283,7 +283,7 @@ class Validate
      * @param mixed        $rule 验证规则或者字段描述信息
      * @return $this
      */
-    public function rule($name, $rule = '')
+    public function rule(string|array $name, $rule = '')
     {
         if (is_array($name)) {
             $this->rule = $name + $this->rule;
@@ -323,7 +323,7 @@ class Validate
      * @param string       $msg  验证提示信息
      * @return void
      */
-    public function setTypeMsg($type, string $msg = null): void
+    public function setTypeMsg(string|array $type, string $msg = null): void
     {
         if (is_array($type)) {
             $this->typeMsg = array_merge($this->typeMsg, $type);
@@ -416,7 +416,7 @@ class Validate
      * @param mixed        $rule  验证规则 true 移除所有规则
      * @return $this
      */
-    public function remove($field, $rule = null)
+    public function remove(string|array $field, $rule = null)
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {
@@ -444,7 +444,7 @@ class Validate
      * @param mixed        $rule  验证规则
      * @return $this
      */
-    public function append($field, $rule = null)
+    public function append(string|array $field, $rule = null)
     {
         if (is_array($field)) {
             foreach ($field as $key => $rule) {

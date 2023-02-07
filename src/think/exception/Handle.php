@@ -96,7 +96,7 @@ class Handle
      * @param Throwable $e
      * @return Response
      */
-    public function render($request, Throwable $e): Response
+    public function render(Request $request, Throwable $e): Response
     {
         $this->isJson = $request->isJson();
         if ($e instanceof HttpResponseException) {
