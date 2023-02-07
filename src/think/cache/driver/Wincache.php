@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace think\cache\driver;
 
+use DateInterval;
 use think\cache\Driver;
 
 /**
@@ -69,7 +70,7 @@ class Wincache extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = null)
+    public function get(string $name, mixed $default = null): mixed
     {
         $this->readTimes++;
 
@@ -83,10 +84,10 @@ class Wincache extends Driver
      * @access public
      * @param string            $name   缓存变量名
      * @param mixed             $value  存储数据
-     * @param integer|\DateTime $expire 有效时间（秒）
+     * @param integer|DateInterval $expire 有效时间（秒）
      * @return bool
      */
-    public function set($name, $value, $expire = null): bool
+    public function set(string $name, mixed $value, int|DateInterval $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -143,7 +144,7 @@ class Wincache extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function delete($name): bool
+    public function delete(string $name): bool
     {
         $this->writeTimes++;
 

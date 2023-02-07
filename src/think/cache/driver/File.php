@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace think\cache\driver;
 
+use DateInterval;
 use FilesystemIterator;
 use think\App;
 use think\cache\Driver;
@@ -118,7 +119,7 @@ class File extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has($name): bool
+    public function has(string $name): bool
     {
         return $this->getRaw($name) !== null;
     }
@@ -130,7 +131,7 @@ class File extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get($name, $default = null)
+    public function get(string $name, mixed $default = null): mixed
     {
         $this->readTimes++;
 
@@ -144,10 +145,10 @@ class File extends Driver
      * @access public
      * @param string        $name   缓存变量名
      * @param mixed         $value  存储数据
-     * @param int|\DateTime $expire 有效时间 0为永久
+     * @param int|DateInterval $expire 有效时间 0为永久
      * @return bool
      */
-    public function set($name, $value, $expire = null): bool
+    public function set(string $name, mixed $value, int|DateInterval $expire = null): bool
     {
         $this->writeTimes++;
 
@@ -224,7 +225,7 @@ class File extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function delete($name): bool
+    public function delete(string $name): bool
     {
         $this->writeTimes++;
 
