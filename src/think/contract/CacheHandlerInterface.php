@@ -41,7 +41,7 @@ interface CacheHandlerInterface
      * @access public
      * @param string            $name   缓存变量名
      * @param mixed             $value  存储数据
-     * @param integer|\DateTime $expire 有效时间（秒）
+     * @param integer|DateInterval $expire 有效时间（秒）
      * @return bool
      */
     public function set(string $name, mixed $value, int|DateInterval $expire = null): bool;

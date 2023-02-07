@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace think\contract;
 
 use Closure;
-use think\Collection;
-use think\db\Query;
+use think\db\BaseQuery as Query;
 use think\Model;
 
 /**
@@ -27,9 +26,9 @@ interface ModelRelationInterface
      * @access public
      * @param  array   $subRelation 子关联
      * @param  Closure $closure     闭包查询条件
-     * @return Collection
+     * @return mixed
      */
-    public function getRelation(array $subRelation = [], Closure $closure = null): Collection;
+    public function getRelation(array $subRelation = [], Closure $closure = null);
 
     /**
      * 预载入关联查询
@@ -85,7 +84,7 @@ interface ModelRelationInterface
      * @param  string  $joinType JOIN类型
      * @return Query
      */
-    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER'): Query;
+    public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER', Query $query = null): Query;
 
     /**
      * 根据关联条件查询当前模型
