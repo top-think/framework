@@ -32,12 +32,6 @@ class Resource extends RuleGroup
     protected $route;
 
     /**
-     * 延迟注册
-     * @var bool
-     */
-    protected $lazyReg;
-
-    /**
      * REST方法定义
      * @var array
      */
@@ -70,14 +64,14 @@ class Resource extends RuleGroup
      * @param  string        $route      路由地址
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [], bool $lazyReg = true)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [], bool $lazy = false)
     {
         $name           = ltrim($name, '/');
         $this->router   = $router;
         $this->parent   = $parent;
         $this->resource = $name;
         $this->route    = $route;
-        $this->lazyReg  = $lazyReg;
+        $this->lazy     = $lazy;
         $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
 
         $this->setFullName();
@@ -92,19 +86,19 @@ class Resource extends RuleGroup
             $this->parent->addRuleItem($this);
         }
 
-        if (!$lazyReg || $router->isTest()) {
-            $this->buildResourceRule();
+        if (!$lazy || $router->isTest()) {
+            $this->parseGroupRule($name);
         }
     }
 
     /**
-     * 生成资源路由规则
-     * @access protected
+     * 解析资源路由规则
+     * @access public
+     * @param  mixed $rule 路由规则
      * @return void
      */
-    protected function buildResourceRule(): void
+    public function parseGroupRule($rule): void
     {
-        $rule   = $this->resource;
         $option = $this->option;
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);

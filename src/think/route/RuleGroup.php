@@ -36,6 +36,12 @@ class RuleGroup extends Rule
     protected $rule;
 
     /**
+     * 延迟解析
+     * @var bool
+     */
+    protected $lazy;
+
+    /**
      * MISS路由
      * @var RuleItem
      */
@@ -61,11 +67,12 @@ class RuleGroup extends Rule
      * @param  string    $name   分组名称
      * @param  mixed     $rule   分组路由
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
         $this->router = $router;
         $this->parent = $parent;
         $this->rule   = $rule;
+        $this->lazy   = $lazy;
         $this->name   = trim($name, '/');
 
         $this->setFullName();
@@ -75,8 +82,8 @@ class RuleGroup extends Rule
             $this->parent->addRuleItem($this);
         }
 
-        if ($router->isTest()) {
-            $this->lazy(false);
+        if (!$lazy || $router->isTest()) {
+            $this->parseGroupRule($rule);
         }
     }
 
@@ -138,9 +145,7 @@ class RuleGroup extends Rule
         }
 
         // 解析分组路由
-        if ($this instanceof Resource && $this->lazyReg) {
-            $this->buildResourceRule();
-        } else {
+        if ($this->lazy) {
             $this->parseGroupRule($this->rule);
         }
 
@@ -223,22 +228,6 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 延迟解析分组的路由规则
-     * @access public
-     * @param  bool $lazy 路由是否延迟解析
-     * @return $this
-     */
-    public function lazy(bool $lazy = true)
-    {
-        if (!$lazy) {
-            $this->parseGroupRule($this->rule);
-            $this->rule = null;
-        }
-
-        return $this;
-    }
-
-    /**
      * 解析分组和域名的路由规则及绑定
      * @access public
      * @param  mixed $rule 路由规则
@@ -246,6 +235,10 @@ class RuleGroup extends Rule
      */
     public function parseGroupRule($rule): void
     {
+        if (is_null($rule)) {
+            return;
+        }
+        
         if (is_string($rule) && is_subclass_of($rule, Dispatch::class)) {
             $this->dispatcher($rule);
             return;
@@ -254,7 +247,7 @@ class RuleGroup extends Rule
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
 
-        if ($rule instanceof \Closure) {
+        if ($rule instanceof Closure) {
             Container::getInstance()->invokeFunction($rule);
         } elseif (is_string($rule) && $rule) {
             $this->router->bind($rule, $this->domain);
