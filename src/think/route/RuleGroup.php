@@ -138,7 +138,7 @@ class RuleGroup extends Rule
         }
 
         // 解析分组路由
-        if ($this instanceof Resource) {
+        if ($this instanceof Resource && $this->lazyReg) {
             $this->buildResourceRule();
         } else {
             $this->parseGroupRule($this->rule);

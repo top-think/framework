@@ -52,6 +52,8 @@ class Route
     protected $config = [
         // pathinfo分隔符
         'pathinfo_depr'         => '/',
+        // 是否开启资源路由延迟注册
+        'resource_lazy_reg'     => true,
         // 是否开启路由延迟解析
         'url_lazy_route'        => false,
         // 是否强制使用路由
@@ -665,7 +667,7 @@ class Route
      */
     public function resource(string $rule, string $route): Resource
     {
-        return (new Resource($this, $this->group, $rule, $route, $this->rest))
+        return (new Resource($this, $this->group, $rule, $route, $this->rest, $this->config['resource_lazy_reg']))
             ->lazy($this->lazy);
     }
 
