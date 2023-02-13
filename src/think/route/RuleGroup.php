@@ -429,7 +429,7 @@ class RuleGroup extends Rule
 
         $name = $rule->getRule() . '|' .$method;
 
-        if ($rule instanceof RuleItem &&  !in_array($method,['*','options']) ) {
+        if ($rule instanceof RuleItem && !in_array($method, ['*','options']) ) {
             $method .= '|options';
             $rule->setAutoOptions();
         }
