@@ -20,18 +20,6 @@ use think\Route;
 class Resource extends RuleGroup
 {
     /**
-     * 资源路由名称
-     * @var string
-     */
-    protected $resource;
-
-    /**
-     * 资源路由地址
-     * @var string
-     */
-    protected $route;
-
-    /**
      * REST方法定义
      * @var array
      */
@@ -64,14 +52,13 @@ class Resource extends RuleGroup
      * @param  string        $route      路由地址
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [], bool $lazy = false)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
     {
         $name           = ltrim($name, '/');
         $this->router   = $router;
         $this->parent   = $parent;
-        $this->resource = $name;
+        $this->rule     = $name;
         $this->route    = $route;
-        $this->lazy     = $lazy;
         $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
 
         $this->setFullName();
@@ -84,10 +71,6 @@ class Resource extends RuleGroup
         if ($this->parent) {
             $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
-        }
-
-        if (!$lazy || $router->isTest()) {
-            $this->parseGroupRule($name);
         }
     }
 
@@ -142,6 +125,7 @@ class Resource extends RuleGroup
         }
 
         $this->router->setGroup($origin);
+        $this->hasParsed = true;
     }
 
     /**

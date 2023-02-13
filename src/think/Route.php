@@ -317,7 +317,7 @@ class Route
         $domainName = is_array($name) ? array_shift($name) : $name;
 
         if (!isset($this->domains[$domainName])) {
-            $domain = (new Domain($this, $domainName, $rule, $this->lazy))
+            $domain = (new Domain($this, $domainName, $rule))
                 ->removeSlash($this->removeSlash)
                 ->mergeRuleRegex($this->mergeRuleRegex);
 
@@ -553,7 +553,7 @@ class Route
             $name  = '';
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route, $this->lazy))
+        return (new RuleGroup($this, $this->group, $name, $route))
             ->removeSlash($this->removeSlash)
             ->mergeRuleRegex($this->mergeRuleRegex);
     }
@@ -663,7 +663,7 @@ class Route
      */
     public function resource(string $rule, string $route): Resource
     {
-        return new Resource($this, $this->group, $rule, $route, $this->rest, $this->lazy);
+        return new Resource($this, $this->group, $rule, $route, $this->rest);
     }
 
     /**

@@ -36,10 +36,10 @@ class RuleGroup extends Rule
     protected $rule;
 
     /**
-     * 延迟解析
+     * 是否已经解析
      * @var bool
      */
-    protected $lazy;
+    protected $hasParsed;
 
     /**
      * MISS路由
@@ -67,12 +67,11 @@ class RuleGroup extends Rule
      * @param  string    $name   分组名称
      * @param  mixed     $rule   分组路由
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
     {
         $this->router = $router;
         $this->parent = $parent;
         $this->rule   = $rule;
-        $this->lazy   = $lazy;
         $this->name   = trim($name, '/');
 
         $this->setFullName();
@@ -80,10 +79,6 @@ class RuleGroup extends Rule
         if ($this->parent) {
             $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
-        }
-
-        if (!$lazy || $router->isTest()) {
-            $this->parseGroupRule($rule);
         }
     }
 
@@ -145,7 +140,7 @@ class RuleGroup extends Rule
         }
 
         // 解析分组路由
-        if ($this->lazy) {
+        if (!$this->hasParsed) {
             $this->parseGroupRule($this->rule);
         }
 
@@ -254,6 +249,7 @@ class RuleGroup extends Rule
         }
 
         $this->router->setGroup($origin);
+        $this->hasParsed = true;
     }
 
     /**
@@ -431,11 +427,14 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $this->rules[] = [$method, $rule];
+        $name = $rule->getRule() . '|' .$method;
 
-        if ($rule instanceof RuleItem && 'options' != $method) {
-            $this->rules[] = ['options', $rule->setAutoOptions()];
+        if ($rule instanceof RuleItem &&  !in_array($method,['*','options']) ) {
+            $method .= '|options';
+            $rule->setAutoOptions();
         }
+
+        $this->rules[$name] = [$method, $rule];
 
         return $this;
     }
@@ -500,7 +499,7 @@ class RuleGroup extends Rule
         }
 
         return array_filter($this->rules, function ($item) use ($method) {
-            return $method == $item[0] || '*' == $item[0];
+            return '*' == $item[0] || false !== strpos($item[0], $method);
         });
     }
 
