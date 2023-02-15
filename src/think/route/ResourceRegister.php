@@ -191,14 +191,15 @@ class ResourceRegister
     }
 
     /**
-     * 注册变量规则
+     * 设置路由参数
      * @access public
-     * @param  array $pattern 变量规则
+     * @param  string $name  参数名
+     * @param  mixed  $value 值
      * @return $this
      */
-    public function pattern(array $pattern)
+    public function setOption(string $name, $value)
     {
-        $this->option['pattern'] = $pattern;
+        $this->option[strtolower($name)] = $value;
 
         return $this;
     }
@@ -214,15 +215,26 @@ class ResourceRegister
 
         $resource = new Resource($this->router, $this->parent, $this->name, $this->route, $this->option['rest']);
 
-        foreach (['vars', 'only', 'except', 'model', 'validate', 'middleware', 'pattern'] as $name) {
-            if (isset($this->option[$name])) {
-                $resource->$name($this->option[$name]);
-            }
+        foreach ($this->option as $name => $val) {
+            $resource->$name($val);
         }
 
         if (!$this->lazy) {
             $resource->parseGroupRule($this->name);
         }
+    }
+
+    /**
+     * 动态方法 直接调用is方法进行验证
+     * @access public
+     * @param string $method 方法名
+     * @param array  $args   调用参数
+     * @return bool
+     */
+    public function __call($method, $args)
+    {
+        array_unshift($args, $method);
+        return call_user_func_array([$this, 'setOption'], $args);
     }
 
     public function __destruct()
