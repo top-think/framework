@@ -12,9 +12,7 @@ declare (strict_types = 1);
 
 namespace think\route;
 
-use think\Request;
 use think\Route;
-
 
 /**
  * 资源路由注册类
@@ -54,7 +52,7 @@ class ResourceRegister
     /**
      * 是否注册过
      * @var bool
-     */    
+     */
     protected $registered = false;
 
     /**
@@ -63,7 +61,6 @@ class ResourceRegister
      */
     protected $option = [];
 
-            
     /**
      * 架构函数
      * @access public
@@ -224,7 +221,7 @@ class ResourceRegister
         }
 
         if (!$this->lazy) {
-            $resource->parseGroupRule($this->name);            
+            $resource->parseGroupRule($this->name);
         }
     }
 
