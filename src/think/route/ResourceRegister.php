@@ -81,7 +81,7 @@ class ResourceRegister
         $this->name     = $name;
         $this->route    = $route;
         $this->lazy     = $lazy;
-        
+
         $this->option['rest'] = $rest;
     }
 
@@ -117,7 +117,7 @@ class ResourceRegister
      */
     public function vars(array $vars)
     {
-        $this->option['var'] = $vars;
+        $this->option['vars'] = $vars;
         return $this;
     }
 
@@ -217,14 +217,14 @@ class ResourceRegister
 
         $resource = new Resource($this->router, $this->parent, $this->name, $this->route, $this->option['rest']);
 
-        foreach (['vars', 'only', 'except', 'model', 'validate', 'middleware', 'rest', 'pattern'] as $name) {
+        foreach (['vars', 'only', 'except', 'model', 'validate', 'middleware', 'pattern'] as $name) {
             if (isset($this->option[$name])) {
                 $resource->$name($this->option[$name]);
             }
         }
 
         if (!$this->lazy) {
-            $resource->parseGroupRule($this->name);            
+            $resource->parseGroupRule($this->name);
         }
     }
 
