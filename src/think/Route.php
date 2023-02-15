@@ -18,7 +18,7 @@ use think\route\Dispatch;
 use think\route\dispatch\Callback;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
-use think\route\Resource;
+use think\route\ResourceRegister as Resource;
 use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
@@ -317,7 +317,7 @@ class Route
         $domainName = is_array($name) ? array_shift($name) : $name;
 
         if (!isset($this->domains[$domainName])) {
-            $domain = (new Domain($this, $domainName, $rule))
+            $domain = (new Domain($this, $domainName, $rule, $this->lazy))
                 ->removeSlash($this->removeSlash)
                 ->mergeRuleRegex($this->mergeRuleRegex);
 
@@ -553,7 +553,7 @@ class Route
             $name  = '';
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route))
+        return (new RuleGroup($this, $this->group, $name, $route, $this->lazy))
             ->removeSlash($this->removeSlash)
             ->mergeRuleRegex($this->mergeRuleRegex);
     }
@@ -663,7 +663,7 @@ class Route
      */
     public function resource(string $rule, string $route): Resource
     {
-        return new Resource($this, $this->group, $rule, $route, $this->rest);
+        return new Resource($this, $this->group, $rule, $route, $this->rest, $this->lazy);
     }
 
     /**

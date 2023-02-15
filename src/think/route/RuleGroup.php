@@ -66,8 +66,9 @@ class RuleGroup extends Rule
      * @param  RuleGroup $parent 上级对象
      * @param  string    $name   分组名称
      * @param  mixed     $rule   分组路由
+     * @param  bool      $lazy     延迟解析
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -79,6 +80,10 @@ class RuleGroup extends Rule
         if ($this->parent) {
             $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
+        }
+
+        if (!$lazy) {
+            $this->parseGroupRule($rule);
         }
     }
 
@@ -427,14 +432,12 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $name = $rule->getRule() . '|' .$method;
-
         if ($rule instanceof RuleItem && !in_array($method, ['*','options']) ) {
             $method .= '|options';
             $rule->setAutoOptions();
         }
 
-        $this->rules[$name] = [$method, $rule];
+        $this->rules[] = [$method, $rule];
 
         return $this;
     }
