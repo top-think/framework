@@ -30,12 +30,6 @@ class RuleGroup extends Rule
     protected $rules = [];
 
     /**
-     * 分组路由规则
-     * @var mixed
-     */
-    protected $rule;
-
-    /**
      * 是否已经解析
      * @var bool
      */

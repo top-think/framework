@@ -18,7 +18,8 @@ use think\route\Dispatch;
 use think\route\dispatch\Callback;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
-use think\route\ResourceRegister as Resource;
+use think\route\Resource;
+use think\route\ResourceRegister;
 use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
@@ -659,11 +660,17 @@ class Route
      * @access public
      * @param string $rule  路由规则
      * @param string $route 路由地址
-     * @return Resource
+     * @return Resource|ResourceRegister
      */
-    public function resource(string $rule, string $route): Resource
+    public function resource(string $rule, string $route)
     {
-        return new Resource($this, $this->group, $rule, $route, $this->rest, $this->lazy);
+        $resource = new Resource($this, $this->group, $rule, $route, $this->rest);
+
+        if (!$this->lazy) {
+            return new ResourceRegister($resource);
+        }
+
+        return $resource;
     }
 
     /**
