@@ -12,8 +12,6 @@ declare (strict_types = 1);
 
 namespace think\route;
 
-use think\Route;
-
 /**
  * 资源路由注册类
  */
