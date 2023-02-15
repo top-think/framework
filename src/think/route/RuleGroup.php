@@ -422,12 +422,12 @@ class RuleGroup extends Rule
             $method = '*';
         }
 
-        $this->rules[] = [$method, $rule];
-
-        if ($rule instanceof RuleItem && 'options' != $method) {
-            $this->rules[] = ['options', $rule->setAutoOptions()];
+        if ($rule instanceof RuleItem && !in_array($method, ['*','options']) ) {
+            $method .= '|options';
+            $rule->setAutoOptions();
         }
 
+        $this->rules[] = [$method, $rule];
         return $this;
     }
 
@@ -491,7 +491,7 @@ class RuleGroup extends Rule
         }
 
         return array_filter($this->rules, function ($item) use ($method) {
-            return $method == $item[0] || '*' == $item[0];
+            return '*' == $item[0] || str_contains($item[0], $method);
         });
     }
 
