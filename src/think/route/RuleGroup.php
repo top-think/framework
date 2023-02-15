@@ -30,12 +30,6 @@ class RuleGroup extends Rule
     protected $rules = [];
 
     /**
-     * 分组路由规则
-     * @var mixed
-     */
-    protected $rule;
-
-    /**
      * MISS路由
      * @var RuleItem
      */
@@ -54,14 +48,21 @@ class RuleGroup extends Rule
     protected $alias;
 
     /**
+     * 是否已经解析
+     * @var bool
+     */
+    protected $hasParsed;
+
+    /**
      * 架构函数
      * @access public
      * @param  Route     $router 路由对象
      * @param  RuleGroup $parent 上级对象
      * @param  string    $name   分组名称
      * @param  mixed     $rule   分组路由
+     * @param  bool      $lazy   延迟解析
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null)
+    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -75,8 +76,8 @@ class RuleGroup extends Rule
             $this->parent->addRuleItem($this);
         }
 
-        if ($router->isTest()) {
-            $this->lazy(false);
+        if (!$lazy) {
+            $this->parseGroupRule($rule);
         }
     }
 
@@ -138,9 +139,7 @@ class RuleGroup extends Rule
         }
 
         // 解析分组路由
-        if ($this instanceof Resource) {
-            $this->buildResourceRule();
-        } else {
+        if (!$this->hasParsed) {
             $this->parseGroupRule($this->rule);
         }
 
@@ -223,22 +222,6 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 延迟解析分组的路由规则
-     * @access public
-     * @param  bool $lazy 路由是否延迟解析
-     * @return $this
-     */
-    public function lazy(bool $lazy = true)
-    {
-        if (!$lazy) {
-            $this->parseGroupRule($this->rule);
-            $this->rule = null;
-        }
-
-        return $this;
-    }
-
-    /**
      * 解析分组和域名的路由规则及绑定
      * @access public
      * @param  mixed $rule 路由规则
@@ -261,6 +244,7 @@ class RuleGroup extends Rule
         }
 
         $this->router->setGroup($origin);
+        $this->hasParsed = true;
     }
 
     /**

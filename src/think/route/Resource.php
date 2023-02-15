@@ -20,18 +20,6 @@ use think\Route;
 class Resource extends RuleGroup
 {
     /**
-     * 资源路由名称
-     * @var string
-     */
-    protected $resource;
-
-    /**
-     * 资源路由地址
-     * @var string
-     */
-    protected $route;
-
-    /**
      * REST方法定义
      * @var array
      */
@@ -69,7 +57,7 @@ class Resource extends RuleGroup
         $name           = ltrim($name, '/');
         $this->router   = $router;
         $this->parent   = $parent;
-        $this->resource = $name;
+        $this->rule     = $name;
         $this->route    = $route;
         $this->name     = str_contains($name, '.') ? strstr($name, '.', true) : $name;
 
@@ -84,20 +72,16 @@ class Resource extends RuleGroup
             $this->domain = $this->parent->getDomain();
             $this->parent->addRuleItem($this);
         }
-
-        if ($router->isTest()) {
-            $this->buildResourceRule();
-        }
     }
 
     /**
      * 生成资源路由规则
-     * @access protected
+     * @access public
+     * @param  mixed $rule 路由规则
      * @return void
      */
-    protected function buildResourceRule(): void
+    public function parseGroupRule($rule): void
     {
-        $rule   = $this->resource;
         $option = $this->option;
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
@@ -141,6 +125,7 @@ class Resource extends RuleGroup
         }
 
         $this->router->setGroup($origin);
+        $this->hasParsed = true;
     }
 
     /**

@@ -27,8 +27,6 @@ use think\route\Url as UrlBuild;
  * @mixin \think\Route
  * @method static mixed config(string $name = null)
  * @method static \think\Route lazy(bool $lazy = true) 设置路由域名及分组（包括资源路由）是否延迟解析
- * @method static void setTestMode(bool $test) 设置路由为测试模式
- * @method static bool isTest() 检查路由是否为测试模式
  * @method static \think\Route mergeRuleRegex(bool $merge = true) 设置路由域名及分组（包括资源路由）是否合并解析
  * @method static void setGroup(RuleGroup $group) 设置当前分组
  * @method static RuleGroup getGroup(string $name = null) 获取指定标识的路由分组 不指定则获取当前分组

@@ -19,6 +19,7 @@ use think\route\dispatch\Callback;
 use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
+use think\route\ResourceRegister;
 use think\route\Rule;
 use think\route\RuleGroup;
 use think\route\RuleItem;
@@ -134,12 +135,6 @@ class Route
     protected $lazy = false;
 
     /**
-     * 路由是否测试模式
-     * @var bool
-     */
-    protected $isTest = false;
-
-    /**
      * （分组）路由规则是否合并解析
      * @var bool
      */
@@ -198,27 +193,6 @@ class Route
     {
         $this->lazy = $lazy;
         return $this;
-    }
-
-    /**
-     * 设置路由为测试模式
-     * @access public
-     * @param bool $test 路由是否测试模式
-     * @return void
-     */
-    public function setTestMode(bool $test): void
-    {
-        $this->isTest = $test;
-    }
-
-    /**
-     * 检查路由是否为测试模式
-     * @access public
-     * @return bool
-     */
-    public function isTest(): bool
-    {
-        return $this->isTest;
     }
 
     /**
@@ -312,8 +286,7 @@ class Route
         $domainName = is_array($name) ? array_shift($name) : $name;
 
         if (!isset($this->domains[$domainName])) {
-            $domain = (new Domain($this, $domainName, $rule))
-                ->lazy($this->lazy)
+            $domain = (new Domain($this, $domainName, $rule, $this->lazy))
                 ->removeSlash($this->removeSlash)
                 ->mergeRuleRegex($this->mergeRuleRegex);
 
@@ -508,12 +481,6 @@ class Route
      */
     public function rule(string $rule, $route = null, string $method = '*'): RuleItem
     {
-        if ($route instanceof Response) {
-            // 兼容之前的路由到响应对象，感觉不需要，使用场景很少，闭包就能实现
-            $route = function () use ($route) {
-                return $route;
-            };
-        }
         return $this->group->addRule($rule, $route, $method);
     }
 
@@ -549,8 +516,7 @@ class Route
             $name  = '';
         }
 
-        return (new RuleGroup($this, $this->group, $name, $route))
-            ->lazy($this->lazy)
+        return (new RuleGroup($this, $this->group, $name, $route, $this->lazy))
             ->removeSlash($this->removeSlash)
             ->mergeRuleRegex($this->mergeRuleRegex);
     }
@@ -656,12 +622,17 @@ class Route
      * @access public
      * @param string $rule  路由规则
      * @param string $route 路由地址
-     * @return Resource
+     * @return Resource|ResourceRegister
      */
     public function resource(string $rule, string $route): Resource
     {
-        return (new Resource($this, $this->group, $rule, $route, $this->rest))
-            ->lazy($this->lazy);
+        $resource = new Resource($this, $this->group, $rule, $route, $this->rest);
+
+        if (!$this->lazy) {
+            return new ResourceRegister($resource);
+        }
+
+        return $resource;
     }
 
     /**
