@@ -39,7 +39,7 @@ class Domain extends RuleGroup
 
         if (!$lazy) {
             $this->parseGroupRule($rule);
-        }        
+        }
     }
 
     /**
