@@ -37,7 +37,7 @@ class Domain extends RuleGroup
         $this->domain = $name;
         $this->rule   = $rule;
 
-        if (!$lazy) {
+        if (!$lazy && !is_null($rule)) {
             $this->parseGroupRule($rule);
         }
     }

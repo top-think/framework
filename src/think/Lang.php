@@ -186,33 +186,15 @@ class Lang
      */
     protected function parse(string $file): array
     {
-        $type = pathinfo($file, PATHINFO_EXTENSION);
+        $type   = pathinfo($file, PATHINFO_EXTENSION);
+        $result = match ($type) {
+            'php'       =>  include $file,
+            'yml','yaml'=>  function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
+            'json'      =>  json_decode(file_get_contents($file), true),
+            default     =>  [],
+        };
 
-        switch ($type) {
-            case 'php':
-                $result = include $file;
-                break;
-            case 'yml':
-            case 'yaml':
-                if (function_exists('yaml_parse_file')) {
-                    $result = yaml_parse_file($file);
-                }
-                break;
-            case 'json':
-                $data = file_get_contents($file);
-
-                if (false !== $data) {
-                    $data = json_decode($data, true);
-
-                    if (json_last_error() === JSON_ERROR_NONE) {
-                        $result = $data;
-                    }
-                }
-
-                break;
-        }
-
-        return isset($result) && is_array($result) ? $result : [];
+        return is_array($result) ? $result : [];
     }
 
     /**

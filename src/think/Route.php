@@ -624,7 +624,7 @@ class Route
      * @param string $route 路由地址
      * @return Resource|ResourceRegister
      */
-    public function resource(string $rule, string $route): Resource
+    public function resource(string $rule, string $route)
     {
         $resource = new Resource($this, $this->group, $rule, $route, $this->rest);
 
