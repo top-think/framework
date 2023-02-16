@@ -826,7 +826,7 @@ class Validate
      */
     public function is($value, string $rule, array $data = []): bool
     {
-        $call = function($value, $rule) {
+        $call = function ($value, $rule) {
             if (isset($this->type[$rule])) {
                 // 注册的验证规则
                 $result = call_user_func_array($this->type[$rule], [$value]);
@@ -856,7 +856,7 @@ class Validate
             'file'      =>  $value instanceof File,
             'image'     =>  $value instanceof File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]),
             'token'     =>  $this->token($value, '__token__', $data),
-            default     =>  $call($value, $rule),                
+            default     =>  $call($value, $rule),
         };
     }
 
