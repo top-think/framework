@@ -30,32 +30,8 @@ abstract class Dispatch
      */
     protected $app;
 
-    /**
-     * 请求对象
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * 路由对象
-     * @var Rule
-     */
-    protected $rule;
-
-    /**
-     * 参数
-     * @var array
-     */
-    protected $param = [];
-
-    protected $dispatch;
-
-    public function __construct(Request $request, Rule $rule, $dispatch, array $param = [])
+    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [])
     {
-        $this->request  = $request;
-        $this->rule     = $rule;
-        $this->dispatch = $dispatch;
-        $this->param    = $param;
     }
 
     public function init(App $app)

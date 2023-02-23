@@ -22,11 +22,8 @@ use think\event\RouteLoaded;
  */
 abstract class Service
 {
-    protected $app;
-
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app = $app;
     }
 
     /**

@@ -17,9 +17,6 @@ use think\helper\Str;
 
 abstract class Manager
 {
-    /** @var App */
-    protected $app;
-
     /**
      * 驱动
      * @var array
@@ -32,9 +29,8 @@ abstract class Manager
      */
     protected $namespace = null;
 
-    public function __construct(App $app)
+    public function __construct(protected App $app)
     {
-        $this->app = $app;
     }
 
     /**
