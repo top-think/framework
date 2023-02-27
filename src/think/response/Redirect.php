@@ -36,24 +36,28 @@ class Redirect extends Response
         $this->cacheControl('no-cache,must-revalidate');
     }
 
+    public function data($data)
+    {
+        $this->header['Location'] = $data;
+        return parent::data($data);
+    }
+
     /**
      * 处理数据
      * @access protected
-     * @param  mixed $data 要处理的数据
+     * @param mixed $data 要处理的数据
      * @return string
      */
     protected function output($data): string
     {
-        $this->header['Location'] = $data;
-
         return '';
     }
 
     /**
      * 重定向传值（通过Session）
      * @access protected
-     * @param  string|array  $name 变量名或者数组
-     * @param  mixed         $value 值
+     * @param string|array $name 变量名或者数组
+     * @param mixed $value 值
      * @return $this
      */
     public function with($name, $value = null)
