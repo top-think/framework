@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace think;
 
 use SplFileInfo;
+use Closure;
 use think\exception\FileException;
 
 /**
@@ -174,13 +175,13 @@ class File extends SplFileInfo
     /**
      * 自动生成文件名
      * @access public
-     * @param string|\Closure $rule
+     * @param string|Closure $rule
      * @return string
      */
-    public function hashName(string $rule = ''): string
+    public function hashName(string|Closure $rule = ''): string
     {
         if (!$this->hashName) {
-            if ($rule instanceof \Closure) {
+            if ($rule instanceof Closure) {
                 $this->hashName = call_user_func_array($rule, [$this]);
             } else {
                 $this->hashName = match (true) {
