@@ -526,16 +526,15 @@ class Route
      * 设置跨域有效路由规则
      * @access public
      * @param Rule   $rule   路由规则
-     * @param string $method 请求类型
      * @return $this
      */
-    public function setCrossDomainRule(Rule $rule, string $method = '*')
+    public function setCrossDomainRule(Rule $rule)
     {
         if (!isset($this->cross)) {
             $this->cross = (new RuleGroup($this))->mergeRuleRegex($this->mergeRuleRegex);
         }
 
-        $this->cross->addRuleItem($rule, $method);
+        $this->cross->addRuleItem($rule);
 
         return $this;
     }
