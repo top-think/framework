@@ -46,7 +46,7 @@ use think\route\Url as UrlBuild;
  * @method static array getRuleList() 读取路由列表
  * @method static void clear() 清空路由规则
  * @method static RuleItem rule(string $rule, mixed $route = null, string $method = '*') 注册路由规则
- * @method static \think\Route setCrossDomainRule(Rule $rule, string $method = '*') 设置跨域有效路由规则
+ * @method static \think\Route setCrossDomainRule(Rule $rule) 设置跨域有效路由规则
  * @method static RuleGroup group(string|\Closure $name, mixed $route = null) 注册路由分组
  * @method static RuleItem any(string $rule, mixed $route) 注册路由
  * @method static RuleItem get(string $rule, mixed $route) 注册GET路由
