@@ -485,7 +485,7 @@ class Route
     }
 
     /**
-     * 设置跨域有效路由规则
+     * 设置路由规则全局有效
      * @access public
      * @param Rule   $rule   路由规则
      * @return $this
