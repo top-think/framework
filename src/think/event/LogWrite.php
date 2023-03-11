@@ -17,12 +17,6 @@ namespace think\event;
  */
 class LogWrite
 {
-    /** @var string */
-    public $channel;
-
-    /** @var array */
-    public $log;
-
     public function __construct(public string $channel, public array $log)
     {
     }
