@@ -25,7 +25,7 @@ class RuleGroup extends Rule
 {
     /**
      * 分组路由（包括子分组）
-     * @var array
+     * @var Rule[]
      */
     protected $rules = [];
 
@@ -56,11 +56,11 @@ class RuleGroup extends Rule
     /**
      * 架构函数
      * @access public
-     * @param  Route     $router 路由对象
-     * @param  RuleGroup $parent 上级对象
-     * @param  string    $name   分组名称
-     * @param  mixed     $rule   分组路由
-     * @param  bool      $lazy     延迟解析
+     * @param Route          $router 路由对象
+     * @param RuleGroup|null $parent 上级对象
+     * @param string         $name   分组名称
+     * @param mixed          $rule   分组路由
+     * @param bool           $lazy   延迟解析
      */
     public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
@@ -162,8 +162,8 @@ class RuleGroup extends Rule
         }
 
         // 检查分组路由
-        foreach ($rules as $key => $item) {
-            $result = $item[1]->check($request, $url, $completeMatch);
+        foreach ($rules as $item) {
+            $result = $item->check($request, $url, $completeMatch);
 
             if (false !== $result) {
                 return $result;
@@ -232,7 +232,7 @@ class RuleGroup extends Rule
         if (is_null($rule)) {
             return;
         }
-        
+
         if (is_string($rule) && is_subclass_of($rule, Dispatch::class)) {
             $this->dispatcher($rule);
             return;

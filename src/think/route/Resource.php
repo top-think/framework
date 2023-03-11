@@ -46,11 +46,11 @@ class Resource extends RuleGroup
     /**
      * 架构函数
      * @access public
-     * @param  Route         $router     路由对象
-     * @param  RuleGroup     $parent     上级对象
-     * @param  string        $name       资源名称
-     * @param  string        $route      路由地址
-     * @param  array         $rest       资源定义
+     * @param Route          $router 路由对象
+     * @param RuleGroup|null $parent 上级对象
+     * @param string         $name   资源名称
+     * @param string         $route  路由地址
+     * @param array          $rest   资源定义
      */
     public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
     {

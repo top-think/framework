@@ -38,7 +38,7 @@ class RuleItem extends Rule
      * @access public
      * @param  Route             $router 路由实例
      * @param  RuleGroup         $parent 上级对象
-     * @param  string            $name 路由标识
+     * @param  string|null       $name 路由标识
      * @param  string            $rule 路由规则
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
