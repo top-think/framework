@@ -429,11 +429,6 @@ abstract class Rule
      */
     public function allowCrossDomain(array $header = [])
     {
-        if ($this instanceof RuleItem) {
-            $this->method .= '|options';
-            $this->setAutoOptions();
-        }
-
         return $this->middleware(AllowCrossDomain::class, $header);
     }
 

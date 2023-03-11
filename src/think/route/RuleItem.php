@@ -78,27 +78,6 @@ class RuleItem extends Rule
     }
 
     /**
-     * 设置当前路由为自动注册OPTIONS
-     * @access public
-     * @return $this
-     */
-    public function setAutoOptions()
-    {
-        $this->autoOption = true;
-        return $this;
-    }
-
-    /**
-     * 判断当前路由规则是否为自动注册的OPTIONS路由
-     * @access public
-     * @return bool
-     */
-    public function isAutoOptions(): bool
-    {
-        return $this->autoOption;
-    }
-
-    /**
      * 获取当前路由的URL后缀
      * @access public
      * @return string|null
