@@ -8,7 +8,7 @@ ThinkPHP 8.0
 [![Code Coverage](https://scrutinizer-ci.com/g/top-think/framework/badges/coverage.png?b=8.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=8.0)
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
 [![Latest Stable Version](https://poser.pugx.org/topthink/framework/v/stable)](https://packagist.org/packages/topthink/framework)
-[![PHP Version](https://img.shields.io/badge/php-%3E%3D7.1-8892BF.svg)](http://www.php.net/)
+[![PHP Version](https://img.shields.io/badge/php-%3E%3D8.0-8892BF.svg)](http://www.php.net/)
 [![License](https://poser.pugx.org/topthink/framework/license)](https://packagist.org/packages/topthink/framework)
 
 
