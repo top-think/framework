@@ -58,7 +58,7 @@ jobs:
           command: composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
       - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
+        run: php -dxdebug.coverage_enable=1 -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
         env:
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_USERNAME: root
