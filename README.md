@@ -3,7 +3,7 @@
 ThinkPHP 8.0
 ===============
 
-[![Build Status](https://travis-ci.org/top-think/framework.svg?branch=8.0)](https://travis-ci.org/top-think/framework)
+[![build](https://github.com/top-think/framework/actions/workflows/build.yml/badge.svg?branch=8.0)](https://github.com/top-think/framework/actions)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/top-think/framework/badges/quality-score.png?b=8.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=8.0)
 [![Code Coverage](https://scrutinizer-ci.com/g/top-think/framework/badges/coverage.png?b=8.0)](https://scrutinizer-ci.com/g/top-think/framework/?branch=8.0)
 [![Total Downloads](https://poser.pugx.org/topthink/framework/downloads)](https://packagist.org/packages/topthink/framework)
