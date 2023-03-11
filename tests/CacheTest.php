@@ -28,7 +28,7 @@ class CacheTest extends TestCase
         m::close();
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->app = m::mock(App::class)->makePartial();
 
@@ -70,7 +70,8 @@ class CacheTest extends TestCase
 
         $this->config->shouldReceive('get')->with("cache.default", null)->andReturn('file');
 
-        $this->config->shouldReceive('get')->with("cache.stores.file", null)->andReturn(['type' => 'file', 'path' => $root->url()]);
+        $this->config->shouldReceive('get')->with("cache.stores.file", null)
+            ->andReturn(['type' => 'file', 'path' => $root->url()]);
 
         $this->cache->set('foo', 5);
         $this->cache->inc('foo');
