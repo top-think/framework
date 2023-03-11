@@ -38,10 +38,7 @@ jobs:
           command: composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
       - name: Execute tests
-        run: vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
+        run: vendor/bin/phpunit --coverage-clover build/logs/clover.xml
 
-      - name: Upload Coverage
-        run: |
-          cat build/logs/coverage.xml
-          wget https://scrutinizer-ci.com/ocular.phar
-          php ocular.phar code-coverage:upload --format=php-clover build/logs/coverage.xml
+      - name: Upload Scrutinizer coverage
+        uses: sudo-bot/action-scrutinizer@latest
