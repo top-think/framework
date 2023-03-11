@@ -46,9 +46,9 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, gd, pdo_mysql, fileinfo, ftp, redis, memcached, gmp, xdebug
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, gd, pdo_mysql, fileinfo, ftp, redis, memcached, gmp 
           tools: composer:v2
-          coverage: none
+          coverage: xdebug
 
       - name: Install dependencies
         uses: nick-fields/retry@v2
@@ -58,7 +58,7 @@ jobs:
           command: composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
       - name: Execute tests
-        run: php -dxdebug.coverage_enable=1 -dxdebug.mode=coverage vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
+        run: vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
         env:
           DB_PORT: ${{ job.services.mysql.ports[3306] }}
           DB_USERNAME: root
