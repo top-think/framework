@@ -36,6 +36,12 @@ class Redirect extends Response
         $this->cacheControl('no-cache,must-revalidate');
     }
 
+    public function data($data)
+    {
+        $this->header['Location'] = $data;
+        return parent::data($data);
+    }
+
     /**
      * 处理数据
      * @access protected
@@ -44,8 +50,6 @@ class Redirect extends Response
      */
     protected function output($data): string
     {
-        $this->header['Location'] = $data;
-
         return '';
     }
 

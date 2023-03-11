@@ -25,7 +25,7 @@ class RuleGroup extends Rule
 {
     /**
      * 分组路由（包括子分组）
-     * @var array
+     * @var Rule[]
      */
     protected $rules = [];
 
@@ -162,8 +162,8 @@ class RuleGroup extends Rule
         }
 
         // 检查分组路由
-        foreach ($rules as $key => $item) {
-            $result = $item[1]->check($request, $url, $completeMatch);
+        foreach ($rules as $item) {
+            $result = $item->check($request, $url, $completeMatch);
 
             if (false !== $result) {
                 return $result;

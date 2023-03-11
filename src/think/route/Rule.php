@@ -67,7 +67,7 @@ abstract class Rule
      * 请求类型
      * @var string
      */
-    protected $method;
+    protected $method = '*';
 
     /**
      * 路由变量
@@ -444,7 +444,7 @@ abstract class Rule
             $this->method .= '|options';
             $this->setAutoOptions();
         }
-                
+
         return $this->middleware(AllowCrossDomain::class, $header);
     }
 
