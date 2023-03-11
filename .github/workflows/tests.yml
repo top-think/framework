@@ -9,27 +9,8 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  linux_tests:
+  tests:
     runs-on: ubuntu-22.04
-
-    services:
-      memcached:
-        image: memcached:1.6-alpine
-        ports:
-          - 11211:11211
-      mysql:
-        image: mysql:5.7
-        env:
-          MYSQL_ALLOW_EMPTY_PASSWORD: yes
-          MYSQL_DATABASE: test
-        ports:
-          - 33306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      redis:
-        image: redis:7.0
-        ports:
-          - 6379:6379
-        options: --entrypoint redis-server
 
     strategy:
       fail-fast: true
@@ -46,7 +27,6 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, gd, pdo_mysql, fileinfo, ftp, redis, memcached, gmp 
           tools: composer:v2
           coverage: xdebug
 
@@ -59,11 +39,9 @@ jobs:
 
       - name: Execute tests
         run: vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
-        env:
-          DB_PORT: ${{ job.services.mysql.ports[3306] }}
-          DB_USERNAME: root
 
       - name: Upload Coverage
         run: |
+          cat build/logs/coverage.xml
           wget https://scrutinizer-ci.com/ocular.phar
           php ocular.phar code-coverage:upload --format=php-clover build/logs/coverage.xml
