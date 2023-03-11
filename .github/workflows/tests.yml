@@ -34,10 +34,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.1, 8.2]
-        stability: [prefer-lowest, prefer-stable]
+        php: [8.0, 8.1, 8.2]
 
-    name: PHP ${{ matrix.php }} - ${{ matrix.stability }}
+    name: PHP ${{ matrix.php }}
 
     steps:
       - name: Checkout code
@@ -56,7 +55,7 @@ jobs:
         with:
           timeout_minutes: 5
           max_attempts: 5
-          command: composer update --${{ matrix.stability }} --prefer-dist --no-interaction --no-progress
+          command: composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
 
       - name: Execute tests
         run: vendor/bin/phpunit --coverage-clover build/logs/coverage.xml
