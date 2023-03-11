@@ -32,7 +32,7 @@
     "require-dev": {
         "mikey179/vfsstream": "^1.6",
         "mockery/mockery": "^1.2",
-        "phpunit/phpunit": "^7|^8|^9.5",
+        "phpunit/phpunit": "^9.5",
         "guzzlehttp/psr7": "^2.1.0"
     },
     "autoload": {
