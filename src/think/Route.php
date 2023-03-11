@@ -819,7 +819,7 @@ class Route
     {
         if ($this->request->method() == 'OPTIONS') {
             // 自动响应options请求
-            return $this->optionsResponse();
+            return $this->autoOptionsResponse();
         }
 
         return new UrlDispatch($this->request, $this->group, $url);
