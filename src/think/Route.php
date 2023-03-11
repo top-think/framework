@@ -172,6 +172,11 @@ class Route
         $this->removeSlash    = $this->config['remove_slash'];
 
         $this->group->removeSlash($this->removeSlash);
+
+        // 注册全局MISS路由
+        $this->miss(function () {
+            return $this->autoOptionsResponse();
+        }, 'options');
     }
 
     public function config(string $name = null)
@@ -814,12 +819,22 @@ class Route
     {
         if ($this->request->method() == 'OPTIONS') {
             // 自动响应options请求
-            return new Callback($this->request, $this->group, function () {
-                return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
-            });
+            return $this->optionsResponse();
         }
 
         return new UrlDispatch($this->request, $this->group, $url);
+    }
+
+    /**
+     * 自动响应options请求
+     * @access protected
+     * @return Callback
+     */
+    protected function autoOptionsResponse(): Callback
+    {
+        return new Callback($this->request, $this->group, function () {
+            return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
+        });
     }
 
     /**
