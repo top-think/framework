@@ -187,7 +187,7 @@ class Route
         // 注册全局MISS路由
         $this->miss(function () {
             return $this->autoOptionsResponse();
-        }, 'options');        
+        }, 'options');
     }
 
     public function config(string $name = null)
