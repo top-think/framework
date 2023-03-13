@@ -186,7 +186,7 @@ class Route
 
         // 注册全局MISS路由
         $this->miss(function () {
-            return $this->autoOptionsResponse();
+            return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
         }, 'options');
     }
 
@@ -857,22 +857,12 @@ class Route
     {
         if ($this->request->method() == 'OPTIONS') {
             // 自动响应options请求
-            return $this->autoOptionsResponse();
+            return new Callback($this->request, $this->group, function () {
+                return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
+            });
         }
 
         return new UrlDispatch($this->request, $this->group, $url);
-    }
-
-    /**
-     * 自动响应options请求
-     * @access protected
-     * @return Callback
-     */
-    protected function autoOptionsResponse(): Callback
-    {
-        return new Callback($this->request, $this->group, function () {
-            return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
-        });
     }
 
     /**
