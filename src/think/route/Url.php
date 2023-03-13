@@ -202,7 +202,7 @@ class Url
      * @param  string|bool $domain Domain
      * @return string
      */
-    protected function parseUrl(string $url, string|bool &$domain): string
+    protected function parseUrl(string $url, string | bool &$domain): string
     {
         $request = $this->app->request;
 
