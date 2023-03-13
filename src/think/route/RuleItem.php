@@ -271,10 +271,6 @@ class RuleItem extends Rule
             $regex = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $completeMatch);
 
             try {
-                if ($matchRule[0] && strpos($regex, ')') !== false) {
-                    // 修复路由参数存在动态变量时, URL地址大小写敏感
-                    $url = preg_replace('~' . $matchRule[0] . '~i', $matchRule[0], $url, 1);
-                }
                 if (!preg_match('~^' . $regex . '~u', $url, $match)) {
                     return false;
                 }
