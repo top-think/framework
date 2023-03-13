@@ -80,7 +80,7 @@ class Channel implements LoggerInterface
      */
     public function record($msg, string $type = 'info', array $context = [], bool $lazy = true)
     {
-        if ($this->close || (!empty($this->allow) && !in_array($type, $this->allow))) {
+        if ($this->close || (!empty($this->allow) && (!in_array($type, $this->allow) || !in_array('*', $this->allow)))) {
             return $this;
         }
 
