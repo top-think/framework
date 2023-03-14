@@ -187,7 +187,7 @@ class Route
         // 注册全局MISS路由
         $this->miss(function () {
             return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
-        }, 'options');
+        }, 'options')->allowCrossDomain();
     }
 
     public function config(string $name = null)
