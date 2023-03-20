@@ -209,8 +209,8 @@ class Lang
         $range = $range ?: $this->range;
 
         if ($this->config['allow_group'] && str_contains($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 2);
-            return isset($this->lang[$range][strtolower($name1)][$name2]);
+            [$name1, $name2, $name3] = explode('.', $name, 3);
+            return isset($this->lang[$range][strtolower($name1)][$name2][$name3]) ?? isset($this->lang[$range][strtolower($name1)][$name2]) ?? false;
         }
 
         return isset($this->lang[$range][strtolower($name)]);
@@ -238,9 +238,9 @@ class Lang
         }
 
         if ($this->config['allow_group'] && str_contains($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 2);
+            [$name1, $name2] = explode('.', $name, 3);
 
-            $value = $this->lang[$range][strtolower($name1)][$name2] ?? $name;
+            $value = $this->lang[$range][strtolower($name1)][$name2][$name3] ?? $this->lang[$range][strtolower($name1)][$name2] ?? $name;
         } else {
             $value = $this->lang[$range][strtolower($name)] ?? $name;
         }
