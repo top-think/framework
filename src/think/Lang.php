@@ -211,7 +211,7 @@ class Lang
         if ($this->config['allow_group'] && substr_count($name, '.') === 2) {
             [$name1, $name2, $name3] = explode('.', $name, 3);
             return isset($this->lang[$range][strtolower($name1)][$name2][$name3]);
-        } else if ($this->config['allow_group'] && substr_count($name, '.') === 1) {
+        } elseif ($this->config['allow_group'] && substr_count($name, '.') === 1) {
             [$name1, $name2] = explode('.', $name, 2);
             return isset($this->lang[$range][strtolower($name1)][$name2]);
         }
@@ -243,7 +243,7 @@ class Lang
         if ($this->config['allow_group'] && substr_count($name, '.') === 2) {
             [$name1, $name2, $name3] = explode('.', $name, 3);
             $value = $this->lang[$range][strtolower($name1)][$name2][$name3] ?? $this->lang[$range][strtolower($name1)][$name2] ?? $name;
-        } else if ($this->config['allow_group'] && substr_count($name, '.') === 1) {
+        } elseif ($this->config['allow_group'] && substr_count($name, '.') === 1) {
             [$name1, $name2] = explode('.', $name, 2);
             $value = $this->lang[$range][strtolower($name1)][$name2] ?? $name;
         } else {
