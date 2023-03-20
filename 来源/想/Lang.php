@@ -238,7 +238,7 @@ class Lang
         }
 
         if ($this->config['allow_group'] && str_contains($name, '.')) {
-            [$name1, $name2] = explode('.', $name, 3);
+            [$name1, $name2, $name3] = explode('.', $name, 3);
 
             $value = $this->lang[$range][strtolower($name1)][$name2][$name3] ?? $this->lang[$range][strtolower($name1)][$name2] ?? $name;
         } else {
