@@ -97,13 +97,15 @@ class CacheTest extends TestCase
 
         //tags
         $this->cache->tag('foo')->set('bar', 'foobar');
-        $this->assertEquals('foobar', $this->cache->get('bar'));
+        $this->cache->tag('foo')->remember('bar', 'foobar');
         $this->cache->tag('foo')->clear();
         $this->assertFalse($this->cache->has('bar'));
 
         //multiple
         $this->cache->setMultiple(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']]);
+        $this->cache->tag('foo')->setMultiple(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']]);
         $this->assertEquals(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']], $this->cache->getMultiple(['foo', 'foobar']));
+        $this->assertIsInt($this->cache->getWriteTimes());
         $this->assertTrue($this->cache->deleteMultiple(['foo', 'foobar']));
     }
 
