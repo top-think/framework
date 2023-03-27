@@ -97,7 +97,9 @@ class CacheTest extends TestCase
 
         //tags
         $this->cache->tag('foo')->set('bar', 'foobar');
-        $this->cache->tag('foo')->remember('bar', 'foobar');
+        $this->assertEquals('foobar', $this->cache->get('bar'));
+        $this->cache->tag('foo')->remember('baz', 'foobar');
+        $this->assertEquals('foobar', $this->cache->get('baz'));
         $this->cache->tag('foo')->clear();
         $this->assertFalse($this->cache->has('bar'));
 
