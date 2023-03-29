@@ -613,8 +613,7 @@ class Validate
             return true;
         }
         
-        if (in_array('nullable', $rules) && (is_null($value) || '' === $value) && !in_array('require', $rules) 
-            && !method_exists($this, 'require') && !method_exists($this, 'nullable')) return true;
+        if (in_array('nullable', $rules) && (is_null($value) || '' === $value) && !in_array('require', $rules) && !method_exists($this, 'require') && !method_exists($this, 'nullable')) return true;
        
         $i = 0;
         foreach ($rules as $key => $rule) {
@@ -838,7 +837,7 @@ class Validate
                 break;
             case 'date':
                 // 是否是一个有效日期
-                $result = false !== strtotime((string)$value);
+                $result = false !== strtotime((string) $value);
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
@@ -1114,7 +1113,7 @@ class Validate
      */
     public function dateFormat($value, $rule): bool
     {
-        $info = date_parse_from_format($rule, (string)$value);
+        $info = date_parse_from_format($rule, (string) $value);
         return 0 == $info['warning_count'] && 0 == $info['error_count'];
     }
 
@@ -1406,7 +1405,7 @@ class Validate
      */
     public function after($value, $rule, array $data = []): bool
     {
-        return strtotime((string)$value) >= strtotime((string)$rule);
+        return strtotime((string) $value) >= strtotime((string) $rule);
     }
 
     /**
@@ -1419,7 +1418,7 @@ class Validate
      */
     public function before($value, $rule, array $data = []): bool
     {
-        return strtotime((string)$value) <= strtotime((string)$rule);
+        return strtotime((string) $value) <= strtotime((string)$rule);
     }
 
     /**
