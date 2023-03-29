@@ -1418,7 +1418,7 @@ class Validate
      */
     public function before($value, $rule, array $data = []): bool
     {
-        return strtotime((string) $value) <= strtotime((string)$rule);
+        return strtotime((string) $value) <= strtotime((string) $rule);
     }
 
     /**
