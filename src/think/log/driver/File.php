@@ -140,7 +140,7 @@ class File implements LogHandlerInterface
             try {
                 if (count($files) > $this->config['max_files']) {
                     usort($files, function ($a, $b) {
-                        return   filemtime($a) - filemtime($b);
+                        return filemtime($b) - filemtime($a);
                     });
                     set_error_handler(function ($errno, $errstr, $errfile, $errline) {});
                     unlink($files[0]);
