@@ -1154,7 +1154,7 @@ class Validate
         $pk = !empty($rule[3]) ? $rule[3] : $db->getPk();
 
         if (is_string($pk)) {
-            if (isset($rule[2])) {
+            if (!empty($rule[2])) {
                 $map[] = [$pk, '<>', $rule[2]];
             } elseif (isset($data[$pk])) {
                 $map[] = [$pk, '<>', $data[$pk]];
