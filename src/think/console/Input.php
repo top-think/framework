@@ -12,9 +12,7 @@ declare (strict_types = 1);
 
 namespace think\console;
 
-use think\console\input\Argument;
 use think\console\input\Definition;
-use think\console\input\Option;
 
 class Input
 {
