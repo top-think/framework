@@ -68,7 +68,7 @@ class SessionInit
 
         $response->setSession($this->session);
 
-        $this->app->cookie->set($cookieName, $this->session->getId());
+        $this->app->cookie->set($cookieName, $this->session->getId(), $this->app->config->get('session'));
 
         return $response;
     }
