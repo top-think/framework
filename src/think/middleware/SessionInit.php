@@ -59,7 +59,7 @@ class SessionInit
 
         $response->setSession($this->session);
 
-        $this->app->cookie->set($cookieName, $this->session->getId());
+        $this->app->cookie->set($cookieName, $this->session->getId(), $this->session->getConfig('expire'));
 
         return $response;
     }
