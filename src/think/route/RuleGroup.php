@@ -268,7 +268,9 @@ class RuleGroup extends Rule
         $items = [];
 
         foreach ($rules as $key => $val) {
-            $item = $val[1];
+            // $item = is_array($val) ? $val[1] : $val;
+            // $item = $val[1];
+            $item = $val;
             if ($item instanceof RuleItem) {
                 $rule = $depr . str_replace('/', $depr, $item->getRule());
                 if ($depr == $rule && $depr != $url) {
