@@ -1123,13 +1123,13 @@ class Validate
             if(!in_array($field, $map_arr)){
                 $map[] = [$field, '=', $data[$field]];
             }
-        } elseif (strpos($key, '=')) {
+        } elseif (str_contains($key, '=')) {
             // 支持复杂验证条件
             $fields = explode('&', $key);
             $map_arr=[];
             foreach ($fields as $k) {
                 //判断验证条件是否传参，没有传参就使用$data中对应的值
-                if (strpos($k, '=')) {
+                if (str_contains($k, '=')) {
                     $str_map = explode('=', $k);
                     $map[] = [$str_map[0], '=', $str_map[1]];
                     $map_arr[]=$str_map[0];
