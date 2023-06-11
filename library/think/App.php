@@ -277,12 +277,9 @@ class App extends Container
         } elseif (is_file($this->runtimePath . $module . 'init.php')) {
             include $this->runtimePath . $module . 'init.php';
         } else {
-            // 加载行为扩展文件
-            if (is_file($path . 'tags.php')) {
-                $tags = include $path . 'tags.php';
-                if (is_array($tags)) {
-                    $this->hook->import($tags);
-                }
+            if ('' == $module) {
+                // 加载系统助手函数
+                include $this->thinkPath . 'helper.php';
             }
 
             // 加载公共文件
@@ -290,9 +287,27 @@ class App extends Container
                 include_once $path . 'common.php';
             }
 
-            if ('' == $module) {
-                // 加载系统助手函数
-                include $this->thinkPath . 'helper.php';
+            // 自动读取配置文件
+            if (is_dir($path . 'config')) {
+                $dir = $path . 'config' . DIRECTORY_SEPARATOR;
+            } elseif (is_dir($this->configPath . $module)) {
+                $dir = $this->configPath . $module;
+            }
+
+            $files = isset($dir) ? scandir($dir) : [];
+
+            foreach ($files as $file) {
+                if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
+                    $this->config->load($dir . $file, pathinfo($file, PATHINFO_FILENAME));
+                }
+            }
+            
+            // 加载行为扩展文件
+            if (is_file($path . 'tags.php')) {
+                $tags = include $path . 'tags.php';
+                if (is_array($tags)) {
+                    $this->hook->import($tags);
+                }
             }
 
             // 加载中间件
@@ -308,21 +323,6 @@ class App extends Container
                 $provider = include $path . 'provider.php';
                 if (is_array($provider)) {
                     $this->bindTo($provider);
-                }
-            }
-
-            // 自动读取配置文件
-            if (is_dir($path . 'config')) {
-                $dir = $path . 'config' . DIRECTORY_SEPARATOR;
-            } elseif (is_dir($this->configPath . $module)) {
-                $dir = $this->configPath . $module;
-            }
-
-            $files = isset($dir) ? scandir($dir) : [];
-
-            foreach ($files as $file) {
-                if ('.' . pathinfo($file, PATHINFO_EXTENSION) === $this->configExt) {
-                    $this->config->load($dir . $file, pathinfo($file, PATHINFO_FILENAME));
                 }
             }
         }
