@@ -331,11 +331,12 @@ class App extends Container
 
         if ($module) {
             // 对容器中的对象实例进行配置更新
-            $this->containerConfigUpdate($module);
+            $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
         }
+        $this->containerConfigUpdate();
     }
 
-    protected function containerConfigUpdate($module)
+    protected function containerConfigUpdate()
     {
         $config = $this->config->get();
 
@@ -354,10 +355,7 @@ class App extends Container
         $this->session->setConfig($config['session']);
         $this->debug->setConfig($config['trace']);
         $this->cache->init($config['cache'], true);
-
-        // 加载当前模块语言包
-        $this->lang->load($this->appPath . $module . DIRECTORY_SEPARATOR . 'lang' . DIRECTORY_SEPARATOR . $this->request->langset() . '.php');
-
+       
         // 模块请求缓存检查
         $this->checkRequestCache(
             $config['app']['request_cache'],
