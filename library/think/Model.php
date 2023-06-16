@@ -736,7 +736,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             ->where($where)
             ->setInc($field, $step, $lazyTime);
 
-        if (true !== $result) {
+        if (true != $result) {
             $this->data[$field] += $step;
         }
 
