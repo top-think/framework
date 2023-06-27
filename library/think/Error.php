@@ -85,7 +85,10 @@ class Error
         // 将错误信息托管至 think\ErrorException
         if (!is_null($error = error_get_last()) && self::isFatal($error['type'])) {
             self::appException(new ErrorException(
-                $error['type'], $error['message'], $error['file'], $error['line']
+                $error['type'],
+                $error['message'],
+                $error['file'],
+                $error['line']
             ));
         }
 

@@ -1329,7 +1329,8 @@ class Validate
             $msg = str_replace(
                 [':attribute', ':rule', ':1', ':2', ':3'],
                 [$title, (string) $rule, $array[0], $array[1], $array[2]],
-                $msg);
+                $msg
+            );
         }
         return $msg;
     }

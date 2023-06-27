@@ -187,7 +187,8 @@ class Config
             }
 
             return self::$config[$range] = array_merge(
-                self::$config[$range], array_change_key_case($name)
+                self::$config[$range],
+                array_change_key_case($name)
             );
         }
 
