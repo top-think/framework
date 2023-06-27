@@ -612,9 +612,7 @@ class Validate
         if (empty($rules)) {
             return true;
         }
-        
-        if (in_array('nullable', $rules) && (is_null($value) || '' === $value) && !in_array('require', $rules) && !method_exists($this, 'require') && !method_exists($this, 'nullable')) return true;
-       
+
         $i = 0;
         foreach ($rules as $key => $rule) {
             if ($rule instanceof Closure) {
@@ -630,14 +628,16 @@ class Validate
                     $i++;
                     continue;
                 }
-                
+
                 if (isset($this->type[$type])) {
                     $result = call_user_func_array($this->type[$type], [$value, $rule, $data, $field, $title]);
-                } else {
+                } elseif ('must' == $info || 0 === strpos($info, 'require') || (!is_null($value) && '' !== $value)) {
                     $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
+                } else {
+                    $result = true;
                 }
             }
-            
+
             if (false === $result) {
                 // 验证失败 返回错误信息
                 if (!empty($msg[$i])) {
@@ -664,7 +664,7 @@ class Validate
             }
             $i++;
         }
-       
+
         return $result ?? true;
     }
 
@@ -837,11 +837,11 @@ class Validate
                 break;
             case 'date':
                 // 是否是一个有效日期
-                $result = false !== strtotime((string) $value);
+                $result = false !== strtotime($value);
                 break;
             case 'activeUrl':
                 // 是否为有效的网址
-                $result = empty($value) ? false : checkdnsrr($value);
+                $result = checkdnsrr($value);
                 break;
             case 'boolean':
             case 'bool':
@@ -867,9 +867,6 @@ class Validate
             case 'token':
                 $result = $this->token($value, '__token__', $data);
                 break;
-            case 'nullable':
-                $result = true;
-                break;
             default:
                 if (isset($this->type[$rule])) {
                     // 注册的验证规则
@@ -886,7 +883,7 @@ class Validate
                     $result = $this->regex($value, $rule);
                 }
         }
-        
+
         return $result;
     }
 
@@ -926,10 +923,8 @@ class Validate
      * @param mixed $rule  验证规则
      * @return bool
      */
-    public function activeUrl(string|null $value, string $rule = 'MX'): bool
+    public function activeUrl(string $value, string $rule = 'MX'): bool
     {
-        if(empty($value)) return false;
-        
         if (!in_array($rule, ['A', 'MX', 'NS', 'SOA', 'PTR', 'CNAME', 'AAAA', 'A6', 'SRV', 'NAPTR', 'TXT', 'ANY'])) {
             $rule = 'MX';
         }
@@ -1113,7 +1108,7 @@ class Validate
      */
     public function dateFormat($value, $rule): bool
     {
-        $info = date_parse_from_format($rule, (string) $value);
+        $info = date_parse_from_format($rule, $value);
         return 0 == $info['warning_count'] && 0 == $info['error_count'];
     }
 
@@ -1405,7 +1400,7 @@ class Validate
      */
     public function after($value, $rule, array $data = []): bool
     {
-        return strtotime((string) $value) >= strtotime((string) $rule);
+        return strtotime($value) >= strtotime($rule);
     }
 
     /**
@@ -1418,7 +1413,7 @@ class Validate
      */
     public function before($value, $rule, array $data = []): bool
     {
-        return strtotime((string) $value) <= strtotime((string) $rule);
+        return strtotime($value) <= strtotime($rule);
     }
 
     /**
