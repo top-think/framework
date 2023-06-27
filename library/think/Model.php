@@ -567,6 +567,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 break;
             case 'array':
                 $value = (array) $value;
+                // no break
             case 'json':
                 $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
                 $value  = json_encode($value, $option);

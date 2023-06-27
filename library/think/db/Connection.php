@@ -491,7 +491,8 @@ abstract class Connection
             str_replace(
                 [':' . $key . ')', ':' . $key . ',', ':' . $key . ' ', ':' . $key . PHP_EOL],
                 [$value . ')', $value . ',', $value . ' ', $value . PHP_EOL],
-                $sql . ' ');
+                $sql . ' '
+            );
         }
         return rtrim($sql);
     }

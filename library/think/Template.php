@@ -12,7 +12,6 @@
 namespace think;
 
 use think\exception\TemplateNotFoundException;
-use think\template\TagLib;
 
 /**
  * ThinkPHP分离出来的模板引擎
@@ -1120,6 +1119,7 @@ class Template
                     break;
                 case 'include':
                     $name = 'file';
+                    // no break
                 case 'taglib':
                 case 'layout':
                 case 'extend':
