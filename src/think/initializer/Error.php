@@ -55,7 +55,9 @@ class Error
         if ($this->app->runningInConsole()) {
             $handler->renderForConsole(new ConsoleOutput, $e);
         } else {
-            $handler->render($this->app->request, $e)->send();
+            $response = $handler->render($this->app->request, $e);
+            $response->send();
+            $this->app->http->end($response);
         }
     }
 
