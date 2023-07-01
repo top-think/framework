@@ -174,7 +174,7 @@ class RuleGroup extends Rule
             $result = $this->parseRule($request, '', $option['dispatcher'], $url, $option);
         } elseif ($miss = $this->getMissRule($method)) {
             // 未匹配所有路由的路由规则处理
-            $result = $this->parseRule($request, '', $miss->getRoute(), $url, $miss->getOption());
+            $result = $miss->parseRule($request, '', $miss->getRoute(), $url, $miss->getOption());
         } else {
             $result = false;
         }
