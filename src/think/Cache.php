@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace think;
 
@@ -83,10 +83,10 @@ class Cache extends Manager implements CacheInterface
     /**
      * 连接或者切换缓存
      * @access public
-     * @param string $name 连接配置名
+     * @param string|null $name 连接配置名
      * @return Driver
      */
-    public function store(string $name = null): Driver
+    public function store(string $name = null)
     {
         return $this->driver($name);
     }
