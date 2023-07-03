@@ -175,10 +175,10 @@ class File extends SplFileInfo
     /**
      * 自动生成文件名
      * @access public
-     * @param string|Closure $rule
+     * @param string|Closure|null $rule
      * @return string
      */
-    public function hashName(string|Closure $rule = ''): string
+    public function hashName(string|Closure|null $rule = null): string
     {
         if (!$this->hashName) {
             if ($rule instanceof Closure) {
