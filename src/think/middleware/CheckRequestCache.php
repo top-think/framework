@@ -70,11 +70,11 @@ class CheckRequestCache
 
             if ($cache) {
                 if (is_array($cache)) {
-                    [$key, $expire, $tag] = array_pad($cache, 3, null);
+                    [$key, $expire, $tag] = array_pad($cache, 3, '');
                 } else {
                     $key    = md5($request->url(true));
                     $expire = $cache;
-                    $tag    = null;
+                    $tag    = '';
                 }
 
                 $key = $this->parseCacheKey($request, $key);
