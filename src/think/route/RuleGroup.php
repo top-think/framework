@@ -263,8 +263,7 @@ class RuleGroup extends Rule
         $regex = [];
         $items = [];
 
-        foreach ($rules as $key => $val) {
-            $item = $val[1];
+        foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
                 $rule = $depr . str_replace('/', $depr, $item->getRule());
                 if ($depr == $rule && $depr != $url) {
