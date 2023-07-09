@@ -1494,7 +1494,8 @@ class Validate
             $msg = str_replace(
                 [':attribute', ':1', ':2', ':3'],
                 [$title, $array[0], $array[1], $array[2]],
-                $msg);
+                $msg
+            );
             if (strpos($msg, ':rule')) {
                 $msg = str_replace(':rule', (string) $rule, $msg);
             }

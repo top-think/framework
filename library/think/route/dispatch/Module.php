@@ -88,10 +88,12 @@ class Module extends Dispatch
 
         try {
             // 实例化控制器
-            $instance = $this->app->controller($this->controller,
+            $instance = $this->app->controller(
+                $this->controller,
                 $this->rule->getConfig('url_controller_layer'),
                 $this->rule->getConfig('controller_suffix'),
-                $this->rule->getConfig('empty_controller'));
+                $this->rule->getConfig('empty_controller')
+            );
         } catch (ClassNotFoundException $e) {
             throw new HttpException(404, 'controller not exists:' . $e->getClass());
         }
