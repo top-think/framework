@@ -130,7 +130,8 @@ class File extends Driver
             return $default;
         }
 
-        $content      = file_get_contents($filename);
+        $content = @file_get_contents($filename);
+
         $this->expire = null;
 
         if (false !== $content) {
@@ -245,11 +246,7 @@ class File extends Driver
     public function rm($name)
     {
         $this->writeTimes++;
-
-        try {
-            return $this->unlink($this->getCacheKey($name));
-        } catch (\Exception $e) {
-        }
+        return $this->unlink($this->getCacheKey($name));
     }
 
     /**
@@ -301,7 +298,11 @@ class File extends Driver
      */
     private function unlink($path)
     {
-        return is_file($path) && unlink($path);
+        try {
+            return is_file($path) && unlink($path);
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
 }
