@@ -176,7 +176,8 @@ class File extends Driver
         }
 
         $data   = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
-        $result = file_put_contents($filename, $data);
+
+        $result = file_put_contents($filename, $data, LOCK_EX);
 
         if ($result) {
             clearstatcache();
