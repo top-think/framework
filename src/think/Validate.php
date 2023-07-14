@@ -1199,7 +1199,10 @@ class Validate
      */
     public function requireIf($value, $rule, array $data = []): bool
     {
-        [$field, $val] = explode(',', $rule);
+        if (is_string($rule)) {
+            $rule = explode(',', $rule);
+        }
+        [$field, $val] = $rule;
 
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value) || '0' == $value;
