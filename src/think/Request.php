@@ -383,7 +383,7 @@ class Request implements ArrayAccess
             $port = '';
 
             // 如果包含端口号，那就提取出来
-            if (strpos($host, ':')) {
+            if (str_contains($host, ':')) {
                 [$host, $port] = explode(':', $host);
             }
 
@@ -392,10 +392,10 @@ class Request implements ArrayAccess
             $root = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
 
             // 获取配置文件里面的公共域名后缀
-            $public_suffix = app('config')->get('app.domain_public_suffix');
+            $public_suffix = app('config')->get('app.domain_public_suffix', []);
 
             // 如果是字符串，那就转换成数组
-            if(!is_array($public_suffix)) {
+            if(!is_array($public_suffix) && $public_suffix) {
                 $public_suffix = explode(',', $public_suffix);
             }
 
