@@ -370,16 +370,56 @@ class Request implements ArrayAccess
     /**
      * 获取当前根域名
      * @access public
+     * @param bool $strict true 仅仅获取HOST（不包括端口号）
      * @return string
      */
-    public function rootDomain(): string
+    public function rootDomain(bool $strict = false): string
     {
         $root = $this->rootDomain;
 
         if (!$root) {
-            $item  = explode('.', $this->host());
+            // 获取可能包含端口号的 HOST
+            $host = $this->host();
+            $port = '';
+
+            // 如果包含端口号，那就提取出来
+            if (strpos($host, ':')) {
+                [$host, $port] = explode(':', $host);
+            }
+
+            $item = explode('.', $host);
             $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+            $root = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+
+            // 获取配置文件里面的公共域名后缀
+            $public_suffix = app('config')->get('app.domain_public_suffix');
+
+            // 如果是字符串，那就转换成数组
+            if(!is_array($public_suffix)) {
+                $public_suffix = explode(',', $public_suffix);
+            }
+
+            // 按照前面的匹配规则，如果 HOST 是 `thinkphp.com.cn` 那 $root 是 `com.cn`。
+            // 只会存在一个 `.` ，不满足就跳过，同时 HOST 的长度要大于 2 才能满足分配。
+            if (substr_count($root, '.') === 1 && $count > 2 && count($public_suffix)) {
+                foreach ($public_suffix as $suffix) {
+                    // 不止一个 `.` 的有两种情况，第一种是 `cn` `com` 这种，上面就匹配了，这里就不用管了。
+                    // 第二种太少见就不考虑了。
+                    if (substr_count($suffix, '.') !== 1) {
+                        continue;
+                    }
+
+                    if (strtolower($suffix) == strtolower($root)) {
+                        $root = $item[$count - 3] . '.' . $root;
+                        break;
+                    }
+                }
+            }
+
+            // 如果不是严格模式且端口号存在，那就把端口号拼接上去，主要兼容 host() 方法的严格模式。
+            if(!$strict && $port){
+                $root .= ':' . $port;
+            }
         }
 
         return $root;
