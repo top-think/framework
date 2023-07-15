@@ -392,17 +392,17 @@ class Request implements ArrayAccess
             $root = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
 
             // 获取配置文件里面的公共域名后缀
-            $public_suffix = app('config')->get('app.domain_public_suffix', []);
+            $publicSuffix = app('config')->get('app.domain_public_suffix', []);
 
             // 如果是字符串，那就转换成数组
-            if(!is_array($public_suffix) && $public_suffix) {
-                $public_suffix = explode(',', $public_suffix);
+            if(!is_array($publicSuffix) && $publicSuffix) {
+                $publicSuffix = explode(',', $publicSuffix);
             }
 
             // 按照前面的匹配规则，如果 HOST 是 `thinkphp.com.cn` 那 $root 是 `com.cn`。
             // 只会存在一个 `.` ，不满足就跳过，同时 HOST 的长度要大于 2 才能满足分配。
-            if (substr_count($root, '.') === 1 && $count > 2 && count($public_suffix)) {
-                foreach ($public_suffix as $suffix) {
+            if (substr_count($root, '.') === 1 && $count > 2 && count($publicSuffix)) {
+                foreach ($publicSuffix as $suffix) {
                     // 不止一个 `.` 的有两种情况，第一种是 `cn` `com` 这种，上面就匹配了，这里就不用管了。
                     // 第二种太少见就不考虑了。
                     if (substr_count($suffix, '.') !== 1) {
