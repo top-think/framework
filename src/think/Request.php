@@ -60,6 +60,12 @@ class Request implements ArrayAccess
     protected $rootDomain = '';
 
     /**
+     * 特殊域名根标识 用于识别com.cn org.cn 这种
+     * @var array
+     */
+    protected $domainSpecialSuffix = ['com', 'net', 'org', 'edu', 'gov', 'mil', 'co', 'info'];
+
+    /**
      * HTTPS代理标识
      * @var string
      */
@@ -377,9 +383,16 @@ class Request implements ArrayAccess
         $root = $this->rootDomain;
 
         if (!$root) {
-            $item  = explode('.', $this->host());
+            $item  = explode('.', $this->host(true));
             $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+            if ($count > 1) {
+                $root = $item[$count - 2] . '.' . $item[$count - 1];
+                if ($count > 2 && in_array($item[$count - 2], $this->domainSpecialSuffix)) {
+                    $root = $item[$count - 3] . '.' . $root;
+                }
+            } else {
+                $root  = $item[0];
+            }
         }
 
         return $root;
