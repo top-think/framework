@@ -139,8 +139,17 @@ class File implements LogHandlerInterface
 
             try {
                 if (count($files) > $this->config['max_files']) {
+                    $oldest_file = $files[0];
+                    $oldest_mtime = filemtime($oldest_file);
+                    for ($i = 1; $i < count($files); $i++) {
+                        $mtime = filemtime($files[$i]);
+                        if ($mtime < $oldest_mtime) {
+                            $oldest_file = $files[$i];
+                            $oldest_mtime = $mtime;
+                        }
+                    }
                     set_error_handler(function ($errno, $errstr, $errfile, $errline) {});
-                    unlink($files[0]);
+                    unlink($oldest_file);
                     restore_error_handler();
                 }
             } catch (\Exception $e) {
