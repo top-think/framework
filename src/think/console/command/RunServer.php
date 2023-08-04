@@ -81,7 +81,7 @@ class RunServer extends Command
         }
 
         $path = PHP_BINDIR . DIRECTORY_SEPARATOR . 'php';
-        if (file_exists($path) && is_executable(PHP_BINARY)) {
+        if (file_exists($path) && is_executable($path)) {
             return $path;
         }
 
