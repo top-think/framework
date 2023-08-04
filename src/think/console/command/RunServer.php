@@ -57,7 +57,7 @@ class RunServer extends Command
 
         $command = sprintf(
             '%s -S %s:%d -t %s %s',
-            $this->getPhpBinary(),
+            PHP_BINARY,
             $host,
             $port,
             escapeshellarg($root),
@@ -69,23 +69,4 @@ class RunServer extends Command
         $output->writeln(sprintf('Document root is: %s', $root));
         passthru($command);
     }
-
-    /**
-     * 获取 PHP 路径
-     * @return string
-     */
-    protected function getPhpBinary(): string
-    {
-        if (is_executable(PHP_BINARY)) {
-            return PHP_BINARY;
-        }
-
-        $path = PHP_BINDIR . DIRECTORY_SEPARATOR . 'php';
-        if (file_exists($path) && is_executable($path)) {
-            return $path;
-        }
-
-        return 'php';
-    }
-
 }
