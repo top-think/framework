@@ -203,7 +203,7 @@ class Http
     {
         $withRoute = $this->app->config->get('app.with_route', true) ? function () {
             $this->loadRoutes();
-        } : null;
+        } : false;
 
         return $this->app->route->dispatch($request, $withRoute);
     }
