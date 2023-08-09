@@ -15,7 +15,6 @@ namespace think\cache;
 use Closure;
 use DateInterval;
 use DateTime;
-use DateTimeInterface;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
 use think\Container;
