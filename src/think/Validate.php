@@ -1146,7 +1146,7 @@ class Validate
                 }
             }
         } elseif (isset($data[$field])) {
-            $map[] = [$key, '=', $data[$field]];
+            $map[] = [$key ?: $field, '=', $data[$field]];
         } else {
             $map = [];
         }
