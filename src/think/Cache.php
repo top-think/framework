@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace think;
 
 use DateInterval;
+use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
 use think\cache\Driver;
 use think\cache\TagSet;
@@ -118,10 +119,10 @@ class Cache extends Manager implements CacheInterface
      * @access public
      * @param string        $key   缓存变量名
      * @param mixed         $value 存储数据
-     * @param int|\DateTime $ttl   有效时间 0为永久
+     * @param int|DateTimeInterface|DateInterval|null $ttl   有效时间 0为永久
      * @return bool
      */
-    public function set(string $key, mixed $value, int|DateInterval $ttl = null): bool
+    public function set(string $key, mixed $value, int|DateTimeInterface|DateInterval $ttl = null): bool
     {
         return $this->store()->set($key, $value, $ttl);
     }
