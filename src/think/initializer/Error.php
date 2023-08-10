@@ -35,7 +35,6 @@ class Error
     public function init(App $app)
     {
         $this->app = $app;
-        error_reporting(E_ALL);
         set_error_handler([$this, 'appError']);
         set_exception_handler([$this, 'appException']);
         register_shutdown_function([$this, 'appShutdown']);
