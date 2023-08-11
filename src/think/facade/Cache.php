@@ -26,7 +26,7 @@ use think\Facade;
  * @method static Driver store(string $name = null) 连接或者切换缓存
  * @method static bool clear() 清空缓冲池
  * @method static mixed get(string $key, mixed $default = null) 读取缓存
- * @method static bool set(string $key, mixed $value, int|\DateTime $ttl = null) 写入缓存
+ * @method static bool set(string $key, mixed $value, int|\DateInterval $ttl = null) 写入缓存
  * @method static bool delete(string $key) 删除缓存
  * @method static iterable getMultiple(iterable $keys, mixed $default = null) 读取缓存
  * @method static bool setMultiple(iterable $values, null|int|\DateInterval $ttl = null) 写入缓存
