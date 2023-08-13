@@ -44,6 +44,9 @@ class Channel implements LoggerInterface
 
     public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow = [], protected bool $lazy = true, Event $event = null)
     {
+        if($event) {
+            $this->event = $event;
+        }
     }
 
     /**
@@ -81,7 +84,7 @@ class Channel implements LoggerInterface
         if ($msg instanceof Stringable) {
             $msg = $msg->__toString();
         }
-        
+
         if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
