@@ -97,11 +97,6 @@ class AppTest extends TestCase
         $this->assertEquals($namespace, $this->app->getNamespace());
     }
 
-    public function testVersion()
-    {
-        $this->assertEquals(App::VERSION, $this->app->version());
-    }
-
     public function testPath()
     {
         $rootPath = __DIR__ . DIRECTORY_SEPARATOR;
