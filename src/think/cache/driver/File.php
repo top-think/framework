@@ -13,6 +13,7 @@ declare(strict_types = 1);
 namespace think\cache\driver;
 
 use DateInterval;
+use DateTimeInterface;
 use FilesystemIterator;
 use think\App;
 use think\cache\Driver;
@@ -145,10 +146,10 @@ class File extends Driver
      * @access public
      * @param string                 $name   缓存变量名
      * @param mixed                  $value  存储数据
-     * @param int|\DateInterval|null $expire 有效时间 0为永久
+     * @param int|\DateInterval|DateTimeInterface|null $expire 有效时间 0为永久
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval $expire = null): bool
+    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
     {
         $this->writeTimes++;
 

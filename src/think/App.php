@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace think;
 
+use Composer\InstalledVersions;
 use think\event\AppInit;
 use think\helper\Str;
 use think\initializer\BootService;
@@ -300,7 +301,7 @@ class App extends Container
      */
     public function version(): string
     {
-        return static::VERSION;
+        return ltrim(InstalledVersions::getPrettyVersion('topthink/framework'), 'v');
     }
 
     /**

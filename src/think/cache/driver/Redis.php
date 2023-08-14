@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace think\cache\driver;
 
 use DateInterval;
+use DateTimeInterface;
 use think\cache\Driver;
 
 /**
@@ -128,10 +129,10 @@ class Redis extends Driver
      * @access public
      * @param string            $name   缓存变量名
      * @param mixed             $value  存储数据
-     * @param integer|DateInterval $expire 有效时间（秒）
+     * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval $expire = null): bool
+    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
     {
         $this->writeTimes++;
 

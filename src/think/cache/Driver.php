@@ -14,6 +14,7 @@ namespace think\cache;
 
 use Closure;
 use DateInterval;
+use DateTimeInterface;
 use DateTime;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
@@ -60,12 +61,14 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
     /**
      * 获取有效期
      * @access protected
-     * @param integer|DateInterval $expire 有效期
+     * @param integer|DateInterval|DateTimeInterface $expire 有效期
      * @return int
      */
-    protected function getExpireTime(int|DateInterval $expire): int
+    protected function getExpireTime(int|DateInterval|DateTimeInterface $expire): int
     {
-        if ($expire instanceof DateInterval) {
+        if ($expire instanceof DateTimeInterface) {
+            $expire = $expire->getTimestamp() - time();
+        } elseif ($expire instanceof DateInterval) {
             $expire = DateTime::createFromFormat('U', (string) time())
                 ->add($expire)
                 ->format('U') - time();
@@ -313,10 +316,10 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * 写入缓存
      * @access public
      * @param iterable               $values 缓存数据
-     * @param null|int|\DateInterval $ttl    有效时间 0为永久
+     * @param null|int|\DateInterval|DateTimeInterface $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple(iterable $values, int|DateInterval $ttl = null): bool
+    public function setMultiple(iterable $values, int|DateInterval|DateTimeInterface $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);
