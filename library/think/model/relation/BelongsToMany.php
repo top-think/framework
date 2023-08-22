@@ -310,23 +310,24 @@ class BelongsToMany extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
             // 查询关联数据
             $data = $this->eagerlyManyToMany([
                 ['pivot.' . $localKey, 'in', $range],
             ], $relation, $subRelation, $closure);
+        }
 
-            // 关联属性名
-            $attr = Loader::parseName($relation);
+        // 关联属性名
+        $attr = Loader::parseName($relation);
 
-            // 关联数据封装
-            foreach ($resultSet as $result) {
-                if (!isset($data[$result->$pk])) {
-                    $data[$result->$pk] = [];
-                }
-
-                $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
+        // 关联数据封装
+        foreach ($resultSet as $result) {
+            if (!isset($data[$result->$pk])) {
+                $data[$result->$pk] = [];
             }
+
+            $result->setRelation($attr, $this->resultSetBuild($data[$result->$pk]));
         }
     }
 

@@ -119,27 +119,28 @@ class MorphOne extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
             $data = $this->eagerlyMorphToOne([
                 [$morphKey, 'in', $range],
                 [$morphType, '=', $type],
             ], $relation, $subRelation, $closure);
+        }
 
-            // 关联属性名
-            $attr = Loader::parseName($relation);
+        // 关联属性名
+        $attr = Loader::parseName($relation);
 
-            // 关联数据封装
-            foreach ($resultSet as $result) {
-                if (!isset($data[$result->$pk])) {
-                    $relationModel = null;
-                } else {
-                    $relationModel = $data[$result->$pk];
-                    $relationModel->setParent(clone $result);
-                    $relationModel->isUpdate(true);
-                }
-
-                $result->setRelation($attr, $relationModel);
+        // 关联数据封装
+        foreach ($resultSet as $result) {
+            if (!isset($data[$result->$pk])) {
+                $relationModel = null;
+            } else {
+                $relationModel = $data[$result->$pk];
+                $relationModel->setParent(clone $result);
+                $relationModel->isUpdate(true);
             }
+
+            $result->setRelation($attr, $relationModel);
         }
     }
 

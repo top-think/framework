@@ -161,30 +161,31 @@ class HasManyThrough extends Relation
             }
         }
 
+        $data = [];
         if (!empty($range)) {
             $this->query->removeWhereField($foreignKey);
 
             $data = $this->eagerlyWhere([
                 [$this->foreignKey, 'in', $range],
             ], $foreignKey, $relation, $subRelation, $closure);
+        }
 
-            // 关联属性名
-            $attr = Loader::parseName($relation);
+        // 关联属性名
+        $attr = Loader::parseName($relation);
 
-            // 关联数据封装
-            foreach ($resultSet as $result) {
-                $pk = $result->$localKey;
-                if (!isset($data[$pk])) {
-                    $data[$pk] = [];
-                }
-
-                foreach ($data[$pk] as &$relationModel) {
-                    $relationModel->setParent(clone $result);
-                }
-
-                // 设置关联属性
-                $result->setRelation($attr, $this->resultSetBuild($data[$pk]));
+        // 关联数据封装
+        foreach ($resultSet as $result) {
+            $pk = $result->$localKey;
+            if (!isset($data[$pk])) {
+                $data[$pk] = [];
             }
+
+            foreach ($data[$pk] as &$relationModel) {
+                $relationModel->setParent(clone $result);
+            }
+
+            // 设置关联属性
+            $result->setRelation($attr, $this->resultSetBuild($data[$pk]));
         }
     }
 
