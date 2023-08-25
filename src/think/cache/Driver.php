@@ -147,10 +147,10 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @access public
      * @param string $name   缓存变量名
      * @param mixed  $value  存储数据
-     * @param int|DateInterval    $expire 有效时间 0为永久
+     * @param int|DateInterval|DateTimeInterface    $expire 有效时间 0为永久
      * @return mixed
      */
-    public function remember(string $name, $value, int|DateInterval $expire = null)
+    public function remember(string $name, $value, int|DateInterval|DateTimeInterface $expire = null)
     {
         if ($this->has($name)) {
             if (($hit = $this->get($name)) !== null) {
