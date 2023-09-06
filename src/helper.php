@@ -246,9 +246,9 @@ if (!function_exists('halt')) {
 if (!function_exists('input')) {
     /**
      * 获取输入数据 支持默认值和过滤
-     * @param string $key     获取的变量名
+     * @param string $key 获取的变量名
      * @param mixed  $default 默认值
-     * @param string $filter  过滤方法
+     * @param string|array|null $filter 过滤方法
      * @return mixed
      */
     function input(string $key = '', $default = null, $filter = '')
