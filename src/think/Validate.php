@@ -677,6 +677,10 @@ class Validate
      */
     protected function getValidateType($key, $rule): array
     {
+        // 全局注册验证规则
+        if(isset($this->type[$rule]) && $this->type[$rule] instanceof Closure){
+            return [$rule,$rule,'global_extra'];
+        }
         // 判断验证类型
         if (!is_numeric($key)) {
             if (isset($this->alias[$key])) {
