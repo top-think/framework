@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types = 1);
+declare (strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -134,8 +134,6 @@ class File extends Driver
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $this->readTimes++;
-
         $raw = $this->getRaw($name);
 
         return is_null($raw) ? $default : $this->unserialize($raw['content']);
@@ -149,10 +147,8 @@ class File extends Driver
      * @param int|\DateInterval|DateTimeInterface|null $expire 有效时间 0为永久
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
+    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
     {
-        $this->writeTimes++;
-
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -234,8 +230,6 @@ class File extends Driver
      */
     public function delete(string $name): bool
     {
-        $this->writeTimes++;
-
         return $this->unlink($this->getCacheKey($name));
     }
 
@@ -246,8 +240,6 @@ class File extends Driver
      */
     public function clear(): bool
     {
-        $this->writeTimes++;
-
         $dirname = $this->options['path'] . $this->options['prefix'];
 
         $this->rmdir($dirname);

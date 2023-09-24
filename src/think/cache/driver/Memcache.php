@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -66,8 +66,8 @@ class Memcache extends Driver
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->options['timeout'] > 0 ?
-                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
-                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
         }
     }
 
@@ -93,8 +93,6 @@ class Memcache extends Driver
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $this->readTimes++;
-
         $result = $this->handler->get($this->getCacheKey($name));
 
         return false !== $result ? $this->unserialize($result) : $default;
@@ -108,10 +106,8 @@ class Memcache extends Driver
      * @param int|DateTimeInterface|DateInterval $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
+    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
     {
-        $this->writeTimes++;
-
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -136,8 +132,6 @@ class Memcache extends Driver
      */
     public function inc(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         if ($this->handler->get($key)) {
@@ -156,8 +150,6 @@ class Memcache extends Driver
      */
     public function dec(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
         $res   = $this->handler->set($key, $value);
@@ -174,13 +166,11 @@ class Memcache extends Driver
      */
     public function delete(string $name, $ttl = false): bool
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-            $this->handler->delete($key) :
-            $this->handler->delete($key, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -190,8 +180,6 @@ class Memcache extends Driver
      */
     public function clear(): bool
     {
-        $this->writeTimes++;
-
         return $this->handler->flush();
     }
 

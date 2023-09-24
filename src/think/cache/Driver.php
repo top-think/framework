@@ -8,14 +8,14 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\cache;
 
 use Closure;
 use DateInterval;
-use DateTimeInterface;
 use DateTime;
+use DateTimeInterface;
 use Exception;
 use Psr\SimpleCache\CacheInterface;
 use think\Container;
@@ -64,7 +64,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param integer|DateInterval|DateTimeInterface $expire 有效期
      * @return int
      */
-    protected function getExpireTime(int|DateInterval|DateTimeInterface $expire): int
+    protected function getExpireTime(int | DateInterval | DateTimeInterface $expire): int
     {
         if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
@@ -150,7 +150,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param int|DateInterval|DateTimeInterface    $expire 有效时间 0为永久
      * @return mixed
      */
-    public function remember(string $name, $value, int|DateInterval|DateTimeInterface $expire = null)
+    public function remember(string $name, $value, int | DateInterval | DateTimeInterface $expire = null)
     {
         if ($this->has($name)) {
             if (($hit = $this->get($name)) !== null) {
@@ -193,7 +193,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag(string|array $name): TagSet
+    public function tag(string | array $name): TagSet
     {
         $name = (array) $name;
         $key  = implode('-', $name);
@@ -275,6 +275,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
     /**
      * 返回缓存读取次数
+     * @deprecated
      * @access public
      * @return int
      */
@@ -285,6 +286,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
     /**
      * 返回缓存写入次数
+     * @deprecated
      * @access public
      * @return int
      */
@@ -319,7 +321,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param null|int|\DateInterval|DateTimeInterface $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple(iterable $values, int|DateInterval|DateTimeInterface $ttl = null): bool
+    public function setMultiple(iterable $values, int | DateInterval | DateTimeInterface $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);

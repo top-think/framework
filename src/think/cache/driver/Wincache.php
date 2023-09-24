@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -73,8 +73,6 @@ class Wincache extends Driver
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $this->readTimes++;
-
         $key = $this->getCacheKey($name);
 
         return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
@@ -88,10 +86,8 @@ class Wincache extends Driver
      * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
+    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
     {
-        $this->writeTimes++;
-
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -116,8 +112,6 @@ class Wincache extends Driver
      */
     public function inc(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         return wincache_ucache_inc($key, $step);
@@ -132,8 +126,6 @@ class Wincache extends Driver
      */
     public function dec(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         return wincache_ucache_dec($key, $step);
@@ -147,8 +139,6 @@ class Wincache extends Driver
      */
     public function delete(string $name): bool
     {
-        $this->writeTimes++;
-
         return wincache_ucache_delete($this->getCacheKey($name));
     }
 
@@ -159,7 +149,6 @@ class Wincache extends Driver
      */
     public function clear(): bool
     {
-        $this->writeTimes++;
         return wincache_ucache_clear();
     }
 

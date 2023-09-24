@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -113,7 +113,6 @@ class Redis extends Driver
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $this->readTimes++;
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key);
 
@@ -132,10 +131,8 @@ class Redis extends Driver
      * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
+    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
     {
-        $this->writeTimes++;
-
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -162,7 +159,6 @@ class Redis extends Driver
      */
     public function inc(string $name, int $step = 1)
     {
-        $this->writeTimes++;
         $key = $this->getCacheKey($name);
 
         return $this->handler->incrby($key, $step);
@@ -177,7 +173,6 @@ class Redis extends Driver
      */
     public function dec(string $name, int $step = 1)
     {
-        $this->writeTimes++;
         $key = $this->getCacheKey($name);
 
         return $this->handler->decrby($key, $step);
@@ -191,8 +186,6 @@ class Redis extends Driver
      */
     public function delete(string $name): bool
     {
-        $this->writeTimes++;
-
         $key    = $this->getCacheKey($name);
         $result = $this->handler->del($key);
         return $result > 0;
@@ -205,7 +198,6 @@ class Redis extends Driver
      */
     public function clear(): bool
     {
-        $this->writeTimes++;
         $this->handler->flushDB();
         return true;
     }

@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\cache\driver;
 
@@ -30,10 +30,10 @@ class Memcached extends Driver
         'port'       => 11211,
         'expire'     => 0,
         'timeout'    => 0, // 超时时间（单位：毫秒）
-        'prefix'     => '',
+        'prefix'   => '',
         'username'   => '', //账号
-        'password'   => '', //密码
-        'option'     => [],
+        'password' => '', //密码
+        'option' => [],
         'tag_prefix' => 'tag:',
         'serialize'  => [],
     ];
@@ -107,8 +107,6 @@ class Memcached extends Driver
      */
     public function get(string $name, mixed $default = null): mixed
     {
-        $this->readTimes++;
-
         $result = $this->handler->get($this->getCacheKey($name));
 
         return false !== $result ? $this->unserialize($result) : $default;
@@ -122,10 +120,8 @@ class Memcached extends Driver
      * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int|DateInterval|DateTimeInterface $expire = null): bool
+    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
     {
-        $this->writeTimes++;
-
         if (is_null($expire)) {
             $expire = $this->options['expire'];
         }
@@ -150,8 +146,6 @@ class Memcached extends Driver
      */
     public function inc(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         if ($this->handler->get($key)) {
@@ -170,8 +164,6 @@ class Memcached extends Driver
      */
     public function dec(string $name, int $step = 1)
     {
-        $this->writeTimes++;
-
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
         $res   = $this->handler->set($key, $value);
@@ -188,13 +180,11 @@ class Memcached extends Driver
      */
     public function delete(string $name, $ttl = false): bool
     {
-        $this->writeTimes++;
-
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-            $this->handler->delete($key) :
-            $this->handler->delete($key, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -204,8 +194,6 @@ class Memcached extends Driver
      */
     public function clear(): bool
     {
-        $this->writeTimes++;
-
         return $this->handler->flush();
     }
 
