@@ -46,7 +46,6 @@ interface CacheHandlerInterface extends CacheInterface
      */
     public function pull($name);
 
-
     /**
      * 如果不存在则写入缓存
      * @param string                             $name   缓存变量名
