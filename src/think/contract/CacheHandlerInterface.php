@@ -60,7 +60,7 @@ interface CacheHandlerInterface extends CacheInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag($name): TagSet;
+    public function tag($name);
 
     /**
      * 删除缓存标签
