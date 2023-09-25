@@ -17,7 +17,6 @@ use DateInterval;
 use DateTime;
 use DateTimeInterface;
 use Exception;
-use Psr\SimpleCache\CacheInterface;
 use think\Container;
 use think\contract\CacheHandlerInterface;
 use think\exception\InvalidArgumentException;
@@ -26,7 +25,7 @@ use throwable;
 /**
  * 缓存基础类
  */
-abstract class Driver implements CacheInterface, CacheHandlerInterface
+abstract class Driver implements CacheHandlerInterface
 {
     /**
      * 驱动句柄
@@ -64,14 +63,14 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param integer|DateInterval|DateTimeInterface $expire 有效期
      * @return int
      */
-    protected function getExpireTime(int | DateInterval | DateTimeInterface $expire): int
+    protected function getExpireTime(int|DateInterval|DateTimeInterface $expire): int
     {
         if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
         } elseif ($expire instanceof DateInterval) {
             $expire = DateTime::createFromFormat('U', (string) time())
-                ->add($expire)
-                ->format('U') - time();
+                    ->add($expire)
+                    ->format('U') - time();
         }
 
         return $expire;
@@ -94,7 +93,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param string $name 缓存变量名
      * @return mixed
      */
-    public function pull(string $name)
+    public function pull($name)
     {
         $result = $this->get($name, false);
 
@@ -111,7 +110,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param mixed  $value 存储数据
      * @return void
      */
-    public function push(string $name, $value): void
+    public function push($name, $value): void
     {
         $item = $this->get($name, []);
 
@@ -137,7 +136,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param mixed  $value 存储数据
      * @return void
      */
-    public function append(string $name, $value): void
+    public function append($name, $value): void
     {
         $this->push($name, $value);
     }
@@ -145,12 +144,12 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
     /**
      * 如果不存在则写入缓存
      * @access public
-     * @param string $name   缓存变量名
-     * @param mixed  $value  存储数据
-     * @param int|DateInterval|DateTimeInterface    $expire 有效时间 0为永久
+     * @param string                             $name   缓存变量名
+     * @param mixed                              $value  存储数据
+     * @param int|DateInterval|DateTimeInterface $expire 有效时间 0为永久
      * @return mixed
      */
-    public function remember(string $name, $value, int | DateInterval | DateTimeInterface $expire = null)
+    public function remember($name, $value, $expire = null)
     {
         if ($this->has($name)) {
             if (($hit = $this->get($name)) !== null) {
@@ -179,7 +178,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
             // 解锁
             $this->delete($name . '_lock');
-        } catch (Exception | throwable $e) {
+        } catch (Exception|throwable $e) {
             $this->delete($name . '_lock');
             throw $e;
         }
@@ -193,7 +192,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag(string | array $name): TagSet
+    public function tag($name): TagSet
     {
         $name = (array) $name;
         $key  = implode('-', $name);
@@ -275,9 +274,9 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
     /**
      * 返回缓存读取次数
+     * @return int
      * @deprecated
      * @access public
-     * @return int
      */
     public function getReadTimes(): int
     {
@@ -286,9 +285,9 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
 
     /**
      * 返回缓存写入次数
+     * @return int
      * @deprecated
      * @access public
-     * @return int
      */
     public function getWriteTimes(): int
     {
@@ -303,7 +302,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @return iterable
      * @throws InvalidArgumentException
      */
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
+    public function getMultiple($keys, $default = null): iterable
     {
         $result = [];
 
@@ -317,11 +316,11 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
     /**
      * 写入缓存
      * @access public
-     * @param iterable               $values 缓存数据
+     * @param iterable                                 $values 缓存数据
      * @param null|int|\DateInterval|DateTimeInterface $ttl    有效时间 0为永久
      * @return bool
      */
-    public function setMultiple(iterable $values, int | DateInterval | DateTimeInterface $ttl = null): bool
+    public function setMultiple($values, $ttl = null): bool
     {
         foreach ($values as $key => $val) {
             $result = $this->set($key, $val, $ttl);
@@ -341,7 +340,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
      * @return bool
      * @throws InvalidArgumentException
      */
-    public function deleteMultiple(iterable $keys): bool
+    public function deleteMultiple($keys): bool
     {
         foreach ($keys as $key) {
             $result = $this->delete($key);

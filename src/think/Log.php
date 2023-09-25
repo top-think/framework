@@ -225,7 +225,7 @@ class Log extends Manager implements LoggerInterface
      * @param array  $context 替换内容
      * @return void
      */
-    public function log($level, string|Stringable $message, array $context = []): void
+    public function log($level, $message, array $context = []): void
     {
         $this->record($message, $level, $context);
     }
@@ -237,7 +237,7 @@ class Log extends Manager implements LoggerInterface
      * @param array $context 替换内容
      * @return void
      */
-    public function sql(string|Stringable $message, array $context = []): void
+    public function sql($message, array $context = []): void
     {
         $this->log(__FUNCTION__, $message, $context);
     }

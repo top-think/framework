@@ -30,10 +30,10 @@ class Memcached extends Driver
         'port'       => 11211,
         'expire'     => 0,
         'timeout'    => 0, // 超时时间（单位：毫秒）
-        'prefix'   => '',
+        'prefix'     => '',
         'username'   => '', //账号
-        'password' => '', //密码
-        'option' => [],
+        'password'   => '', //密码
+        'option'     => [],
         'tag_prefix' => 'tag:',
         'serialize'  => [],
     ];
@@ -91,7 +91,7 @@ class Memcached extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         $key = $this->getCacheKey($name);
 
@@ -105,7 +105,7 @@ class Memcached extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name, mixed $default = null): mixed
+    public function get($name, $default = null): mixed
     {
         $result = $this->handler->get($this->getCacheKey($name));
 
@@ -115,12 +115,12 @@ class Memcached extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string            $name   缓存变量名
-     * @param mixed             $value  存储数据
+     * @param string                                 $name   缓存变量名
+     * @param mixed                                  $value  存储数据
      * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
+    public function set($name, $value, $expire = null): bool
     {
         if (is_null($expire)) {
             $expire = $this->options['expire'];
@@ -144,7 +144,7 @@ class Memcached extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc(string $name, int $step = 1)
+    public function inc($name, $step = 1)
     {
         $key = $this->getCacheKey($name);
 
@@ -162,7 +162,7 @@ class Memcached extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec(string $name, int $step = 1)
+    public function dec($name, $step = 1)
     {
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
@@ -174,17 +174,17 @@ class Memcached extends Driver
     /**
      * 删除缓存
      * @access public
-     * @param string $name 缓存变量名
+     * @param string     $name 缓存变量名
      * @param bool|false $ttl
      * @return bool
      */
-    public function delete(string $name, $ttl = false): bool
+    public function delete($name, $ttl = false): bool
     {
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-        $this->handler->delete($key) :
-        $this->handler->delete($key, $ttl);
+            $this->handler->delete($key) :
+            $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -203,7 +203,7 @@ class Memcached extends Driver
      * @param array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(array $keys): void
+    public function clearTag($keys): void
     {
         $this->handler->deleteMulti($keys);
     }

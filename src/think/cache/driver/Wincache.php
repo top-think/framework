@@ -71,7 +71,7 @@ class Wincache extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name, mixed $default = null): mixed
+    public function get($name, $default = null): mixed
     {
         $key = $this->getCacheKey($name);
 
@@ -81,12 +81,12 @@ class Wincache extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string            $name   缓存变量名
-     * @param mixed             $value  存储数据
+     * @param string                                 $name   缓存变量名
+     * @param mixed                                  $value  存储数据
      * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
+    public function set($name, $value, $expire = null): bool
     {
         if (is_null($expire)) {
             $expire = $this->options['expire'];
@@ -110,7 +110,7 @@ class Wincache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc(string $name, int $step = 1)
+    public function inc($name, $step = 1)
     {
         $key = $this->getCacheKey($name);
 
@@ -124,7 +124,7 @@ class Wincache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec(string $name, int $step = 1)
+    public function dec($name, $step = 1)
     {
         $key = $this->getCacheKey($name);
 
@@ -137,7 +137,7 @@ class Wincache extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function delete(string $name): bool
+    public function delete($name): bool
     {
         return wincache_ucache_delete($this->getCacheKey($name));
     }
@@ -158,7 +158,7 @@ class Wincache extends Driver
      * @param array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(array $keys): void
+    public function clearTag($keys): void
     {
         wincache_ucache_delete($keys);
     }

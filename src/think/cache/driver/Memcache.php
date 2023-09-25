@@ -66,8 +66,8 @@ class Memcache extends Driver
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->options['timeout'] > 0 ?
-            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
-            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
+                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
+                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
         }
     }
 
@@ -77,7 +77,7 @@ class Memcache extends Driver
      * @param string $name 缓存变量名
      * @return bool
      */
-    public function has(string $name): bool
+    public function has($name): bool
     {
         $key = $this->getCacheKey($name);
 
@@ -91,7 +91,7 @@ class Memcache extends Driver
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name, mixed $default = null): mixed
+    public function get($name, $default = null): mixed
     {
         $result = $this->handler->get($this->getCacheKey($name));
 
@@ -101,12 +101,12 @@ class Memcache extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string        $name   缓存变量名
-     * @param mixed         $value  存储数据
+     * @param string                             $name   缓存变量名
+     * @param mixed                              $value  存储数据
      * @param int|DateTimeInterface|DateInterval $expire 有效时间（秒）
      * @return bool
      */
-    public function set(string $name, mixed $value, int | DateInterval | DateTimeInterface $expire = null): bool
+    public function set($name, $value, $expire = null): bool
     {
         if (is_null($expire)) {
             $expire = $this->options['expire'];
@@ -130,7 +130,7 @@ class Memcache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function inc(string $name, int $step = 1)
+    public function inc($name, $step = 1)
     {
         $key = $this->getCacheKey($name);
 
@@ -148,7 +148,7 @@ class Memcache extends Driver
      * @param int    $step 步长
      * @return false|int
      */
-    public function dec(string $name, int $step = 1)
+    public function dec($name, $step = 1)
     {
         $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
@@ -164,13 +164,13 @@ class Memcache extends Driver
      * @param bool|false $ttl
      * @return bool
      */
-    public function delete(string $name, $ttl = false): bool
+    public function delete($name, $ttl = false): bool
     {
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-        $this->handler->delete($key) :
-        $this->handler->delete($key, $ttl);
+            $this->handler->delete($key) :
+            $this->handler->delete($key, $ttl);
     }
 
     /**
@@ -189,7 +189,7 @@ class Memcache extends Driver
      * @param array $keys 缓存标识列表
      * @return void
      */
-    public function clearTag(array $keys): void
+    public function clearTag($keys): void
     {
         foreach ($keys as $key) {
             $this->handler->delete($key);

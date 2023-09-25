@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace think\log;
 
@@ -75,7 +75,7 @@ class Channel implements LoggerInterface
         if ($msg instanceof Stringable) {
             $msg = $msg->__toString();
         }
-        
+
         if (is_string($msg) && !empty($context)) {
             $replace = [];
             foreach ($context as $key => $val) {
@@ -145,13 +145,13 @@ class Channel implements LoggerInterface
     /**
      * Logs with an arbitrary level.
      *
-     * @param mixed  $level
-     * @param string|Stringable  $message
-     * @param array  $context
+     * @param mixed             $level
+     * @param string|Stringable $message
+     * @param array             $context
      *
      * @return void
      */
-    public function log($level, string|Stringable $message, array $context = []): void
+    public function log($level, $message, array $context = []): void
     {
         $this->record($message, $level, $context);
     }
