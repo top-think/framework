@@ -1225,14 +1225,15 @@ class Validate
     /**
      * 通过回调方法验证某个字段是否必须
      * @access public
-     * @param mixed $value 字段值
-     * @param mixed $rule  验证规则
-     * @param array $data  数据
+     * @param mixed        $value 字段值
+     * @param string|array $rule  验证规则
+     * @param array        $data  数据
      * @return bool
      */
-    public function requireCallback($value, $rule, array $data = []): bool
+    public function requireCallback($value, string|array $rule, array $data = []): bool
     {
-        $result = call_user_func_array([$this, $rule], [$value, $data]);
+        $callback = is_array($rule) ? $rule : [$this, $rule];
+        $result = call_user_func_array($callback, [$value, $data]);
 
         if ($result) {
             return !empty($value) || '0' == $value;
