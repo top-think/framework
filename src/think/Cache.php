@@ -16,6 +16,7 @@ use DateInterval;
 use DateTimeInterface;
 use Psr\SimpleCache\CacheInterface;
 use think\cache\Driver;
+use think\cache\TagSet;
 use think\exception\InvalidArgumentException;
 use think\helper\Arr;
 
@@ -183,6 +184,17 @@ class Cache extends Manager implements CacheInterface
     public function has($key): bool
     {
         return $this->store()->has($key);
+    }
+
+    /**
+     * 缓存标签
+     * @access public
+     * @param string|array $name 标签名
+     * @return TagSet
+     */
+    public function tag($name)
+    {
+        return $this->store()->tag($name);
     }
 
 }

@@ -192,7 +192,7 @@ abstract class Driver implements CacheHandlerInterface
      * @param string|array $name 标签名
      * @return TagSet
      */
-    public function tag($name): TagSet
+    public function tag($name)
     {
         $name = (array) $name;
         $key  = implode('-', $name);
