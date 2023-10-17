@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\route;
 
@@ -368,7 +368,7 @@ abstract class Rule
      * @param  bool                  $exception 是否抛出异常
      * @return $this
      */
-    public function model(array|string|Closure $var, string|Closure $model = null, bool $exception = true)
+    public function model(array | string | Closure $var, string | Closure $model = null, bool $exception = true)
     {
         if ($var instanceof Closure) {
             $this->option['model'][] = $var;
@@ -419,7 +419,7 @@ abstract class Rule
      * @param mixed $params 参数
      * @return $this
      */
-    public function middleware(string|array|Closure $middleware, ...$params)
+    public function middleware(string | array | Closure $middleware, ...$params)
     {
         if (empty($params) && is_array($middleware)) {
             $this->option['middleware'] = $middleware;
@@ -457,10 +457,10 @@ abstract class Rule
     /**
      * 设置路由缓存
      * @access public
-     * @param  array|string $cache 缓存
+     * @param  array|string|int $cache 缓存
      * @return $this
      */
-    public function cache(array|string $cache)
+    public function cache(array | string | int $cache)
     {
         return $this->middleware(CheckRequestCache::class, $cache);
     }
