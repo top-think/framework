@@ -1584,6 +1584,8 @@ class Validate
             $msg = $this->message[$attribute][$type];
         } elseif (isset($this->message[$attribute])) {
             $msg = $this->message[$attribute];
+        } elseif (isset($this->message[$type])) {
+            $msg = $this->message[$type];
         } elseif (isset($this->typeMsg[$type])) {
             $msg = $this->typeMsg[$type];
         } elseif (str_starts_with($type, 'require')) {
