@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace think;
 
 use think\helper\Arr;
+use think\contract\TemplateHandlerInterface;
 
 /**
  * 视图类
@@ -39,11 +40,14 @@ class View extends Manager
      * 获取模板引擎
      * @access public
      * @param string $type 模板引擎类型
-     * @return $this
+     * @param array $config 模板参数
+     * @return TemplateHandlerInterface
      */
-    public function engine(string $type = null)
+    public function engine(string $type = null, array $config = [])
     {
-        return $this->driver($type);
+        $driver = $this->driver($type);
+        $driver->config($config);
+        return $driver;
     }
 
     /**
@@ -81,13 +85,14 @@ class View extends Manager
      * @access public
      * @param string $template 模板文件名或者内容
      * @param array  $vars     模板变量
+     * @param array $config 模板参数
      * @return string
      * @throws \Exception
      */
-    public function fetch(string $template = '', array $vars = []): string
+    public function fetch(string $template = '', array $vars = [], array $config = []): string
     {
-        return $this->getContent(function () use ($vars, $template) {
-            $this->engine()->fetch($template, array_merge($this->data, $vars));
+        return $this->getContent(function () use ($vars, $template, $config) {
+            $this->engine(null, $config)->fetch($template, array_merge($this->data, $vars));
         });
     }
 
@@ -96,12 +101,13 @@ class View extends Manager
      * @access public
      * @param string $content 内容
      * @param array  $vars    模板变量
+     * @param array $config 模板参数
      * @return string
      */
-    public function display(string $content, array $vars = []): string
+    public function display(string $content, array $vars = [], array $config = []): string
     {
-        return $this->getContent(function () use ($vars, $content) {
-            $this->engine()->display($content, array_merge($this->data, $vars));
+        return $this->getContent(function () use ($vars, $content, $config) {
+            $this->engine(null, $config)->display($content, array_merge($this->data, $vars));
         });
     }
 
