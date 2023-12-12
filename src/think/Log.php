@@ -220,8 +220,8 @@ class Log extends Manager implements LoggerInterface
     /**
      * 记录日志信息
      * @access public
-     * @param mixed $level   日志级别
-     * @param string|Stringable   $message 日志信息
+     * @param string $level   日志级别
+     * @param mixed $message 日志信息
      * @param array  $context 替换内容
      * @return void
      */
