@@ -32,14 +32,14 @@ class Loader
      * @var array
      */
     private static $prefixLengthsPsr4 = [];
-    private static $prefixDirsPsr4    = [];
-    private static $fallbackDirsPsr4  = [];
+    private static $prefixDirsPsr4 = [];
+    private static $fallbackDirsPsr4 = [];
 
     /**
      * PSR-0
      * @var array
      */
-    private static $prefixesPsr0     = [];
+    private static $prefixesPsr0 = [];
     private static $fallbackDirsPsr0 = [];
 
     /**
@@ -102,7 +102,7 @@ class Loader
 
         // 注册命名空间定义
         self::addNamespace([
-            'think'  => __DIR__,
+            'think' => __DIR__,
             'traits' => dirname(__DIR__) . DIRECTORY_SEPARATOR . 'traits',
         ]);
 
@@ -287,7 +287,7 @@ class Loader
             }
 
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
-            self::$prefixDirsPsr4[$prefix]                = (array) $paths;
+            self::$prefixDirsPsr4[$prefix] = (array) $paths;
         } elseif ($prepend) {
             // Prepend directories for an already registered namespace.
             self::$prefixDirsPsr4[$prefix] = array_merge(

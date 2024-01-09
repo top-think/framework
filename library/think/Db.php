@@ -172,13 +172,13 @@ class Db
         }
 
         $dsn = [
-            'type'     => $info['scheme'],
+            'type' => $info['scheme'],
             'username' => isset($info['user']) ? $info['user'] : '',
             'password' => isset($info['pass']) ? $info['pass'] : '',
             'hostname' => isset($info['host']) ? $info['host'] : '',
             'hostport' => isset($info['port']) ? $info['port'] : '',
             'database' => !empty($info['path']) ? ltrim($info['path'], '/') : '',
-            'charset'  => isset($info['fragment']) ? $info['fragment'] : 'utf8',
+            'charset' => isset($info['fragment']) ? $info['fragment'] : 'utf8',
         ];
 
         if (isset($info['query'])) {

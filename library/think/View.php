@@ -81,7 +81,7 @@ class View
      */
     public function clear()
     {
-        self::$var  = [];
+        self::$var = [];
         $this->data = [];
     }
 
@@ -112,7 +112,7 @@ class View
     public function engine($options = [])
     {
         if (is_string($options)) {
-            $type    = $options;
+            $type = $options;
             $options = [];
         } else {
             $type = !empty($options['type']) ? $options['type'] : 'Think';

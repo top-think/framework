@@ -41,9 +41,9 @@ class Console
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Container::get('request');
+        $request = Container::get('request');
         $contentType = $response->getHeader('Content-Type');
-        $accept      = $request->header('accept');
+        $accept = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
             return false;
         } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
@@ -51,8 +51,8 @@ class Console
         }
         // 获取基本信息
         $runtime = number_format(microtime(true) - Container::get('app')->getBeginTime(), 10);
-        $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
+        $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+        $mem = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
 
         if ($request->host()) {
             $uri = $request->protocol() . ' ' . $request->method() . ' : ' . $request->url(true);
@@ -88,7 +88,7 @@ class Console
                 default: // 调试信息
                     if (strpos($name, '|')) {
                         // 多组信息
-                        $names  = explode('|', $name);
+                        $names = explode('|', $name);
                         $result = [];
                         foreach ($names as $name) {
                             $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);
@@ -116,9 +116,9 @@ JS;
 
     protected function console($type, $msg)
     {
-        $type       = strtolower($type);
+        $type = strtolower($type);
         $trace_tabs = array_values($this->config['tabs']);
-        $line[]     = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
+        $line[] = ($type == $trace_tabs[0] || '调试' == $type || '错误' == $type)
         ? "console.group('{$type}');"
         : "console.groupCollapsed('{$type}');";
 
@@ -133,18 +133,18 @@ JS;
                     }
                     break;
                 case '错误':
-                    $msg    = str_replace("\n", '\n', addslashes(is_scalar($m) ? $m : json_encode($m)));
-                    $style  = 'color:#F4006B;font-size:14px;';
+                    $msg = str_replace("\n", '\n', addslashes(is_scalar($m) ? $m : json_encode($m)));
+                    $style = 'color:#F4006B;font-size:14px;';
                     $line[] = "console.error(\"%c{$msg}\", \"{$style}\");";
                     break;
                 case 'sql':
-                    $msg    = str_replace("\n", '\n', addslashes($m));
-                    $style  = "color:#009bb4;";
+                    $msg = str_replace("\n", '\n', addslashes($m));
+                    $style = "color:#009bb4;";
                     $line[] = "console.log(\"%c{$msg}\", \"{$style}\");";
                     break;
                 default:
-                    $m      = is_string($key) ? $key . ' ' . $m : $key + 1 . ' ' . $m;
-                    $msg    = json_encode($m);
+                    $m = is_string($key) ? $key . ' ' . $m : $key + 1 . ' ' . $m;
+                    $msg = json_encode($m);
                     $line[] = "console.log({$msg});";
                     break;
             }

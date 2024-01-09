@@ -19,10 +19,10 @@ class Builder
     private $cwd;
     private $env = null;
     private $input;
-    private $timeout        = 60;
-    private $options        = [];
-    private $inheritEnv     = true;
-    private $prefix         = [];
+    private $timeout = 60;
+    private $options = [];
+    private $inheritEnv = true;
+    private $prefix = [];
     private $outputDisabled = false;
 
     /**
@@ -213,7 +213,7 @@ class Builder
         $options = $this->options;
 
         $arguments = array_merge($this->prefix, $this->arguments);
-        $script    = implode(' ', array_map([__NAMESPACE__ . '\\Utils', 'escapeArgument'], $arguments));
+        $script = implode(' ', array_map([__NAMESPACE__ . '\\Utils', 'escapeArgument'], $arguments));
 
         if ($this->inheritEnv) {
             // include $_ENV for BC purposes

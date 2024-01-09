@@ -42,7 +42,7 @@ class Debug
 
     public function __construct(App $app, array $config = [])
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->config = $config;
     }
 
@@ -69,7 +69,7 @@ class Debug
         $this->info[$name] = is_float($value) ? $value : microtime(true);
 
         if ('time' != $value) {
-            $this->mem['mem'][$name]  = is_float($value) ? $value : memory_get_usage();
+            $this->mem['mem'][$name] = is_float($value) ? $value : memory_get_usage();
             $this->mem['peak'][$name] = memory_get_peak_usage();
         }
     }
@@ -127,8 +127,8 @@ class Debug
         }
 
         $size = $this->mem['mem'][$end] - $this->mem['mem'][$start];
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -147,8 +147,8 @@ class Debug
     public function getUseMem($dec = 2)
     {
         $size = memory_get_usage() - $this->app->getBeginMem();
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -173,8 +173,8 @@ class Debug
         }
 
         $size = $this->mem['peak'][$end] - $this->mem['peak'][$start];
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -194,7 +194,7 @@ class Debug
     {
         if ($detail) {
             $files = get_included_files();
-            $info  = [];
+            $info = [];
 
             foreach ($files as $key => $file) {
                 $info[] = $file . ' ( ' . number_format(filesize($file) / 1024, 2) . ' KB )';
@@ -246,7 +246,7 @@ class Debug
     public function inject(Response $response, &$content)
     {
         $config = $this->config;
-        $type   = isset($config['type']) ? $config['type'] : 'Html';
+        $type = isset($config['type']) ? $config['type'] : 'Html';
 
         unset($config['type']);
 

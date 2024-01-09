@@ -17,7 +17,7 @@ class ClassNotFoundException extends \RuntimeException
     public function __construct($message, $class = '')
     {
         $this->message = $message;
-        $this->class   = $class;
+        $this->class = $class;
     }
 
     /**

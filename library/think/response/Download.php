@@ -44,19 +44,19 @@ class Download extends Response
 
         if ($this->isContent) {
             $mimeType = $this->mimeType;
-            $size     = strlen($data);
+            $size = strlen($data);
         } else {
             $mimeType = $this->getMimeType($data);
-            $size     = filesize($data);
+            $size = filesize($data);
         }
 
-        $this->header['Pragma']                    = 'public';
-        $this->header['Content-Type']              = $mimeType ?: 'application/octet-stream';
-        $this->header['Cache-control']             = 'max-age=' . $this->expire;
-        $this->header['Content-Disposition']       = $this->openinBrowser ? 'inline' : 'attachment; filename="' . $name . '"';
-        $this->header['Content-Length']            = $size;
+        $this->header['Pragma'] = 'public';
+        $this->header['Content-Type'] = $mimeType ?: 'application/octet-stream';
+        $this->header['Cache-control'] = 'max-age=' . $this->expire;
+        $this->header['Content-Disposition'] = $this->openinBrowser ? 'inline' : 'attachment; filename="' . $name . '"';
+        $this->header['Content-Length'] = $size;
         $this->header['Content-Transfer-Encoding'] = 'binary';
-        $this->header['Expires']                   = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
+        $this->header['Expires'] = gmdate("D, d M Y H:i:s", time() + $this->expire) . ' GMT';
 
         $this->lastModified(gmdate('D, d M Y H:i:s', time()) . ' GMT');
 

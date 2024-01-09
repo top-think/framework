@@ -63,12 +63,12 @@ abstract class Dispatch
 
     public function __construct(Request $request, Rule $rule, $dispatch, $param = [], $code = null)
     {
-        $this->request  = $request;
-        $this->rule     = $rule;
-        $this->app      = Container::get('app');
+        $this->request = $request;
+        $this->rule = $rule;
+        $this->app = Container::get('app');
         $this->dispatch = $dispatch;
-        $this->param    = $param;
-        $this->code     = $code;
+        $this->param = $param;
+        $this->code = $code;
 
         if (isset($param['convert'])) {
             $this->convert = $param['convert'];
@@ -84,10 +84,10 @@ abstract class Dispatch
             // 设置当前请求的参数
             $this->request->setRouteVars($this->rule->getVars());
             $this->request->routeInfo([
-                'rule'   => $this->rule->getRule(),
-                'route'  => $this->rule->getRoute(),
+                'rule' => $this->rule->getRule(),
+                'route' => $this->rule->getRoute(),
                 'option' => $this->rule->getOption(),
-                'var'    => $this->rule->getVars(),
+                'var' => $this->rule->getVars(),
             ]);
 
             $this->doRouteAfter();
@@ -104,7 +104,7 @@ abstract class Dispatch
     protected function doRouteAfter()
     {
         // 记录匹配的路由信息
-        $option  = $this->rule->getOption();
+        $option = $this->rule->getOption();
         $matches = $this->rule->getVars();
 
         // 添加中间件
@@ -177,13 +177,13 @@ abstract class Dispatch
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
             $isAjax = $this->request->isAjax();
-            $type   = $isAjax ? $this->rule->getConfig('default_ajax_return') : $this->rule->getConfig('default_return_type');
+            $type = $isAjax ? $this->rule->getConfig('default_ajax_return') : $this->rule->getConfig('default_return_type');
 
             $response = Response::create($data, $type);
         } else {
-            $data    = ob_get_clean();
+            $data = ob_get_clean();
             $content = false === $data ? '' : $data;
-            $status  = '' === $content && $this->request->isJson() ? 204 : 200;
+            $status = '' === $content && $this->request->isJson() ? 204 : 200;
 
             $response = Response::create($content, '', $status);
         }
@@ -270,9 +270,9 @@ abstract class Dispatch
         if (is_array($cache)) {
             list($key, $expire, $tag) = array_pad($cache, 3, null);
         } else {
-            $key    = str_replace('|', '/', $this->request->url());
+            $key = str_replace('|', '/', $this->request->url());
             $expire = $cache;
-            $tag    = null;
+            $tag = null;
         }
 
         $cache = $this->request->cache($key, $expire, $tag);
@@ -297,7 +297,7 @@ abstract class Dispatch
                 if (is_array($val)) {
                     list($model, $exception) = $val;
                 } else {
-                    $model     = $val;
+                    $model = $val;
                     $exception = true;
                 }
 
@@ -314,7 +314,7 @@ abstract class Dispatch
                 }
 
                 if ($match) {
-                    $query  = strpos($model, '\\') ? $model::where($where) : $this->app->model($model)->where($where);
+                    $query = strpos($model, '\\') ? $model::where($where) : $this->app->model($model)->where($where);
                     $result = $query->failException($exception)->find();
                 }
             }
@@ -352,7 +352,7 @@ abstract class Dispatch
 
     public function __wakeup()
     {
-        $this->app     = Container::get('app');
+        $this->app = Container::get('app');
         $this->request = $this->app['request'];
     }
 

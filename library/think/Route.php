@@ -28,11 +28,11 @@ class Route
      * @var array
      */
     protected $rest = [
-        'index'  => ['get', '', 'index'],
+        'index' => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/<id>/edit', 'edit'],
-        'read'   => ['get', '/<id>', 'read'],
-        'save'   => ['post', '', 'save'],
+        'edit' => ['get', '/<id>/edit', 'edit'],
+        'read' => ['get', '/<id>', 'read'],
+        'save' => ['post', '', 'save'],
         'update' => ['put', '/<id>', 'update'],
         'delete' => ['delete', '/<id>', 'delete'],
     ];
@@ -42,11 +42,11 @@ class Route
      * @var array
      */
     protected $methodPrefix = [
-        'get'    => 'get',
-        'post'   => 'post',
-        'put'    => 'put',
+        'get' => 'get',
+        'post' => 'post',
+        'put' => 'put',
         'delete' => 'delete',
-        'patch'  => 'patch',
+        'patch' => 'patch',
     ];
 
     /**
@@ -135,9 +135,9 @@ class Route
 
     public function __construct(App $app, array $config = [])
     {
-        $this->app     = $app;
+        $this->app = $app;
         $this->request = $app['request'];
-        $this->config  = $config;
+        $this->config = $config;
 
         $this->host = $this->request->host(true) ?: $config['app_host'];
 
@@ -167,7 +167,7 @@ class Route
     public static function __make(App $app, Config $config)
     {
         $config = $config->pull('app');
-        $route  = new static($app, $config);
+        $route = new static($app, $config);
 
         $route->lazy($config['url_lazy_route'])
             ->autoSearchController($config['controller_auto_search'])
@@ -590,7 +590,7 @@ class Route
     {
         if (is_array($name)) {
             $option = $name;
-            $name   = isset($option['name']) ? $option['name'] : '';
+            $name = isset($option['name']) ? $option['name'] : '';
         }
 
         return (new RuleGroup($this, $this->group, $name, $route, $option, $pattern))
@@ -880,7 +880,7 @@ class Route
     {
         // 自动检测域名路由
         $domain = $this->checkDomain();
-        $url    = str_replace($this->config['pathinfo_depr'], '|', $url);
+        $url = str_replace($this->config['pathinfo_depr'], '|', $url);
 
         $completeMatch = $this->config['route_complete_match'];
 
@@ -918,7 +918,7 @@ class Route
         $item = false;
 
         if ($subDomain && count($this->domains) > 1) {
-            $domain  = explode('.', $subDomain);
+            $domain = explode('.', $subDomain);
             $domain2 = array_pop($domain);
 
             if ($domain) {
@@ -931,12 +931,12 @@ class Route
                 $item = $this->domains[$subDomain];
             } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
-                $item      = $this->domains['*.' . $domain2];
+                $item = $this->domains['*.' . $domain2];
                 $panDomain = $domain3;
             } elseif (isset($this->domains['*']) && !empty($domain2)) {
                 // 泛二级域名
                 if ('www' != $domain2) {
-                    $item      = $this->domains['*'];
+                    $item = $this->domains['*'];
                     $panDomain = $domain2;
                 }
             }

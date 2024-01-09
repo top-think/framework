@@ -54,58 +54,58 @@ class Validate
      * @var array
      */
     protected static $typeMsg = [
-        'require'     => ':attribute require',
-        'must'        => ':attribute must',
-        'number'      => ':attribute must be numeric',
-        'integer'     => ':attribute must be integer',
-        'float'       => ':attribute must be float',
-        'boolean'     => ':attribute must be bool',
-        'email'       => ':attribute not a valid email address',
-        'mobile'      => ':attribute not a valid mobile',
-        'array'       => ':attribute must be a array',
-        'accepted'    => ':attribute must be yes,on or 1',
-        'date'        => ':attribute not a valid datetime',
-        'file'        => ':attribute not a valid file',
-        'image'       => ':attribute not a valid image',
-        'alpha'       => ':attribute must be alpha',
-        'alphaNum'    => ':attribute must be alpha-numeric',
-        'alphaDash'   => ':attribute must be alpha-numeric, dash, underscore',
-        'activeUrl'   => ':attribute not a valid domain or ip',
-        'chs'         => ':attribute must be chinese',
-        'chsAlpha'    => ':attribute must be chinese or alpha',
+        'require' => ':attribute require',
+        'must' => ':attribute must',
+        'number' => ':attribute must be numeric',
+        'integer' => ':attribute must be integer',
+        'float' => ':attribute must be float',
+        'boolean' => ':attribute must be bool',
+        'email' => ':attribute not a valid email address',
+        'mobile' => ':attribute not a valid mobile',
+        'array' => ':attribute must be a array',
+        'accepted' => ':attribute must be yes,on or 1',
+        'date' => ':attribute not a valid datetime',
+        'file' => ':attribute not a valid file',
+        'image' => ':attribute not a valid image',
+        'alpha' => ':attribute must be alpha',
+        'alphaNum' => ':attribute must be alpha-numeric',
+        'alphaDash' => ':attribute must be alpha-numeric, dash, underscore',
+        'activeUrl' => ':attribute not a valid domain or ip',
+        'chs' => ':attribute must be chinese',
+        'chsAlpha' => ':attribute must be chinese or alpha',
         'chsAlphaNum' => ':attribute must be chinese,alpha-numeric',
-        'chsDash'     => ':attribute must be chinese,alpha-numeric,underscore, dash',
-        'url'         => ':attribute not a valid url',
-        'ip'          => ':attribute not a valid ip',
-        'dateFormat'  => ':attribute must be dateFormat of :rule',
-        'in'          => ':attribute must be in :rule',
-        'notIn'       => ':attribute be notin :rule',
-        'between'     => ':attribute must between :1 - :2',
-        'notBetween'  => ':attribute not between :1 - :2',
-        'length'      => 'size of :attribute must be :rule',
-        'max'         => 'max size of :attribute must be :rule',
-        'min'         => 'min size of :attribute must be :rule',
-        'after'       => ':attribute cannot be less than :rule',
-        'before'      => ':attribute cannot exceed :rule',
-        'afterWith'   => ':attribute cannot be less than :rule',
-        'beforeWith'  => ':attribute cannot exceed :rule',
-        'expire'      => ':attribute not within :rule',
-        'allowIp'     => 'access IP is not allowed',
-        'denyIp'      => 'access IP denied',
-        'confirm'     => ':attribute out of accord with :2',
-        'different'   => ':attribute cannot be same with :2',
-        'egt'         => ':attribute must greater than or equal :rule',
-        'gt'          => ':attribute must greater than :rule',
-        'elt'         => ':attribute must less than or equal :rule',
-        'lt'          => ':attribute must less than :rule',
-        'eq'          => ':attribute must equal :rule',
-        'unique'      => ':attribute has exists',
-        'regex'       => ':attribute not conform to the rules',
-        'method'      => 'invalid Request method',
-        'token'       => 'invalid token',
-        'fileSize'    => 'filesize not match',
-        'fileExt'     => 'extensions to upload is not allowed',
-        'fileMime'    => 'mimetype to upload is not allowed',
+        'chsDash' => ':attribute must be chinese,alpha-numeric,underscore, dash',
+        'url' => ':attribute not a valid url',
+        'ip' => ':attribute not a valid ip',
+        'dateFormat' => ':attribute must be dateFormat of :rule',
+        'in' => ':attribute must be in :rule',
+        'notIn' => ':attribute be notin :rule',
+        'between' => ':attribute must between :1 - :2',
+        'notBetween' => ':attribute not between :1 - :2',
+        'length' => 'size of :attribute must be :rule',
+        'max' => 'max size of :attribute must be :rule',
+        'min' => 'min size of :attribute must be :rule',
+        'after' => ':attribute cannot be less than :rule',
+        'before' => ':attribute cannot exceed :rule',
+        'afterWith' => ':attribute cannot be less than :rule',
+        'beforeWith' => ':attribute cannot exceed :rule',
+        'expire' => ':attribute not within :rule',
+        'allowIp' => 'access IP is not allowed',
+        'denyIp' => 'access IP denied',
+        'confirm' => ':attribute out of accord with :2',
+        'different' => ':attribute cannot be same with :2',
+        'egt' => ':attribute must greater than or equal :rule',
+        'gt' => ':attribute must greater than :rule',
+        'elt' => ':attribute must less than or equal :rule',
+        'lt' => ':attribute must less than :rule',
+        'eq' => ':attribute must equal :rule',
+        'unique' => ':attribute has exists',
+        'regex' => ':attribute not conform to the rules',
+        'method' => 'invalid Request method',
+        'token' => 'invalid token',
+        'fileSize' => 'filesize not match',
+        'fileExt' => 'extensions to upload is not allowed',
+        'fileMime' => 'mimetype to upload is not allowed',
     ];
 
     /**
@@ -119,12 +119,12 @@ class Validate
      * @var array
      */
     protected $filter = [
-        'email'   => FILTER_VALIDATE_EMAIL,
-        'ip'      => [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6],
+        'email' => FILTER_VALIDATE_EMAIL,
+        'ip' => [FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6],
         'integer' => FILTER_VALIDATE_INT,
-        'url'     => FILTER_VALIDATE_URL,
+        'url' => FILTER_VALIDATE_URL,
         'macAddr' => FILTER_VALIDATE_MAC,
-        'float'   => FILTER_VALIDATE_FLOAT,
+        'float' => FILTER_VALIDATE_FLOAT,
     ];
 
     /**
@@ -132,14 +132,14 @@ class Validate
      * @var array
      */
     protected $defaultRegex = [
-        'alphaDash'   => '/^[A-Za-z0-9\-\_]+$/',
-        'chs'         => '/^[\x{4e00}-\x{9fa5}]+$/u',
-        'chsAlpha'    => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
+        'alphaDash' => '/^[A-Za-z0-9\-\_]+$/',
+        'chs' => '/^[\x{4e00}-\x{9fa5}]+$/u',
+        'chsAlpha' => '/^[\x{4e00}-\x{9fa5}a-zA-Z]+$/u',
         'chsAlphaNum' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9]+$/u',
-        'chsDash'     => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
-        'mobile'      => '/^1[3-9][0-9]\d{8}$/',
-        'idCard'      => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
-        'zip'         => '/\d{6}/',
+        'chsDash' => '/^[\x{4e00}-\x{9fa5}a-zA-Z0-9\_\-]+$/u',
+        'mobile' => '/^1[3-9][0-9]\d{8}$/',
+        'idCard' => '/(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{5}\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{2}$)/',
+        'zip' => '/\d{6}/',
     ];
 
     /**
@@ -193,9 +193,9 @@ class Validate
      */
     public function __construct(array $rules = [], array $message = [], array $field = [])
     {
-        $this->rule    = $rules + $this->rule;
+        $this->rule = $rules + $this->rule;
         $this->message = array_merge($this->message, $message);
-        $this->field   = array_merge($this->field, $field);
+        $this->field = array_merge($this->field, $field);
     }
 
     /**
@@ -524,13 +524,13 @@ class Validate
             unset($this->append[$field]);
         }
 
-        $i      = 0;
+        $i = 0;
         $result = true;
 
         foreach ($rules as $key => $rule) {
             if ($rule instanceof \Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
-                $info   = is_numeric($key) ? '' : $key;
+                $info = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
                 list($type, $rule, $info) = $this->getValidateType($key, $rule);
@@ -786,7 +786,7 @@ class Validate
                 } elseif (function_exists('ctype_' . $rule)) {
                     // ctype验证规则
                     $ctypeFun = 'ctype_' . $rule;
-                    $result   = $ctypeFun($value);
+                    $result = $ctypeFun($value);
                 } elseif (isset($this->filter[$rule])) {
                     // Filter_var验证规则
                     $result = $this->filter($value, $this->filter[$rule]);
@@ -1066,7 +1066,7 @@ class Validate
             list($rule, $param) = explode(',', $rule);
         } elseif (is_array($rule)) {
             $param = isset($rule[1]) ? $rule[1] : null;
-            $rule  = $rule[0];
+            $rule = $rule[0];
         } else {
             $param = null;
         }
@@ -1393,7 +1393,7 @@ class Validate
      */
     public function token($value, $rule, $data)
     {
-        $rule    = !empty($rule) ? $rule : '__token__';
+        $rule = !empty($rule) ? $rule : '__token__';
         $session = Container::get('session');
 
         if (!isset($data[$rule]) || !$session->has($rule)) {

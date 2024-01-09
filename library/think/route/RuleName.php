@@ -73,7 +73,7 @@ class RuleName
                     $val['domain'] = $ruleDomain;
 
                     foreach (['method', 'rule', 'name', 'route', 'pattern', 'option'] as $param) {
-                        $call        = 'get' . $param;
+                        $call = 'get' . $param;
                         $val[$param] = $item->$call();
                     }
 

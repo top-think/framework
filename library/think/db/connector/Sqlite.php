@@ -44,18 +44,18 @@ class Sqlite extends Connection
     public function getFields($tableName)
     {
         list($tableName) = explode(' ', $tableName);
-        $sql             = 'PRAGMA table_info( ' . $tableName . ' )';
+        $sql = 'PRAGMA table_info( ' . $tableName . ' )';
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
 
         if ($result) {
             foreach ($result as $key => $val) {
-                $val                = array_change_key_case($val);
+                $val = array_change_key_case($val);
                 $info[$val['name']] = [
-                    'name'    => $val['name'],
-                    'type'    => $val['type'],
+                    'name' => $val['name'],
+                    'type' => $val['type'],
                     'notnull' => 1 === $val['notnull'],
                     'default' => $val['dflt_value'],
                     'primary' => '1' == $val['pk'],
@@ -79,9 +79,9 @@ class Sqlite extends Connection
             . "UNION ALL SELECT name FROM sqlite_temp_master "
             . "WHERE type='table' ORDER BY name";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
 
         foreach ($result as $key => $val) {
             $info[$key] = current($val);

@@ -51,7 +51,7 @@ class Console
      */
     public function __construct(ThinkConsole $console, $namespace = null)
     {
-        $this->console   = $console;
+        $this->console = $console;
         $this->namespace = $namespace;
     }
 
@@ -95,7 +95,7 @@ class Console
 
     private function inspectConsole()
     {
-        $this->commands   = [];
+        $this->commands = [];
         $this->namespaces = [];
 
         $all = $this->console->all($this->namespace ? $this->console->findNamespace($this->namespace) : null);

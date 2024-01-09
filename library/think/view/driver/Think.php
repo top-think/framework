@@ -25,22 +25,22 @@ class Think
     // 模板引擎参数
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
-        'auto_rule'   => 1,
+        'auto_rule' => 1,
         // 视图基础目录（集中式）
-        'view_base'   => '',
+        'view_base' => '',
         // 模板起始路径
-        'view_path'   => '',
+        'view_path' => '',
         // 模板文件后缀
         'view_suffix' => 'html',
         // 模板文件名分隔符
-        'view_depr'   => DIRECTORY_SEPARATOR,
+        'view_depr' => DIRECTORY_SEPARATOR,
         // 是否开启模板编译缓存,设为false则每次都会重新编译
-        'tpl_cache'   => true,
+        'tpl_cache' => true,
     ];
 
     public function __construct(App $app, $config = [])
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->config = array_merge($this->config, (array) $config);
 
         if (empty($this->config['view_path'])) {
@@ -126,7 +126,7 @@ class Think
         if ($this->config['view_base']) {
             // 基础视图目录
             $module = isset($module) ? $module : $request->module();
-            $path   = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
+            $path = $this->config['view_base'] . ($module ? $module . DIRECTORY_SEPARATOR : '');
         } else {
             $path = isset($module) ? $this->app->getAppPath() . $module . DIRECTORY_SEPARATOR . 'view' . DIRECTORY_SEPARATOR : $this->config['view_path'];
         }
@@ -134,7 +134,7 @@ class Think
         $depr = $this->config['view_depr'];
 
         if (0 !== strpos($template, '/')) {
-            $template   = str_replace(['/', ':'], $depr, $template);
+            $template = str_replace(['/', ':'], $depr, $template);
             $controller = Loader::parseName($request->controller());
 
             if ($controller) {
@@ -176,7 +176,7 @@ class Think
             return $this->template->config($name);
         } else {
             $this->template->$name = $value;
-            $this->config[$name]   = $value;
+            $this->config[$name] = $value;
         }
     }
 

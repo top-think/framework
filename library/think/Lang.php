@@ -165,7 +165,7 @@ class Lang
             return $this->lang[$range];
         }
 
-        $key   = strtolower($name);
+        $key = strtolower($name);
         $value = isset($this->lang[$range][$key]) ? $this->lang[$range][$key] : $name;
 
         // 变量解析

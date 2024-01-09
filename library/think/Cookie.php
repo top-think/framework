@@ -19,17 +19,17 @@ class Cookie
      */
     protected $config = [
         // cookie 名称前缀
-        'prefix'    => '',
+        'prefix' => '',
         // cookie 保存时间
-        'expire'    => 0,
+        'expire' => 0,
         // cookie 保存路径
-        'path'      => '/',
+        'path' => '/',
         // cookie 有效域名
-        'domain'    => '',
+        'domain' => '',
         //  cookie 启用安全传输
-        'secure'    => false,
+        'secure' => false,
         // httponly设置
-        'httponly'  => false,
+        'httponly' => false,
         // 是否使用 setcookie
         'setcookie' => true,
     ];
@@ -162,7 +162,7 @@ class Cookie
     public function has($name, $prefix = null)
     {
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
-        $name   = $prefix . $name;
+        $name = $prefix . $name;
 
         return isset($_COOKIE[$name]);
     }
@@ -177,7 +177,7 @@ class Cookie
     public function get($name = '', $prefix = null)
     {
         $prefix = !is_null($prefix) ? $prefix : $this->config['prefix'];
-        $key    = $prefix . $name;
+        $key = $prefix . $name;
 
         if ('' == $name) {
             if ($prefix) {
@@ -216,7 +216,7 @@ class Cookie
     {
         $config = $this->config;
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
-        $name   = $prefix . $name;
+        $name = $prefix . $name;
 
         if ($config['setcookie']) {
             $this->setcookie($name, '', $_SERVER['REQUEST_TIME'] - 3600, $config);

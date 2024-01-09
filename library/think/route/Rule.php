@@ -644,8 +644,8 @@ abstract class Rule
         if (!empty($this->option['cross_domain'])) {
             $header = [
                 'Access-Control-Allow-Credentials' => 'true',
-                'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE',
-                'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
+                'Access-Control-Allow-Methods' => 'GET, POST, PATCH, PUT, DELETE',
+                'Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With',
             ];
 
             if (!empty($this->option['header'])) {
@@ -704,7 +704,7 @@ abstract class Rule
                 }
             }
 
-            $this->option     = array_merge($parentOption, $this->option);
+            $this->option = array_merge($parentOption, $this->option);
             $this->lockOption = true;
         }
 
@@ -734,10 +734,10 @@ abstract class Rule
             $search = $replace = [];
 
             foreach ($matches as $key => $value) {
-                $search[]  = '<' . $key . '>';
+                $search[] = '<' . $key . '>';
                 $replace[] = $value;
 
-                $search[]  = ':' . $key;
+                $search[] = ':' . $key;
                 $replace[] = $value;
             }
 
@@ -746,11 +746,11 @@ abstract class Rule
 
         // 解析额外参数
         $count = substr_count($rule, '/');
-        $url   = array_slice(explode('|', $url), $count + 1);
+        $url = array_slice(explode('|', $url), $count + 1);
         $this->parseUrlParams($request, implode('|', $url), $matches);
 
-        $this->vars    = $matches;
-        $this->option  = $option;
+        $this->vars = $matches;
+        $this->option = $option;
         $this->doAfter = true;
 
         // 发起路由调度
@@ -821,7 +821,7 @@ abstract class Rule
     {
         list($path, $var) = $this->parseUrlPath($route);
 
-        $route  = str_replace('/', '@', implode('/', $path));
+        $route = str_replace('/', '@', implode('/', $path));
         $method = strpos($route, '@') ? explode('@', $route) : $route;
 
         return new CallbackDispatch($request, $this, $method, $var);
@@ -858,10 +858,10 @@ abstract class Rule
     {
         list($path, $var) = $this->parseUrlPath($route);
 
-        $action     = array_pop($path);
+        $action = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
-        $module     = $this->getConfig('app_multi_module') && !empty($path) ? array_pop($path) : null;
-        $method     = $request->method();
+        $module = $this->getConfig('app_multi_module') && !empty($path) ? array_pop($path) : null;
+        $method = $request->method();
 
         if ($this->getConfig('use_action_prefix') && $this->router->getMethodPrefix($method)) {
             $prefix = $this->router->getMethodPrefix($method);
@@ -1005,7 +1005,7 @@ abstract class Rule
             if (!empty($option['remove_slash'])) {
                 $rule = rtrim($rule, '/');
             } elseif (substr($rule, -1) == '/') {
-                $rule     = rtrim($rule, '/');
+                $rule = rtrim($rule, '/');
                 $hasSlash = true;
             }
         }
@@ -1031,12 +1031,12 @@ abstract class Rule
     protected function buildNameRegex($name, $pattern, $suffix)
     {
         $optional = '';
-        $slash    = substr($name, 0, 1);
+        $slash = substr($name, 0, 1);
 
         if (in_array($slash, ['/', '-'])) {
             $prefix = '\\' . $slash;
-            $name   = substr($name, 1);
-            $slash  = substr($name, 0, 1);
+            $name = substr($name, 1);
+            $slash = substr($name, 0, 1);
         } else {
             $prefix = '';
         }
@@ -1046,7 +1046,7 @@ abstract class Rule
         }
 
         if (strpos($name, '?')) {
-            $name     = substr($name, 1, -2);
+            $name = substr($name, 1, -2);
             $optional = '?';
         } elseif (strpos($name, '>')) {
             $name = substr($name, 1, -1);
@@ -1080,7 +1080,7 @@ abstract class Rule
                 $optional = false;
 
                 if (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
+                    $name = substr($name, 1, -2);
                     $optional = true;
                 } else {
                     $name = substr($name, 1, -1);

@@ -20,8 +20,8 @@ use think\cache\Driver;
 class Wincache extends Driver
 {
     protected $options = [
-        'prefix'    => '',
-        'expire'    => 0,
+        'prefix' => '',
+        'expire' => 0,
         'serialize' => true,
     ];
 
@@ -89,9 +89,9 @@ class Wincache extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if ($this->tag && !$this->has($name)) {
             $first = true;
