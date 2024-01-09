@@ -21,8 +21,8 @@ class Sqlsrv extends Connection
 {
     // PDO连接参数
     protected $params = [
-        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
-        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_CASE => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_STRINGIFY_FETCHES => false,
     ];
     protected $builder = '\\think\\db\\builder\\Sqlsrv';
@@ -50,8 +50,8 @@ class Sqlsrv extends Connection
     public function getFields($tableName)
     {
         list($tableName) = explode(' ', $tableName);
-        $tableNames      = explode('.', $tableName);
-        $tableName       = isset($tableNames[1]) ? $tableNames[1] : $tableNames[0];
+        $tableNames = explode('.', $tableName);
+        $tableName = isset($tableNames[1]) ? $tableNames[1] : $tableNames[0];
 
         $sql = "SELECT   column_name,   data_type,   column_default,   is_nullable
         FROM    information_schema.tables AS t
@@ -61,15 +61,15 @@ class Sqlsrv extends Connection
         AND t.table_name    = c.table_name
         WHERE   t.table_name = '$tableName'";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
         if ($result) {
             foreach ($result as $key => $val) {
-                $val                       = array_change_key_case($val);
+                $val = array_change_key_case($val);
                 $info[$val['column_name']] = [
-                    'name'    => $val['column_name'],
-                    'type'    => $val['data_type'],
+                    'name' => $val['column_name'],
+                    'type' => $val['data_type'],
                     'notnull' => (bool) ('' === $val['is_nullable']), // not null is empty, null is yes
                     'default' => $val['column_default'],
                     'primary' => false,
@@ -103,9 +103,9 @@ class Sqlsrv extends Connection
             WHERE TABLE_TYPE = 'BASE TABLE'
             ";
 
-        $pdo    = $this->query($sql, [], false, true);
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
         foreach ($result as $key => $val) {
             $info[$key] = current($val);
         }

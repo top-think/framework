@@ -28,17 +28,17 @@ class urlTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         Route::rules(['get' => [],
-            'post'              => [],
-            'put'               => [],
-            'delete'            => [],
-            'patch'             => [],
-            'head'              => [],
-            'options'           => [],
-            '*'                 => [],
-            'alias'             => [],
-            'domain'            => [],
-            'pattern'           => [],
-            'name'              => []]);
+            'post' => [],
+            'put' => [],
+            'delete' => [],
+            'patch' => [],
+            'head' => [],
+            'options' => [],
+            '*' => [],
+            'alias' => [],
+            'domain' => [],
+            'pattern' => [],
+            'name' => []]);
         Route::name([]);
     }
 

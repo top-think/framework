@@ -18,9 +18,9 @@ use think\View as ViewTemplate;
 class View extends Response
 {
     // 输出参数
-    protected $options     = [];
-    protected $vars        = [];
-    protected $replace     = [];
+    protected $options = [];
+    protected $vars = [];
+    protected $replace = [];
     protected $contentType = 'text/html';
 
     /**

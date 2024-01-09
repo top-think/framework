@@ -26,29 +26,29 @@ class Cx extends Taglib
     // 标签定义
     protected $tags = [
         // 标签定义： attr 属性列表 close 是否闭合（0 或者1 默认1） alias 标签别名 level 嵌套层次
-        'php'        => ['attr' => ''],
-        'volist'     => ['attr' => 'name,id,offset,length,key,mod', 'alias' => 'iterate'],
-        'foreach'    => ['attr' => 'name,id,item,key,offset,length,mod', 'expression' => true],
-        'if'         => ['attr' => 'condition', 'expression' => true],
-        'elseif'     => ['attr' => 'condition', 'close' => 0, 'expression' => true],
-        'else'       => ['attr' => '', 'close' => 0],
-        'switch'     => ['attr' => 'name', 'expression' => true],
-        'case'       => ['attr' => 'value,break', 'expression' => true],
-        'default'    => ['attr' => '', 'close' => 0],
-        'compare'    => ['attr' => 'name,value,type', 'alias' => ['eq,equal,notequal,neq,gt,lt,egt,elt,heq,nheq', 'type']],
-        'range'      => ['attr' => 'name,value,type', 'alias' => ['in,notin,between,notbetween', 'type']],
-        'empty'      => ['attr' => 'name'],
-        'notempty'   => ['attr' => 'name'],
-        'present'    => ['attr' => 'name'],
+        'php' => ['attr' => ''],
+        'volist' => ['attr' => 'name,id,offset,length,key,mod', 'alias' => 'iterate'],
+        'foreach' => ['attr' => 'name,id,item,key,offset,length,mod', 'expression' => true],
+        'if' => ['attr' => 'condition', 'expression' => true],
+        'elseif' => ['attr' => 'condition', 'close' => 0, 'expression' => true],
+        'else' => ['attr' => '', 'close' => 0],
+        'switch' => ['attr' => 'name', 'expression' => true],
+        'case' => ['attr' => 'value,break', 'expression' => true],
+        'default' => ['attr' => '', 'close' => 0],
+        'compare' => ['attr' => 'name,value,type', 'alias' => ['eq,equal,notequal,neq,gt,lt,egt,elt,heq,nheq', 'type']],
+        'range' => ['attr' => 'name,value,type', 'alias' => ['in,notin,between,notbetween', 'type']],
+        'empty' => ['attr' => 'name'],
+        'notempty' => ['attr' => 'name'],
+        'present' => ['attr' => 'name'],
         'notpresent' => ['attr' => 'name'],
-        'defined'    => ['attr' => 'name'],
+        'defined' => ['attr' => 'name'],
         'notdefined' => ['attr' => 'name'],
-        'load'       => ['attr' => 'file,href,type,value,basepath', 'close' => 0, 'alias' => ['import,css,js', 'type']],
-        'assign'     => ['attr' => 'name,value', 'close' => 0],
-        'define'     => ['attr' => 'name,value', 'close' => 0],
-        'for'        => ['attr' => 'start,end,name,comparison,step'],
-        'url'        => ['attr' => 'link,vars,suffix,domain', 'close' => 0, 'expression' => true],
-        'function'   => ['attr' => 'name,vars,use,call'],
+        'load' => ['attr' => 'file,href,type,value,basepath', 'close' => 0, 'alias' => ['import,css,js', 'type']],
+        'assign' => ['attr' => 'name,value', 'close' => 0],
+        'define' => ['attr' => 'name,value', 'close' => 0],
+        'for' => ['attr' => 'start,end,name,comparison,step'],
+        'url' => ['attr' => 'link,vars,suffix,domain', 'close' => 0, 'expression' => true],
+        'function' => ['attr' => 'name,vars,use,call'],
     ];
 
     /**
@@ -80,16 +80,16 @@ class Cx extends Taglib
      */
     public function tagVolist($tag, $content)
     {
-        $name   = $tag['name'];
-        $id     = $tag['id'];
-        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
-        $key    = !empty($tag['key']) ? $tag['key'] : 'i';
-        $mod    = isset($tag['mod']) ? $tag['mod'] : '2';
+        $name = $tag['name'];
+        $id = $tag['id'];
+        $empty = isset($tag['empty']) ? $tag['empty'] : '';
+        $key = !empty($tag['key']) ? $tag['key'] : 'i';
+        $mod = isset($tag['mod']) ? $tag['mod'] : '2';
         $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
         $length = !empty($tag['length']) && is_numeric($tag['length']) ? intval($tag['length']) : 'null';
         // 允许使用函数设定数据集 <volist name=":fun('arg')" id="vo">{$vo.name}</volist>
         $parseStr = '<?php ';
-        $flag     = substr($name, 0, 1);
+        $flag = substr($name, 0, 1);
         if (':' == $flag) {
             $name = $this->autoBuildVar($name);
             $parseStr .= '$_result=' . $name . ';';
@@ -136,22 +136,22 @@ class Cx extends Taglib
         if (!empty($tag['expression'])) {
             $expression = ltrim(rtrim($tag['expression'], ')'), '(');
             $expression = $this->autoBuildVar($expression);
-            $parseStr   = '<?php foreach(' . $expression . '): ?>';
+            $parseStr = '<?php foreach(' . $expression . '): ?>';
             $parseStr .= $content;
             $parseStr .= '<?php endforeach; ?>';
             return $parseStr;
         }
-        $name   = $tag['name'];
-        $key    = !empty($tag['key']) ? $tag['key'] : 'key';
-        $item   = !empty($tag['id']) ? $tag['id'] : $tag['item'];
-        $empty  = isset($tag['empty']) ? $tag['empty'] : '';
+        $name = $tag['name'];
+        $key = !empty($tag['key']) ? $tag['key'] : 'key';
+        $item = !empty($tag['id']) ? $tag['id'] : $tag['item'];
+        $empty = isset($tag['empty']) ? $tag['empty'] : '';
         $offset = !empty($tag['offset']) && is_numeric($tag['offset']) ? intval($tag['offset']) : 0;
         $length = !empty($tag['length']) && is_numeric($tag['length']) ? intval($tag['length']) : 'null';
 
         $parseStr = '<?php ';
         // 支持用函数传数组
         if (':' == substr($name, 0, 1)) {
-            $var  = '$_' . uniqid();
+            $var = '$_' . uniqid();
             $name = $this->autoBuildVar($name);
             $parseStr .= $var . '=' . $name . '; ';
             $name = $var;
@@ -215,7 +215,7 @@ class Cx extends Taglib
     {
         $condition = !empty($tag['expression']) ? $tag['expression'] : $tag['condition'];
         $condition = $this->parseCondition($condition);
-        $parseStr  = '<?php if(' . $condition . '): ?>' . $content . '<?php endif; ?>';
+        $parseStr = '<?php if(' . $condition . '): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
 
@@ -231,7 +231,7 @@ class Cx extends Taglib
     {
         $condition = !empty($tag['expression']) ? $tag['expression'] : $tag['condition'];
         $condition = $this->parseCondition($condition);
-        $parseStr  = '<?php elseif(' . $condition . '): ?>';
+        $parseStr = '<?php elseif(' . $condition . '): ?>';
         return $parseStr;
     }
 
@@ -263,8 +263,8 @@ class Cx extends Taglib
      */
     public function tagSwitch($tag, $content)
     {
-        $name     = !empty($tag['expression']) ? $tag['expression'] : $tag['name'];
-        $name     = $this->autoBuildVar($name);
+        $name = !empty($tag['expression']) ? $tag['expression'] : $tag['name'];
+        $name = $this->autoBuildVar($name);
         $parseStr = '<?php switch(' . $name . '): ?>' . $content . '<?php endswitch; ?>';
         return $parseStr;
     }
@@ -279,13 +279,13 @@ class Cx extends Taglib
     public function tagCase($tag, $content)
     {
         $value = isset($tag['expression']) ? $tag['expression'] : $tag['value'];
-        $flag  = substr($value, 0, 1);
+        $flag = substr($value, 0, 1);
         if ('$' == $flag || ':' == $flag) {
             $value = $this->autoBuildVar($value);
             $value = 'case ' . $value . ':';
         } elseif (strpos($value, '|')) {
             $values = explode('|', $value);
-            $value  = '';
+            $value = '';
             foreach ($values as $val) {
                 $value .= 'case "' . addslashes($val) . '":';
             }
@@ -293,7 +293,7 @@ class Cx extends Taglib
             $value = 'case "' . $value . '":';
         }
         $parseStr = '<?php ' . $value . ' ?>' . $content;
-        $isBreak  = isset($tag['break']) ? $tag['break'] : '';
+        $isBreak = isset($tag['break']) ? $tag['break'] : '';
         if ('' == $isBreak || $isBreak) {
             $parseStr .= '<?php break; ?>';
         }
@@ -325,11 +325,11 @@ class Cx extends Taglib
      */
     public function tagCompare($tag, $content)
     {
-        $name  = $tag['name'];
+        $name = $tag['name'];
         $value = $tag['value'];
-        $type  = isset($tag['type']) ? $tag['type'] : 'eq'; // 比较类型
-        $name  = $this->autoBuildVar($name);
-        $flag  = substr($value, 0, 1);
+        $type = isset($tag['type']) ? $tag['type'] : 'eq'; // 比较类型
+        $name = $this->autoBuildVar($name);
+        $flag = substr($value, 0, 1);
         if ('$' == $flag || ':' == $flag) {
             $value = $this->autoBuildVar($value);
         } else {
@@ -343,7 +343,7 @@ class Cx extends Taglib
                 $type = 'neq';
                 break;
         }
-        $type     = $this->parseCondition(' ' . $type . ' ');
+        $type = $this->parseCondition(' ' . $type . ' ');
         $parseStr = '<?php if(' . $name . ' ' . $type . ' ' . $value . '): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -360,25 +360,25 @@ class Cx extends Taglib
      */
     public function tagRange($tag, $content)
     {
-        $name  = $tag['name'];
+        $name = $tag['name'];
         $value = $tag['value'];
-        $type  = isset($tag['type']) ? $tag['type'] : 'in'; // 比较类型
+        $type = isset($tag['type']) ? $tag['type'] : 'in'; // 比较类型
 
         $name = $this->autoBuildVar($name);
         $flag = substr($value, 0, 1);
         if ('$' == $flag || ':' == $flag) {
             $value = $this->autoBuildVar($value);
-            $str   = 'is_array(' . $value . ')?' . $value . ':explode(\',\',' . $value . ')';
+            $str = 'is_array(' . $value . ')?' . $value . ':explode(\',\',' . $value . ')';
         } else {
             $value = '"' . $value . '"';
-            $str   = 'explode(\',\',' . $value . ')';
+            $str = 'explode(\',\',' . $value . ')';
         }
         if ('between' == $type) {
             $parseStr = '<?php $_RANGE_VAR_=' . $str . ';if(' . $name . '>= $_RANGE_VAR_[0] && ' . $name . '<= $_RANGE_VAR_[1]):?>' . $content . '<?php endif; ?>';
         } elseif ('notbetween' == $type) {
             $parseStr = '<?php $_RANGE_VAR_=' . $str . ';if(' . $name . '<$_RANGE_VAR_[0] || ' . $name . '>$_RANGE_VAR_[1]):?>' . $content . '<?php endif; ?>';
         } else {
-            $fun      = ('in' == $type) ? 'in_array' : '!in_array';
+            $fun = ('in' == $type) ? 'in_array' : '!in_array';
             $parseStr = '<?php if(' . $fun . '((' . $name . '), ' . $str . ')): ?>' . $content . '<?php endif; ?>';
         }
         return $parseStr;
@@ -395,8 +395,8 @@ class Cx extends Taglib
      */
     public function tagPresent($tag, $content)
     {
-        $name     = $tag['name'];
-        $name     = $this->autoBuildVar($name);
+        $name = $tag['name'];
+        $name = $this->autoBuildVar($name);
         $parseStr = '<?php if(isset(' . $name . ')): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -412,8 +412,8 @@ class Cx extends Taglib
      */
     public function tagNotpresent($tag, $content)
     {
-        $name     = $tag['name'];
-        $name     = $this->autoBuildVar($name);
+        $name = $tag['name'];
+        $name = $this->autoBuildVar($name);
         $parseStr = '<?php if(!isset(' . $name . ')): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -429,8 +429,8 @@ class Cx extends Taglib
      */
     public function tagEmpty($tag, $content)
     {
-        $name     = $tag['name'];
-        $name     = $this->autoBuildVar($name);
+        $name = $tag['name'];
+        $name = $this->autoBuildVar($name);
         $parseStr = '<?php if(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator ) && ' . $name . '->isEmpty())): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -446,8 +446,8 @@ class Cx extends Taglib
      */
     public function tagNotempty($tag, $content)
     {
-        $name     = $tag['name'];
-        $name     = $this->autoBuildVar($name);
+        $name = $tag['name'];
+        $name = $this->autoBuildVar($name);
         $parseStr = '<?php if(!(empty(' . $name . ') || ((' . $name . ' instanceof \think\Collection || ' . $name . ' instanceof \think\Paginator ) && ' . $name . '->isEmpty()))): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -461,7 +461,7 @@ class Cx extends Taglib
      */
     public function tagDefined($tag, $content)
     {
-        $name     = $tag['name'];
+        $name = $tag['name'];
         $parseStr = '<?php if(defined("' . $name . '")): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -475,7 +475,7 @@ class Cx extends Taglib
      */
     public function tagNotdefined($tag, $content)
     {
-        $name     = $tag['name'];
+        $name = $tag['name'];
         $parseStr = '<?php if(!defined("' . $name . '")): ?>' . $content . '<?php endif; ?>';
         return $parseStr;
     }
@@ -490,10 +490,10 @@ class Cx extends Taglib
      */
     public function tagLoad($tag, $content)
     {
-        $file     = isset($tag['file']) ? $tag['file'] : $tag['href'];
-        $type     = isset($tag['type']) ? strtolower($tag['type']) : '';
+        $file = isset($tag['file']) ? $tag['file'] : $tag['href'];
+        $type = isset($tag['type']) ? strtolower($tag['type']) : '';
         $parseStr = '';
-        $endStr   = '';
+        $endStr = '';
         // 判断是否存在加载条件 允许使用函数判断(默认为isset)
         if (isset($tag['value'])) {
             $name = $tag['value'];
@@ -580,16 +580,16 @@ class Cx extends Taglib
     public function tagFor($tag, $content)
     {
         //设置默认值
-        $start      = 0;
-        $end        = 0;
-        $step       = 1;
+        $start = 0;
+        $end = 0;
+        $step = 1;
         $comparison = 'lt';
-        $name       = 'i';
-        $rand       = rand(); //添加随机数，防止嵌套变量冲突
+        $name = 'i';
+        $rand = rand(); //添加随机数，防止嵌套变量冲突
         //获取属性
         foreach ($tag as $key => $value) {
             $value = trim($value);
-            $flag  = substr($value, 0, 1);
+            $flag = substr($value, 0, 1);
             if ('$' == $flag || ':' == $flag) {
                 $value = $this->autoBuildVar($value);
             }
@@ -630,8 +630,8 @@ class Cx extends Taglib
      */
     public function tagUrl($tag, $content)
     {
-        $url    = isset($tag['link']) ? $tag['link'] : '';
-        $vars   = isset($tag['vars']) ? $tag['vars'] : '';
+        $url = isset($tag['link']) ? $tag['link'] : '';
+        $vars = isset($tag['vars']) ? $tag['vars'] : '';
         $suffix = isset($tag['suffix']) ? $tag['suffix'] : 'true';
         $domain = isset($tag['domain']) ? $tag['domain'] : 'false';
         return '<?php echo url("' . $url . '","' . $vars . '",' . $suffix . ',' . $domain . ');?>';
@@ -659,7 +659,7 @@ class Cx extends Taglib
         $name = !empty($tag['name']) ? $tag['name'] : 'func';
         $vars = !empty($tag['vars']) ? $tag['vars'] : '';
         $call = !empty($tag['call']) ? $tag['call'] : '';
-        $use  = ['&$' . $name];
+        $use = ['&$' . $name];
         if (!empty($tag['use'])) {
             foreach (explode(',', $tag['use']) as $val) {
                 $use[] = '&' . ltrim(trim($val), '&');

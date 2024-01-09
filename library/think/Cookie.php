@@ -17,12 +17,12 @@ class Cookie
      * @var array cookie 设置参数
      */
     protected static $config = [
-        'prefix'    => '', // cookie 名称前缀
-        'expire'    => 0, // cookie 保存时间
-        'path'      => '/', // cookie 保存路径
-        'domain'    => '', // cookie 有效域名
-        'secure'    => false, //  cookie 启用安全传输
-        'httponly'  => false, // httponly 设置
+        'prefix' => '', // cookie 名称前缀
+        'expire' => 0, // cookie 保存时间
+        'path' => '/', // cookie 保存路径
+        'domain' => '', // cookie 有效域名
+        'secure' => false, //  cookie 启用安全传输
+        'httponly' => false, // httponly 设置
         'setcookie' => true, // 是否使用 setcookie
     ];
 
@@ -166,7 +166,7 @@ class Cookie
         !isset(self::$init) && self::init();
 
         $prefix = !is_null($prefix) ? $prefix : self::$config['prefix'];
-        $key    = $prefix . $name;
+        $key = $prefix . $name;
 
         if ('' == $name) {
             // 获取全部
@@ -209,7 +209,7 @@ class Cookie
 
         $config = self::$config;
         $prefix = !is_null($prefix) ? $prefix : $config['prefix'];
-        $name   = $prefix . $name;
+        $name = $prefix . $name;
 
         if ($config['setcookie']) {
             setcookie(

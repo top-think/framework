@@ -22,15 +22,15 @@ class Php
     // 模板引擎参数
     protected $config = [
         // 视图基础目录（集中式）
-        'view_base'   => '',
+        'view_base' => '',
         // 模板起始路径
-        'view_path'   => '',
+        'view_path' => '',
         // 模板文件后缀
         'view_suffix' => 'php',
         // 模板文件名分隔符
-        'view_depr'   => DS,
+        'view_depr' => DS,
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写
-        'auto_rule'   => 1,
+        'auto_rule' => 1,
     ];
     protected $template;
     protected $content;
@@ -116,14 +116,14 @@ class Php
         if ($this->config['view_base']) {
             // 基础视图目录
             $module = isset($module) ? $module : $request->module();
-            $path   = $this->config['view_base'] . ($module ? $module . DS : '');
+            $path = $this->config['view_base'] . ($module ? $module . DS : '');
         } else {
             $path = isset($module) ? APP_PATH . $module . DS . 'view' . DS : $this->config['view_path'];
         }
 
         $depr = $this->config['view_depr'];
         if (0 !== strpos($template, '/')) {
-            $template   = str_replace(['/', ':'], $depr, $template);
+            $template = str_replace(['/', ':'], $depr, $template);
             $controller = Loader::parseName($request->controller());
             if ($controller) {
                 if ('' == $template) {

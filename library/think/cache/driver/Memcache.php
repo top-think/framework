@@ -16,12 +16,12 @@ use think\cache\Driver;
 class Memcache extends Driver
 {
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 11211,
-        'expire'     => 0,
-        'timeout'    => 0, // 超时时间（单位：毫秒）
+        'host' => '127.0.0.1',
+        'port' => 11211,
+        'expire' => 0,
+        'timeout' => 0, // 超时时间（单位：毫秒）
         'persistent' => true,
-        'prefix'     => '',
+        'prefix' => '',
     ];
 
     /**
@@ -131,9 +131,9 @@ class Memcache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
-        $res   = $this->handler->set($key, $value);
+        $res = $this->handler->set($key, $value);
         if (!$res) {
             return false;
         } else {

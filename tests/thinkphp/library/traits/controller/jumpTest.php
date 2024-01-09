@@ -28,7 +28,7 @@ class jumpTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->testClass = new testClassWithJump();
-        $this->request   = Request::create('');
+        $this->request = Request::create('');
 
         $this->originServerData = Request::instance()->server();
     }
@@ -156,48 +156,48 @@ class jumpTest extends \PHPUnit_Framework_TestCase
         $provideData = [];
 
         $arguments = ['', null, '', 3, []];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'text/html; charset=utf-8'
             ],
-            'data'   => View::instance(Config::get('template'), Config::get('view_replace_str'))
+            'data' => View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_error_tmpl'), [
                     'code' => 1,
-                    'msg'  => '',
+                    'msg' => '',
                     'data' => '',
-                    'url'  => '/index.php/',
+                    'url' => '/index.php/',
                     'wait' => 3,
                 ])
         ];
         $provideData[] = [$arguments, $expected, ['server' => ['HTTP_REFERER' => null], 'return' => 'html']];
 
         $arguments = ['thinkphp', null, ['foo'], 4, ['Power-By' => 'thinkphp', 'Content-Type' => 'text/html; charset=gbk']];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'text/html; charset=gbk',
                 'Power-By' => 'thinkphp'
             ],
-            'data'   => View::instance(Config::get('template'), Config::get('view_replace_str'))
+            'data' => View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_error_tmpl'), [
                     'code' => 1,
-                    'msg'  => 'thinkphp',
+                    'msg' => 'thinkphp',
                     'data' => ['foo'],
-                    'url'  => 'http://www.thinkphp.cn',
+                    'url' => 'http://www.thinkphp.cn',
                     'wait' => 4,
                 ])
         ];
         $provideData[] = [$arguments, $expected, ['server' => ['HTTP_REFERER' => 'http://www.thinkphp.cn'], 'return' => 'html']];
 
         $arguments = ['thinkphp', 'index', ['foo'], 5, []];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'application/json; charset=utf-8'
             ],
-            'data'   => [
+            'data' => [
                 'code' => 1,
-                'msg'  => 'thinkphp',
+                'msg' => 'thinkphp',
                 'data' => ['foo'],
-                'url'  => '/index.php/index.html',
+                'url' => '/index.php/index.html',
                 'wait' => 5,
                 ]
         ];
@@ -211,48 +211,48 @@ class jumpTest extends \PHPUnit_Framework_TestCase
         $provideData = [];
 
         $arguments = ['', null, '', 3, []];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'text/html; charset=utf-8'
             ],
-            'data'   => View::instance(Config::get('template'), Config::get('view_replace_str'))
+            'data' => View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_error_tmpl'), [
                     'code' => 0,
-                    'msg'  => '',
+                    'msg' => '',
                     'data' => '',
-                    'url'  => 'javascript:history.back(-1);',
+                    'url' => 'javascript:history.back(-1);',
                     'wait' => 3,
                 ])
         ];
         $provideData[] = [$arguments, $expected, ['return' => 'html']];
 
         $arguments = ['thinkphp', 'http://www.thinkphp.cn', ['foo'], 4, ['Power-By' => 'thinkphp', 'Content-Type' => 'text/html; charset=gbk']];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'text/html; charset=gbk',
                 'Power-By' => 'thinkphp'
             ],
-            'data'   => View::instance(Config::get('template'), Config::get('view_replace_str'))
+            'data' => View::instance(Config::get('template'), Config::get('view_replace_str'))
                 ->fetch(Config::get('dispatch_error_tmpl'), [
                     'code' => 0,
-                    'msg'  => 'thinkphp',
+                    'msg' => 'thinkphp',
                     'data' => ['foo'],
-                    'url'  => 'http://www.thinkphp.cn',
+                    'url' => 'http://www.thinkphp.cn',
                     'wait' => 4,
                 ])
         ];
         $provideData[] = [$arguments, $expected, ['return' => 'html']];
 
         $arguments = ['thinkphp', '', ['foo'], 5, []];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'application/json; charset=utf-8'
             ],
-            'data'   => [
+            'data' => [
                 'code' => 0,
-                'msg'  => 'thinkphp',
+                'msg' => 'thinkphp',
                 'data' => ['foo'],
-                'url'  => '',
+                'url' => '',
                 'wait' => 5,
             ]
         ];
@@ -266,13 +266,13 @@ class jumpTest extends \PHPUnit_Framework_TestCase
         $provideData = [];
 
         $arguments = [null, 0, '', '', []];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Content-Type' => 'text/html; charset=utf-8'
             ],
             'data' => [
                     'code' => 0,
-                    'msg'  => '',
+                    'msg' => '',
                     'time' => Request::create('')->server('REQUEST_TIME'),
                     'data' => null,
                 ]
@@ -280,14 +280,14 @@ class jumpTest extends \PHPUnit_Framework_TestCase
         $provideData[] = [$arguments, $expected, ['return' => 'html']];
 
         $arguments = [['foo'], 200, 'thinkphp', 'json', ['Power-By' => 'thinkphp']];
-        $expected  = [
+        $expected = [
             'header' => [
                 'Power-By' => 'thinkphp',
                 'Content-Type' => 'application/json; charset=utf-8'
             ],
-            'data'   => [
+            'data' => [
                 'code' => 200,
-                'msg'  => 'thinkphp',
+                'msg' => 'thinkphp',
                 'time' => 1000,
                 'data' => ['foo'],
             ]
@@ -303,22 +303,22 @@ class jumpTest extends \PHPUnit_Framework_TestCase
         $provideData = [];
 
         $arguments = ['', [], 302, []];
-        $expected  = [
-            'code'=> 302,
+        $expected = [
+            'code' => 302,
             'url' => '/index.php/'
         ];
         $provideData[] = [$arguments, $expected, []];
 
         $arguments = ['index', 302, null, []];
-        $expected  = [
-            'code'=> 302,
+        $expected = [
+            'code' => 302,
             'url' => '/index.php/index.html'
         ];
         $provideData[] = [$arguments, $expected, []];
 
         $arguments = ['http://www.thinkphp.cn', 301, 302, []];
-        $expected  = [
-            'code'=> 301,
+        $expected = [
+            'code' => 301,
             'url' => 'http://www.thinkphp.cn'
         ];
         $provideData[] = [$arguments, $expected, []];

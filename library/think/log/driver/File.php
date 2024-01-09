@@ -21,12 +21,12 @@ class File
 {
     protected $config = [
         'time_format' => ' c ',
-        'single'      => false,
-        'file_size'   => 2097152,
-        'path'        => LOG_PATH,
+        'single' => false,
+        'file_size' => 2097152,
+        'path' => LOG_PATH,
         'apart_level' => [],
-        'max_files'   => 0,
-        'json'        => false,
+        'max_files' => 0,
+        'json' => false,
     ];
 
     // 实例化并传入参数
@@ -87,12 +87,12 @@ class File
     {
         $cli = PHP_SAPI == 'cli' ? '_cli' : '';
         if ($this->config['single']) {
-            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
             $destination = $this->config['path'] . $name . $cli . '.log';
         } else {
             if ($this->config['max_files']) {
                 $filename = date('Ymd') . $cli . '.log';
-                $files    = glob($this->config['path'] . '*.log');
+                $files = glob($this->config['path'] . '*.log');
 
                 try {
                     if (count($files) > $this->config['max_files']) {
@@ -152,7 +152,7 @@ class File
         foreach ($message as $type => $msg) {
             $msg = is_array($msg) ? implode("\r\n", $msg) : $msg;
             if (PHP_SAPI == 'cli') {
-                $info['msg']  = $msg;
+                $info['msg'] = $msg;
                 $info['type'] = $type;
             } else {
                 $info[$type] = $msg;
@@ -217,12 +217,12 @@ class File
      */
     protected function parseLog($info)
     {
-        $request     = Request::instance();
+        $request = Request::instance();
         $requestInfo = [
-            'ip'     => $request->ip(),
+            'ip' => $request->ip(),
             'method' => $request->method(),
-            'host'   => $request->host(),
-            'uri'    => $request->url(),
+            'host' => $request->host(),
+            'uri' => $request->url(),
         ];
 
         if ($this->config['json']) {
@@ -243,27 +243,27 @@ class File
             if ($this->config['json']) {
                 // 获取基本信息
                 $runtime = round(microtime(true) - THINK_START_TIME, 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+                $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
                 $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
                 $info = [
                     'runtime' => number_format($runtime, 6) . 's',
-                    'reqs'    => $reqs . 'req/s',
-                    'memory'  => $memory_use . 'kb',
-                    'file'    => count(get_included_files()),
+                    'reqs' => $reqs . 'req/s',
+                    'memory' => $memory_use . 'kb',
+                    'file' => count(get_included_files()),
                 ] + $info;
 
             } elseif (!$apart) {
                 // 增加额外的调试信息
                 $runtime = round(microtime(true) - THINK_START_TIME, 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+                $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
                 $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
-                $time_str   = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
+                $time_str = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
                 $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-                $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+                $file_load = ' [文件加载：' . count(get_included_files()) . ']';
 
                 array_unshift($info, $time_str . $memory_str . $file_load);
             }

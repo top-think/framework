@@ -17,7 +17,7 @@ class ValidateException extends \RuntimeException
 
     public function __construct($error)
     {
-        $this->error   = $error;
+        $this->error = $error;
         $this->message = is_array($error) ? implode("\n\r", $error) : $error;
     }
 

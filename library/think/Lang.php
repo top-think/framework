@@ -96,7 +96,7 @@ class Lang
     public static function load($file, $range = '')
     {
         $range = $range ?: self::$range;
-        $file  = is_string($file) ? [$file] : $file;
+        $file = is_string($file) ? [$file] : $file;
 
         if (!isset(self::$lang[$range])) {
             self::$lang[$range] = [];
@@ -155,7 +155,7 @@ class Lang
             return self::$lang[$range];
         }
 
-        $key   = strtolower($name);
+        $key = strtolower($name);
         $value = isset(self::$lang[$range][$key]) ? self::$lang[$range][$key] : $name;
 
         // 变量解析
@@ -200,7 +200,7 @@ class Lang
             $langSet = strtolower($_COOKIE[self::$langCookieVar]);
         } elseif (isset($_SERVER['HTTP_ACCEPT_LANGUAGE']) && preg_match('/^([a-z\d\-]+)/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $matches)) {
             // 自动侦测浏览器语言
-            $langSet     = strtolower($matches[1]);
+            $langSet = strtolower($matches[1]);
             $acceptLangs = Config::get('header_accept_lang');
 
             if (isset($acceptLangs[$langSet])) {

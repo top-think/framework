@@ -50,7 +50,7 @@ class Config extends Command
     protected function buildCacheContent($module)
     {
         $content = '';
-        $path    = realpath(APP_PATH . $module) . DS;
+        $path = realpath(APP_PATH . $module) . DS;
 
         if ($module) {
             // 加载模块配置
@@ -66,7 +66,7 @@ class Config extends Command
             }
             // 读取扩展配置文件
             if (is_dir(CONF_PATH . $module . 'extra')) {
-                $dir   = CONF_PATH . $module . 'extra';
+                $dir = CONF_PATH . $module . 'extra';
                 $files = scandir($dir);
                 foreach ($files as $file) {
                     if (strpos($file, CONF_EXT)) {

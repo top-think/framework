@@ -24,7 +24,7 @@ class cxTest extends \PHPUnit_Framework_TestCase
     public function testPhp()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {php}echo \$a;{/php}
@@ -39,7 +39,7 @@ EOF;
     public function testVolist()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {volist name="list" id="vo" key="key"}
@@ -67,7 +67,7 @@ EOF;
     public function testForeach()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {foreach \$list as \$key=>\$val}
@@ -107,7 +107,7 @@ EOF;
     public function testIf()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {if \$var.a==\$var.b}
@@ -134,7 +134,7 @@ EOF;
     public function testSwitch()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {switch \$var}
@@ -173,7 +173,7 @@ EOF;
     public function testCompare()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {eq name="\$var.a" value="\$var.b"}
@@ -310,7 +310,7 @@ EOF;
     public function testRange()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {in name="var" value="\$value"}
@@ -349,7 +349,7 @@ EOF;
     public function testPresent()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {present name="var"}
@@ -381,7 +381,7 @@ EOF;
     public function testEmpty()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {empty name="var"}
@@ -413,7 +413,7 @@ EOF;
     public function testDefined()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {defined name="URL"}
@@ -445,7 +445,7 @@ EOF;
     public function testImport()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {load file="base.php" value="\$name.a" /}
@@ -478,7 +478,7 @@ EOF;
     public function testAssign()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {assign name="total" value="0" /}
@@ -502,7 +502,7 @@ EOF;
     public function testDefine()
     {
         $template = new template();
-        $cx       = new Cx($template);
+        $cx = new Cx($template);
 
         $content = <<<EOF
 {define name="INFO_NAME" value="test" /}
@@ -538,7 +538,7 @@ EOF;
     public function testUrl()
     {
         $template = new template();
-        $content  = <<<EOF
+        $content = <<<EOF
 {url link="Index/index"  /}
 EOF;
         $template->display($content);
@@ -548,10 +548,10 @@ EOF;
     public function testFunction()
     {
         $template = new template();
-        $data     = [
+        $data = [
             'list' => ['language' => 'php', 'version' => ['5.4', '5.5']],
-            'a'    => '[',
-            'b'    => ']',
+            'a' => '[',
+            'b' => ']',
         ];
 
         $content = <<<EOF

@@ -65,7 +65,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     public function testGetRangeTime()
     {
         $start = "testGetRangeTimeStart";
-        $end   = "testGetRangeTimeEnd";
+        $end = "testGetRangeTimeEnd";
         Debug::remark($start);
         usleep(20000);
         // \think\Debug::remark($end);
@@ -103,7 +103,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     public function testGetRangeMem()
     {
         $start = "testGetRangeMemStart";
-        $end   = "testGetRangeMemEnd";
+        $end = "testGetRangeMemEnd";
         Debug::remark($start);
         $str = "";
         for ($i = 0; $i < 10000; $i++) {
@@ -133,7 +133,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
     public function testGetMemPeak()
     {
         $start = "testGetMemPeakStart";
-        $end   = "testGetMemPeakEnd";
+        $end = "testGetMemPeakEnd";
         Debug::remark($start);
         $str = "";
         for ($i = 0; $i < 100000; $i++) {
@@ -169,10 +169,10 @@ class debugTest extends \PHPUnit_Framework_TestCase
             return;
         }
 
-        $var        = [];
+        $var = [];
         $var["key"] = "val";
-        $output     = Debug::dump($var, false, $label = "label");
-        $array      = explode("array", json_encode($output));
+        $output = Debug::dump($var, false, $label = "label");
+        $array = explode("array", json_encode($output));
         if (IS_WIN) {
             $this->assertEquals("(1) {\\n  [\\\"key\\\"] => string(3) \\\"val\\\"\\n}\\n\\r\\n\"", end($array));
         } elseif (strstr(PHP_OS, 'Darwin')) {
@@ -190,7 +190,7 @@ class debugTest extends \PHPUnit_Framework_TestCase
         Config::set('trace', ['type' => 'NullDebug']);
 
         $response = new Response();
-        $context  = 'TestWithErrorType';
+        $context = 'TestWithErrorType';
 
         Debug::inject($response, $context);
     }
@@ -200,20 +200,20 @@ class debugTest extends \PHPUnit_Framework_TestCase
         Config::set('trace', ['type' => 'Console']);
 
         $response = new Response();
-        $context  = 'TestWithoutBodyTag';
+        $context = 'TestWithoutBodyTag';
         Debug::inject($response, $context);
         $this->assertNotEquals('TestWithoutBodyTag', $context);
         $this->assertStringStartsWith('TestWithoutBodyTag', $context);
 
         $response = new Response();
-        $context  = '<body></body>';
+        $context = '<body></body>';
         Debug::inject($response, $context);
         $this->assertNotEquals('<body></body>', $context);
         $this->assertStringStartsWith('<body>', $context);
         $this->assertStringEndsWith('</body>', $context);
 
         $response = new Redirect();
-        $context  = '<body></body>';
+        $context = '<body></body>';
         Debug::inject($response, $context);
         $this->assertEquals('<body></body>', $context);
     }

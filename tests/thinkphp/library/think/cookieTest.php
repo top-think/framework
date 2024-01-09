@@ -25,24 +25,24 @@ class cookieTest extends \PHPUnit_Framework_TestCase
 
     protected $default = [
         // cookie 名称前缀
-        'prefix'    => '',
+        'prefix' => '',
         // cookie 保存时间
-        'expire'    => 0,
+        'expire' => 0,
         // cookie 保存路径
-        'path'      => '/',
+        'path' => '/',
         // cookie 有效域名
-        'domain'    => '',
+        'domain' => '',
         //  cookie 启用安全传输
-        'secure'    => false,
+        'secure' => false,
         // httponly设置
-        'httponly'  => '',
+        'httponly' => '',
         // 是否使用 setcookie
         'setcookie' => false,
     ];
 
     protected function setUp()
     {
-        $reflectedClass          = new ReflectionClass('\think\Cookie');
+        $reflectedClass = new ReflectionClass('\think\Cookie');
         $reflectedPropertyConfig = $reflectedClass->getProperty('config');
         $reflectedPropertyConfig->setAccessible(true);
         $reflectedPropertyConfig->setValue($this->default);
@@ -53,15 +53,15 @@ class cookieTest extends \PHPUnit_Framework_TestCase
     {
         $config = [
             // cookie 名称前缀
-            'prefix'   => 'think_',
+            'prefix' => 'think_',
             // cookie 保存时间
-            'expire'   => 0,
+            'expire' => 0,
             // cookie 保存路径
-            'path'     => '/path/to/test/',
+            'path' => '/path/to/test/',
             // cookie 有效域名
-            'domain'   => '.thinkphp.cn',
+            'domain' => '.thinkphp.cn',
             //  cookie 启用安全传输
-            'secure'   => true,
+            'secure' => true,
             // httponly设置
             'httponly' => '1',
         ];
@@ -101,7 +101,7 @@ class cookieTest extends \PHPUnit_Framework_TestCase
         Cookie::set($name, $value, 'expire=100&prefix=pre_');
         $this->assertEquals($value, $_COOKIE['pre_' . $name]);
 
-        $name  = 'name4';
+        $name = 'name4';
         $value = ['_test_中文_'];
         Cookie::set($name, $value);
         $this->assertEquals('think:' . json_encode([urlencode('_test_中文_')]), $_COOKIE[$name]);
@@ -110,9 +110,9 @@ class cookieTest extends \PHPUnit_Framework_TestCase
     public function testGet()
     {
         $_COOKIE = [
-            'a'       => 'b',
+            'a' => 'b',
             'pre_abc' => 'c',
-            'd'       => 'think:' . json_encode([urlencode('_test_中文_')]),
+            'd' => 'think:' . json_encode([urlencode('_test_中文_')]),
         ];
         $this->assertEquals('b', Cookie::get('a'));
         $this->assertEquals(null, Cookie::get('does_not_exist'));
@@ -123,7 +123,7 @@ class cookieTest extends \PHPUnit_Framework_TestCase
     public function testDelete()
     {
         $_COOKIE = [
-            'a'       => 'b',
+            'a' => 'b',
             'pre_abc' => 'c',
         ];
         $this->assertEquals('b', Cookie::get('a'));
@@ -141,7 +141,7 @@ class cookieTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, Cookie::clear());
 
         $_COOKIE = [
-            'a'       => 'b',
+            'a' => 'b',
             'pre_abc' => 'c',
         ];
         Cookie::clear('pre_');

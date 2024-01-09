@@ -18,7 +18,7 @@ use think\db\Builder;
  */
 class Pgsql extends Builder
 {
-    protected $insertSql    = 'INSERT INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
+    protected $insertSql = 'INSERT INTO %TABLE% (%FIELD%) VALUES (%DATA%) %COMMENT%';
     protected $insertAllSql = 'INSERT INTO %TABLE% (%FIELD%) %DATA% %COMMENT%';
 
     /**
@@ -60,7 +60,7 @@ class Pgsql extends Builder
         if (strpos($key, '$.') && false === strpos($key, '(')) {
             // JSON字段支持
             list($field, $name) = explode('$.', $key);
-            $key                = $field . '->>\'' . $name . '\'';
+            $key = $field . '->>\'' . $name . '\'';
         } elseif (strpos($key, '.')) {
             list($table, $key) = explode('.', $key, 2);
             if ('__TABLE__' == $table) {

@@ -77,34 +77,34 @@ class Request
     /**
      * @var array 请求参数
      */
-    protected $param   = [];
-    protected $get     = [];
-    protected $post    = [];
+    protected $param = [];
+    protected $get = [];
+    protected $post = [];
     protected $request = [];
-    protected $route   = [];
+    protected $route = [];
     protected $put;
     protected $session = [];
-    protected $file    = [];
-    protected $cookie  = [];
-    protected $server  = [];
-    protected $header  = [];
+    protected $file = [];
+    protected $cookie = [];
+    protected $server = [];
+    protected $header = [];
 
     /**
      * @var array 资源类型
      */
     protected $mimeType = [
-        'xml'   => 'application/xml,text/xml,application/x-xml',
-        'json'  => 'application/json,text/x-json,application/jsonrequest,text/json',
-        'js'    => 'text/javascript,application/javascript,application/x-javascript',
-        'css'   => 'text/css',
-        'rss'   => 'application/rss+xml',
-        'yaml'  => 'application/x-yaml,text/yaml',
-        'atom'  => 'application/atom+xml',
-        'pdf'   => 'application/pdf',
-        'text'  => 'text/plain',
+        'xml' => 'application/xml,text/xml,application/x-xml',
+        'json' => 'application/json,text/x-json,application/jsonrequest,text/json',
+        'js' => 'text/javascript,application/javascript,application/x-javascript',
+        'css' => 'text/css',
+        'rss' => 'application/rss+xml',
+        'yaml' => 'application/x-yaml,text/yaml',
+        'atom' => 'application/atom+xml',
+        'pdf' => 'application/pdf',
+        'text' => 'text/plain',
         'image' => 'image/png,image/jpg,image/jpeg,image/pjpeg,image/gif,image/webp,image/*',
-        'csv'   => 'text/csv',
-        'html'  => 'text/html,application/xhtml+xml,*/*',
+        'csv' => 'text/csv',
+        'html' => 'text/html,application/xhtml+xml,*/*',
     ];
 
     protected $content;
@@ -213,16 +213,16 @@ class Request
      */
     public static function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [], $content = null)
     {
-        $server['PATH_INFO']      = '';
+        $server['PATH_INFO'] = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
-        $info                     = parse_url($uri);
+        $info = parse_url($uri);
         if (isset($info['host'])) {
             $server['SERVER_NAME'] = $info['host'];
-            $server['HTTP_HOST']   = $info['host'];
+            $server['HTTP_HOST'] = $info['host'];
         }
         if (isset($info['scheme'])) {
             if ('https' === $info['scheme']) {
-                $server['HTTPS']       = 'on';
+                $server['HTTPS'] = 'on';
                 $server['SERVER_PORT'] = 443;
             } else {
                 unset($server['HTTPS']);
@@ -231,7 +231,7 @@ class Request
         }
         if (isset($info['port'])) {
             $server['SERVER_PORT'] = $info['port'];
-            $server['HTTP_HOST']   = $server['HTTP_HOST'] . ':' . $info['port'];
+            $server['HTTP_HOST'] = $server['HTTP_HOST'] . ':' . $info['port'];
         }
         if (isset($info['user'])) {
             $server['PHP_AUTH_USER'] = $info['user'];
@@ -242,16 +242,16 @@ class Request
         if (!isset($info['path'])) {
             $info['path'] = '/';
         }
-        $options                      = [];
+        $options = [];
         $options[strtolower($method)] = $params;
-        $queryString                  = '';
+        $queryString = '';
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
-                $params      = array_replace($query, $params);
+                $params = array_replace($query, $params);
                 $queryString = http_build_query($params, '', '&');
             } else {
-                $params      = $query;
+                $params = $query;
                 $queryString = $info['query'];
             }
         } elseif (!empty($params)) {
@@ -262,19 +262,19 @@ class Request
             $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;
         }
 
-        $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
+        $server['REQUEST_URI'] = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
-        $options['cookie']      = $cookie;
-        $options['param']       = $params;
-        $options['file']        = $files;
-        $options['server']      = $server;
-        $options['url']         = $server['REQUEST_URI'];
-        $options['baseUrl']     = $info['path'];
-        $options['pathinfo']    = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
-        $options['method']      = $server['REQUEST_METHOD'];
-        $options['domain']      = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
-        $options['content']     = $content;
-        self::$instance         = new self($options);
+        $options['cookie'] = $cookie;
+        $options['param'] = $params;
+        $options['file'] = $files;
+        $options['server'] = $server;
+        $options['url'] = $server['REQUEST_URI'];
+        $options['baseUrl'] = $info['path'];
+        $options['pathinfo'] = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
+        $options['method'] = $server['REQUEST_METHOD'];
+        $options['domain'] = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
+        $options['content'] = $content;
+        self::$instance = new self($options);
         return self::$instance;
     }
 
@@ -334,7 +334,7 @@ class Request
             $this->baseUrl = $url;
             return $this;
         } elseif (!$this->baseUrl) {
-            $str           = $this->url();
+            $str = $this->url();
             $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
         }
         return true === $url ? $this->domain() . $this->baseUrl : $this->baseUrl;
@@ -433,7 +433,7 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            $suffix   = Config::get('url_html_suffix');
+            $suffix = Config::get('url_html_suffix');
             $pathinfo = $this->pathinfo();
             if (false === $suffix) {
                 // 禁止伪静态访问
@@ -655,7 +655,7 @@ class Request
                     $vars = [];
             }
             // 当前请求参数和URL地址中的参数合并
-            $this->param      = array_merge($this->param, $this->get(false), $vars, $this->route(false));
+            $this->param = array_merge($this->param, $this->get(false), $vars, $this->route(false));
             $this->mergeParam = true;
         }
         if (true === $name) {
@@ -678,8 +678,8 @@ class Request
     public function route($name = '', $default = null, $filter = '')
     {
         if (is_array($name)) {
-            $this->param        = [];
-            $this->mergeParam   = false;
+            $this->param = [];
+            $this->mergeParam = false;
             return $this->route = array_merge($this->route, $name);
         }
         return $this->input($this->route, $name, $default, $filter);
@@ -699,7 +699,7 @@ class Request
             $this->get = $_GET;
         }
         if (is_array($name)) {
-            $this->param      = [];
+            $this->param = [];
             $this->mergeParam = false;
             return $this->get = array_merge($this->get, $name);
         }
@@ -725,8 +725,8 @@ class Request
             }
         }
         if (is_array($name)) {
-            $this->param       = [];
-            $this->mergeParam  = false;
+            $this->param = [];
+            $this->mergeParam = false;
             return $this->post = array_merge($this->post, $name);
         }
         return $this->input($this->post, $name, $default, $filter);
@@ -751,7 +751,7 @@ class Request
             }
         }
         if (is_array($name)) {
-            $this->param      = [];
+            $this->param = [];
             $this->mergeParam = false;
             return $this->put = is_null($this->put) ? $name : array_merge($this->put, $name);
         }
@@ -798,8 +798,8 @@ class Request
             $this->request = $_REQUEST;
         }
         if (is_array($name)) {
-            $this->param          = [];
-            $this->mergeParam     = false;
+            $this->param = [];
+            $this->mergeParam = false;
             return $this->request = array_merge($this->request, $name);
         }
         return $this->input($this->request, $name, $default, $filter);
@@ -896,8 +896,8 @@ class Request
             $array = [];
             foreach ($files as $key => $file) {
                 if (is_array($file['name'])) {
-                    $item  = [];
-                    $keys  = array_keys($file);
+                    $item = [];
+                    $keys = array_keys($file);
                     $count = count($file['name']);
                     for ($i = 0; $i < $count; $i++) {
                         if (empty($file['tmp_name'][$i]) || !is_file($file['tmp_name'][$i])) {
@@ -971,7 +971,7 @@ class Request
                 $server = $this->server ?: $_SERVER;
                 foreach ($server as $key => $val) {
                     if (0 === strpos($key, 'HTTP_')) {
-                        $key          = str_replace('_', '-', strtolower(substr($key, 5)));
+                        $key = str_replace('_', '-', strtolower(substr($key, 5)));
                         $header[$key] = $val;
                     }
                 }
@@ -1263,12 +1263,12 @@ class Request
      */
     public function isAjax($ajax = false)
     {
-        $value  = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
+        $value = $this->server('HTTP_X_REQUESTED_WITH', '', 'strtolower');
         $result = ('xmlhttprequest' == $value) ? true : false;
         if (true === $ajax) {
             return $result;
         } else {
-            $result           = $this->param(Config::get('var_ajax')) ? true : $result;
+            $result = $this->param(Config::get('var_ajax')) ? true : $result;
             $this->mergeParam = false;
             return $result;
         }
@@ -1286,7 +1286,7 @@ class Request
         if (true === $pjax) {
             return $result;
         } else {
-            $result           = $this->param(Config::get('var_pjax')) ? true : $result;
+            $result = $this->param(Config::get('var_pjax')) ? true : $result;
             $this->mergeParam = false;
             return $result;
         }
@@ -1300,7 +1300,7 @@ class Request
      */
     public function ip($type = 0, $adv = true)
     {
-        $type      = $type ? 1 : 0;
+        $type = $type ? 1 : 0;
         static $ip = null;
         if (null !== $ip) {
             return $ip[$type];
@@ -1328,7 +1328,7 @@ class Request
         }
         // IP地址合法验证
         $long = sprintf("%u", ip2long($ip));
-        $ip   = $long ? [$ip, $long] : ['0.0.0.0', 0];
+        $ip = $long ? [$ip, $long] : ['0.0.0.0', 0];
         return $ip[$type];
     }
 
@@ -1564,7 +1564,7 @@ class Request
      */
     public function token($name = '__token__', $type = 'md5')
     {
-        $type  = is_callable($type) ? $type : 'md5';
+        $type = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $_SERVER['REQUEST_TIME_FLOAT']);
         if ($this->isAjax()) {
             header($name . ': ' . $token);
@@ -1585,7 +1585,7 @@ class Request
     public function cache($key, $expire = null, $except = [], $tag = null)
     {
         if (!is_array($except)) {
-            $tag    = $except;
+            $tag = $except;
             $except = [];
         }
 
@@ -1639,7 +1639,7 @@ class Request
                 throw new \think\exception\HttpResponseException($response);
             } elseif (Cache::has($key)) {
                 list($content, $header) = Cache::get($key);
-                $response               = Response::create($content)->header($header);
+                $response = Response::create($content)->header($header);
                 throw new \think\exception\HttpResponseException($response);
             } else {
                 $this->cache = [$key, $expire, $tag];

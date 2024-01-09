@@ -127,7 +127,7 @@ if (!function_exists('input')) {
             // 指定参数来源
             list($method, $key) = explode('.', $key, 2);
             if (!in_array($method, ['get', 'post', 'put', 'patch', 'delete', 'route', 'param', 'request', 'session', 'cookie', 'server', 'env', 'path', 'file'])) {
-                $key    = $method . '.' . $key;
+                $key = $method . '.' . $key;
                 $method = 'param';
             }
         } else {
@@ -503,7 +503,7 @@ if (!function_exists('redirect')) {
     function redirect($url = [], $params = [], $code = 302, $with = [])
     {
         if (is_integer($params)) {
-            $code   = $params;
+            $code = $params;
             $params = [];
         }
         return Response::create($url, 'redirect', $code)->params($params)->with($with);

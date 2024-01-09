@@ -65,8 +65,8 @@ class Query
     public function __construct(Connection $connection = null, $model = null)
     {
         $this->connection = $connection ?: Db::connect([], true);
-        $this->prefix     = $this->connection->getConfig('prefix');
-        $this->model      = $model;
+        $this->prefix = $this->connection->getConfig('prefix');
+        $this->model = $model;
         // 设置当前连接的Builder对象
         $this->setBuilder();
     }
@@ -84,12 +84,12 @@ class Query
     {
         if (strtolower(substr($method, 0, 5)) == 'getby') {
             // 根据某个字段获取记录
-            $field         = Loader::parseName(substr($method, 5));
+            $field = Loader::parseName(substr($method, 5));
             $where[$field] = $args[0];
             return $this->where($where)->find();
         } elseif (strtolower(substr($method, 0, 10)) == 'getfieldby') {
             // 根据某个字段获取记录的某个值
-            $name         = Loader::parseName(substr($method, 10));
+            $name = Loader::parseName(substr($method, 10));
             $where[$name] = $args[0];
             return $this->where($where)->value($args[1]);
         } elseif ($this->model && method_exists($this->model, 'scope' . $method)) {
@@ -135,7 +135,7 @@ class Query
      */
     protected function setBuilder()
     {
-        $class         = $this->connection->getBuilder();
+        $class = $this->connection->getBuilder();
         $this->builder = new $class($this->connection, $this);
     }
 
@@ -211,7 +211,7 @@ class Query
     public function getTable($name = '')
     {
         if ($name || empty($this->table)) {
-            $name      = $name ?: $this->name;
+            $name = $name ?: $this->name;
             $tableName = $this->prefix;
             if ($name) {
                 $tableName .= Loader::parseName($name);
@@ -232,7 +232,7 @@ class Query
     {
         if (false !== strpos($sql, '__')) {
             $prefix = $this->prefix;
-            $sql    = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
+            $sql = preg_replace_callback("/__([A-Z0-9_-]+)__/sU", function ($match) use ($prefix) {
                 return $prefix . strtolower($match[1]);
             }, $sql);
         }
@@ -369,12 +369,12 @@ class Query
         // 对数据表进行分区
         if ($field && isset($data[$field])) {
             $value = $data[$field];
-            $type  = $rule['type'];
+            $type = $rule['type'];
             switch ($type) {
                 case 'id':
                     // 按照id范围分表
                     $step = $rule['expr'];
-                    $seq  = floor($value / $step) + 1;
+                    $seq = floor($value / $step) + 1;
                     break;
                 case 'year':
                     // 按照年份分表
@@ -431,7 +431,7 @@ class Query
             if (empty($this->options['table'])) {
                 $this->options['table'] = $this->getTable();
             }
-            $key    = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . $field . serialize($this->options) . serialize($this->bind));
+            $key = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . $field . serialize($this->options) . serialize($this->bind));
             $result = Cache::get($key);
         }
         if (false === $result) {
@@ -476,7 +476,7 @@ class Query
             if (empty($this->options['table'])) {
                 $this->options['table'] = $this->getTable();
             }
-            $guid   = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . $field . serialize($this->options) . serialize($this->bind));
+            $guid = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . $field . serialize($this->options) . serialize($this->bind));
             $result = Cache::get($guid);
         }
         if (false === $result) {
@@ -499,10 +499,10 @@ class Query
                 $resultSet = $pdo->fetchAll(PDO::FETCH_ASSOC);
                 if ($resultSet) {
                     $fields = array_keys($resultSet[0]);
-                    $count  = count($fields);
-                    $key1   = array_shift($fields);
-                    $key2   = $fields ? array_shift($fields) : '';
-                    $key    = $key ?: $key1;
+                    $count = count($fields);
+                    $key1 = array_shift($fields);
+                    $key2 = $fields ? array_shift($fields) : '';
+                    $key = $key ?: $key1;
                     if (strpos($key, '.')) {
                         list($alias, $key) = explode('.', $key);
                     }
@@ -544,7 +544,7 @@ class Query
             }
             // 支持GROUP
             $options = $this->getOptions();
-            $subSql  = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
+            $subSql = $this->options($options)->field('count(' . $field . ')')->bind($this->bind)->buildSql();
 
             $count = $this->table([$subSql => '_group_count_'])->value('COUNT(*) AS tp_count', 0, true);
         } else {
@@ -842,11 +842,11 @@ class Query
         if (true === $field) {
             // 获取全部字段
             $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
-            $field  = $fields ?: ['*'];
+            $field = $fields ?: ['*'];
         } elseif ($except) {
             // 字段排除
             $fields = $this->getTableInfo($tableName ?: (isset($this->options['table']) ? $this->options['table'] : ''), 'fields');
-            $field  = $fields ? array_diff($fields, $field) : $field;
+            $field = $fields ? array_diff($fields, $field) : $field;
         }
         if ($tableName) {
             // 添加统一的前缀
@@ -975,7 +975,7 @@ class Query
             }
         } else {
             $fields = [];
-            $table  = $this->getJoinTable($join, $alias);
+            $table = $this->getJoinTable($join, $alias);
 
             if (true === $field) {
                 $fields = $alias . '.*';
@@ -985,7 +985,7 @@ class Query
                 }
                 foreach ($field as $key => $val) {
                     if (is_numeric($key)) {
-                        $fields[]                   = $alias . '.' . $val;
+                        $fields[] = $alias . '.' . $val;
                         $this->options['map'][$val] = $alias . '.' . $val;
                     } else {
                         if (preg_match('/[,=\.\'\"\(\s]/', $key)) {
@@ -993,7 +993,7 @@ class Query
                         } else {
                             $name = $alias . '.' . $key;
                         }
-                        $fields[$name]              = $val;
+                        $fields[$name] = $val;
                         $this->options['map'][$val] = $name;
                     }
                 }
@@ -1312,7 +1312,7 @@ class Query
                 }
             } elseif ($field && is_string($field)) {
                 // 字符串查询
-                $where[$field]                            = ['null', ''];
+                $where[$field] = ['null', ''];
                 $this->options['multi'][$logic][$field][] = $where[$field];
             }
         } elseif (is_array($op)) {
@@ -1453,20 +1453,20 @@ class Query
     public function paginate($listRows = null, $simple = false, $config = [])
     {
         if (is_int($simple)) {
-            $total  = $simple;
+            $total = $simple;
             $simple = false;
         }
         if (is_array($listRows)) {
-            $config   = array_merge(Config::get('paginate'), $listRows);
+            $config = array_merge(Config::get('paginate'), $listRows);
             $listRows = $config['list_rows'];
         } else {
-            $config   = array_merge(Config::get('paginate'), $config);
+            $config = array_merge(Config::get('paginate'), $config);
             $listRows = $listRows ?: $config['list_rows'];
         }
 
         /** @var Paginator $class */
         $class = false !== strpos($config['type'], '\\') ? $config['type'] : '\\think\\paginator\\driver\\' . ucwords($config['type']);
-        $page  = isset($config['page']) ? (int) $config['page'] : call_user_func([
+        $page = isset($config['page']) ? (int) $config['page'] : call_user_func([
             $class,
             'getCurrentPage',
         ], $config['var_page']);
@@ -1480,12 +1480,12 @@ class Query
 
             unset($this->options['order'], $this->options['limit'], $this->options['page'], $this->options['field']);
 
-            $bind    = $this->bind;
-            $total   = $this->count();
+            $bind = $this->bind;
+            $total = $this->count();
             $results = $this->options($options)->bind($bind)->page($page, $listRows)->select();
         } elseif ($simple) {
             $results = $this->limit(($page - 1) * $listRows, $listRows + 1)->select();
-            $total   = null;
+            $total = null;
         } else {
             $results = $this->page($page, $listRows)->select();
         }
@@ -1505,7 +1505,7 @@ class Query
                 // 子查询
             } elseif (strpos($table, ',')) {
                 $tables = explode(',', $table);
-                $table  = [];
+                $table = [];
                 foreach ($tables as $item) {
                     list($item, $alias) = explode(' ', trim($item));
                     if ($alias) {
@@ -1523,7 +1523,7 @@ class Query
             }
         } else {
             $tables = $table;
-            $table  = [];
+            $table = [];
             foreach ($tables as $key => $val) {
                 if (is_numeric($key)) {
                     $table[] = $val;
@@ -1627,7 +1627,7 @@ class Query
         // 增加快捷调用方式 cache(10) 等同于 cache(true, 10)
         if ($key instanceof \DateTime || (is_numeric($key) && is_null($expire))) {
             $expire = $key;
-            $key    = true;
+            $key = true;
         }
 
         if (false !== $key) {
@@ -1668,7 +1668,7 @@ class Query
      */
     public function lock($lock = false)
     {
-        $this->options['lock']   = $lock;
+        $this->options['lock'] = $lock;
         $this->options['master'] = true;
         return $this;
     }
@@ -1907,7 +1907,7 @@ class Query
         }
 
         list($guid) = explode(' ', $tableName);
-        $db         = $this->getConfig('database');
+        $db = $this->getConfig('database');
         if (!isset(self::$info[$db . '.' . $guid])) {
             if (!strpos($guid, '.')) {
                 $schema = $db . '.' . $guid;
@@ -1921,7 +1921,7 @@ class Query
                 $info = $this->connection->getFields($guid);
             }
             $fields = array_keys($info);
-            $bind   = $type   = [];
+            $bind = $type = [];
             foreach ($info as $key => $val) {
                 // 记录字段类型
                 $type[$key] = $val['type'];
@@ -1973,7 +1973,7 @@ class Query
     public function getFieldsBind($table = '')
     {
         $types = $this->getFieldsType($table);
-        $bind  = [];
+        $bind = [];
         if ($types) {
             foreach ($types as $key => $type) {
                 $bind[$key] = $this->getFieldBindType($type);
@@ -2080,23 +2080,23 @@ class Query
         $class = $this->model;
         foreach ($with as $key => $relation) {
             $subRelation = '';
-            $closure     = false;
+            $closure = false;
             if ($relation instanceof \Closure) {
                 // 支持闭包查询过滤关联条件
-                $closure    = $relation;
-                $relation   = $key;
+                $closure = $relation;
+                $relation = $key;
                 $with[$key] = $key;
             } elseif (is_array($relation)) {
                 $subRelation = $relation;
-                $relation    = $key;
+                $relation = $key;
             } elseif (is_string($relation) && strpos($relation, '.')) {
-                $with[$key]                   = $relation;
+                $with[$key] = $relation;
                 list($relation, $subRelation) = explode('.', $relation, 2);
             }
 
             /** @var Relation $model */
             $relation = Loader::parseName($relation, 1, false);
-            $model    = $class->$relation();
+            $model = $class->$relation();
             if ($model instanceof OneToOne && 0 == $model->getEagerlyType()) {
                 $model->eagerly($this, $relation, $subRelation, $closure, $first);
                 $first = false;
@@ -2132,10 +2132,10 @@ class Query
             foreach ($relations as $key => $relation) {
                 $closure = $name = null;
                 if ($relation instanceof \Closure) {
-                    $closure  = $relation;
+                    $closure = $relation;
                     $relation = $key;
                 } elseif (!is_int($key)) {
-                    $name     = $relation;
+                    $name = $relation;
                     $relation = $key;
                 }
                 $relation = Loader::parseName($relation, 1, false);
@@ -2230,7 +2230,7 @@ class Query
             // 根据复合主键查询
             foreach ($pk as $key) {
                 if (isset($data[$key])) {
-                    $attr         = isset($alias) ? $alias . '.' . $key : $key;
+                    $attr = isset($alias) ? $alias . '.' . $key : $key;
                     $where[$attr] = $data[$key];
                 } else {
                     throw new Exception('miss complex primary data');
@@ -2261,7 +2261,7 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
-        $data    = array_merge($options['data'], $data);
+        $data = array_merge($options['data'], $data);
         // 生成SQL语句
         $sql = $this->builder->insert($data, $options, $replace);
         // 获取参数绑定
@@ -2274,7 +2274,7 @@ class Query
         // 执行操作
         $result = 0 === $sql ? 0 : $this->execute($sql, $bind, $this);
         if ($result) {
-            $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+            $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
             if ($lastInsId) {
                 $pk = $this->getPk($options);
@@ -2359,7 +2359,7 @@ class Query
         $options = $this->parseExpress();
         // 生成SQL语句
         $table = $this->parseSqlTable($table);
-        $sql   = $this->builder->selectInsert($fields, $table, $options);
+        $sql = $this->builder->selectInsert($fields, $table, $options);
         // 获取参数绑定
         $bind = $this->getBind();
         if ($options['fetch_sql']) {
@@ -2382,8 +2382,8 @@ class Query
     public function update(array $data = [])
     {
         $options = $this->parseExpress();
-        $data    = array_merge($options['data'], $data);
-        $pk      = $this->getPk($options);
+        $data = array_merge($options['data'], $data);
+        $pk = $this->getPk($options);
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
@@ -2440,7 +2440,7 @@ class Query
                     $data[$pk] = $where[$pk];
                 } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
                     list($a, $val) = explode('|', $key);
-                    $data[$pk]     = $val;
+                    $data[$pk] = $val;
                 }
                 $options['data'] = $data;
                 $this->trigger('after_update', $options);
@@ -2503,7 +2503,7 @@ class Query
             // 判断查询缓存
             $cache = $options['cache'];
             unset($options['cache']);
-            $key       = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . serialize($options) . serialize($this->bind));
+            $key = is_string($cache['key']) ? $cache['key'] : md5($this->connection->getConfig('database') . '.' . serialize($options) . serialize($this->bind));
             $resultSet = Cache::get($key);
         }
         if (false === $resultSet) {
@@ -2636,7 +2636,7 @@ class Query
         }
         // 分析查询表达式
         $options = $this->parseExpress();
-        $pk      = $this->getPk($options);
+        $pk = $this->getPk($options);
         if (!is_null($data)) {
             // AR模式分析主键条件
             $this->parsePkWhere($data, $options);
@@ -2645,7 +2645,7 @@ class Query
         }
 
         $options['limit'] = 1;
-        $result           = false;
+        $result = false;
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
             $cache = $options['cache'];
@@ -2671,7 +2671,7 @@ class Query
                 if (!is_array($data)) {
                     if (isset($key) && strpos($key, '|')) {
                         list($a, $val) = explode('|', $key);
-                        $item[$pk]     = $val;
+                        $item[$pk] = $val;
                     } else {
                         $item[$pk] = $data;
                     }
@@ -2820,9 +2820,9 @@ class Query
                 $times++;
                 $query = $this->options($options)->page($times, $count);
             } else {
-                $end    = end($resultSet);
+                $end = end($resultSet);
                 $lastId = is_array($end) ? $end[$key] : $end->getData($key);
-                $query  = $this->options($options)
+                $query = $this->options($options)
                     ->limit($count)
                     ->where($column, 'asc' == strtolower($order) ? '>' : '<', $lastId);
             }
@@ -2840,7 +2840,7 @@ class Query
      */
     public function getBind()
     {
-        $bind       = $this->bind;
+        $bind = $this->bind;
         $this->bind = [];
         return $bind;
     }
@@ -2869,7 +2869,7 @@ class Query
     {
         // 分析查询表达式
         $options = $this->parseExpress();
-        $pk      = $this->getPk($options);
+        $pk = $this->getPk($options);
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
         }
@@ -2910,8 +2910,8 @@ class Query
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
                 list($a, $val) = explode('|', $key);
-                $item[$pk]     = $val;
-                $data          = $item;
+                $item[$pk] = $val;
+                $data = $item;
             }
             $options['data'] = $data;
             $this->trigger('after_delete', $options);
@@ -3004,10 +3004,10 @@ class Query
         if (isset($options['page'])) {
             // 根据页数计算limit
             list($page, $listRows) = $options['page'];
-            $page                  = $page > 0 ? $page : 1;
-            $listRows              = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
-            $offset                = $listRows * ($page - 1);
-            $options['limit']      = $offset . ',' . $listRows;
+            $page = $page > 0 ? $page : 1;
+            $listRows = $listRows > 0 ? $listRows : (is_numeric($options['limit']) ? $options['limit'] : 20);
+            $offset = $listRows * ($page - 1);
+            $options['limit'] = $offset . ',' . $listRows;
         }
 
         $this->options = [];
@@ -3038,7 +3038,7 @@ class Query
         $result = false;
         if (isset(self::$event[$event])) {
             $callback = self::$event[$event];
-            $result   = call_user_func_array($callback, [$params, $this]);
+            $result = call_user_func_array($callback, [$params, $this]);
         }
         return $result;
     }

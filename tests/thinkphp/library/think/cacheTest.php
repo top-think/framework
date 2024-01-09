@@ -26,9 +26,9 @@ class cacheTest extends \PHPUnit_Framework_TestCase
         $this->ConfigTearDown();
 
         call_user_func(\Closure::bind(function () {
-            Cache::$handler    = null;
-            Cache::$instance   = [];
-            Cache::$readTimes  = 0;
+            Cache::$handler = null;
+            Cache::$instance = [];
+            Cache::$readTimes = 0;
             Cache::$writeTimes = 0;
         }, null, '\think\Cache'));
     }
@@ -249,24 +249,24 @@ class cacheTest extends \PHPUnit_Framework_TestCase
     {
         $provideData = [];
 
-        $options   = ['type' => null];
-        $expected  = '\think\cache\driver\File';
+        $options = ['type' => null];
+        $expected = '\think\cache\driver\File';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'File'];
-        $expected  = '\think\cache\driver\File';
+        $options = ['type' => 'File'];
+        $expected = '\think\cache\driver\File';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'Lite'];
-        $expected  = '\think\cache\driver\Lite';
+        $options = ['type' => 'Lite'];
+        $expected = '\think\cache\driver\Lite';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'Memcached'];
-        $expected  = '\think\cache\driver\Memcached';
+        $options = ['type' => 'Memcached'];
+        $expected = '\think\cache\driver\Memcached';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'Redis'];
-        $expected  = '\think\cache\driver\Redis';
+        $options = ['type' => 'Redis'];
+        $expected = '\think\cache\driver\Redis';
         $provideData[] = [$options, $expected];
 
         // TODO
@@ -293,16 +293,16 @@ class cacheTest extends \PHPUnit_Framework_TestCase
     {
         $provideData = [];
 
-        $options   = [];
-        $expected  = '\think\cache\driver\File';
+        $options = [];
+        $expected = '\think\cache\driver\File';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'File'];
-        $expected  = '\think\cache\driver\File';
+        $options = ['type' => 'File'];
+        $expected = '\think\cache\driver\File';
         $provideData[] = [$options, $expected];
 
-        $options   = ['type' => 'Lite'];
-        $expected  = '\think\cache\driver\Lite';
+        $options = ['type' => 'Lite'];
+        $expected = '\think\cache\driver\Lite';
         $provideData[] = [$options, $expected];
 
         return $provideData;

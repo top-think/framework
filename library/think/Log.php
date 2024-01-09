@@ -26,13 +26,13 @@ use think\exception\ClassNotFoundException;
  */
 class Log
 {
-    const LOG    = 'log';
-    const ERROR  = 'error';
-    const INFO   = 'info';
-    const SQL    = 'sql';
+    const LOG = 'log';
+    const ERROR = 'error';
+    const INFO = 'info';
+    const SQL = 'sql';
     const NOTICE = 'notice';
-    const ALERT  = 'alert';
-    const DEBUG  = 'debug';
+    const ALERT = 'alert';
+    const DEBUG = 'debug';
 
     /**
      * @var array 日志信息
@@ -67,7 +67,7 @@ class Log
      */
     public static function init($config = [])
     {
-        $type  = isset($config['type']) ? $config['type'] : 'File';
+        $type = isset($config['type']) ? $config['type'] : 'File';
         $class = false !== strpos($type, '\\') ? $type : '\\think\\log\\driver\\' . ucwords($type);
 
         self::$config = $config;

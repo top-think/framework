@@ -36,12 +36,12 @@ class MorphOne extends Relation
      */
     public function __construct(Model $parent, $model, $morphKey, $morphType, $type)
     {
-        $this->parent    = $parent;
-        $this->model     = $model;
-        $this->type      = $type;
-        $this->morphKey  = $morphKey;
+        $this->parent = $parent;
+        $this->model = $model;
+        $this->type = $type;
+        $this->morphKey = $morphKey;
         $this->morphType = $morphType;
-        $this->query     = (new $model)->db();
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -102,9 +102,9 @@ class MorphOne extends Relation
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $morphType = $this->morphType;
-        $morphKey  = $this->morphKey;
-        $type      = $this->type;
-        $range     = [];
+        $morphKey = $this->morphKey;
+        $type = $this->type;
+        $range = [];
         foreach ($resultSet as $result) {
             $pk = $result->getPk();
             // 获取关联外键列表
@@ -115,7 +115,7 @@ class MorphOne extends Relation
 
         if (!empty($range)) {
             $data = $this->eagerlyMorphToOne([
-                $morphKey  => ['in', $range],
+                $morphKey => ['in', $range],
                 $morphType => $type,
             ], $relation, $subRelation, $closure);
             // 关联属性名
@@ -148,9 +148,9 @@ class MorphOne extends Relation
     {
         $pk = $result->getPk();
         if (isset($result->$pk)) {
-            $pk   = $result->$pk;
+            $pk = $result->$pk;
             $data = $this->eagerlyMorphToOne([
-                $this->morphKey  => $pk,
+                $this->morphKey => $pk,
                 $this->morphType => $this->type,
             ], $relation, $subRelation, $closure);
 
@@ -181,7 +181,7 @@ class MorphOne extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this]);
         }
-        $list     = $this->query->where($where)->with($subRelation)->find();
+        $list = $this->query->where($where)->with($subRelation)->find();
         $morphKey = $this->morphKey;
         // 组装模型数据
         $data = [];
@@ -206,7 +206,7 @@ class MorphOne extends Relation
         // 保存关联表数据
         $pk = $this->parent->getPk();
 
-        $data[$this->morphKey]  = $this->parent->$pk;
+        $data[$this->morphKey] = $this->parent->$pk;
         $data[$this->morphType] = $this->type;
 
         $model = new $this->model();
@@ -227,7 +227,7 @@ class MorphOne extends Relation
         // 保存关联表数据
         $pk = $this->parent->getPk();
 
-        $data[$this->morphKey]  = $this->parent->$pk;
+        $data[$this->morphKey] = $this->parent->$pk;
         $data[$this->morphType] = $this->type;
 
         return new $this->model($data);
@@ -241,8 +241,8 @@ class MorphOne extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
-            $pk                    = $this->parent->getPk();
-            $map[$this->morphKey]  = $this->parent->$pk;
+            $pk = $this->parent->getPk();
+            $map[$this->morphKey] = $this->parent->$pk;
             $map[$this->morphType] = $this->type;
             $this->query->where($map);
             $this->baseQuery = true;

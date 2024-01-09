@@ -118,7 +118,7 @@ class Build
         if (empty($list)) {
             $list = [
                 '__file__' => ['config.php', 'common.php'],
-                '__dir__'  => ['controller', 'model', 'view'],
+                '__dir__' => ['controller', 'model', 'view'],
             ];
         }
 
@@ -144,10 +144,10 @@ class Build
             } else {
                 // 生成相关 MVC 文件
                 foreach ($file as $val) {
-                    $val      = trim($val);
+                    $val = trim($val);
                     $filename = $modulePath . $path . DS . $val . ($suffix ? ucfirst($path) : '') . EXT;
-                    $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
-                    $class    = $val . ($suffix ? ucfirst($path) : '');
+                    $space = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    $class = $val . ($suffix ? ucfirst($path) : '');
 
                     switch ($path) {
                         case 'controller': // 控制器

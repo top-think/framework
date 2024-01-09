@@ -110,7 +110,7 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
         Config::set('var_method', '_method');
         $_POST['_method'] = 'POST';
-        $request          = Request::create('', '');
+        $request = Request::create('', '');
         $this->assertEquals('POST', $request->method());
         $this->assertEquals('GET', $request->method(true));
         $this->assertTrue($request->isPost());
@@ -187,14 +187,14 @@ class requestTest extends \PHPUnit_Framework_TestCase
 
     public function testIsMobile()
     {
-        $request             = Request::create('');
+        $request = Request::create('');
         $_SERVER['HTTP_VIA'] = 'wap';
         $this->assertTrue($request->isMobile());
     }
 
     public function testBind()
     {
-        $request       = Request::create('');
+        $request = Request::create('');
         $request->user = 'User1';
         $request->bind(['user' => 'User2']);
         $this->assertEquals('User2', $request->user);

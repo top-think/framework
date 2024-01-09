@@ -40,7 +40,7 @@ class exceptionTest extends \PHPUnit_Framework_TestCase
     {
         $data = ['a' => 'b', 'c' => 'd'];
         try {
-            $e      = new MyException("Error Processing Request", 1);
+            $e = new MyException("Error Processing Request", 1);
             $method = new ReflectionMethod($e, 'setData');
             $method->setAccessible(true);
             $method->invokeArgs($e, ['test', $data]);

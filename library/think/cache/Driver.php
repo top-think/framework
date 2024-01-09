@@ -188,12 +188,12 @@ abstract class Driver
     protected function setTagItem($name)
     {
         if ($this->tag) {
-            $key       = 'tag_' . md5($this->tag);
+            $key = 'tag_' . md5($this->tag);
             $this->tag = null;
             if ($this->has($key)) {
-                $value   = explode(',', $this->get($key));
+                $value = explode(',', $this->get($key));
                 $value[] = $name;
-                $value   = implode(',', array_unique($value));
+                $value = implode(',', array_unique($value));
             } else {
                 $value = $name;
             }
@@ -209,7 +209,7 @@ abstract class Driver
      */
     protected function getTagItem($tag)
     {
-        $key   = 'tag_' . md5($tag);
+        $key = 'tag_' . md5($tag);
         $value = $this->get($key);
         if ($value) {
             return array_filter(explode(',', $value));

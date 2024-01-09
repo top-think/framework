@@ -23,14 +23,14 @@ use think\cache\Driver;
 class Redis extends Driver
 {
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 6379,
-        'password'   => '',
-        'select'     => 0,
-        'timeout'    => 0,
-        'expire'     => 0,
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'password' => '',
+        'select' => 0,
+        'timeout' => 0,
+        'expire' => 0,
         'persistent' => false,
-        'prefix'     => '',
+        'prefix' => '',
     ];
 
     /**
@@ -115,7 +115,7 @@ class Redis extends Driver
         if ($this->tag && !$this->has($name)) {
             $first = true;
         }
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = is_scalar($value) ? $value : 'think_serialize:' . serialize($value);
         if ($expire) {
             $result = $this->handler->setex($key, $expire, $value);

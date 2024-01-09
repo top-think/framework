@@ -32,7 +32,7 @@ class Html
     public function __construct(array $config = [])
     {
         $this->config['trace_file'] = THINK_PATH . 'tpl/page_trace.tpl';
-        $this->config               = array_merge($this->config, $config);
+        $this->config = array_merge($this->config, $config);
     }
 
     /**
@@ -44,9 +44,9 @@ class Html
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Request::instance();
+        $request = Request::instance();
         $contentType = $response->getHeader('Content-Type');
-        $accept      = $request->header('accept');
+        $accept = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
             return false;
         } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
@@ -54,8 +54,8 @@ class Html
         }
         // 获取基本信息
         $runtime = number_format(microtime(true) - THINK_START_TIME, 10, '.', '');
-        $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
+        $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+        $mem = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
 
         // 页面Trace信息
         if (isset($_SERVER['HTTP_HOST'])) {
@@ -91,7 +91,7 @@ class Html
                 default: // 调试信息
                     if (strpos($name, '|')) {
                         // 多组信息
-                        $names  = explode('|', $name);
+                        $names = explode('|', $name);
                         $result = [];
                         foreach ($names as $name) {
                             $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);

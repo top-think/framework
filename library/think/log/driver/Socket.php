@@ -23,21 +23,21 @@ class Socket
 
     protected $config = [
         // socket服务器地址
-        'host'                => 'localhost',
+        'host' => 'localhost',
         // 是否显示加载的文件列表
         'show_included_files' => false,
         // 日志强制记录到配置的client_id
-        'force_client_ids'    => [],
+        'force_client_ids' => [],
         // 限制允许读取日志的client_id
-        'allow_client_ids'    => [],
+        'allow_client_ids' => [],
     ];
 
     protected $css = [
-        'sql'      => 'color:#009bb4;',
+        'sql' => 'color:#009bb4;',
         'sql_warn' => 'color:#009bb4;font-size:14px;',
-        'error'    => 'color:#f4006b;font-size:14px;',
-        'page'     => 'color:#40e2ff;background:#171717;',
-        'big'      => 'font-size:20px;color:red;',
+        'error' => 'color:#f4006b;font-size:14px;',
+        'page' => 'color:#40e2ff;background:#171717;',
+        'big' => 'font-size:20px;color:red;',
     ];
 
     protected $allowForceClientIds = []; //配置强制推送且被授权的client_id
@@ -67,12 +67,12 @@ class Socket
         }
         $trace = [];
         if (App::$debug) {
-            $runtime    = round(microtime(true) - THINK_START_TIME, 10);
-            $reqs       = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-            $time_str   = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
+            $runtime = round(microtime(true) - THINK_START_TIME, 10);
+            $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+            $time_str = ' [运行时间：' . number_format($runtime, 6) . 's][吞吐率：' . $reqs . 'req/s]';
             $memory_use = number_format((memory_get_usage() - THINK_START_MEM) / 1024, 2);
             $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-            $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+            $file_load = ' [文件加载：' . count(get_included_files()) . ']';
 
             if (isset($_SERVER['HTTP_HOST'])) {
                 $current_uri = $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
@@ -82,16 +82,16 @@ class Socket
             // 基本信息
             $trace[] = [
                 'type' => 'group',
-                'msg'  => $current_uri . $time_str . $memory_str . $file_load,
-                'css'  => $this->css['page'],
+                'msg' => $current_uri . $time_str . $memory_str . $file_load,
+                'css' => $this->css['page'],
             ];
         }
 
         foreach ($log as $type => $val) {
             $trace[] = [
                 'type' => 'groupCollapsed',
-                'msg'  => '[ ' . $type . ' ]',
-                'css'  => isset($this->css[$type]) ? $this->css[$type] : '',
+                'msg' => '[ ' . $type . ' ]',
+                'css' => isset($this->css[$type]) ? $this->css[$type] : '',
             ];
             foreach ($val as $msg) {
                 if (!is_string($msg)) {
@@ -99,39 +99,39 @@ class Socket
                 }
                 $trace[] = [
                     'type' => 'log',
-                    'msg'  => $msg,
-                    'css'  => '',
+                    'msg' => $msg,
+                    'css' => '',
                 ];
             }
             $trace[] = [
                 'type' => 'groupEnd',
-                'msg'  => '',
-                'css'  => '',
+                'msg' => '',
+                'css' => '',
             ];
         }
 
         if ($this->config['show_included_files']) {
             $trace[] = [
                 'type' => 'groupCollapsed',
-                'msg'  => '[ file ]',
-                'css'  => '',
+                'msg' => '[ file ]',
+                'css' => '',
             ];
             $trace[] = [
                 'type' => 'log',
-                'msg'  => implode("\n", get_included_files()),
-                'css'  => '',
+                'msg' => implode("\n", get_included_files()),
+                'css' => '',
             ];
             $trace[] = [
                 'type' => 'groupEnd',
-                'msg'  => '',
-                'css'  => '',
+                'msg' => '',
+                'css' => '',
             ];
         }
 
         $trace[] = [
             'type' => 'groupEnd',
-            'msg'  => '',
-            'css'  => '',
+            'msg' => '',
+            'css' => '',
         ];
 
         $tabid = $this->getClientArg('tabid');
@@ -162,12 +162,12 @@ class Socket
     protected function sendToClient($tabid, $client_id, $logs, $force_client_id)
     {
         $logs = [
-            'tabid'           => $tabid,
-            'client_id'       => $client_id,
-            'logs'            => $logs,
+            'tabid' => $tabid,
+            'client_id' => $client_id,
+            'logs' => $logs,
             'force_client_id' => $force_client_id,
         ];
-        $msg     = @json_encode($logs);
+        $msg = @json_encode($logs);
         $address = '/' . $client_id; //将client_id作为地址， server端通过地址判断将日志发布给谁
         $this->send($this->config['host'], $msg, $address);
     }
@@ -233,7 +233,7 @@ class Socket
     protected function send($host, $message = '', $address = '/')
     {
         $url = 'http://' . $host . ':' . $this->port . $address;
-        $ch  = curl_init();
+        $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, $message);

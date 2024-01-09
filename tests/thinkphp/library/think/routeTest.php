@@ -51,10 +51,10 @@ class routeTest extends \PHPUnit_Framework_TestCase
     {
         $rule = [
             '__domain__' => ['subdomain2.thinkphp.cn' => 'blog1'],
-            '__alias__'  => ['blog1' => 'blog1'],
-            '__rest__'   => ['res' => ['index/blog']],
-            'bbb'        => ['index/blog1', ['method' => 'POST']],
-            'ddd'        => '',
+            '__alias__' => ['blog1' => 'blog1'],
+            '__rest__' => ['res' => ['index/blog']],
+            'bbb' => ['index/blog1', ['method' => 'POST']],
+            'ddd' => '',
             ['hello1/:ddd', 'index/hello1', ['method' => 'POST']],
         ];
         Route::import($rule);

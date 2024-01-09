@@ -42,10 +42,10 @@ class configTest extends \PHPUnit_Framework_TestCase
 
     public function testLoad()
     {
-        $file   = APP_PATH . 'config' . EXT;
+        $file = APP_PATH . 'config' . EXT;
         $config = array_change_key_case(include $file);
-        $name   = '_name_';
-        $range  = '_test_';
+        $name = '_name_';
+        $range = '_test_';
 
         $this->assertEquals($config, Config::load($file, $name, $range));
         $this->assertNotEquals(null, Config::load($file, $name, $range));
@@ -100,13 +100,13 @@ class configTest extends \PHPUnit_Framework_TestCase
         $range = '_test_';
 
         // without dot syntax
-        $name  = 'name';
+        $name = 'name';
         $value = 'value';
         Config::set($name, $value, $range);
         $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals($value, $config[$range][$name]);
         // with dot syntax
-        $name  = 'one.two';
+        $name = 'one.two';
         $value = 'dot value';
         Config::set($name, $value, $range);
         $config = call_user_func(self::$internalConfigFoo);
@@ -137,13 +137,13 @@ class configTest extends \PHPUnit_Framework_TestCase
                 'abcd' => 'efg',
                 'hijk' => 'lmn',
             ],
-            'a'    => 'b',
+            'a' => 'b',
         ]);
         Config::reset($range);
         $config = call_user_func(self::$internalConfigFoo);
         $this->assertEquals([
             $range => [],
-            'a'    => 'b',
+            'a' => 'b',
         ], $config);
     }
 }

@@ -17,13 +17,13 @@ class ThrowableError extends \ErrorException
     {
 
         if ($e instanceof \ParseError) {
-            $message  = 'Parse error: ' . $e->getMessage();
+            $message = 'Parse error: ' . $e->getMessage();
             $severity = E_PARSE;
         } elseif ($e instanceof \TypeError) {
-            $message  = 'Type error: ' . $e->getMessage();
+            $message = 'Type error: ' . $e->getMessage();
             $severity = E_RECOVERABLE_ERROR;
         } else {
-            $message  = 'Fatal error: ' . $e->getMessage();
+            $message = 'Fatal error: ' . $e->getMessage();
             $severity = E_ERROR;
         }
 

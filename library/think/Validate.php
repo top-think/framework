@@ -36,56 +36,56 @@ class Validate
 
     // 验证规则默认提示信息
     protected static $typeMsg = [
-        'require'     => ':attribute require',
-        'number'      => ':attribute must be numeric',
-        'integer'     => ':attribute must be integer',
-        'float'       => ':attribute must be float',
-        'boolean'     => ':attribute must be bool',
-        'email'       => ':attribute not a valid email address',
-        'array'       => ':attribute must be a array',
-        'accepted'    => ':attribute must be yes,on or 1',
-        'date'        => ':attribute not a valid datetime',
-        'file'        => ':attribute not a valid file',
-        'image'       => ':attribute not a valid image',
-        'alpha'       => ':attribute must be alpha',
-        'alphaNum'    => ':attribute must be alpha-numeric',
-        'alphaDash'   => ':attribute must be alpha-numeric, dash, underscore',
-        'activeUrl'   => ':attribute not a valid domain or ip',
-        'chs'         => ':attribute must be chinese',
-        'chsAlpha'    => ':attribute must be chinese or alpha',
+        'require' => ':attribute require',
+        'number' => ':attribute must be numeric',
+        'integer' => ':attribute must be integer',
+        'float' => ':attribute must be float',
+        'boolean' => ':attribute must be bool',
+        'email' => ':attribute not a valid email address',
+        'array' => ':attribute must be a array',
+        'accepted' => ':attribute must be yes,on or 1',
+        'date' => ':attribute not a valid datetime',
+        'file' => ':attribute not a valid file',
+        'image' => ':attribute not a valid image',
+        'alpha' => ':attribute must be alpha',
+        'alphaNum' => ':attribute must be alpha-numeric',
+        'alphaDash' => ':attribute must be alpha-numeric, dash, underscore',
+        'activeUrl' => ':attribute not a valid domain or ip',
+        'chs' => ':attribute must be chinese',
+        'chsAlpha' => ':attribute must be chinese or alpha',
         'chsAlphaNum' => ':attribute must be chinese,alpha-numeric',
-        'chsDash'     => ':attribute must be chinese,alpha-numeric,underscore, dash',
-        'url'         => ':attribute not a valid url',
-        'ip'          => ':attribute not a valid ip',
-        'dateFormat'  => ':attribute must be dateFormat of :rule',
-        'in'          => ':attribute must be in :rule',
-        'notIn'       => ':attribute be notin :rule',
-        'between'     => ':attribute must between :1 - :2',
-        'notBetween'  => ':attribute not between :1 - :2',
-        'length'      => 'size of :attribute must be :rule',
-        'max'         => 'max size of :attribute must be :rule',
-        'min'         => 'min size of :attribute must be :rule',
-        'after'       => ':attribute cannot be less than :rule',
-        'before'      => ':attribute cannot exceed :rule',
-        'afterWith'   => ':attribute cannot be less than :rule',
-        'beforeWith'  => ':attribute cannot exceed :rule',
-        'expire'      => ':attribute not within :rule',
-        'allowIp'     => 'access IP is not allowed',
-        'denyIp'      => 'access IP denied',
-        'confirm'     => ':attribute out of accord with :2',
-        'different'   => ':attribute cannot be same with :2',
-        'egt'         => ':attribute must greater than or equal :rule',
-        'gt'          => ':attribute must greater than :rule',
-        'elt'         => ':attribute must less than or equal :rule',
-        'lt'          => ':attribute must less than :rule',
-        'eq'          => ':attribute must equal :rule',
-        'unique'      => ':attribute has exists',
-        'regex'       => ':attribute not conform to the rules',
-        'method'      => 'invalid Request method',
-        'token'       => 'invalid token',
-        'fileSize'    => 'filesize not match',
-        'fileExt'     => 'extensions to upload is not allowed',
-        'fileMime'    => 'mimetype to upload is not allowed',
+        'chsDash' => ':attribute must be chinese,alpha-numeric,underscore, dash',
+        'url' => ':attribute not a valid url',
+        'ip' => ':attribute not a valid ip',
+        'dateFormat' => ':attribute must be dateFormat of :rule',
+        'in' => ':attribute must be in :rule',
+        'notIn' => ':attribute be notin :rule',
+        'between' => ':attribute must between :1 - :2',
+        'notBetween' => ':attribute not between :1 - :2',
+        'length' => 'size of :attribute must be :rule',
+        'max' => 'max size of :attribute must be :rule',
+        'min' => 'min size of :attribute must be :rule',
+        'after' => ':attribute cannot be less than :rule',
+        'before' => ':attribute cannot exceed :rule',
+        'afterWith' => ':attribute cannot be less than :rule',
+        'beforeWith' => ':attribute cannot exceed :rule',
+        'expire' => ':attribute not within :rule',
+        'allowIp' => 'access IP is not allowed',
+        'denyIp' => 'access IP denied',
+        'confirm' => ':attribute out of accord with :2',
+        'different' => ':attribute cannot be same with :2',
+        'egt' => ':attribute must greater than or equal :rule',
+        'gt' => ':attribute must greater than :rule',
+        'elt' => ':attribute must less than or equal :rule',
+        'lt' => ':attribute must less than :rule',
+        'eq' => ':attribute must equal :rule',
+        'unique' => ':attribute has exists',
+        'regex' => ':attribute not conform to the rules',
+        'method' => 'invalid Request method',
+        'token' => 'invalid token',
+        'fileSize' => 'filesize not match',
+        'fileExt' => 'extensions to upload is not allowed',
+        'fileMime' => 'mimetype to upload is not allowed',
     ];
 
     // 当前验证场景
@@ -112,9 +112,9 @@ class Validate
      */
     public function __construct(array $rules = [], $message = [], $field = [])
     {
-        $this->rule    = array_merge($this->rule, $rules);
+        $this->rule = array_merge($this->rule, $rules);
         $this->message = array_merge($this->message, $message);
-        $this->field   = array_merge($this->field, $field);
+        $this->field = array_merge($this->field, $field);
     }
 
     /**
@@ -265,12 +265,12 @@ class Validate
         if (is_array($scene)) {
             // 处理场景验证字段
             $change = [];
-            $array  = [];
+            $array = [];
             foreach ($scene as $k => $val) {
                 if (is_numeric($k)) {
                     $array[] = $val;
                 } else {
-                    $array[]    = $k;
+                    $array[] = $k;
                     $change[$k] = $val;
                 }
             }
@@ -280,7 +280,7 @@ class Validate
             // field => rule1|rule2... field=>['rule1','rule2',...]
             if (is_numeric($key)) {
                 // [field,rule1|rule2,msg1|msg2]
-                $key  = $item[0];
+                $key = $item[0];
                 $rule = $item[1];
                 if (isset($item[2])) {
                     $msg = is_string($item[2]) ? explode('|', $item[2]) : $item[2];
@@ -289,7 +289,7 @@ class Validate
                 }
             } else {
                 $rule = $item;
-                $msg  = [];
+                $msg = [];
             }
             if (strpos($key, '|')) {
                 // 字段|描述 用于指定属性名称
@@ -397,7 +397,7 @@ class Validate
         foreach ($rules as $key => $rule) {
             if ($rule instanceof \Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
-                $info   = is_numeric($key) ? '' : $key;
+                $info = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
                 list($type, $rule, $info) = $this->getValidateType($key, $rule);
@@ -805,7 +805,7 @@ class Validate
             return false;
         }
         if ($rule) {
-            $rule                        = explode(',', $rule);
+            $rule = explode(',', $rule);
             list($width, $height, $type) = getimagesize($file->getRealPath());
             if (isset($rule[2])) {
                 $imageType = strtolower($rule[2]);
@@ -932,7 +932,7 @@ class Validate
             list($rule, $param) = explode(',', $rule);
         } elseif (is_array($rule)) {
             $param = isset($rule[1]) ? $rule[1] : null;
-            $rule  = $rule[0];
+            $rule = $rule[0];
         } else {
             $param = null;
         }
@@ -1281,7 +1281,7 @@ class Validate
         } elseif (strpos($key, '.')) {
             // 支持二维数组验证
             list($name1, $name2) = explode('.', $key);
-            $value               = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
+            $value = isset($data[$name1][$name2]) ? $data[$name1][$name2] : null;
         } else {
             $value = isset($data[$key]) ? $data[$key] : null;
         }

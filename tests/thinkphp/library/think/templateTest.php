@@ -102,14 +102,14 @@ class templateTest extends \PHPUnit_Framework_TestCase
     public function testParseWithThinkVar($content, $expected)
     {
         $config['tpl_begin'] = '{';
-        $config['tpl_end']   = '}';
-        $this->template            = new Template($config);
+        $config['tpl_end'] = '}';
+        $this->template = new Template($config);
 
         $_SERVER['SERVER_NAME'] = 'server_name';
-        $_GET['action']         = 'action';
-        $_POST['action']        = 'action';
-        $_COOKIE['name']        = 'name';
-        $_SESSION['action']     = ['name' => 'name'];
+        $_GET['action'] = 'action';
+        $_POST['action'] = 'action';
+        $_COOKIE['name'] = 'name';
+        $_SESSION['action'] = ['name' => 'name'];
 
         $this->template->parse($content);
         $this->assertEquals($expected, $content);
@@ -145,7 +145,7 @@ class templateTest extends \PHPUnit_Framework_TestCase
             'name' => 'value'
         ];
         $config = [
-            'cache_id'      => 'TEST_FETCH_WITH_CACHE',
+            'cache_id' => 'TEST_FETCH_WITH_CACHE',
             'display_cache' => true,
         ];
 
@@ -158,9 +158,9 @@ class templateTest extends \PHPUnit_Framework_TestCase
     public function testDisplay()
     {
         $config = [
-            'view_path'   => APP_PATH . DS . 'views' . DS,
+            'view_path' => APP_PATH . DS . 'views' . DS,
             'view_suffix' => '.html',
-            'layout_on'   => true,
+            'layout_on' => true,
             'layout_name' => 'layout'
         ];
 
@@ -242,7 +242,7 @@ EOF;
     {
         $this->template = new Template();
         $config = [
-            'cache_id'      => rand(0, 10000) . rand(0, 10000) . time(),
+            'cache_id' => rand(0, 10000) . rand(0, 10000) . time(),
             'display_cache' => true
         ];
 
@@ -283,8 +283,8 @@ EOF;
 
     public function provideTestParseWithVarIdentify()
     {
-        $config['tpl_begin']        = '<#';
-        $config['tpl_end']          = '#>';
+        $config['tpl_begin'] = '<#';
+        $config['tpl_end'] = '#>';
         $config['tpl_var_identify'] = '';
 
         return [
@@ -346,24 +346,24 @@ EOF;
 
         $this->template = [
             'template' => APP_PATH . 'views' . DS .'display.html',
-            'vars'     => [],
-            'config'   => []
+            'vars' => [],
+            'config' => []
         ];
         $expected = 'default';
         $provideData[] = [$this->template, $expected];
 
         $this->template = [
             'template' => APP_PATH . 'views' . DS .'display.html',
-            'vars'     => ['name' => 'ThinkPHP5'],
-            'config'   => []
+            'vars' => ['name' => 'ThinkPHP5'],
+            'config' => []
         ];
         $expected = 'ThinkPHP5';
         $provideData[] = [$this->template, $expected];
 
         $this->template = [
             'template' => 'views@display',
-            'vars'     => [],
-            'config'   => [
+            'vars' => [],
+            'config' => [
                 'view_suffix' => 'html'
             ]
         ];
@@ -372,8 +372,8 @@ EOF;
 
         $this->template = [
             'template' => 'views@/display',
-            'vars'     => ['name' => 'ThinkPHP5'],
-            'config'   => [
+            'vars' => ['name' => 'ThinkPHP5'],
+            'config' => [
                 'view_suffix' => 'phtml'
             ]
         ];
@@ -382,10 +382,10 @@ EOF;
 
         $this->template = [
             'template' => 'display',
-            'vars'     => ['name' => 'ThinkPHP5'],
-            'config'   => [
+            'vars' => ['name' => 'ThinkPHP5'],
+            'config' => [
                 'view_suffix' => 'html',
-                'view_base'   => APP_PATH . 'views' . DS
+                'view_base' => APP_PATH . 'views' . DS
             ]
         ];
         $expected = 'ThinkPHP5';

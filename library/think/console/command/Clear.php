@@ -48,7 +48,7 @@ class Clear extends Command
 
     protected function clearPath($path)
     {
-        $path  = realpath($path) . DS;
+        $path = realpath($path) . DS;
         $files = scandir($path);
         if ($files) {
             foreach ($files as $file) {

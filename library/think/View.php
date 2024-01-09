@@ -36,17 +36,17 @@ class View
         $this->engine($engine);
         // 基础替换字符串
         $request = Request::instance();
-        $base    = $request->root();
-        $root    = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
+        $base = $request->root();
+        $root = strpos($base, '.') ? ltrim(dirname($base), DS) : $base;
         if ('' != $root) {
             $root = '/' . ltrim($root, '/');
         }
         $baseReplace = [
-            '__ROOT__'   => $root,
-            '__URL__'    => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
+            '__ROOT__' => $root,
+            '__URL__' => $base . '/' . $request->module() . '/' . Loader::parseName($request->controller()),
             '__STATIC__' => $root . '/static',
-            '__CSS__'    => $root . '/static/css',
-            '__JS__'     => $root . '/static/js',
+            '__CSS__' => $root . '/static/css',
+            '__JS__' => $root . '/static/js',
         ];
         $this->replace = array_merge($baseReplace, (array) $replace);
     }
@@ -108,7 +108,7 @@ class View
     public function engine($options = [])
     {
         if (is_string($options)) {
-            $type    = $options;
+            $type = $options;
             $options = [];
         } else {
             $type = !empty($options['type']) ? $options['type'] : 'Think';

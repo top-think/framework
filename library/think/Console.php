@@ -84,7 +84,7 @@ class Console
      */
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $user = null)
     {
-        $this->name    = $name;
+        $this->name = $name;
         $this->version = $version;
 
         if ($user) {
@@ -92,7 +92,7 @@ class Console
         }
 
         $this->defaultCommand = 'list';
-        $this->definition     = $this->getDefaultInputDefinition();
+        $this->definition = $this->getDefaultInputDefinition();
 
         foreach ($this->getDefaultCommands() as $command) {
             $this->add($command);
@@ -158,7 +158,7 @@ class Console
 
         array_unshift($parameters, $command);
 
-        $input  = new Input($parameters);
+        $input = new Input($parameters);
         $output = new Output($driver);
 
         $console->setCatchExceptions(false);
@@ -175,7 +175,7 @@ class Console
      */
     public function run()
     {
-        $input  = new Input();
+        $input = new Input();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -226,7 +226,7 @@ class Console
         // 获取帮助信息
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
-                $name  = 'help';
+                $name = 'help';
                 $input = new Input(['help']);
             } else {
                 $this->wantHelps = true;
@@ -234,7 +234,7 @@ class Console
         }
 
         if (!$name) {
-            $name  = $this->defaultCommand;
+            $name = $this->defaultCommand;
             $input = new Input([$this->defaultCommand]);
         }
 
@@ -499,7 +499,7 @@ class Console
         }, $namespace);
 
         $allNamespaces = $this->getNamespaces();
-        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf(
@@ -549,7 +549,7 @@ class Console
         }, $name);
 
         $allCommands = array_keys($this->commands);
-        $commands    = preg_grep('{^' . $expr . '}', $allCommands);
+        $commands = preg_grep('{^' . $expr . '}', $allCommands);
 
         if (empty($commands) || count(preg_grep('{^' . $expr . '$}', $commands)) < 1) {
             if (false !== ($pos = strrpos($name, ':'))) {
@@ -572,7 +572,7 @@ class Console
 
         if (count($commands) > 1) {
             $commandList = $this->commands;
-            $commands    = array_filter($commands, function ($nameOrAlias) use ($commandList, $commands) {
+            $commands = array_filter($commands, function ($nameOrAlias) use ($commandList, $commands) {
                 $commandName = $commandList[$nameOrAlias]->getName();
 
                 return $commandName === $nameOrAlias || !in_array($commandName, $commands);
@@ -623,7 +623,7 @@ class Console
         $abbrevs = [];
         foreach ($names as $name) {
             for ($len = strlen($name); $len > 0; --$len) {
-                $abbrev             = substr($name, 0, $len);
+                $abbrev = substr($name, 0, $len);
                 $abbrevs[$abbrev][] = $name;
             }
         }
@@ -776,8 +776,8 @@ class Console
      */
     private function findAlternatives($name, $collection)
     {
-        $threshold       = 1e3;
-        $alternatives    = [];
+        $threshold = 1e3;
+        $alternatives = [];
         $collectionParts = [];
 
         foreach ($collection as $item) {

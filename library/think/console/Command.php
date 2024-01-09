@@ -26,12 +26,12 @@ class Command
     private $definition;
     private $help;
     private $description;
-    private $ignoreValidationErrors          = false;
-    private $consoleDefinitionMerged         = false;
+    private $ignoreValidationErrors = false;
+    private $consoleDefinitionMerged = false;
     private $consoleDefinitionMergedWithArgs = false;
     private $code;
     private $synopsis = [];
-    private $usages   = [];
+    private $usages = [];
 
     /** @var  Input */
     protected $input;
@@ -145,7 +145,7 @@ class Command
      */
     public function run(Input $input, Output $output)
     {
-        $this->input  = $input;
+        $this->input = $input;
         $this->output = $output;
 
         $this->getSynopsis(true);

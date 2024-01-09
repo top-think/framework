@@ -36,13 +36,13 @@ class HasManyThrough extends Relation
      */
     public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey)
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
-        $this->through    = $through;
+        $this->parent = $parent;
+        $this->model = $model;
+        $this->through = $through;
         $this->foreignKey = $foreignKey;
         $this->throughKey = $throughKey;
-        $this->localKey   = $localKey;
-        $this->query      = (new $model)->db();
+        $this->localKey = $localKey;
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -140,12 +140,12 @@ class HasManyThrough extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
-            $through      = $this->through;
-            $alias        = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
+            $through = $this->through;
+            $alias = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
             $throughTable = $through::getTable();
-            $pk           = (new $through)->getPk();
-            $throughKey   = $this->throughKey;
-            $modelTable   = $this->parent->getTable();
+            $pk = (new $through)->getPk();
+            $throughKey = $this->throughKey;
+            $modelTable = $this->parent->getTable();
             $this->query->field($alias . '.*')->alias($alias)
                 ->join($throughTable, $throughTable . '.' . $pk . '=' . $alias . '.' . $throughKey)
                 ->join($modelTable, $modelTable . '.' . $this->localKey . '=' . $throughTable . '.' . $this->foreignKey)

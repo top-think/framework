@@ -21,7 +21,7 @@ class Lite extends Driver
 {
     protected $options = [
         'prefix' => '',
-        'path'   => '',
+        'path' => '',
         'expire' => 0, // 等于 10*365*24*3600（10年）
     ];
 

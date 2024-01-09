@@ -54,7 +54,7 @@ class Response
         }
         $this->contentType($this->contentType, $this->charset);
         $this->header = array_merge($this->header, $header);
-        $this->code   = $code;
+        $this->code = $code;
     }
 
     /**
@@ -103,7 +103,7 @@ class Response
             if ($cache) {
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
-                $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
+                $this->header['Expires'] = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
                 Cache::tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
             }
         }
