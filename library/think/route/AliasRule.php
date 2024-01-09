@@ -28,8 +28,8 @@ class AliasRule extends Domain
     {
         $this->router = $router;
         $this->parent = $parent;
-        $this->name   = $name;
-        $this->route  = $route;
+        $this->name = $name;
+        $this->route = $route;
         $this->option = $option;
     }
 

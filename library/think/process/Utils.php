@@ -24,7 +24,7 @@ class Utils
             return escapeshellarg($argument);
         }
         $escapedArgument = '';
-        $quote           = false;
+        $quote = false;
         foreach (preg_split('/(")/i', $argument, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE) as $part) {
             if ('"' === $part) {
                 $escapedArgument .= '\\"';

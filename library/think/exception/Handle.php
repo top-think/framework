@@ -41,15 +41,15 @@ class Handle
             // 收集异常数据
             if (Container::get('app')->isDebug()) {
                 $data = [
-                    'file'    => $exception->getFile(),
-                    'line'    => $exception->getLine(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
                     'message' => $this->getMessage($exception),
-                    'code'    => $this->getCode($exception),
+                    'code' => $this->getCode($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
-                    'code'    => $this->getCode($exception),
+                    'code' => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}";
@@ -119,7 +119,7 @@ class Handle
      */
     protected function renderHttpException(HttpException $e)
     {
-        $status   = $e->getStatusCode();
+        $status = $e->getStatusCode();
         $template = Container::get('app')->config('http_exception_template');
 
         if (!Container::get('app')->isDebug() && !empty($template[$status])) {
@@ -140,29 +140,29 @@ class Handle
         if (Container::get('app')->isDebug()) {
             // 调试模式，获取详细的错误信息
             $data = [
-                'name'    => get_class($exception),
-                'file'    => $exception->getFile(),
-                'line'    => $exception->getLine(),
+                'name' => get_class($exception),
+                'file' => $exception->getFile(),
+                'line' => $exception->getLine(),
                 'message' => $this->getMessage($exception),
-                'trace'   => $exception->getTrace(),
-                'code'    => $this->getCode($exception),
-                'source'  => $this->getSourceCode($exception),
-                'datas'   => $this->getExtendData($exception),
-                'tables'  => [
-                    'GET Data'              => $_GET,
-                    'POST Data'             => $_POST,
-                    'Files'                 => $_FILES,
-                    'Cookies'               => $_COOKIE,
-                    'Session'               => isset($_SESSION) ? $_SESSION : [],
-                    'Server/Request Data'   => $_SERVER,
+                'trace' => $exception->getTrace(),
+                'code' => $this->getCode($exception),
+                'source' => $this->getSourceCode($exception),
+                'datas' => $this->getExtendData($exception),
+                'tables' => [
+                    'GET Data' => $_GET,
+                    'POST Data' => $_POST,
+                    'Files' => $_FILES,
+                    'Cookies' => $_COOKIE,
+                    'Session' => isset($_SESSION) ? $_SESSION : [],
+                    'Server/Request Data' => $_SERVER,
                     'Environment Variables' => $_ENV,
-                    'ThinkPHP Constants'    => $this->getConst(),
+                    'ThinkPHP Constants' => $this->getConst(),
                 ],
             ];
         } else {
             // 部署模式仅显示 Code 和 Message
             $data = [
-                'code'    => $this->getCode($exception),
+                'code' => $this->getCode($exception),
                 'message' => $this->getMessage($exception),
             ];
 
@@ -184,7 +184,7 @@ class Handle
         include Container::get('app')->config('exception_tmpl');
 
         // 获取并清空缓存
-        $content  = ob_get_clean();
+        $content = ob_get_clean();
         $response = Response::create($content, 'html');
 
         if ($exception instanceof HttpException) {
@@ -236,10 +236,10 @@ class Handle
         $lang = Container::get('lang');
 
         if (strpos($message, ':')) {
-            $name    = strstr($message, ':', true);
+            $name = strstr($message, ':', true);
             $message = $lang->has($name) ? $lang->get($name) . strstr($message, ':') : $message;
         } elseif (strpos($message, ',')) {
-            $name    = strstr($message, ',', true);
+            $name = strstr($message, ',', true);
             $message = $lang->has($name) ? $lang->get($name) . ':' . substr(strstr($message, ','), 1) : $message;
         } elseif ($lang->has($message)) {
             $message = $lang->get($message);
@@ -258,13 +258,13 @@ class Handle
     protected function getSourceCode(Exception $exception)
     {
         // 读取前9行和后9行
-        $line  = $exception->getLine();
+        $line = $exception->getLine();
         $first = ($line - 9 > 0) ? $line - 9 : 1;
 
         try {
             $contents = file($exception->getFile());
-            $source   = [
-                'first'  => $first,
+            $source = [
+                'first' => $first,
                 'source' => array_slice($contents, $first - 1, 19),
             ];
         } catch (Exception $e) {

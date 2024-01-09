@@ -38,10 +38,10 @@ class ErrorException extends Exception
     public function __construct($severity, $message, $file, $line)
     {
         $this->severity = $severity;
-        $this->message  = $message;
-        $this->file     = $file;
-        $this->line     = $line;
-        $this->code     = 0;
+        $this->message = $message;
+        $this->file = $file;
+        $this->line = $line;
+        $this->code = 0;
     }
 
     /**

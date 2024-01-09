@@ -143,7 +143,7 @@ class Hook
     public function listen($tag, $params = null, $once = false)
     {
         $results = [];
-        $tags    = $this->get($tag);
+        $tags = $this->get($tag);
 
         foreach ($tags as $key => $name) {
             $results[$key] = $this->execTag($name, $tag, $params);
@@ -190,7 +190,7 @@ class Hook
         $method = Loader::parseName($tag, 1, false);
 
         if ($class instanceof \Closure) {
-            $call  = $class;
+            $call = $class;
             $class = 'Closure';
         } elseif (is_array($class) || strpos($class, '::')) {
             $call = $class;
@@ -201,7 +201,7 @@ class Hook
                 $method = self::$portal;
             }
 
-            $call  = [$class, $method];
+            $call = [$class, $method];
             $class = $class . '->' . $method;
         }
 

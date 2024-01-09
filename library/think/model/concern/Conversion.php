@@ -130,17 +130,17 @@ trait Conversion
      */
     public function toArray()
     {
-        $item       = [];
+        $item = [];
         $hasVisible = false;
 
         foreach ($this->visible as $key => $val) {
             if (is_string($val)) {
                 if (strpos($val, '.')) {
-                    list($relation, $name)      = explode('.', $val);
+                    list($relation, $name) = explode('.', $val);
                     $this->visible[$relation][] = $name;
                 } else {
                     $this->visible[$val] = true;
-                    $hasVisible          = true;
+                    $hasVisible = true;
                 }
                 unset($this->visible[$key]);
             }
@@ -149,7 +149,7 @@ trait Conversion
         foreach ($this->hidden as $key => $val) {
             if (is_string($val)) {
                 if (strpos($val, '.')) {
-                    list($relation, $name)     = explode('.', $val);
+                    list($relation, $name) = explode('.', $val);
                     $this->hidden[$relation][] = $name;
                 } else {
                     $this->hidden[$val] = true;

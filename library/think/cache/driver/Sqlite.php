@@ -20,12 +20,12 @@ use think\cache\Driver;
 class Sqlite extends Driver
 {
     protected $options = [
-        'db'         => ':memory:',
-        'table'      => 'sharedmemory',
-        'prefix'     => '',
-        'expire'     => 0,
+        'db' => ':memory:',
+        'table' => 'sharedmemory',
+        'prefix' => '',
+        'expire' => 0,
         'persistent' => false,
-        'serialize'  => true,
+        'serialize' => true,
     ];
 
     /**
@@ -70,7 +70,7 @@ class Sqlite extends Driver
     {
         $name = $this->getCacheKey($name);
 
-        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . time() . ') LIMIT 1';
+        $sql = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . time() . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
 
         return sqlite_num_rows($result);
@@ -138,7 +138,7 @@ class Sqlite extends Driver
         }
 
         if ($this->tag) {
-            $tag       = $this->tag;
+            $tag = $this->tag;
             $this->tag = null;
         } else {
             $tag = '';
@@ -217,7 +217,7 @@ class Sqlite extends Driver
     {
         if ($tag) {
             $name = sqlite_escape_string($this->getTagKey($tag));
-            $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
+            $sql = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
             sqlite_query($this->handler, $sql);
             return true;
         }

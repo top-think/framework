@@ -22,25 +22,25 @@ class Request
      */
     protected $config = [
         // 表单请求类型伪装变量
-        'var_method'       => '_method',
+        'var_method' => '_method',
         // 表单ajax伪装变量
-        'var_ajax'         => '_ajax',
+        'var_ajax' => '_ajax',
         // 表单pjax伪装变量
-        'var_pjax'         => '_pjax',
+        'var_pjax' => '_pjax',
         // PATHINFO变量名 用于兼容模式
-        'var_pathinfo'     => 's',
+        'var_pathinfo' => 's',
         // 兼容PATH_INFO获取
-        'pathinfo_fetch'   => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
+        'pathinfo_fetch' => ['ORIG_PATH_INFO', 'REDIRECT_PATH_INFO', 'REDIRECT_URL'],
         // 默认全局过滤方法 用逗号分隔多个
-        'default_filter'   => '',
+        'default_filter' => '',
         // 域名根，如thinkphp.cn
-        'url_domain_root'  => '',
+        'url_domain_root' => '',
         // HTTPS代理标识
         'https_agent_name' => '',
         // IP代理获取标识
-        'http_agent_ip'    => 'HTTP_X_REAL_IP',
+        'http_agent_ip' => 'HTTP_X_REAL_IP',
         // URL伪静态后缀
-        'url_html_suffix'  => 'html',
+        'url_html_suffix' => 'html',
     ];
 
     /**
@@ -222,18 +222,18 @@ class Request
      * @var array
      */
     protected $mimeType = [
-        'xml'   => 'application/xml,text/xml,application/x-xml',
-        'json'  => 'application/json,text/x-json,application/jsonrequest,text/json',
-        'js'    => 'text/javascript,application/javascript,application/x-javascript',
-        'css'   => 'text/css',
-        'rss'   => 'application/rss+xml',
-        'yaml'  => 'application/x-yaml,text/yaml',
-        'atom'  => 'application/atom+xml',
-        'pdf'   => 'application/pdf',
-        'text'  => 'text/plain',
+        'xml' => 'application/xml,text/xml,application/x-xml',
+        'json' => 'application/json,text/x-json,application/jsonrequest,text/json',
+        'js' => 'text/javascript,application/javascript,application/x-javascript',
+        'css' => 'text/css',
+        'rss' => 'application/rss+xml',
+        'yaml' => 'application/x-yaml,text/yaml',
+        'atom' => 'application/atom+xml',
+        'pdf' => 'application/pdf',
+        'text' => 'text/plain',
         'image' => 'image/png,image/jpg,image/jpeg,image/pjpeg,image/gif,image/webp,image/*',
-        'csv'   => 'text/csv',
-        'html'  => 'text/html,application/xhtml+xml,*/*',
+        'csv' => 'text/csv',
+        'html' => 'text/html,application/xhtml+xml,*/*',
     ];
 
     /**
@@ -319,7 +319,7 @@ class Request
         $request = new static($config->pull('app'));
 
         $request->server = $_SERVER;
-        $request->env    = $app['env']->get();
+        $request->env = $app['env']->get();
 
         return $request;
     }
@@ -364,18 +364,18 @@ class Request
      */
     public function create($uri, $method = 'GET', $params = [], $cookie = [], $files = [], $server = [], $content = null)
     {
-        $server['PATH_INFO']      = '';
+        $server['PATH_INFO'] = '';
         $server['REQUEST_METHOD'] = strtoupper($method);
-        $info                     = parse_url($uri);
+        $info = parse_url($uri);
 
         if (isset($info['host'])) {
             $server['SERVER_NAME'] = $info['host'];
-            $server['HTTP_HOST']   = $info['host'];
+            $server['HTTP_HOST'] = $info['host'];
         }
 
         if (isset($info['scheme'])) {
             if ('https' === $info['scheme']) {
-                $server['HTTPS']       = 'on';
+                $server['HTTPS'] = 'on';
                 $server['SERVER_PORT'] = 443;
             } else {
                 unset($server['HTTPS']);
@@ -385,7 +385,7 @@ class Request
 
         if (isset($info['port'])) {
             $server['SERVER_PORT'] = $info['port'];
-            $server['HTTP_HOST']   = $server['HTTP_HOST'] . ':' . $info['port'];
+            $server['HTTP_HOST'] = $server['HTTP_HOST'] . ':' . $info['port'];
         }
 
         if (isset($info['user'])) {
@@ -400,7 +400,7 @@ class Request
             $info['path'] = '/';
         }
 
-        $options     = [];
+        $options = [];
         $queryString = '';
 
         $options[strtolower($method)] = $params;
@@ -408,10 +408,10 @@ class Request
         if (isset($info['query'])) {
             parse_str(html_entity_decode($info['query']), $query);
             if (!empty($params)) {
-                $params      = array_replace($query, $params);
+                $params = array_replace($query, $params);
                 $queryString = http_build_query($params, '', '&');
             } else {
-                $params      = $query;
+                $params = $query;
                 $queryString = $info['query'];
             }
         } elseif (!empty($params)) {
@@ -423,18 +423,18 @@ class Request
             $options['get'] = isset($options['get']) ? array_merge($get, $options['get']) : $get;
         }
 
-        $server['REQUEST_URI']  = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
+        $server['REQUEST_URI'] = $info['path'] . ('' !== $queryString ? '?' . $queryString : '');
         $server['QUERY_STRING'] = $queryString;
-        $options['cookie']      = $cookie;
-        $options['param']       = $params;
-        $options['file']        = $files;
-        $options['server']      = $server;
-        $options['url']         = $server['REQUEST_URI'];
-        $options['baseUrl']     = $info['path'];
-        $options['pathinfo']    = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
-        $options['method']      = $server['REQUEST_METHOD'];
-        $options['domain']      = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
-        $options['content']     = $content;
+        $options['cookie'] = $cookie;
+        $options['param'] = $params;
+        $options['file'] = $files;
+        $options['server'] = $server;
+        $options['url'] = $server['REQUEST_URI'];
+        $options['baseUrl'] = $info['path'];
+        $options['pathinfo'] = '/' == $info['path'] ? '/' : ltrim($info['path'], '/');
+        $options['method'] = $server['REQUEST_METHOD'];
+        $options['domain'] = isset($info['scheme']) ? $info['scheme'] . '://' . $server['HTTP_HOST'] : '';
+        $options['content'] = $content;
 
         $request = new static();
         foreach ($options as $name => $item) {
@@ -467,9 +467,9 @@ class Request
         $root = $this->config['url_domain_root'];
 
         if (!$root) {
-            $item  = explode('.', $this->host(true));
+            $item = explode('.', $this->host(true));
             $count = count($item);
-            $root  = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
+            $root = $count > 1 ? $item[$count - 2] . '.' . $item[$count - 1] : $item[0];
         }
 
         return $root;
@@ -579,7 +579,7 @@ class Request
     public function baseUrl($domain = false)
     {
         if (!$this->baseUrl) {
-            $str           = $this->url();
+            $str = $this->url();
             $this->baseUrl = strpos($str, '?') ? strstr($str, '?', true) : $str;
         }
 
@@ -721,7 +721,7 @@ class Request
     public function path()
     {
         if (is_null($this->path)) {
-            $suffix   = $this->config['url_html_suffix'];
+            $suffix = $this->config['url_html_suffix'];
             $pathinfo = $this->pathinfo();
 
             if (false === $suffix) {
@@ -816,7 +816,7 @@ class Request
             if (isset($_POST[$this->config['var_method']])) {
                 $method = strtolower($_POST[$this->config['var_method']]);
                 if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
-                    $this->method    = strtoupper($method);
+                    $this->method = strtoupper($method);
                     $this->{$method} = $_POST;
                 } else {
                     $this->method = 'POST';
@@ -1211,8 +1211,8 @@ class Request
             if ($file instanceof File) {
                 $array[$key] = $file;
             } elseif (is_array($file['name'])) {
-                $item  = [];
-                $keys  = array_keys($file);
+                $item = [];
+                $keys = array_keys($file);
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
@@ -1301,7 +1301,7 @@ class Request
                 $server = $this->server;
                 foreach ($server as $key => $val) {
                     if (0 === strpos($key, 'HTTP_')) {
-                        $key          = str_replace('_', '-', strtolower(substr($key, 5)));
+                        $key = str_replace('_', '-', strtolower(substr($key, 5)));
                         $header[$key] = $val;
                     }
                 }
@@ -1576,7 +1576,7 @@ class Request
 
             if (is_int($key)) {
                 $default = null;
-                $key     = $val;
+                $key = $val;
             } else {
                 $default = $val;
             }
@@ -1654,14 +1654,14 @@ class Request
      */
     public function isAjax($ajax = false)
     {
-        $value  = $this->server('HTTP_X_REQUESTED_WITH');
+        $value = $this->server('HTTP_X_REQUESTED_WITH');
         $result = 'xmlhttprequest' == strtolower($value) ? true : false;
 
         if (true === $ajax) {
             return $result;
         }
 
-        $result           = $this->param($this->config['var_ajax']) ? true : $result;
+        $result = $this->param($this->config['var_ajax']) ? true : $result;
         $this->mergeParam = false;
         return $result;
     }
@@ -1680,7 +1680,7 @@ class Request
             return $result;
         }
 
-        $result           = $this->param($this->config['var_pjax']) ? true : $result;
+        $result = $this->param($this->config['var_pjax']) ? true : $result;
         $this->mergeParam = false;
         return $result;
     }
@@ -1694,7 +1694,7 @@ class Request
      */
     public function ip($type = 0, $adv = true)
     {
-        $type      = $type ? 1 : 0;
+        $type = $type ? 1 : 0;
         static $ip = null;
 
         if (null !== $ip) {
@@ -2026,7 +2026,7 @@ class Request
      */
     public function token($name = '__token__', $type = null)
     {
-        $type  = is_callable($type) ? $type : 'md5';
+        $type = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
 
         if ($this->isAjax()) {
@@ -2050,7 +2050,7 @@ class Request
     public function cache($key, $expire = null, $except = [], $tag = null)
     {
         if (!is_array($except)) {
-            $tag    = $except;
+            $tag = $except;
             $except = [];
         }
 

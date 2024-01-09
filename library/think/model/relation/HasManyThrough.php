@@ -42,14 +42,14 @@ class HasManyThrough extends Relation
      */
     public function __construct(Model $parent, $model, $through, $foreignKey, $throughKey, $localKey)
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
-        $this->through    = (new $through)->db();
+        $this->parent = $parent;
+        $this->model = $model;
+        $this->through = (new $through)->db();
         $this->foreignKey = $foreignKey;
         $this->throughKey = $throughKey;
-        $this->throughPk  = $this->through->getPk();
-        $this->localKey   = $localKey;
-        $this->query      = (new $model)->db();
+        $this->throughPk = $this->through->getPk();
+        $this->localKey = $localKey;
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -81,13 +81,13 @@ class HasManyThrough extends Relation
      */
     public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
-        $model         = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
-        $throughTable  = $this->through->getTable();
-        $pk            = $this->throughPk;
-        $throughKey    = $this->throughKey;
-        $relation      = (new $this->model)->db();
+        $model = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
+        $throughTable = $this->through->getTable();
+        $pk = $this->throughPk;
+        $throughKey = $this->throughKey;
+        $relation = (new $this->model)->db();
         $relationTable = $relation->getTable();
-        $softDelete    = $this->query->getOptions('soft_delete');
+        $softDelete = $this->query->getOptions('soft_delete');
 
         if ('*' != $id) {
             $id = $relationTable . '.' . $relation->getPk();
@@ -114,17 +114,17 @@ class HasManyThrough extends Relation
      */
     public function hasWhere($where = [], $fields = null)
     {
-        $model        = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
+        $model = Loader::parseName(basename(str_replace('\\', '/', get_class($this->parent))));
         $throughTable = $this->through->getTable();
-        $pk           = $this->throughPk;
-        $throughKey   = $this->throughKey;
-        $modelTable   = (new $this->model)->db()->getTable();
+        $pk = $this->throughPk;
+        $throughKey = $this->throughKey;
+        $modelTable = (new $this->model)->db()->getTable();
 
         if (is_array($where)) {
             $this->getQueryWhere($where, $modelTable);
         }
 
-        $fields     = $this->getRelationQueryFields($fields, $model);
+        $fields = $this->getRelationQueryFields($fields, $model);
         $softDelete = $this->query->getOptions('soft_delete');
 
         return $this->parent->db()
@@ -150,7 +150,7 @@ class HasManyThrough extends Relation
      */
     public function eagerlyResultSet(array &$resultSet, $relation, $subRelation = '', $closure = null)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
 
         $range = [];
@@ -199,9 +199,9 @@ class HasManyThrough extends Relation
      */
     public function eagerlyResult($result, $relation, $subRelation = '', $closure = null)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
-        $pk         = $result->$localKey;
+        $pk = $result->$localKey;
 
         $this->query->removeWhereField($foreignKey);
 
@@ -235,7 +235,7 @@ class HasManyThrough extends Relation
     {
         // 预载入关联查询 支持嵌套预载入
         $throughList = $this->through->where($where)->select();
-        $keys        = $throughList->column($this->throughPk, $this->throughPk);
+        $keys = $throughList->column($this->throughPk, $this->throughPk);
 
         if ($closure instanceof Closure) {
             $closure($this->query);
@@ -279,11 +279,11 @@ class HasManyThrough extends Relation
             }
         }
 
-        $alias        = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
+        $alias = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
         $throughTable = $this->through->getTable();
-        $pk           = $this->throughPk;
-        $throughKey   = $this->throughKey;
-        $modelTable   = $this->parent->getTable();
+        $pk = $this->throughPk;
+        $throughKey = $this->throughKey;
+        $modelTable = $this->parent->getTable();
 
         if (false === strpos($field, '.')) {
             $field = $alias . '.' . $field;
@@ -315,11 +315,11 @@ class HasManyThrough extends Relation
             }
         }
 
-        $alias        = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
+        $alias = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
         $throughTable = $this->through->getTable();
-        $pk           = $this->throughPk;
-        $throughKey   = $this->throughKey;
-        $modelTable   = $this->parent->getTable();
+        $pk = $this->throughPk;
+        $throughKey = $this->throughKey;
+        $modelTable = $this->parent->getTable();
 
         if (false === strpos($field, '.')) {
             $field = $alias . '.' . $field;
@@ -342,12 +342,12 @@ class HasManyThrough extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
-            $alias        = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
+            $alias = Loader::parseName(basename(str_replace('\\', '/', $this->model)));
             $throughTable = $this->through->getTable();
-            $pk           = $this->throughPk;
-            $throughKey   = $this->throughKey;
-            $modelTable   = $this->parent->getTable();
-            $fields       = $this->getQueryFields($alias);
+            $pk = $this->throughPk;
+            $throughKey = $this->throughKey;
+            $modelTable = $this->parent->getTable();
+            $fields = $this->getQueryFields($alias);
 
             $this->query
                 ->field($fields)

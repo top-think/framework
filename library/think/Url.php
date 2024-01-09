@@ -39,7 +39,7 @@ class Url
 
     public function __construct(App $app, array $config = [])
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->config = $config;
 
         if (is_file($app->getRuntimePath() . 'route.php')) {
@@ -79,12 +79,12 @@ class Url
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
             $name = substr($url, 1, $pos - 1);
-            $url  = 'name' . substr($url, $pos + 1);
+            $url = 'name' . substr($url, $pos + 1);
         }
 
         if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
             $info = parse_url($url);
-            $url  = !empty($info['path']) ? $info['path'] : '';
+            $url = !empty($info['path']) ? $info['path'] : '';
 
             if (isset($info['fragment'])) {
                 // 解析锚点
@@ -112,7 +112,7 @@ class Url
         }
 
         if ($url) {
-            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkName = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
             $rule = $this->app['route']->getName($checkName, $checkDomain);
@@ -141,7 +141,7 @@ class Url
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
-            $alias      = $this->app['route']->getAlias();
+            $alias = $this->app['route']->getAlias();
             $matchAlias = false;
 
             if ($alias) {
@@ -150,7 +150,7 @@ class Url
                     $val = $item->getRoute();
 
                     if (0 === strpos($url, $val)) {
-                        $url        = $key . substr($url, strlen($val));
+                        $url = $key . substr($url, strlen($val));
                         $matchAlias = true;
                         break;
                     }
@@ -173,7 +173,7 @@ class Url
 
                     foreach ($binds as $key => $val) {
                         if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
-                            $url    = substr($url, strlen($val) + 1);
+                            $url = substr($url, strlen($val) + 1);
                             $domain = $key;
                             break;
                         }
@@ -190,7 +190,7 @@ class Url
 
         // 还原URL分隔符
         $depr = $this->config['pathinfo_depr'];
-        $url  = str_replace('/', $depr, $url);
+        $url = str_replace('/', $depr, $url);
 
         // URL后缀
         if ('/' == substr($url, -1) || '' == $url) {
@@ -254,21 +254,21 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module     = $request->module();
-            $module     = $module ? $module . '/' : '';
+            $module = $request->module();
+            $module = $module ? $module . '/' : '';
             $controller = $request->controller();
 
             if ('' == $url) {
                 $action = $request->action();
             } else {
-                $path       = explode('/', $url);
-                $action     = array_pop($path);
+                $path = explode('/', $url);
+                $action = array_pop($path);
                 $controller = empty($path) ? $controller : array_pop($path);
-                $module     = empty($path) ? $module : array_pop($path) . '/';
+                $module = empty($path) ? $module : array_pop($path) . '/';
             }
 
             if ($this->config['url_convert']) {
-                $action     = strtolower($action);
+                $action = strtolower($action);
                 $controller = Loader::parseName($controller);
             }
 
@@ -299,7 +299,7 @@ class Url
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
                             if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
-                                $url    = ltrim($url, $rule);
+                                $url = ltrim($url, $rule);
                                 $domain = $key;
 
                                 // 生成对应子域名
@@ -370,17 +370,17 @@ class Url
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url    = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode($vars[$key]), $url);
+                    $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? $vars[$key] : urlencode($vars[$key]), $url);
                     $keys[] = $key;
-                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $url = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } elseif (2 == $val) {
-                    $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $url = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?/-'), $domain, $suffix];
                 } else {
                     $result = null;
-                    $keys   = [];
+                    $keys = [];
                     break;
                 }
             }

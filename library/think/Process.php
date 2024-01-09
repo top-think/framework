@@ -24,11 +24,11 @@ class Process
     const ERR = 'err';
     const OUT = 'out';
 
-    const STATUS_READY      = 'ready';
-    const STATUS_STARTED    = 'started';
+    const STATUS_READY = 'ready';
+    const STATUS_STARTED = 'started';
     const STATUS_TERMINATED = 'terminated';
 
-    const STDIN  = 0;
+    const STDIN = 0;
     const STDOUT = 1;
     const STDERR = 2;
 
@@ -53,8 +53,8 @@ class Process
     private $enhanceWindowsCompatibility = true;
     private $enhanceSigchildCompatibility;
     private $process;
-    private $status                       = self::STATUS_READY;
-    private $incrementalOutputOffset      = 0;
+    private $status = self::STATUS_READY;
+    private $incrementalOutputOffset = 0;
     private $incrementalErrorOutputOffset = 0;
     private $tty;
     private $pty;
@@ -72,9 +72,9 @@ class Process
      * @var array
      */
     public static $exitCodes = [
-        0   => 'OK',
-        1   => 'General error',
-        2   => 'Misuse of shell builtins',
+        0 => 'OK',
+        1 => 'General error',
+        2 => 'Misuse of shell builtins',
         126 => 'Invoked command cannot execute',
         127 => 'Command not found',
         128 => 'Invalid exit argument',
@@ -131,7 +131,7 @@ class Process
         }
 
         $this->commandline = $commandline;
-        $this->cwd         = $cwd;
+        $this->cwd = $cwd;
 
         if (null === $this->cwd && (defined('ZEND_THREAD_SAFE') || '\\' === DIRECTORY_SEPARATOR)) {
             $this->cwd = getcwd();
@@ -142,13 +142,13 @@ class Process
 
         $this->input = $input;
         $this->setTimeout($timeout);
-        $this->useFileHandles               = '\\' === DIRECTORY_SEPARATOR;
-        $this->pty                          = false;
-        $this->enhanceWindowsCompatibility  = true;
+        $this->useFileHandles = '\\' === DIRECTORY_SEPARATOR;
+        $this->pty = false;
+        $this->enhanceWindowsCompatibility = true;
         $this->enhanceSigchildCompatibility = '\\' !== DIRECTORY_SEPARATOR && $this->isSigchildEnabled();
-        $this->options                      = array_replace([
+        $this->options = array_replace([
             'suppress_errors' => true,
-            'binary_pipes'    => true,
+            'binary_pipes' => true,
         ], $options);
     }
 
@@ -215,8 +215,8 @@ class Process
 
         $this->resetProcessData();
         $this->starttime = $this->lastOutputTime = microtime(true);
-        $this->callback  = $this->buildCallback($callback);
-        $descriptors     = $this->getDescriptors();
+        $this->callback = $this->buildCallback($callback);
+        $descriptors = $this->getDescriptors();
 
         $commandline = $this->commandline;
 
@@ -285,7 +285,7 @@ class Process
         do {
             $this->checkTimeout();
             $running = '\\' === DIRECTORY_SEPARATOR ? $this->isRunning() : $this->processPipes->areOpen();
-            $close   = '\\' !== DIRECTORY_SEPARATOR || !$running;
+            $close = '\\' !== DIRECTORY_SEPARATOR || !$running;
             $this->readPipes(true, $close);
         } while ($running);
 
@@ -425,7 +425,7 @@ class Process
      */
     public function clearOutput()
     {
-        $this->stdout                  = '';
+        $this->stdout = '';
         $this->incrementalOutputOffset = 0;
 
         return $this;
@@ -478,7 +478,7 @@ class Process
      */
     public function clearErrorOutput()
     {
-        $this->stderr                       = '';
+        $this->stderr = '';
         $this->incrementalErrorOutputOffset = 0;
 
         return $this;
@@ -1050,7 +1050,7 @@ class Process
      */
     protected function buildCallback($callback)
 {
-        $out      = self::OUT;
+        $out = self::OUT;
         $callback = function ($type, $data) use ($callback, $out) {
             if ($out == $type) {
                 $this->addOutput($data);
@@ -1172,7 +1172,7 @@ class Process
         }
 
         $this->exitcode = -1 !== $exitcode ? $exitcode : (null !== $this->exitcode ? $this->exitcode : -1);
-        $this->status   = self::STATUS_TERMINATED;
+        $this->status = self::STATUS_TERMINATED;
 
         if (-1 === $this->exitcode && null !== $this->fallbackExitcode) {
             $this->exitcode = $this->fallbackExitcode;
@@ -1190,17 +1190,17 @@ class Process
      */
     private function resetProcessData()
 {
-        $this->starttime                    = null;
-        $this->callback                     = null;
-        $this->exitcode                     = null;
-        $this->fallbackExitcode             = null;
-        $this->processInformation           = null;
-        $this->stdout                       = null;
-        $this->stderr                       = null;
-        $this->process                      = null;
-        $this->latestSignal                 = null;
-        $this->status                       = self::STATUS_READY;
-        $this->incrementalOutputOffset      = 0;
+        $this->starttime = null;
+        $this->callback = null;
+        $this->exitcode = null;
+        $this->fallbackExitcode = null;
+        $this->processInformation = null;
+        $this->stdout = null;
+        $this->stderr = null;
+        $this->process = null;
+        $this->latestSignal = null;
+        $this->status = self::STATUS_READY;
+        $this->incrementalOutputOffset = 0;
         $this->incrementalErrorOutputOffset = 0;
     }
 

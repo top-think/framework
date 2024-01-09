@@ -37,12 +37,12 @@ class MorphOne extends Relation
      */
     public function __construct(Model $parent, $model, $morphKey, $morphType, $type)
     {
-        $this->parent    = $parent;
-        $this->model     = $model;
-        $this->type      = $type;
-        $this->morphKey  = $morphKey;
+        $this->parent = $parent;
+        $this->model = $model;
+        $this->type = $type;
+        $this->morphKey = $morphKey;
         $this->morphType = $morphType;
-        $this->query     = (new $model)->db();
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -107,9 +107,9 @@ class MorphOne extends Relation
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $morphType = $this->morphType;
-        $morphKey  = $this->morphKey;
-        $type      = $this->type;
-        $range     = [];
+        $morphKey = $this->morphKey;
+        $type = $this->type;
+        $range = [];
 
         foreach ($resultSet as $result) {
             $pk = $result->getPk();
@@ -157,7 +157,7 @@ class MorphOne extends Relation
         $pk = $result->getPk();
 
         if (isset($result->$pk)) {
-            $pk   = $result->$pk;
+            $pk = $result->$pk;
             $data = $this->eagerlyMorphToOne([
                 [$this->morphKey, '=', $pk],
                 [$this->morphType, '=', $this->type],
@@ -191,7 +191,7 @@ class MorphOne extends Relation
             $closure($this->query);
         }
 
-        $list     = $this->query->where($where)->with($subRelation)->select();
+        $list = $this->query->where($where)->with($subRelation)->select();
         $morphKey = $this->morphKey;
 
         // 组装模型数据
@@ -230,7 +230,7 @@ class MorphOne extends Relation
         // 保存关联表数据
         $pk = $this->parent->getPk();
 
-        $data[$this->morphKey]  = $this->parent->$pk;
+        $data[$this->morphKey] = $this->parent->$pk;
         $data[$this->morphType] = $this->type;
 
         return new $this->model($data);

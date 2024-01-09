@@ -328,7 +328,7 @@ trait Attribute
 
             if (method_exists($this, $method)) {
                 $origin = $this->data;
-                $value  = $this->$method($value, array_merge($this->data, $data));
+                $value = $this->$method($value, array_merge($this->data, $data));
 
                 $this->set[$name] = true;
                 if (is_null($value) && $origin !== $this->data) {
@@ -452,7 +452,7 @@ trait Attribute
                 // no break
             case 'json':
                 $option = !empty($param) ? (int) $param : JSON_UNESCAPED_UNICODE;
-                $value  = json_encode($value, $option);
+                $value = json_encode($value, $option);
                 break;
             case 'serialize':
                 $value = serialize($value);
@@ -474,28 +474,28 @@ trait Attribute
     {
         try {
             $notFound = false;
-            $value    = $this->getData($name);
+            $value = $this->getData($name);
         } catch (InvalidArgumentException $e) {
             $notFound = true;
-            $value    = null;
+            $value = null;
         }
 
         // 检测属性获取器
         $fieldName = Loader::parseName($name);
-        $method    = 'get' . Loader::parseName($name, 1) . 'Attr';
+        $method = 'get' . Loader::parseName($name, 1) . 'Attr';
 
         if (isset($this->withAttr[$fieldName])) {
             if ($notFound && $relation = $this->isRelationAttr($name)) {
                 $modelRelation = $this->$relation();
-                $value         = $this->getRelationData($modelRelation);
+                $value = $this->getRelationData($modelRelation);
             }
 
             $closure = $this->withAttr[$fieldName];
-            $value   = $closure($value, $this->data);
+            $value = $closure($value, $this->data);
         } elseif (method_exists($this, $method)) {
             if ($notFound && $relation = $this->isRelationAttr($name)) {
                 $modelRelation = $this->$relation();
-                $value         = $this->getRelationData($modelRelation);
+                $value = $this->getRelationData($modelRelation);
             }
 
             $value = $this->$method($value, $this->data);
@@ -596,13 +596,13 @@ trait Attribute
             case 'timestamp':
                 if (!is_null($value)) {
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($format, $value, true);
+                    $value = $this->formatDateTime($format, $value, true);
                 }
                 break;
             case 'datetime':
                 if (!is_null($value)) {
                     $format = !empty($param) ? $param : $this->dateFormat;
-                    $value  = $this->formatDateTime($format, $value);
+                    $value = $this->formatDateTime($format, $value);
                 }
                 break;
             case 'json':

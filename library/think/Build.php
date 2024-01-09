@@ -27,7 +27,7 @@ class Build
 
     public function __construct(App $app)
     {
-        $this->app      = $app;
+        $this->app = $app;
         $this->basePath = $this->app->getAppPath();
     }
 
@@ -129,7 +129,7 @@ class Build
             // 创建默认的模块目录和文件
             $list = [
                 '__file__' => ['common.php'],
-                '__dir__'  => ['controller', 'model', 'view', 'config'],
+                '__dir__' => ['controller', 'model', 'view', 'config'],
             ];
         }
 
@@ -151,10 +151,10 @@ class Build
             } else {
                 // 生成相关MVC文件
                 foreach ($file as $val) {
-                    $val      = trim($val);
+                    $val = trim($val);
                     $filename = $modulePath . $path . DIRECTORY_SEPARATOR . $val . ($suffix ? ucfirst($path) : '') . '.php';
-                    $space    = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
-                    $class    = $val . ($suffix ? ucfirst($path) : '');
+                    $space = $namespace . '\\' . ($module ? $module . '\\' : '') . $path;
+                    $class = $val . ($suffix ? ucfirst($path) : '');
                     switch ($path) {
                         case 'controller': // 控制器
                             $content = "<?php\nnamespace {$space};\n\nclass {$class}\n{\n\n}";
@@ -190,7 +190,7 @@ class Build
     public function buildRoute($suffix = false, $layer = '')
     {
         $namespace = $this->app->getNameSpace();
-        $content   = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
+        $content = '<?php ' . PHP_EOL . '//根据 Annotation 自动生成的路由规则';
 
         if (!$layer) {
             $layer = $this->app->config('app.url_controller_layer');
@@ -232,7 +232,7 @@ class Build
      */
     protected function buildDirRoute($path, $namespace, $module, $suffix, $layer)
     {
-        $content     = '';
+        $content = '';
         $controllers = glob($path . '*.php');
 
         foreach ($controllers as $controller) {
@@ -242,9 +242,9 @@ class Build
 
             if (strpos($layer, '\\')) {
                 // 多级控制器
-                $level      = str_replace(DIRECTORY_SEPARATOR, '.', substr($layer, 11));
+                $level = str_replace(DIRECTORY_SEPARATOR, '.', substr($layer, 11));
                 $controller = $level . '.' . $controller;
-                $length     = strlen(strstr($layer, '\\', true));
+                $length = strlen(strstr($layer, '\\', true));
             } else {
                 $length = strlen($layer);
             }
@@ -280,12 +280,12 @@ class Build
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
-            $route   = ($module ? $module . '/' : '') . $controller;
+            $route = ($module ? $module . '/' : '') . $controller;
             $comment = preg_replace('/route\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::resource(\1,\'' . $route . '\')', $comment);
             $content .= PHP_EOL . $comment;
         } elseif (false !== strpos($comment, '@alias(')) {
             $comment = $this->parseRouteComment($comment, '@alias(');
-            $route   = ($module ? $module . '/' : '') . $controller;
+            $route = ($module ? $module . '/' : '') . $controller;
             $comment = preg_replace('/alias\(\s?([\'\"][\-\_\/\w]+[\'\"])\s?\)/is', 'Route::alias(\1,\'' . $route . '\')', $comment);
             $content .= PHP_EOL . $comment;
         }
@@ -316,7 +316,7 @@ class Build
         $comment = array_map(function ($item) {return trim(trim($item), ' \t*');}, $comment);
 
         if (count($comment) > 1) {
-            $key     = array_search('', $comment);
+            $key = array_search('', $comment);
             $comment = array_slice($comment, 0, false === $key ? 1 : $key);
         }
 
@@ -344,13 +344,13 @@ class Build
 
         if (false !== strpos($comment, '@route(')) {
             $comment = $this->parseRouteComment($comment);
-            $action  = $reflectMethod->getName();
+            $action = $reflectMethod->getName();
 
             if ($suffix = $this->app->config('app.action_suffix')) {
                 $action = substr($action, 0, -strlen($suffix));
             }
 
-            $route   = ($module ? $module . '/' : '') . $controller . '/' . $action;
+            $route = ($module ? $module . '/' : '') . $controller . '/' . $action;
             $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\,?\s?[\'\"]?(\w+?)[\'\"]?\s?\)/is', 'Route::\2(\1,\'' . $route . '\')', $comment);
             $comment = preg_replace('/route\s?\(\s?([\'\"][\-\_\/\:\<\>\?\$\[\]\w]+[\'\"])\s?\)/is', 'Route::rule(\1,\'' . $route . '\')', $comment);
 

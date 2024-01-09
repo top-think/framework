@@ -121,7 +121,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             return new static(array_diff($this->items, $this->convertToArray($items)));
         }
 
-        $diff       = [];
+        $diff = [];
         $dictionary = $this->dictionary($items, $indexKey);
 
         if (is_string($indexKey)) {
@@ -149,7 +149,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
             return new static(array_diff($this->items, $this->convertToArray($items)));
         }
 
-        $intersect  = [];
+        $intersect = [];
         $dictionary = $this->dictionary($items, $indexKey);
 
         if (is_string($indexKey)) {
@@ -340,7 +340,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
     public function where($field, $operator, $value = null)
     {
         if (is_null($value)) {
-            $value    = $operator;
+            $value = $operator;
             $operator = '=';
         }
 

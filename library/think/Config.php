@@ -51,15 +51,15 @@ class Config implements \ArrayAccess
      */
     public function __construct($path = '', $ext = '.php')
     {
-        $this->path   = $path;
-        $this->ext    = $ext;
+        $this->path = $path;
+        $this->ext = $ext;
         $this->yaconf = class_exists('Yaconf');
     }
 
     public static function __make(App $app)
     {
         $path = $app->getConfigPath();
-        $ext  = $app->getConfigExt();
+        $ext = $app->getConfigExt();
         return new static($path, $ext);
     }
 
@@ -246,9 +246,9 @@ class Config implements \ArrayAccess
             }
         }
 
-        $name    = explode('.', $name);
+        $name = explode('.', $name);
         $name[0] = strtolower($name[0]);
-        $config  = $this->config;
+        $config = $this->config;
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {

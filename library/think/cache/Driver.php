@@ -248,11 +248,11 @@ abstract class Driver
     protected function setTagItem($name)
     {
         if ($this->tag) {
-            $key       = $this->getTagkey($this->tag);
+            $key = $this->getTagkey($this->tag);
             $this->tag = null;
 
             if ($this->has($key)) {
-                $value   = explode(',', $this->get($key));
+                $value = explode(',', $this->get($key));
                 $value[] = $name;
 
                 if (count($value) > 1000) {
@@ -276,7 +276,7 @@ abstract class Driver
      */
     protected function getTagItem($tag)
     {
-        $key   = $this->getTagkey($tag);
+        $key = $this->getTagkey($tag);
         $value = $this->get($key);
 
         if ($value) {

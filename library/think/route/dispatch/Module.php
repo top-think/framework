@@ -35,8 +35,8 @@ class Module extends Dispatch
 
         if ($this->rule->getConfig('app_multi_module')) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $this->rule->getConfig('default_module')));
-            $bind      = $this->rule->getRouter()->getBind();
+            $module = strip_tags(strtolower($result[0] ?: $this->rule->getConfig('default_module')));
+            $bind = $this->rule->getRouter()->getBind();
             $available = false;
 
             if ($bind && preg_match('/^[a-z]/is', $bind)) {
@@ -49,7 +49,7 @@ class Module extends Dispatch
             } elseif (!in_array($module, $this->rule->getConfig('deny_module_list')) && is_dir($this->app->getAppPath() . $module)) {
                 $available = true;
             } elseif ($this->rule->getConfig('empty_module')) {
-                $module    = $this->rule->getConfig('empty_module');
+                $module = $this->rule->getConfig('empty_module');
                 $available = true;
             }
 
@@ -107,9 +107,9 @@ class Module extends Dispatch
                 $call = [$instance, $action];
 
                 // 严格获取当前操作方法名
-                $reflect    = new ReflectionMethod($instance, $action);
+                $reflect = new ReflectionMethod($instance, $action);
                 $methodName = $reflect->getName();
-                $suffix     = $this->rule->getConfig('action_suffix');
+                $suffix = $this->rule->getConfig('action_suffix');
                 $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
                 $this->request->setAction($actionName);
 
@@ -120,8 +120,8 @@ class Module extends Dispatch
                 $vars = array_merge($vars, $this->param);
             } elseif (is_callable([$instance, '_empty'])) {
                 // 空操作
-                $call    = [$instance, '_empty'];
-                $vars    = [$this->actionName];
+                $call = [$instance, '_empty'];
+                $vars = [$this->actionName];
                 $reflect = new ReflectionMethod($instance, '_empty');
             } else {
                 // 操作不存在

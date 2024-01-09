@@ -20,12 +20,12 @@ class File
 {
     protected $config = [
         'time_format' => 'c',
-        'single'      => false,
-        'file_size'   => 2097152,
-        'path'        => '',
+        'single' => false,
+        'file_size' => 2097152,
+        'path' => '',
         'apart_level' => [],
-        'max_files'   => 0,
-        'json'        => false,
+        'max_files' => 0,
+        'json' => false,
     ];
 
     protected $app;
@@ -109,7 +109,7 @@ class File
         foreach ($message as $type => $msg) {
             $msg = is_array($msg) ? implode(PHP_EOL, $msg) : $msg;
             if (PHP_SAPI == 'cli') {
-                $info['msg']  = $msg;
+                $info['msg'] = $msg;
                 $info['type'] = $type;
             } else {
                 $info[$type] = $msg;
@@ -234,10 +234,10 @@ class File
     protected function parseLog($info)
     {
         $requestInfo = [
-            'ip'     => $this->app['request']->ip(),
+            'ip' => $this->app['request']->ip(),
             'method' => $this->app['request']->method(),
-            'host'   => $this->app['request']->host(),
-            'uri'    => $this->app['request']->url(),
+            'host' => $this->app['request']->host(),
+            'uri' => $this->app['request']->url(),
         ];
 
         if ($this->config['json']) {
@@ -258,27 +258,27 @@ class File
             if ($this->config['json']) {
                 // 获取基本信息
                 $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+                $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
                 $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
 
                 $info = [
                     'runtime' => number_format($runtime, 6) . 's',
-                    'reqs'    => $reqs . 'req/s',
-                    'memory'  => $memory_use . 'kb',
-                    'file'    => count(get_included_files()),
+                    'reqs' => $reqs . 'req/s',
+                    'memory' => $memory_use . 'kb',
+                    'file' => count(get_included_files()),
                 ] + $info;
 
             } elseif (!$apart) {
                 // 增加额外的调试信息
                 $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
-                $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+                $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
                 $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
 
-                $time_str   = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
+                $time_str = '[运行时间：' . number_format($runtime, 6) . 's] [吞吐率：' . $reqs . 'req/s]';
                 $memory_str = ' [内存消耗：' . $memory_use . 'kb]';
-                $file_load  = ' [文件加载：' . count(get_included_files()) . ']';
+                $file_load = ' [文件加载：' . count(get_included_files()) . ']';
 
                 array_unshift($info, $time_str . $memory_str . $file_load);
             }

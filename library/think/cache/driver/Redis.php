@@ -23,15 +23,15 @@ use think\cache\Driver;
 class Redis extends Driver
 {
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 6379,
-        'password'   => '',
-        'select'     => 0,
-        'timeout'    => 0,
-        'expire'     => 0,
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'password' => '',
+        'select' => 0,
+        'timeout' => 0,
+        'expire' => 0,
         'persistent' => false,
-        'prefix'     => '',
-        'serialize'  => true,
+        'prefix' => '',
+        'serialize' => true,
     ];
 
     /**
@@ -133,7 +133,7 @@ class Redis extends Driver
             $first = true;
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
 
         $value = $this->serialize($value);

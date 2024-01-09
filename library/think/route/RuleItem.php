@@ -33,12 +33,12 @@ class RuleItem extends Rule
      */
     public function __construct(Route $router, RuleGroup $parent, $name, $rule, $route, $method = '*', $option = [], $pattern = [])
     {
-        $this->router  = $router;
-        $this->parent  = $parent;
-        $this->name    = $name;
-        $this->route   = $route;
-        $this->method  = $method;
-        $this->option  = $option;
+        $this->router = $router;
+        $this->parent = $parent;
+        $this->name = $name;
+        $this->route = $route;
+        $this->method = $method;
+        $this->option = $option;
         $this->pattern = $pattern;
 
         $this->setRule($rule);
@@ -211,7 +211,7 @@ class RuleItem extends Rule
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->rule) {
             $this->rule = rtrim($this->rule, '/');
-            $url        = rtrim($url, '|');
+            $url = rtrim($url, '|');
         }
 
         if (isset($option['ext'])) {
@@ -237,15 +237,15 @@ class RuleItem extends Rule
         }
 
         $pattern = array_merge($this->parent->getPattern(), $this->pattern);
-        $depr    = $this->router->config('pathinfo_depr');
+        $depr = $this->router->config('pathinfo_depr');
 
         // 检查完整规则定义
         if (isset($pattern['__url__']) && !preg_match(0 === strpos($pattern['__url__'], '/') ? $pattern['__url__'] : '/^' . $pattern['__url__'] . '/', str_replace('|', $depr, $url))) {
             return false;
         }
 
-        $var  = [];
-        $url  = $depr . str_replace('|', $depr, $url);
+        $var = [];
+        $url = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 
         if ($depr == $rule && $depr != $url) {

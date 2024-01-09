@@ -60,9 +60,9 @@ class Controller
      */
     public function __construct(App $app = null)
     {
-        $this->app     = $app ?: Container::get('app');
+        $this->app = $app ?: Container::get('app');
         $this->request = $this->app['request'];
-        $this->view    = $this->app['view'];
+        $this->view = $this->app['view'];
 
         // 控制器初始化
         $this->initialize();
