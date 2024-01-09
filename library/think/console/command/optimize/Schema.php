@@ -46,7 +46,7 @@ class Schema extends Command
             // 读取模型
             $path = APP_PATH . $module . DS . 'model';
             $list = is_dir($path) ? scandir($path) : [];
-            $app  = App::$namespace;
+            $app = App::$namespace;
             foreach ($list as $file) {
                 if (0 === strpos($file, '.')) {
                     continue;
@@ -66,7 +66,7 @@ class Schema extends Command
             $dbName = $input->getOption('db');
             $tables = Db::connect($config)->getTables($dbName);
         } elseif (!\think\Config::get('app_multi_module')) {
-            $app  = App::$namespace;
+            $app = App::$namespace;
             $path = APP_PATH . 'model';
             $list = is_dir($path) ? scandir($path) : [];
             foreach ($list as $file) {
@@ -92,10 +92,10 @@ class Schema extends Command
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
-            $table   = $class::getTable();
-            $dbName  = $class::getConfig('database');
+            $table = $class::getTable();
+            $dbName = $class::getConfig('database');
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $class::getConnection()->getFields($table);
+            $info = $class::getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
             file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . '.' . $table . EXT, $content);
         }
@@ -110,7 +110,7 @@ class Schema extends Command
         }
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = Db::connect($config)->getFields($db . $table);
+            $info = Db::connect($config)->getFields($db . $table);
             $content .= var_export($info, true) . ';';
             file_put_contents(RUNTIME_PATH . 'schema' . DS . $dbName . $table . EXT, $content);
         }

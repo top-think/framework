@@ -38,7 +38,7 @@ class Debug
         self::$info[$name] = is_float($value) ? $value : microtime(true);
 
         if ('time' != $value) {
-            self::$mem['mem'][$name]  = is_float($value) ? $value : memory_get_usage();
+            self::$mem['mem'][$name] = is_float($value) ? $value : memory_get_usage();
             self::$mem['peak'][$name] = memory_get_peak_usage();
         }
     }
@@ -96,8 +96,8 @@ class Debug
         }
 
         $size = self::$mem['mem'][$end] - self::$mem['mem'][$start];
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -116,8 +116,8 @@ class Debug
     public static function getUseMem($dec = 2)
     {
         $size = memory_get_usage() - THINK_START_MEM;
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -142,8 +142,8 @@ class Debug
         }
 
         $size = self::$mem['peak'][$end] - self::$mem['peak'][$start];
-        $a    = ['B', 'KB', 'MB', 'GB', 'TB'];
-        $pos  = 0;
+        $a = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $pos = 0;
 
         while ($size >= 1024) {
             $size /= 1024;
@@ -221,8 +221,8 @@ class Debug
     public static function inject(Response $response, &$content)
     {
         $config = Config::get('trace');
-        $type   = isset($config['type']) ? $config['type'] : 'Html';
-        $class  = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
+        $type = isset($config['type']) ? $config['type'] : 'Html';
+        $class = false !== strpos($type, '\\') ? $type : '\\think\\debug\\' . ucwords($type);
 
         unset($config['type']);
 

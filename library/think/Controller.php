@@ -52,7 +52,7 @@ class Controller
      */
     public function __construct(Request $request = null)
     {
-        $this->view    = View::instance(Config::get('template'), Config::get('view_replace_str'));
+        $this->view = View::instance(Config::get('template'), Config::get('view_replace_str'));
         $this->request = is_null($request) ? Request::instance() : $request;
 
         // 控制器初始化

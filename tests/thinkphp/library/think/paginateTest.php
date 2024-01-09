@@ -31,7 +31,7 @@ class paginateTest extends \PHPUnit_Framework_TestCase
 
     public function testPaginatorRender()
     {
-        $p      = Bootstrap::make($array = ['item3', 'item4'], 2, 2, 100);
+        $p = Bootstrap::make($array = ['item3', 'item4'], 2, 2, 100);
         $render = '<ul class="pagination"><li><a href="/?page=1">&laquo;</a></li> <li><a href="/?page=1">1</a></li><li class="active"><span>2</span></li><li><a href="/?page=3">3</a></li><li><a href="/?page=4">4</a></li><li><a href="/?page=5">5</a></li><li><a href="/?page=6">6</a></li><li><a href="/?page=7">7</a></li><li><a href="/?page=8">8</a></li><li class="disabled"><span>...</span></li><li><a href="/?page=49">49</a></li><li><a href="/?page=50">50</a></li> <li><a href="/?page=3">&raquo;</a></li></ul>';
 
         $this->assertEquals($render, $p->render());

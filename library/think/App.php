@@ -179,7 +179,7 @@ class App
             Loader::addNamespace(self::$namespace, APP_PATH);
 
             // 初始化应用
-            $config       = self::init();
+            $config = self::init();
             self::$suffix = $config['class_suffix'];
 
             // 应用调试模式
@@ -254,7 +254,7 @@ class App
 
             // 读取扩展配置文件
             if (is_dir(CONF_PATH . $module . 'extra')) {
-                $dir   = CONF_PATH . $module . 'extra';
+                $dir = CONF_PATH . $module . 'extra';
                 $files = scandir($dir);
                 foreach ($files as $file) {
                     if ('.' . pathinfo($file, PATHINFO_EXTENSION) === CONF_EXT) {
@@ -311,7 +311,7 @@ class App
     public static function invokeFunction($function, $vars = [])
     {
         $reflect = new \ReflectionFunction($function);
-        $args    = self::bindParams($reflect, $vars);
+        $args = self::bindParams($reflect, $vars);
 
         // 记录执行信息
         self::$debug && Log::record('[ RUN ] ' . $reflect->__toString(), 'info');
@@ -329,7 +329,7 @@ class App
     public static function invokeMethod($method, $vars = [])
     {
         if (is_array($method)) {
-            $class   = is_object($method[0]) ? $method[0] : self::invokeClass($method[0]);
+            $class = is_object($method[0]) ? $method[0] : self::invokeClass($method[0]);
             $reflect = new \ReflectionMethod($class, $method[1]);
         } else {
             // 静态方法
@@ -352,9 +352,9 @@ class App
      */
     public static function invokeClass($class, $vars = [])
     {
-        $reflect     = new \ReflectionClass($class);
+        $reflect = new \ReflectionClass($class);
         $constructor = $reflect->getConstructor();
-        $args        = $constructor ? self::bindParams($constructor, $vars) : [];
+        $args = $constructor ? self::bindParams($constructor, $vars) : [];
 
         return $reflect->newInstanceArgs($args);
     }
@@ -399,12 +399,12 @@ class App
      */
     private static function getParamValue($param, &$vars, $type)
     {
-        $name  = $param->getName();
+        $name = $param->getName();
         $class = $param->getClass();
 
         if ($class) {
             $className = $class->getName();
-            $bind      = Request::instance()->$name;
+            $bind = Request::instance()->$name;
 
             if ($bind instanceof $className) {
                 $result = $bind;
@@ -501,8 +501,8 @@ class App
 
         if ($config['app_multi_module']) {
             // 多模块部署
-            $module    = strip_tags(strtolower($result[0] ?: $config['default_module']));
-            $bind      = Route::getBind('module');
+            $module = strip_tags(strtolower($result[0] ?: $config['default_module']));
+            $bind = Route::getBind('module');
             $available = false;
 
             if ($bind) {
@@ -510,7 +510,7 @@ class App
                 list($bindModule) = explode('/', $bind);
 
                 if (empty($result[0])) {
-                    $module    = $bindModule;
+                    $module = $bindModule;
                     $available = true;
                 } elseif ($module == $bindModule) {
                     $available = true;
@@ -591,9 +591,9 @@ class App
             // 执行操作方法
             $call = [$instance, $action];
             // 严格获取当前操作方法名
-            $reflect    = new \ReflectionMethod($instance, $action);
+            $reflect = new \ReflectionMethod($instance, $action);
             $methodName = $reflect->getName();
-            $suffix     = $config['action_suffix'];
+            $suffix = $config['action_suffix'];
             $actionName = $suffix ? substr($methodName, 0, -strlen($suffix)) : $methodName;
             $request->action($actionName);
 
@@ -621,8 +621,8 @@ class App
      */
     public static function routeCheck($request, array $config)
     {
-        $path   = $request->path();
-        $depr   = $config['pathinfo_depr'];
+        $path = $request->path();
+        $depr = $config['pathinfo_depr'];
         $result = false;
 
         // 路由检测
@@ -646,7 +646,7 @@ class App
 
             // 路由检测（根据路由定义返回不同的URL调度）
             $result = Route::check($request, $path, $depr, $config['url_domain_deploy']);
-            $must   = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
+            $must = !is_null(self::$routeMust) ? self::$routeMust : $config['url_route_must'];
 
             if ($must && false === $result) {
                 // 路由无效
@@ -672,6 +672,6 @@ class App
     public static function route($route, $must = false)
     {
         self::$routeCheck = $route;
-        self::$routeMust  = $must;
+        self::$routeMust = $must;
     }
 }

@@ -105,7 +105,7 @@ class Loader
 
         // 查找 PSR-4
         $logicalPathPsr4 = strtr($class, '\\', DS) . EXT;
-        $first           = $class[0];
+        $first = $class[0];
 
         if (isset(self::$prefixLengthsPsr4[$first])) {
             foreach (self::$prefixLengthsPsr4[$first] as $prefix => $length) {
@@ -246,7 +246,7 @@ class Loader
             }
 
             self::$prefixLengthsPsr4[$prefix[0]][$prefix] = $length;
-            self::$prefixDirsPsr4[$prefix]                = (array) $paths;
+            self::$prefixDirsPsr4[$prefix] = (array) $paths;
 
         } else {
             self::$prefixDirsPsr4[$prefix] = $prepend ?
@@ -304,9 +304,9 @@ class Loader
 
         // 注册命名空间定义
         self::addNamespace([
-            'think'    => LIB_PATH . 'think' . DS,
+            'think' => LIB_PATH . 'think' . DS,
             'behavior' => LIB_PATH . 'behavior' . DS,
-            'traits'   => LIB_PATH . 'traits' . DS,
+            'traits' => LIB_PATH . 'traits' . DS,
         ]);
 
         // 加载类库映射文件
@@ -376,8 +376,8 @@ class Loader
     public static function import($class, $baseUrl = '', $ext = EXT)
     {
         static $_file = [];
-        $key          = $class . $baseUrl;
-        $class        = str_replace(['.', '#'], [DS, '.'], $class);
+        $key = $class . $baseUrl;
+        $class = str_replace(['.', '#'], [DS, '.'], $class);
 
         if (isset($_file[$key])) {
             return true;
@@ -542,7 +542,7 @@ class Loader
     {
         if (false !== strpos($name, '\\')) {
             $module = Request::instance()->module();
-            $class  = $name;
+            $class = $name;
         } else {
             if (strpos($name, '/')) {
                 list($module, $name) = explode('/', $name, 2);
@@ -579,10 +579,10 @@ class Loader
      */
     public static function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
-        $info   = pathinfo($url);
+        $info = pathinfo($url);
         $action = $info['basename'];
         $module = '.' != $info['dirname'] ? $info['dirname'] : Request::instance()->controller();
-        $class  = self::controller($module, $layer, $appendSuffix);
+        $class = self::controller($module, $layer, $appendSuffix);
 
         if ($class) {
             if (is_scalar($vars)) {
@@ -636,7 +636,7 @@ class Loader
         $array = explode('\\', str_replace(['/', '.'], '\\', $name));
         $class = self::parseName(array_pop($array), 1);
         $class = $class . (App::$suffix || $appendSuffix ? ucfirst($layer) : '');
-        $path  = $array ? implode('\\', $array) . '\\' : '';
+        $path = $array ? implode('\\', $array) . '\\' : '';
 
         return App::$namespace . '\\' .
             ($module ? $module . '\\' : '') .

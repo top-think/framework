@@ -74,23 +74,23 @@ class sessionTest extends \PHPUnit_Framework_TestCase
         Session::prefix(null);
         $config = [
             // cookie 名称前缀
-            'prefix'         => 'think_',
+            'prefix' => 'think_',
             // cookie 保存时间
-            'expire'         => 60,
+            'expire' => 60,
             // cookie 保存路径
-            'path'           => '/path/to/test/session/',
+            'path' => '/path/to/test/session/',
             // cookie 有效域名
-            'domain'         => '.thinkphp.cn',
+            'domain' => '.thinkphp.cn',
             'var_session_id' => 'sessionidtest',
-            'id'             => 'sess_8fhgkjuakhatbeg2fa14lo84q1',
-            'name'           => 'session_name',
-            'use_trans_sid'  => '1',
-            'use_cookies'    => '1',
-            'cache_limiter'  => '60',
-            'cache_expire'   => '60',
-            'type'           => '', // memcache
-            'namespace'      => '\\think\\session\\driver\\', // ?
-            'auto_start'     => '1',
+            'id' => 'sess_8fhgkjuakhatbeg2fa14lo84q1',
+            'name' => 'session_name',
+            'use_trans_sid' => '1',
+            'use_cookies' => '1',
+            'cache_limiter' => '60',
+            'cache_expire' => '60',
+            'type' => '', // memcache
+            'namespace' => '\\think\\session\\driver\\', // ?
+            'auto_start' => '1',
         ];
 
         $_REQUEST[$config['var_session_id']] = $config['id'];
@@ -142,22 +142,22 @@ class sessionTest extends \PHPUnit_Framework_TestCase
     {
         $config = [
             // cookie 名称前缀
-            'prefix'         => 'think_',
+            'prefix' => 'think_',
             // cookie 保存时间
-            'expire'         => 0,
+            'expire' => 0,
             // cookie 保存路径
-            'path'           => '/path/to/test/session/',
+            'path' => '/path/to/test/session/',
             // cookie 有效域名
-            'domain'         => '.thinkphp.cn',
+            'domain' => '.thinkphp.cn',
             'var_session_id' => 'sessionidtest',
-            'id'             => 'sess_8fhgkjuakhatbeg2fa14lo84q1',
-            'name'           => 'session_name',
-            'use_trans_sid'  => '1',
-            'use_cookies'    => '1',
-            'cache_limiter'  => '60',
-            'cache_expire'   => '60',
-            'type'           => '\\think\\session\\driver\\Memcache', //
-            'auto_start'     => '1',
+            'id' => 'sess_8fhgkjuakhatbeg2fa14lo84q1',
+            'name' => 'session_name',
+            'use_trans_sid' => '1',
+            'use_cookies' => '1',
+            'cache_limiter' => '60',
+            'cache_expire' => '60',
+            'type' => '\\think\\session\\driver\\Memcache', //
+            'auto_start' => '1',
         ];
 
         // 测试session驱动是否存在

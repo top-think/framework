@@ -12,22 +12,22 @@
 
 return [
     'url_route_on' => true,
-    'log'          => [
+    'log' => [
         'type' => 'file', // 支持 socket trace file
     ],
-    'view'         => [
+    'view' => [
         // 模板引擎
-        'engine_type'   => 'think',
+        'engine_type' => 'think',
         // 模板引擎配置
         'engine_config' => [
             // 模板路径
-            'view_path'   => '',
+            'view_path' => '',
             // 模板后缀
             'view_suffix' => '.html',
             // 模板文件名分隔符
-            'view_depr'   => DS,
+            'view_depr' => DS,
         ],
         // 输出字符串替换
-        'parse_str'     => [],
+        'parse_str' => [],
     ],
 ];

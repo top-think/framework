@@ -20,10 +20,10 @@ use think\cache\Driver;
 class File extends Driver
 {
     protected $options = [
-        'expire'        => 0,
-        'cache_subdir'  => true,
-        'prefix'        => '',
-        'path'          => CACHE_PATH,
+        'expire' => 0,
+        'cache_subdir' => true,
+        'prefix' => '',
+        'path' => CACHE_PATH,
         'data_compress' => false,
     ];
 
@@ -78,7 +78,7 @@ class File extends Driver
             $name = $this->options['prefix'] . DS . $name;
         }
         $filename = $this->options['path'] . $name . '.php';
-        $dir      = dirname($filename);
+        $dir = dirname($filename);
 
         if ($auto && !is_dir($dir)) {
             mkdir($dir, 0755, true);
@@ -110,7 +110,7 @@ class File extends Driver
         if (!is_file($filename)) {
             return $default;
         }
-        $content      = file_get_contents($filename);
+        $content = file_get_contents($filename);
         $this->expire = null;
         if (false !== $content) {
             $expire = (int) substr($content, 8, 12);
@@ -118,7 +118,7 @@ class File extends Driver
                 return $default;
             }
             $this->expire = $expire;
-            $content      = substr($content, 32);
+            $content = substr($content, 32);
             if ($this->options['data_compress'] && function_exists('gzcompress')) {
                 //启用数据压缩
                 $content = gzuncompress($content);
@@ -155,7 +155,7 @@ class File extends Driver
             //数据压缩
             $data = gzcompress($data, 3);
         }
-        $data   = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
+        $data = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
         $result = file_put_contents($filename, $data);
         if ($result) {
             isset($first) && $this->setTagItem($filename);
@@ -176,10 +176,10 @@ class File extends Driver
     public function inc($name, $step = 1)
     {
         if ($this->has($name)) {
-            $value  = $this->get($name) + $step;
+            $value = $this->get($name) + $step;
             $expire = $this->expire;
         } else {
-            $value  = $step;
+            $value = $step;
             $expire = 0;
         }
 
@@ -196,10 +196,10 @@ class File extends Driver
     public function dec($name, $step = 1)
     {
         if ($this->has($name)) {
-            $value  = $this->get($name) - $step;
+            $value = $this->get($name) - $step;
             $expire = $this->expire;
         } else {
-            $value  = -$step;
+            $value = -$step;
             $expire = 0;
         }
 

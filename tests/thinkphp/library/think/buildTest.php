@@ -24,17 +24,17 @@ class buildTest extends \PHPUnit_Framework_TestCase
     {
         $build = [
             // Test run directory
-            '__dir__'  => ['runtime/cache', 'runtime/log', 'runtime/temp', 'runtime/template'],
+            '__dir__' => ['runtime/cache', 'runtime/log', 'runtime/temp', 'runtime/template'],
             '__file__' => ['common.php'],
 
             // Test generation module
-            'demo'     => [
-                '__file__'   => ['common.php'],
-                '__dir__'    => ['behavior', 'controller', 'model', 'view', 'service'],
+            'demo' => [
+                '__file__' => ['common.php'],
+                '__dir__' => ['behavior', 'controller', 'model', 'view', 'service'],
                 'controller' => ['Index', 'Test', 'UserType'],
-                'model'      => ['User', 'UserType'],
-                'service'    => ['User', 'UserType'],
-                'view'       => ['index/index'],
+                'model' => ['User', 'UserType'],
+                'service' => ['User', 'UserType'],
+                'view' => ['index/index'],
             ],
         ];
         Build::run($build);

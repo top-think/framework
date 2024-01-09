@@ -19,8 +19,8 @@ class Merge extends Model
 {
 
     protected $relationModel = []; // HAS ONE 关联的模型列表
-    protected $fk            = ''; //  外键名 默认为主表名_id
-    protected $mapFields     = []; //  需要处理的模型映射字段，避免混淆 array( id => 'user.id'  )
+    protected $fk = ''; //  外键名 默认为主表名_id
+    protected $mapFields = []; //  需要处理的模型映射字段，避免混淆 array( id => 'user.id'  )
 
     /**
      * 构造函数
@@ -60,13 +60,13 @@ class Merge extends Model
      */
     protected static function attachQuery($query)
     {
-        $class  = new static();
+        $class = new static();
         $master = $class->name;
         $fields = self::getModelField($query, $master, '', $class->mapFields, $class->field);
         $query->alias($master)->field($fields);
 
         foreach ($class->relationModel as $key => $model) {
-            $name  = is_int($key) ? $model : $key;
+            $name = is_int($key) ? $model : $key;
             $table = is_int($key) ? $query->getTable($name) : $model;
             $query->join($table . ' ' . $name, $name . '.' . $class->fk . '=' . $master . '.' . $class->getPk());
             $fields = self::getModelField($query, $name, $table, $class->mapFields, $class->field);
@@ -89,7 +89,7 @@ class Merge extends Model
     {
         // 获取模型的字段信息
         $fields = $fields ?: $query->getTableInfo($table, 'fields');
-        $array  = [];
+        $array = [];
         foreach ($fields as $field) {
             if ($key = array_search($name . '.' . $field, $map)) {
                 // 需要处理映射字段
@@ -215,7 +215,7 @@ class Merge extends Model
 
                 // 写入附表数据
                 foreach ($this->relationModel as $key => $model) {
-                    $name  = is_int($key) ? $model : $key;
+                    $name = is_int($key) ? $model : $key;
                     $table = is_int($key) ? $db->getTable($model) : $model;
                     // 处理关联模型数据
                     $data = $this->parseData($name, $data);
@@ -259,7 +259,7 @@ class Merge extends Model
                         unset($source[$pk]);
                     }
                     foreach ($this->relationModel as $key => $model) {
-                        $name  = is_int($key) ? $model : $key;
+                        $name = is_int($key) ? $model : $key;
                         $table = is_int($key) ? $db->getTable($model) : $model;
                         // 处理关联模型数据
                         $data = $this->parseData($name, $source);

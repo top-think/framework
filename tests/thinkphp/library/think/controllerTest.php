@@ -51,15 +51,15 @@ class Foo extends Controller
     }
     public function test()
     {
-        $data       = [
-            'username'   => 'username',
-            'nickname'   => 'nickname',
-            'password'   => '123456',
+        $data = [
+            'username' => 'username',
+            'nickname' => 'nickname',
+            'password' => '123456',
             'repassword' => '123456',
-            'email'      => 'abc@abc.com',
-            'sex'        => '0',
-            'age'        => '20',
-            'code'       => '1234',
+            'email' => 'abc@abc.com',
+            'sex' => '0',
+            'age' => '20',
+            'code' => '1234',
         ];
 
         $validate = [
@@ -149,8 +149,8 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     private function getView($controller)
     {
-        $view     = new View();
-        $rc       = new ReflectionClass(get_class($controller));
+        $view = new View();
+        $rc = new ReflectionClass(get_class($controller));
         $property = $rc->getProperty('view');
         $property->setAccessible(true);
         $property->setValue($controller, $view);
@@ -159,19 +159,19 @@ class controllerTest extends \PHPUnit_Framework_TestCase
 
     public function testFetch()
     {
-        $controller      = new Foo(Request::instance());
-        $view            = $this->getView($controller);
-        $template        = APP_PATH . 'views' . DS .'display.html';
-        $viewFetch       = $view->fetch($template, ['name' => 'ThinkPHP']);
+        $controller = new Foo(Request::instance());
+        $view = $this->getView($controller);
+        $template = APP_PATH . 'views' . DS .'display.html';
+        $viewFetch = $view->fetch($template, ['name' => 'ThinkPHP']);
         $this->assertEquals($controller->fetchTest(), $viewFetch);
     }
 
     public function testDisplay()
     {
-        $controller      = new Foo;
-        $view            = $this->getView($controller);
-        $template        = APP_PATH . 'views' . DS .'display.html';
-        $viewFetch       = $view->display($template, ['name' => 'ThinkPHP']);
+        $controller = new Foo;
+        $view = $this->getView($controller);
+        $template = APP_PATH . 'views' . DS .'display.html';
+        $viewFetch = $view->display($template, ['name' => 'ThinkPHP']);
 
         $this->assertEquals($controller->displayTest(), $viewFetch);
     }
@@ -179,7 +179,7 @@ class controllerTest extends \PHPUnit_Framework_TestCase
     public function testAssign()
     {
         $controller = new Foo(Request::instance());
-        $view       = $this->getView($controller);
+        $view = $this->getView($controller);
         $controller->assignTest();
         $expect = ['abcd' => 'dcba', 'key1' => 'value1', 'key2' => 'value2'];
         $this->assertAttributeEquals($expect, 'data', $view);

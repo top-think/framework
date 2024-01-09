@@ -28,12 +28,12 @@ class HasOne extends OneToOne
      */
     public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER')
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
+        $this->parent = $parent;
+        $this->model = $model;
         $this->foreignKey = $foreignKey;
-        $this->localKey   = $localKey;
-        $this->joinType   = $joinType;
-        $this->query      = (new $model)->db();
+        $this->localKey = $localKey;
+        $this->joinType = $joinType;
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -70,10 +70,10 @@ class HasOne extends OneToOne
      */
     public function has()
     {
-        $table      = $this->query->getTable();
-        $model      = basename(str_replace('\\', '/', get_class($this->parent)));
-        $relation   = basename(str_replace('\\', '/', $this->model));
-        $localKey   = $this->localKey;
+        $table = $this->query->getTable();
+        $model = basename(str_replace('\\', '/', get_class($this->parent)));
+        $relation = basename(str_replace('\\', '/', $this->model));
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
         return $this->parent->db()
             ->alias($model)
@@ -91,8 +91,8 @@ class HasOne extends OneToOne
      */
     public function hasWhere($where = [], $fields = null)
     {
-        $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $table = $this->query->getTable();
+        $model = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
 
         if (is_array($where)) {
@@ -122,7 +122,7 @@ class HasOne extends OneToOne
      */
     protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
 
         $range = [];
@@ -175,7 +175,7 @@ class HasOne extends OneToOne
      */
     protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
         $this->query->removeWhereField($foreignKey);
         $data = $this->eagerlyWhere($this->query, [$foreignKey => $result->$localKey], $foreignKey, $relation, $subRelation, $closure);

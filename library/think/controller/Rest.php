@@ -21,12 +21,12 @@ abstract class Rest
     protected $method; // 当前请求类型
     protected $type; // 当前资源类型
     // 输出类型
-    protected $restMethodList    = 'get|post|put|delete';
+    protected $restMethodList = 'get|post|put|delete';
     protected $restDefaultMethod = 'get';
-    protected $restTypeList      = 'html|xml|json|rss';
-    protected $restDefaultType   = 'html';
-    protected $restOutputType    = [ // REST允许输出的资源类型列表
-        'xml'  => 'application/xml',
+    protected $restTypeList = 'html|xml|json|rss';
+    protected $restDefaultType = 'html';
+    protected $restOutputType = [ // REST允许输出的资源类型列表
+        'xml' => 'application/xml',
         'json' => 'application/json',
         'html' => 'text/html',
     ];
@@ -39,7 +39,7 @@ abstract class Rest
     {
         // 资源类型检测
         $request = Request::instance();
-        $ext     = $request->ext();
+        $ext = $request->ext();
         if ('' == $ext) {
             // 自动检测资源类型
             $this->type = $request->type();

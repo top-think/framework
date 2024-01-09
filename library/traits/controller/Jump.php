@@ -45,9 +45,9 @@ trait Jump
         $type = $this->getResponseType();
         $result = [
             'code' => 1,
-            'msg'  => $msg,
+            'msg' => $msg,
             'data' => $data,
-            'url'  => $url,
+            'url' => $url,
             'wait' => $wait,
         ];
 
@@ -86,9 +86,9 @@ trait Jump
         $type = $this->getResponseType();
         $result = [
             'code' => 0,
-            'msg'  => $msg,
+            'msg' => $msg,
             'data' => $data,
-            'url'  => $url,
+            'url' => $url,
             'wait' => $wait,
         ];
 
@@ -120,11 +120,11 @@ trait Jump
     {
         $result = [
             'code' => $code,
-            'msg'  => $msg,
+            'msg' => $msg,
             'time' => Request::instance()->server('REQUEST_TIME'),
             'data' => $data,
         ];
-        $type     = $type ?: $this->getResponseType();
+        $type = $type ?: $this->getResponseType();
         $response = Response::create($result, $type)->header($header);
 
         throw new HttpResponseException($response);
@@ -143,7 +143,7 @@ trait Jump
     protected function redirect($url, $params = [], $code = 302, $with = [])
     {
         if (is_integer($params)) {
-            $code   = $params;
+            $code = $params;
             $params = [];
         }
 

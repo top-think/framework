@@ -21,7 +21,7 @@ class Mysql extends Builder
 {
 
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
-    protected $updateSql    = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
      * 生成insertall SQL
@@ -60,7 +60,7 @@ class Mysql extends Builder
                     unset($data[$key]);
                 }
             }
-            $value    = array_values($data);
+            $value = array_values($data);
             $values[] = '( ' . implode(',', $value) . ' )';
 
             if (!isset($insertFields)) {

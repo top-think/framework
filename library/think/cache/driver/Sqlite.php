@@ -20,10 +20,10 @@ use think\cache\Driver;
 class Sqlite extends Driver
 {
     protected $options = [
-        'db'         => ':memory:',
-        'table'      => 'sharedmemory',
-        'prefix'     => '',
-        'expire'     => 0,
+        'db' => ':memory:',
+        'table' => 'sharedmemory',
+        'prefix' => '',
+        'expire' => 0,
         'persistent' => false,
     ];
 
@@ -41,7 +41,7 @@ class Sqlite extends Driver
         if (!empty($options)) {
             $this->options = array_merge($this->options, $options);
         }
-        $func          = $this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open';
+        $func = $this->options['persistent'] ? 'sqlite_popen' : 'sqlite_open';
         $this->handler = $func($this->options['db']);
     }
 
@@ -64,8 +64,8 @@ class Sqlite extends Driver
      */
     public function has($name)
     {
-        $name   = $this->getCacheKey($name);
-        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
+        $name = $this->getCacheKey($name);
+        $sql = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         return sqlite_num_rows($result);
     }
@@ -79,8 +79,8 @@ class Sqlite extends Driver
      */
     public function get($name, $default = false)
     {
-        $name   = $this->getCacheKey($name);
-        $sql    = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
+        $name = $this->getCacheKey($name);
+        $sql = 'SELECT value FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\' AND (expire=0 OR expire >' . $_SERVER['REQUEST_TIME'] . ') LIMIT 1';
         $result = sqlite_query($this->handler, $sql);
         if (sqlite_num_rows($result)) {
             $content = sqlite_fetch_single($result);
@@ -103,7 +103,7 @@ class Sqlite extends Driver
      */
     public function set($name, $value, $expire = null)
     {
-        $name  = $this->getCacheKey($name);
+        $name = $this->getCacheKey($name);
         $value = sqlite_escape_string(serialize($value));
         if (is_null($expire)) {
             $expire = $this->options['expire'];
@@ -118,7 +118,7 @@ class Sqlite extends Driver
             $value = gzcompress($value, 3);
         }
         if ($this->tag) {
-            $tag       = $this->tag;
+            $tag = $this->tag;
             $this->tag = null;
         } else {
             $tag = '';
@@ -173,7 +173,7 @@ class Sqlite extends Driver
     public function rm($name)
     {
         $name = $this->getCacheKey($name);
-        $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\'';
+        $sql = 'DELETE FROM ' . $this->options['table'] . ' WHERE var=\'' . $name . '\'';
         sqlite_query($this->handler, $sql);
         return true;
     }
@@ -188,7 +188,7 @@ class Sqlite extends Driver
     {
         if ($tag) {
             $name = sqlite_escape_string($tag);
-            $sql  = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
+            $sql = 'DELETE FROM ' . $this->options['table'] . ' WHERE tag=\'' . $name . '\'';
             sqlite_query($this->handler, $sql);
             return true;
         }

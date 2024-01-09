@@ -69,7 +69,7 @@ trait SoftDelete
         if ($name && !$force) {
             // 软删除
             $this->data[$name] = $this->autoWriteTimestamp($name);
-            $result            = $this->isUpdate()->save();
+            $result = $this->isUpdate()->save();
         } else {
             // 强制删除当前模型数据
             $result = $this->getQuery()->where($this->getWhere())->delete();
@@ -78,7 +78,7 @@ trait SoftDelete
         // 关联删除
         if (!empty($this->relationWrite)) {
             foreach ($this->relationWrite as $key => $name) {
-                $name   = is_numeric($key) ? $name : $key;
+                $name = is_numeric($key) ? $name : $key;
                 $result = $this->getRelation($name);
                 if ($result instanceof Model) {
                     $result->delete();
@@ -141,7 +141,7 @@ trait SoftDelete
     public function restore($where = [])
     {
         if (empty($where)) {
-            $pk         = $this->getPk();
+            $pk = $this->getPk();
             $where[$pk] = $this->getData($pk);
         }
 

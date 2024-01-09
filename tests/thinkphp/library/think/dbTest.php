@@ -25,43 +25,43 @@ class dbTest extends \PHPUnit_Framework_TestCase
     {
         return [
             // 数据库类型
-            'type'           => 'mysql',
+            'type' => 'mysql',
             // 服务器地址
-            'hostname'       => '127.0.0.1',
+            'hostname' => '127.0.0.1',
             // 数据库名
-            'database'       => 'test',
+            'database' => 'test',
             // 用户名
-            'username'       => 'root',
+            'username' => 'root',
             // 密码
-            'password'       => '',
+            'password' => '',
             // 端口
-            'hostport'       => '',
+            'hostport' => '',
             // 连接dsn
-            'dsn'            => '',
+            'dsn' => '',
             // 数据库连接参数
-            'params'         => [],
+            'params' => [],
             // 数据库编码默认采用utf8
-            'charset'        => 'utf8',
+            'charset' => 'utf8',
             // 数据库表前缀
-            'prefix'         => 'tp_',
+            'prefix' => 'tp_',
             // 数据库调试模式
-            'debug'          => true,
+            'debug' => true,
             // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-            'deploy'         => 0,
+            'deploy' => 0,
             // 数据库读写是否分离 主从式有效
-            'rw_separate'    => false,
+            'rw_separate' => false,
             // 读写分离后 主服务器数量
-            'master_num'     => 1,
+            'master_num' => 1,
             // 指定从服务器序号
-            'slave_no'       => '',
+            'slave_no' => '',
             // 是否严格检查字段是否存在
-            'fields_strict'  => true,
+            'fields_strict' => true,
             // 数据集返回类型 array 数组 collection Collection对象
             'resultset_type' => 'array',
             // 是否自动写入时间戳字段
             'auto_timestamp' => false,
             // 是否需要进行SQL性能分析
-            'sql_explain'    => false,
+            'sql_explain' => false,
         ];
     }
 
@@ -140,7 +140,7 @@ EOF;
     public function testExecute()
     {
         $config = $this->getConfig();
-        $sql    = $this->getCreateTableSql();
+        $sql = $this->getCreateTableSql();
         foreach ($sql as $one) {
             Db::connect($config)->execute($one);
         }
@@ -151,7 +151,7 @@ EOF;
     public function testQuery()
     {
         $config = $this->getConfig();
-        $sql    = $this->getCreateTableSql();
+        $sql = $this->getCreateTableSql();
         Db::connect($config)->batchQuery($sql);
 
         $tableQueryResult = Db::connect($config)->query("show tables;");
@@ -165,7 +165,7 @@ EOF;
     public function testBatchQuery()
     {
         $config = $this->getConfig();
-        $sql    = $this->getCreateTableSql();
+        $sql = $this->getCreateTableSql();
         Db::connect($config)->batchQuery($sql);
 
         $tableNum = Db::connect($config)->execute("show tables;");
@@ -174,27 +174,27 @@ EOF;
 
     public function testTable()
     {
-        $config    = $this->getConfig();
+        $config = $this->getConfig();
         $tableName = 'tp_user';
-        $result    = Db::connect($config)->table($tableName);
+        $result = Db::connect($config)->table($tableName);
         $this->assertEquals($tableName, $result->getOptions()['table']);
     }
 
     public function testName()
     {
-        $config    = $this->getConfig();
+        $config = $this->getConfig();
         $tableName = 'user';
-        $result    = Db::connect($config)->name($tableName);
+        $result = Db::connect($config)->name($tableName);
         $this->assertEquals($config['prefix'] . $tableName, $result->getTable());
     }
 
     public function testInsert()
     {
         $config = $this->getConfig();
-        $data   = [
-            'username'    => 'chunice',
-            'password'    => md5('chunice'),
-            'status'      => 1,
+        $data = [
+            'username' => 'chunice',
+            'password' => md5('chunice'),
+            'status' => 1,
             'create_time' => time(),
         ];
         $result = Db::connect($config)->name('user')->insert($data);
@@ -204,10 +204,10 @@ EOF;
     public function testUpdate()
     {
         $config = $this->getConfig();
-        $data   = [
-            'username'    => 'chunice_update',
-            'password'    => md5('chunice'),
-            'status'      => 1,
+        $data = [
+            'username' => 'chunice_update',
+            'password' => md5('chunice'),
+            'status' => 1,
             'create_time' => time(),
         ];
         $result = Db::connect($config)->name('user')->where('username', 'chunice')->update($data);
@@ -216,7 +216,7 @@ EOF;
 
     public function testFind()
     {
-        $config   = $this->getConfig();
+        $config = $this->getConfig();
         $mustFind = Db::connect($config)->name('user')->where('username', 'chunice_update')->find();
         $this->assertNotEmpty($mustFind);
         $mustNotFind = Db::connect($config)->name('user')->where('username', 'chunice')->find();
@@ -238,7 +238,7 @@ EOF;
 
     public function testSelect()
     {
-        $config    = $this->getConfig();
+        $config = $this->getConfig();
         $mustFound = Db::connect($config)->name('user')->where('status', 1)->select();
         $this->assertNotEmpty($mustFound);
         $mustNotFound = Db::connect($config)->name('user')->where('status', 0)->select();
@@ -247,7 +247,7 @@ EOF;
 
     public function testValue()
     {
-        $config   = $this->getConfig();
+        $config = $this->getConfig();
         $username = Db::connect($config)->name('user')->where('id', 1)->value('username');
         $this->assertEquals('chunice_update', $username);
         $usernameNull = Db::connect($config)->name('user')->where('id', 0)->value('username');
@@ -256,7 +256,7 @@ EOF;
 
     public function testColumn()
     {
-        $config   = $this->getConfig();
+        $config = $this->getConfig();
         $username = Db::connect($config)->name('user')->where('status', 1)->column('username');
         $this->assertNotEmpty($username);
         $usernameNull = Db::connect($config)->name('user')->where('status', 0)->column('username');
@@ -267,12 +267,12 @@ EOF;
     public function testInsertGetId()
     {
         $config = $this->getConfig();
-        $id     = Db::connect($config)->name('user')->order('id', 'desc')->value('id');
+        $id = Db::connect($config)->name('user')->order('id', 'desc')->value('id');
 
         $data = [
-            'username'    => uniqid(),
-            'password'    => md5('chunice'),
-            'status'      => 1,
+            'username' => uniqid(),
+            'password' => md5('chunice'),
+            'status' => 1,
             'create_time' => time(),
         ];
         $lastId = Db::connect($config)->name('user')->insertGetId($data);
@@ -283,10 +283,10 @@ EOF;
     public function testGetLastInsId()
     {
         $config = $this->getConfig();
-        $data   = [
-            'username'    => uniqid(),
-            'password'    => md5('chunice'),
-            'status'      => 1,
+        $data = [
+            'username' => uniqid(),
+            'password' => md5('chunice'),
+            'status' => 1,
             'create_time' => time(),
         ];
         $lastId = Db::connect($config)->name('user')->insertGetId($data);
@@ -308,7 +308,7 @@ EOF;
 
     public function testSetInc()
     {
-        $config           = $this->getConfig();
+        $config = $this->getConfig();
         $originCreateTime = Db::connect($config)->name('user')->where('id', 1)->value('create_time');
         Db::connect($config)->name('user')->where('id', 1)->setInc('create_time');
         $newCreateTime = Db::connect($config)->name('user')->where('id', 1)->value('create_time');
@@ -318,7 +318,7 @@ EOF;
 
     public function testSetDec()
     {
-        $config           = $this->getConfig();
+        $config = $this->getConfig();
         $originCreateTime = Db::connect($config)->name('user')->where('id', 1)->value('create_time');
         Db::connect($config)->name('user')->where('id', 1)->setDec('create_time');
         $newCreateTime = Db::connect($config)->name('user')->where('id', 1)->value('create_time');
@@ -342,7 +342,7 @@ EOF;
     {
         $config = $this->getConfig();
         $result = Db::connect($config)->name('user')->where('id', 1)->cache('key', 60)->find();
-        $cache  = \think\Cache::get('key');
+        $cache = \think\Cache::get('key');
         $this->assertEquals($result, $cache);
 
         $updateCache = Db::connect($config)->name('user')->cache('key')->find(1);

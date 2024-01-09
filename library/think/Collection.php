@@ -283,20 +283,20 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
 
         $result = [];
         foreach ($this->items as $row) {
-            $key    = $value = null;
+            $key = $value = null;
             $keySet = $valueSet = false;
 
             if (null !== $indexKey && array_key_exists($indexKey, $row)) {
-                $key    = (string) $row[$indexKey];
+                $key = (string) $row[$indexKey];
                 $keySet = true;
             }
 
             if (null === $columnKey) {
                 $valueSet = true;
-                $value    = $row;
+                $value = $row;
             } elseif (is_array($row) && array_key_exists($columnKey, $row)) {
                 $valueSet = true;
-                $value    = $row[$columnKey];
+                $value = $row[$columnKey];
             }
 
             if ($valueSet) {
@@ -319,7 +319,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate, JsonSeria
      */
     public function sort(callable $callback = null)
     {
-        $items    = $this->items;
+        $items = $this->items;
         $callback = $callback ?: function ($a, $b) {
             return $a == $b ? 0 : (($a < $b) ? -1 : 1);
         };

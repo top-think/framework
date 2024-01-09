@@ -25,8 +25,8 @@ class Unix extends Pipes
 
     public function __construct($ttyMode, $ptyMode, $input, $disableOutput)
     {
-        $this->ttyMode       = (bool) $ttyMode;
-        $this->ptyMode       = (bool) $ptyMode;
+        $this->ttyMode = (bool) $ttyMode;
+        $this->ptyMode = (bool) $ptyMode;
         $this->disableOutput = (bool) $disableOutput;
 
         if (is_resource($input)) {

@@ -38,7 +38,7 @@ class viewTest extends \PHPUnit_Framework_TestCase
      */
     public function testAssign()
     {
-        $view_instance      = \think\View::instance();
+        $view_instance = \think\View::instance();
         $view_instance->key = 'value';
         $this->assertTrue(isset($view_instance->key));
         $this->assertEquals('value', $view_instance->key);
@@ -57,12 +57,12 @@ class viewTest extends \PHPUnit_Framework_TestCase
     public function testEngine()
     {
         $view_instance = \think\View::instance();
-        $data          = $view_instance->engine('php');
-        $data          = $view_instance->engine(['type' => 'php', 'view_path' => '', 'view_suffix' => '.php', 'view_depr' => DS]);
-        $php_engine    = new \think\view\driver\Php(['view_path' => '', 'view_suffix' => '.php', 'view_depr' => DS]);
+        $data = $view_instance->engine('php');
+        $data = $view_instance->engine(['type' => 'php', 'view_path' => '', 'view_suffix' => '.php', 'view_depr' => DS]);
+        $php_engine = new \think\view\driver\Php(['view_path' => '', 'view_suffix' => '.php', 'view_depr' => DS]);
         $this->assertAttributeEquals($php_engine, 'engine', $view_instance);
         //测试模板引擎驱动
-        $data         = $view_instance->engine(['type' => 'think', 'view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
+        $data = $view_instance->engine(['type' => 'think', 'view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
         $think_engine = new \think\view\driver\Think(['view_path' => '', 'view_suffix' => '.html', 'view_depr' => DS]);
         $this->assertAttributeEquals($think_engine, 'engine', $view_instance);
     }

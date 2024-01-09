@@ -79,16 +79,16 @@ class responseTest extends \PHPUnit_Framework_TestCase
      */
     public function testSend()
     {
-        $dataArr        = [];
+        $dataArr = [];
         $dataArr["key"] = "value";
 
         $response = Response::create($dataArr, 'json');
-        $result   = $response->getContent();
+        $result = $response->getContent();
         $this->assertEquals('{"key":"value"}', $result);
         $request = Request::instance();
         $request->get(['callback' => 'callback']);
         $response = Response::create($dataArr, 'jsonp');
-        $result   = $response->getContent();
+        $result = $response->getContent();
         $this->assertEquals('callback({"key":"value"});', $result);
     }
 

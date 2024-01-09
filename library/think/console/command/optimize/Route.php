@@ -59,16 +59,16 @@ class Route extends Command
     {
         if ($value instanceof \Closure) {
             $reflection = new \ReflectionFunction($value);
-            $startLine  = $reflection->getStartLine();
-            $endLine    = $reflection->getEndLine();
-            $file       = $reflection->getFileName();
-            $item       = file($file);
-            $content    = '';
+            $startLine = $reflection->getStartLine();
+            $endLine = $reflection->getEndLine();
+            $file = $reflection->getFileName();
+            $item = file($file);
+            $content = '';
             for ($i = $startLine - 1; $i <= $endLine - 1; $i++) {
                 $content .= $item[$i];
             }
             $start = strpos($content, 'function');
-            $end   = strrpos($content, '}');
+            $end = strrpos($content, '}');
             $value = '[__start__' . substr($content, $start, $end - $start + 1) . '__end__]';
         }
     }

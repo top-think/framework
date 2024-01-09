@@ -34,11 +34,11 @@ class Url
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
             $name = substr($url, 1, $pos - 1);
-            $url  = 'name' . substr($url, $pos + 1);
+            $url = 'name' . substr($url, $pos + 1);
         }
         if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
             $info = parse_url($url);
-            $url  = !empty($info['path']) ? $info['path'] : '';
+            $url = !empty($info['path']) ? $info['path'] : '';
             if (isset($info['fragment'])) {
                 // 解析锚点
                 $anchor = $info['fragment'];
@@ -87,7 +87,7 @@ class Url
             throw new \InvalidArgumentException('route name not exists:' . $name);
         } else {
             // 检查别名路由
-            $alias      = Route::rules('alias');
+            $alias = Route::rules('alias');
             $matchAlias = false;
             if ($alias) {
                 // 别名路由解析
@@ -96,7 +96,7 @@ class Url
                         $val = $val[0];
                     }
                     if (0 === strpos($url, $val)) {
-                        $url        = $key . substr($url, strlen($val));
+                        $url = $key . substr($url, strlen($val));
                         $matchAlias = true;
                         break;
                     }
@@ -125,7 +125,7 @@ class Url
         }
         // 还原URL分隔符
         $depr = Config::get('pathinfo_depr');
-        $url  = str_replace('/', $depr, $url);
+        $url = str_replace('/', $depr, $url);
 
         // URL后缀
         $suffix = in_array($url, ['/', '']) ? '' : self::parseSuffix($suffix);
@@ -177,17 +177,17 @@ class Url
             $url = substr($url, 1);
         } else {
             // 解析到 模块/控制器/操作
-            $module  = $request->module();
+            $module = $request->module();
             $domains = Route::rules('domain');
             if (true === $domain && 2 == substr_count($url, '/')) {
                 $current = $request->host();
-                $match   = [];
-                $pos     = [];
+                $match = [];
+                $pos = [];
                 foreach ($domains as $key => $item) {
                     if (isset($item['[bind]']) && 0 === strpos($url, $item['[bind]'][0])) {
                         $pos[$key] = strlen($item['[bind]'][0]) + 1;
-                        $match[]   = $key;
-                        $module    = '';
+                        $match[] = $key;
+                        $module = '';
                     }
                 }
                 if ($match) {
@@ -198,7 +198,7 @@ class Url
                         }
                     }
                     self::$bindCheck = true;
-                    $url             = substr($url, $pos[$domain]);
+                    $url = substr($url, $pos[$domain]);
                 }
             } elseif ($domain) {
                 if (isset($domains[$domain]['[bind]'][0])) {
@@ -215,13 +215,13 @@ class Url
                 // 空字符串输出当前的 模块/控制器/操作
                 $action = $request->action();
             } else {
-                $path       = explode('/', $url);
-                $action     = array_pop($path);
+                $path = explode('/', $url);
+                $action = array_pop($path);
                 $controller = empty($path) ? $controller : array_pop($path);
-                $module     = empty($path) ? $module : array_pop($path) . '/';
+                $module = empty($path) ? $module : array_pop($path) . '/';
             }
             if (Config::get('url_convert')) {
-                $action     = strtolower($action);
+                $action = strtolower($action);
                 $controller = Loader::parseName($controller);
             }
             $url = $module . $controller . '/' . $action;
@@ -235,7 +235,7 @@ class Url
         if (!$domain) {
             return '';
         }
-        $request    = Request::instance();
+        $request = Request::instance();
         $rootDomain = Config::get('url_domain_root');
         if (true === $domain) {
             // 自动判断域名
@@ -249,7 +249,7 @@ class Url
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
                             if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
-                                $url    = ltrim($url, $rule);
+                                $url = ltrim($url, $rule);
                                 $domain = $key;
                                 // 生成对应子域名
                                 if (!empty($rootDomain)) {
@@ -269,7 +269,7 @@ class Url
 
         } else {
             if (empty($rootDomain)) {
-                $host       = Config::get('app_host') ?: $request->host();
+                $host = Config::get('app_host') ?: $request->host();
                 $rootDomain = substr_count($host, '.') > 1 ? substr(strstr($host, '.'), 1) : $host;
             }
             if (substr_count($domain, '.') < 2 && !strpos($domain, $rootDomain)) {
@@ -311,7 +311,7 @@ class Url
                     unset($vars[$key]);
                     $result = [$url, $domain, $suffix];
                 } elseif (2 == $val) {
-                    $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
                     $result = [$url, $domain, $suffix];
                 } else {
                     break;

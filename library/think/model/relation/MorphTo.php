@@ -36,11 +36,11 @@ class MorphTo extends Relation
      */
     public function __construct(Model $parent, $morphType, $morphKey, $alias = [], $relation = null)
     {
-        $this->parent    = $parent;
+        $this->parent = $parent;
         $this->morphType = $morphType;
-        $this->morphKey  = $morphKey;
-        $this->alias     = $alias;
-        $this->relation  = $relation;
+        $this->morphKey = $morphKey;
+        $this->alias = $alias;
+        $this->relation = $relation;
     }
 
     /**
@@ -51,7 +51,7 @@ class MorphTo extends Relation
     public function getModel()
     {
         $morphType = $this->morphType;
-        $model     = $this->parseModel($this->parent->$morphType);
+        $model = $this->parseModel($this->parent->$morphType);
         return (new $model);
     }
 
@@ -63,12 +63,12 @@ class MorphTo extends Relation
      */
     public function getRelation($subRelation = '', $closure = null)
     {
-        $morphKey  = $this->morphKey;
+        $morphKey = $this->morphKey;
         $morphType = $this->morphType;
         // 多态模型
         $model = $this->parseModel($this->parent->$morphType);
         // 主键数据
-        $pk            = $this->parent->$morphKey;
+        $pk = $this->parent->$morphKey;
         $relationModel = (new $model)->relation($subRelation)->find($pk);
 
         if ($relationModel) {
@@ -157,9 +157,9 @@ class MorphTo extends Relation
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
-        $morphKey  = $this->morphKey;
+        $morphKey = $this->morphKey;
         $morphType = $this->morphType;
-        $range     = [];
+        $range = [];
         foreach ($resultSet as $result) {
             // 获取关联外键列表
             if (!empty($result->$morphKey)) {
@@ -173,10 +173,10 @@ class MorphTo extends Relation
             foreach ($range as $key => $val) {
                 // 多态类型映射
                 $model = $this->parseModel($key);
-                $obj   = new $model;
-                $pk    = $obj->getPk();
-                $list  = $obj->all($val, $subRelation);
-                $data  = [];
+                $obj = new $model;
+                $pk = $obj->getPk();
+                $list = $obj->all($val, $subRelation);
+                $data = [];
                 foreach ($list as $k => $vo) {
                     $data[$vo->$pk] = $vo;
                 }
@@ -209,7 +209,7 @@ class MorphTo extends Relation
      */
     public function eagerlyResult(&$result, $relation, $subRelation, $closure)
     {
-        $morphKey  = $this->morphKey;
+        $morphKey = $this->morphKey;
         $morphType = $this->morphType;
         // 多态类型映射
         $model = $this->parseModel($result->{$this->morphType});
@@ -239,7 +239,7 @@ class MorphTo extends Relation
     protected function eagerlyMorphToOne($model, $relation, &$result, $subRelation = '')
     {
         // 预载入关联查询 支持嵌套预载入
-        $pk   = $this->parent->{$this->morphKey};
+        $pk = $this->parent->{$this->morphKey};
         $data = (new $model)->with($subRelation)->find($pk);
         if ($data) {
             $data->setParent(clone $result);
@@ -257,9 +257,9 @@ class MorphTo extends Relation
      */
     public function associate($model, $type = '')
     {
-        $morphKey  = $this->morphKey;
+        $morphKey = $this->morphKey;
         $morphType = $this->morphType;
-        $pk        = $model->getPk();
+        $pk = $model->getPk();
 
         $this->parent->setAttr($morphKey, $model->$pk);
         $this->parent->setAttr($morphType, $type ?: get_class($model));
@@ -275,7 +275,7 @@ class MorphTo extends Relation
      */
     public function dissociate()
     {
-        $morphKey  = $this->morphKey;
+        $morphKey = $this->morphKey;
         $morphType = $this->morphType;
 
         $this->parent->setAttr($morphKey, null);

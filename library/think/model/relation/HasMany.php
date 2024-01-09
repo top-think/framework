@@ -28,11 +28,11 @@ class HasMany extends Relation
      */
     public function __construct(Model $parent, $model, $foreignKey, $localKey)
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
+        $this->parent = $parent;
+        $this->model = $model;
         $this->foreignKey = $foreignKey;
-        $this->localKey   = $localKey;
-        $this->query      = (new $model)->db();
+        $this->localKey = $localKey;
+        $this->query = (new $model)->db();
     }
 
     /**
@@ -46,7 +46,7 @@ class HasMany extends Relation
         if ($closure) {
             call_user_func_array($closure, [ & $this->query]);
         }
-        $list   = $this->relation($subRelation)->select();
+        $list = $this->relation($subRelation)->select();
         $parent = clone $this->parent;
 
         foreach ($list as &$model) {
@@ -68,7 +68,7 @@ class HasMany extends Relation
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
         $localKey = $this->localKey;
-        $range    = [];
+        $range = [];
         foreach ($resultSet as $result) {
             // 获取关联外键列表
             if (isset($result->$localKey)) {
@@ -138,7 +138,7 @@ class HasMany extends Relation
     public function relationCount($result, $closure)
     {
         $localKey = $this->localKey;
-        $count    = 0;
+        $count = 0;
         if (isset($result->$localKey)) {
             if ($closure) {
                 call_user_func_array($closure, [ & $this->query]);
@@ -256,8 +256,8 @@ class HasMany extends Relation
      */
     public function has($operator = '>=', $count = 1, $id = '*', $joinType = 'INNER')
     {
-        $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $table = $this->query->getTable();
+        $model = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
 
         return $this->parent->db()
@@ -277,8 +277,8 @@ class HasMany extends Relation
      */
     public function hasWhere($where = [], $fields = null)
     {
-        $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $table = $this->query->getTable();
+        $model = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
 
         if (is_array($where)) {

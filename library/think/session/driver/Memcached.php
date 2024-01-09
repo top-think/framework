@@ -17,14 +17,14 @@ use think\Exception;
 class Memcached extends SessionHandler
 {
     protected $handler = null;
-    protected $config  = [
-        'host'         => '127.0.0.1', // memcache主机
-        'port'         => 11211, // memcache端口
-        'expire'       => 3600, // session有效期
-        'timeout'      => 0, // 连接超时时间（单位：毫秒）
+    protected $config = [
+        'host' => '127.0.0.1', // memcache主机
+        'port' => 11211, // memcache端口
+        'expire' => 3600, // session有效期
+        'timeout' => 0, // 连接超时时间（单位：毫秒）
         'session_name' => '', // memcache key前缀
-        'username'     => '', //账号
-        'password'     => '', //密码
+        'username' => '', //账号
+        'password' => '', //密码
     ];
 
     public function __construct($config = [])

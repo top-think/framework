@@ -29,13 +29,13 @@ class BelongsTo extends OneToOne
      */
     public function __construct(Model $parent, $model, $foreignKey, $localKey, $joinType = 'INNER', $relation = null)
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
+        $this->parent = $parent;
+        $this->model = $model;
         $this->foreignKey = $foreignKey;
-        $this->localKey   = $localKey;
-        $this->joinType   = $joinType;
-        $this->query      = (new $model)->db();
-        $this->relation   = $relation;
+        $this->localKey = $localKey;
+        $this->joinType = $joinType;
+        $this->query = (new $model)->db();
+        $this->relation = $relation;
     }
 
     /**
@@ -86,8 +86,8 @@ class BelongsTo extends OneToOne
      */
     public function hasWhere($where = [], $fields = null)
     {
-        $table    = $this->query->getTable();
-        $model    = basename(str_replace('\\', '/', get_class($this->parent)));
+        $table = $this->query->getTable();
+        $model = basename(str_replace('\\', '/', get_class($this->parent)));
         $relation = basename(str_replace('\\', '/', $this->model));
 
         if (is_array($where)) {
@@ -117,7 +117,7 @@ class BelongsTo extends OneToOne
      */
     protected function eagerlySet(&$resultSet, $relation, $subRelation, $closure)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
 
         $range = [];
@@ -171,7 +171,7 @@ class BelongsTo extends OneToOne
      */
     protected function eagerlyOne(&$result, $relation, $subRelation, $closure)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
         $this->query->removeWhereField($localKey);
         $data = $this->eagerlyWhere($this->query, [$localKey => $result->$foreignKey], $localKey, $relation, $subRelation, $closure);
@@ -201,7 +201,7 @@ class BelongsTo extends OneToOne
     public function associate($model)
     {
         $foreignKey = $this->foreignKey;
-        $pk         = $model->getPk();
+        $pk = $model->getPk();
 
         $this->parent->setAttr($foreignKey, $model->$pk);
         $this->parent->save();

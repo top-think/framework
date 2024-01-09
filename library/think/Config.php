@@ -133,13 +133,13 @@ class Config
         }
 
         // 二维数组设置和获取支持
-        $name    = explode('.', $name, 2);
+        $name = explode('.', $name, 2);
         $name[0] = strtolower($name[0]);
 
         if (!isset(self::$config[$range][$name[0]])) {
             // 动态载入额外配置
             $module = Request::instance()->module();
-            $file   = CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . $name[0] . CONF_EXT;
+            $file = CONF_PATH . ($module ? $module . DS : '') . 'extra' . DS . $name[0] . CONF_EXT;
 
             is_file($file) && self::load($file, $name[0]);
         }

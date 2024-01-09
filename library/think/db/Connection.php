@@ -61,64 +61,64 @@ abstract class Connection
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
-        'type'            => '',
+        'type' => '',
         // 服务器地址
-        'hostname'        => '',
+        'hostname' => '',
         // 数据库名
-        'database'        => '',
+        'database' => '',
         // 用户名
-        'username'        => '',
+        'username' => '',
         // 密码
-        'password'        => '',
+        'password' => '',
         // 端口
-        'hostport'        => '',
+        'hostport' => '',
         // 连接dsn
-        'dsn'             => '',
+        'dsn' => '',
         // 数据库连接参数
-        'params'          => [],
+        'params' => [],
         // 数据库编码默认采用utf8
-        'charset'         => 'utf8',
+        'charset' => 'utf8',
         // 数据库表前缀
-        'prefix'          => '',
+        'prefix' => '',
         // 数据库调试模式
-        'debug'           => false,
+        'debug' => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'          => 0,
+        'deploy' => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate'     => false,
+        'rw_separate' => false,
         // 读写分离后 主服务器数量
-        'master_num'      => 1,
+        'master_num' => 1,
         // 指定从服务器序号
-        'slave_no'        => '',
+        'slave_no' => '',
         // 模型写入后自动读取主服务器
-        'read_master'     => false,
+        'read_master' => false,
         // 是否严格检查字段是否存在
-        'fields_strict'   => true,
+        'fields_strict' => true,
         // 数据返回类型
-        'result_type'     => PDO::FETCH_ASSOC,
+        'result_type' => PDO::FETCH_ASSOC,
         // 数据集返回类型
-        'resultset_type'  => 'array',
+        'resultset_type' => 'array',
         // 自动写入时间戳字段
-        'auto_timestamp'  => false,
+        'auto_timestamp' => false,
         // 时间字段取出后的默认时间格式
         'datetime_format' => 'Y-m-d H:i:s',
         // 是否需要进行SQL性能分析
-        'sql_explain'     => false,
+        'sql_explain' => false,
         // Builder类
-        'builder'         => '',
+        'builder' => '',
         // Query类
-        'query'           => '\\think\\db\\Query',
+        'query' => '\\think\\db\\Query',
         // 是否需要断线重连
         'break_reconnect' => false,
     ];
 
     // PDO连接参数
     protected $params = [
-        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
-        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
+        PDO::ATTR_CASE => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
         PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::ATTR_EMULATE_PREPARES  => false,
+        PDO::ATTR_EMULATE_PREPARES => false,
     ];
 
     // 绑定参数
@@ -479,7 +479,7 @@ abstract class Connection
 
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
-            $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
+            $type = is_array($val) ? $val[1] : PDO::PARAM_STR;
             if (PDO::PARAM_STR == $type) {
                 $value = $this->quote($value);
             } elseif (PDO::PARAM_INT == $type) {
@@ -576,7 +576,7 @@ abstract class Connection
             // 存储过程返回结果
             return $this->procedure();
         }
-        $result        = $this->PDOStatement->fetchAll($this->fetchType);
+        $result = $this->PDOStatement->fetchAll($this->fetchType);
         $this->numRows = count($result);
         return $result;
     }
@@ -788,10 +788,10 @@ abstract class Connection
      */
     public function close()
     {
-        $this->linkID    = null;
+        $this->linkID = null;
         $this->linkWrite = null;
-        $this->linkRead  = null;
-        $this->links     = [];
+        $this->linkRead = null;
+        $this->links = [];
         // 释放查询
         $this->free();
         return $this;
@@ -914,8 +914,8 @@ abstract class Connection
                 // 记录操作结束时间
                 Debug::remark('queryEndTime', 'time');
                 $runtime = Debug::getRangeTime('queryStartTime', 'queryEndTime');
-                $sql     = $sql ?: $this->getLastsql();
-                $result  = [];
+                $sql = $sql ?: $this->getLastsql();
+                $result = [];
                 // SQL性能分析
                 if ($this->config['sql_explain'] && 0 === stripos(trim($sql), 'select')) {
                     $result = $this->getExplain($sql);
