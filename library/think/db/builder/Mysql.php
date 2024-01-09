@@ -23,21 +23,21 @@ class Mysql extends Builder
 {
     // 查询表达式解析
     protected $parser = [
-        'parseCompare'     => ['=', '<>', '>', '>=', '<', '<='],
-        'parseLike'        => ['LIKE', 'NOT LIKE'],
-        'parseBetween'     => ['NOT BETWEEN', 'BETWEEN'],
-        'parseIn'          => ['NOT IN', 'IN'],
-        'parseExp'         => ['EXP'],
-        'parseRegexp'      => ['REGEXP', 'NOT REGEXP'],
-        'parseNull'        => ['NOT NULL', 'NULL'],
+        'parseCompare' => ['=', '<>', '>', '>=', '<', '<='],
+        'parseLike' => ['LIKE', 'NOT LIKE'],
+        'parseBetween' => ['NOT BETWEEN', 'BETWEEN'],
+        'parseIn' => ['NOT IN', 'IN'],
+        'parseExp' => ['EXP'],
+        'parseRegexp' => ['REGEXP', 'NOT REGEXP'],
+        'parseNull' => ['NOT NULL', 'NULL'],
         'parseBetweenTime' => ['BETWEEN TIME', 'NOT BETWEEN TIME'],
-        'parseTime'        => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
-        'parseExists'      => ['NOT EXISTS', 'EXISTS'],
-        'parseColumn'      => ['COLUMN'],
+        'parseTime' => ['< TIME', '> TIME', '<= TIME', '>= TIME'],
+        'parseExists' => ['NOT EXISTS', 'EXISTS'],
+        'parseColumn' => ['COLUMN'],
     ];
 
     protected $insertAllSql = '%INSERT% INTO %TABLE% (%FIELD%) VALUES %DATA% %COMMENT%';
-    protected $updateSql    = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
+    protected $updateSql = 'UPDATE %TABLE% %JOIN% SET %SET% %WHERE% %ORDER%%LIMIT% %LOCK%%COMMENT%';
 
     /**
      * 生成insertall SQL

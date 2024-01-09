@@ -30,27 +30,27 @@ class Console
     private $wantHelps = false;
 
     private $catchExceptions = true;
-    private $autoExit        = true;
+    private $autoExit = true;
     private $definition;
     private $defaultCommand;
 
     private static $defaultCommands = [
-        'help'              => "think\\console\\command\\Help",
-        'list'              => "think\\console\\command\\Lists",
-        'build'             => "think\\console\\command\\Build",
-        'clear'             => "think\\console\\command\\Clear",
-        'make:command'      => "think\\console\\command\\make\\Command",
-        'make:controller'   => "think\\console\\command\\make\\Controller",
-        'make:model'        => "think\\console\\command\\make\\Model",
-        'make:middleware'   => "think\\console\\command\\make\\Middleware",
-        'make:validate'     => "think\\console\\command\\make\\Validate",
+        'help' => "think\\console\\command\\Help",
+        'list' => "think\\console\\command\\Lists",
+        'build' => "think\\console\\command\\Build",
+        'clear' => "think\\console\\command\\Clear",
+        'make:command' => "think\\console\\command\\make\\Command",
+        'make:controller' => "think\\console\\command\\make\\Controller",
+        'make:model' => "think\\console\\command\\make\\Model",
+        'make:middleware' => "think\\console\\command\\make\\Middleware",
+        'make:validate' => "think\\console\\command\\make\\Validate",
         'optimize:autoload' => "think\\console\\command\\optimize\\Autoload",
-        'optimize:config'   => "think\\console\\command\\optimize\\Config",
-        'optimize:schema'   => "think\\console\\command\\optimize\\Schema",
-        'optimize:route'    => "think\\console\\command\\optimize\\Route",
-        'run'               => "think\\console\\command\\RunServer",
-        'version'           => "think\\console\\command\\Version",
-        'route:list'        => "think\\console\\command\\RouteList",
+        'optimize:config' => "think\\console\\command\\optimize\\Config",
+        'optimize:schema' => "think\\console\\command\\optimize\\Schema",
+        'optimize:route' => "think\\console\\command\\optimize\\Route",
+        'run' => "think\\console\\command\\RunServer",
+        'version' => "think\\console\\command\\Version",
+        'route:list' => "think\\console\\command\\RouteList",
     ];
 
     /**
@@ -62,7 +62,7 @@ class Console
      */
     public function __construct($name = 'UNKNOWN', $version = 'UNKNOWN', $user = null)
     {
-        $this->name    = $name;
+        $this->name = $name;
         $this->version = $version;
 
         if ($user) {
@@ -70,7 +70,7 @@ class Console
         }
 
         $this->defaultCommand = 'list';
-        $this->definition     = $this->getDefaultInputDefinition();
+        $this->definition = $this->getDefaultInputDefinition();
     }
 
     /**
@@ -101,7 +101,7 @@ class Console
         static $console;
 
         if (!$console) {
-            $config  = Container::get('config')->pull('console');
+            $config = Container::get('config')->pull('console');
             $console = new self($config['name'], $config['version'], $config['user']);
 
             $commands = $console->getDefinedCommands($config);
@@ -141,7 +141,7 @@ class Console
                 }
 
                 $afterClass = get_declared_classes();
-                $commands   = array_merge($commands, array_diff($afterClass, $beforeClass));
+                $commands = array_merge($commands, array_diff($afterClass, $beforeClass));
             }
         }
 
@@ -171,7 +171,7 @@ class Console
 
         array_unshift($parameters, $command);
 
-        $input  = new Input($parameters);
+        $input = new Input($parameters);
         $output = new Output($driver);
 
         $console->setCatchExceptions(false);
@@ -189,7 +189,7 @@ class Console
      */
     public function run()
     {
-        $input  = new Input();
+        $input = new Input();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -244,7 +244,7 @@ class Console
 
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
-                $name  = 'help';
+                $name = 'help';
                 $input = new Input(['help']);
             } else {
                 $this->wantHelps = true;
@@ -252,7 +252,7 @@ class Console
         }
 
         if (!$name) {
-            $name  = $this->defaultCommand;
+            $name = $this->defaultCommand;
             $input = new Input([$this->defaultCommand]);
         }
 
@@ -513,7 +513,7 @@ class Console
     public function findNamespace($namespace)
     {
         $allNamespaces = $this->getNamespaces();
-        $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
+        $expr = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
         $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
@@ -622,7 +622,7 @@ class Console
         $abbrevs = [];
         foreach ($names as $name) {
             for ($len = strlen($name); $len > 0; --$len) {
-                $abbrev             = substr($name, 0, $len);
+                $abbrev = substr($name, 0, $len);
                 $abbrevs[$abbrev][] = $name;
             }
         }
@@ -745,7 +745,7 @@ class Console
      */
     private function findAlternatives($name, $collection)
     {
-        $threshold    = 1e3;
+        $threshold = 1e3;
         $alternatives = [];
 
         $collectionParts = [];
@@ -805,7 +805,7 @@ class Console
      */
     private function extractAllNamespaces($name)
     {
-        $parts      = explode(':', $name, -1);
+        $parts = explode(':', $name, -1);
         $namespaces = [];
 
         foreach ($parts as $part) {

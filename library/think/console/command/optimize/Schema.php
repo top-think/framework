@@ -37,8 +37,8 @@ class Schema extends Command
         if ($input->hasOption('module')) {
             $module = $input->getOption('module');
             // 读取模型
-            $path      = App::getAppPath() . $module . DIRECTORY_SEPARATOR . 'model';
-            $list      = is_dir($path) ? scandir($path) : [];
+            $path = App::getAppPath() . $module . DIRECTORY_SEPARATOR . 'model';
+            $list = is_dir($path) ? scandir($path) : [];
             $namespace = App::getNamespace();
 
             foreach ($list as $file) {
@@ -63,8 +63,8 @@ class Schema extends Command
             $tables = Db::getConnection()->getTables($dbName);
         } elseif (!\think\facade\Config::get('app_multi_module')) {
             $namespace = App::getNamespace();
-            $path      = App::getAppPath() . 'model';
-            $list      = is_dir($path) ? scandir($path) : [];
+            $path = App::getAppPath() . 'model';
+            $list = is_dir($path) ? scandir($path) : [];
 
             foreach ($list as $file) {
                 if (0 === strpos($file, '.')) {
@@ -90,10 +90,10 @@ class Schema extends Command
     {
         $reflect = new \ReflectionClass($class);
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
-            $table   = $class::getTable();
-            $dbName  = $class::getConfig('database');
+            $table = $class::getTable();
+            $dbName = $class::getConfig('database');
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = $class::getConnection()->getFields($table);
+            $info = $class::getConnection()->getFields($table);
             $content .= var_export($info, true) . ';';
 
             file_put_contents(App::getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $dbName . '.' . $table . '.php', $content);
@@ -110,7 +110,7 @@ class Schema extends Command
 
         foreach ($tables as $table) {
             $content = '<?php ' . PHP_EOL . 'return ';
-            $info    = Db::getConnection()->getFields($db . $table);
+            $info = Db::getConnection()->getFields($db . $table);
             $content .= var_export($info, true) . ';';
             file_put_contents(App::getRuntimePath() . 'schema' . DIRECTORY_SEPARATOR . $dbName . $table . '.php', $content);
         }

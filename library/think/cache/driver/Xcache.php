@@ -20,8 +20,8 @@ use think\cache\Driver;
 class Xcache extends Driver
 {
     protected $options = [
-        'prefix'    => '',
-        'expire'    => 0,
+        'prefix' => '',
+        'expire' => 0,
         'serialize' => true,
     ];
 
@@ -91,9 +91,9 @@ class Xcache extends Driver
             $first = true;
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if (xcache_set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);

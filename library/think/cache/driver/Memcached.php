@@ -16,14 +16,14 @@ use think\cache\Driver;
 class Memcached extends Driver
 {
     protected $options = [
-        'host'      => '127.0.0.1',
-        'port'      => 11211,
-        'expire'    => 0,
-        'timeout'   => 0, // 超时时间（单位：毫秒）
-        'prefix'    => '',
-        'username'  => '', //账号
-        'password'  => '', //密码
-        'option'    => [],
+        'host' => '127.0.0.1',
+        'port' => 11211,
+        'expire' => 0,
+        'timeout' => 0, // 超时时间（单位：毫秒）
+        'prefix' => '',
+        'username' => '', //账号
+        'password' => '', //密码
+        'option' => [],
         'serialize' => true,
     ];
 
@@ -123,9 +123,9 @@ class Memcached extends Driver
             $first = true;
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if ($this->handler->set($key, $value, $expire)) {
             isset($first) && $this->setTagItem($key);
@@ -166,9 +166,9 @@ class Memcached extends Driver
     {
         $this->writeTimes++;
 
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
-        $res   = $this->handler->set($key, $value);
+        $res = $this->handler->set($key, $value);
 
         return !$res ? false : $value;
     }

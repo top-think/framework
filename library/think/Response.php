@@ -87,8 +87,8 @@ class Response
 
         $this->contentType($this->contentType, $this->charset);
 
-        $this->code   = $code;
-        $this->app    = Container::get('app');
+        $this->code = $code;
+        $this->app = Container::get('app');
         $this->header = array_merge($this->header, $header);
     }
 
@@ -137,7 +137,7 @@ class Response
             if ($cache) {
                 $this->header['Cache-Control'] = 'max-age=' . $cache[1] . ',must-revalidate';
                 $this->header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
-                $this->header['Expires']       = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
+                $this->header['Expires'] = gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $cache[1]) . ' GMT';
 
                 $this->app['cache']->tag($cache[2])->set($cache[0], [$data, $this->header], $cache[1]);
             }
@@ -341,7 +341,7 @@ class Response
     public function noCache()
     {
         $this->header['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0';
-        $this->header['Pragma']        = 'no-cache';
+        $this->header['Pragma'] = 'no-cache';
 
         return $this;
     }

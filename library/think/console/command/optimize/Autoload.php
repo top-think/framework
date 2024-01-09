@@ -35,12 +35,12 @@ class Autoload extends Command
 return [
 
 EOF;
-        $app              = Container::get('app');
+        $app = Container::get('app');
         $namespacesToScan = [
             $app->getNamespace() . '\\' => realpath(rtrim($app->getAppPath())),
-            'think\\'                   => $app->getThinkPath() . 'library/think',
-            'traits\\'                  => $app->getThinkPath() . 'library/traits',
-            ''                          => realpath(rtrim($app->getRootPath() . 'extend')),
+            'think\\' => $app->getThinkPath() . 'library/think',
+            'traits\\' => $app->getThinkPath() . 'library/traits',
+            '' => realpath(rtrim($app->getRootPath() . 'extend')),
         ];
 
         krsort($namespacesToScan);
@@ -52,7 +52,7 @@ EOF;
             }
 
             $namespaceFilter = '' === $namespace ? null : $namespace;
-            $classMap        = $this->addClassMapCode($dir, $namespaceFilter, $classMap);
+            $classMap = $this->addClassMapCode($dir, $namespaceFilter, $classMap);
         }
 
         ksort($classMap);
@@ -92,21 +92,21 @@ EOF;
 
     protected function getPathCode($path)
     {
-        $baseDir    = '';
-        $app        = Container::get('app');
-        $appPath    = $this->normalizePath(realpath($app->getAppPath()));
-        $libPath    = $this->normalizePath(realpath($app->getThinkPath() . 'library'));
+        $baseDir = '';
+        $app = Container::get('app');
+        $appPath = $this->normalizePath(realpath($app->getAppPath()));
+        $libPath = $this->normalizePath(realpath($app->getThinkPath() . 'library'));
         $extendPath = $this->normalizePath(realpath($app->getRootPath() . 'extend'));
-        $path       = $this->normalizePath($path);
+        $path = $this->normalizePath($path);
 
         if (strpos($path, $libPath . '/') === 0) {
-            $path    = substr($path, strlen($app->getThinkPath() . 'library'));
+            $path = substr($path, strlen($app->getThinkPath() . 'library'));
             $baseDir = "'" . $libPath . "/'";
         } elseif (strpos($path, $appPath . '/') === 0) {
-            $path    = substr($path, strlen($appPath) + 1);
+            $path = substr($path, strlen($appPath) + 1);
             $baseDir = "'" . $appPath . "/'";
         } elseif (strpos($path, $extendPath . '/') === 0) {
-            $path    = substr($path, strlen($extendPath) + 1);
+            $path = substr($path, strlen($extendPath) + 1);
             $baseDir = "'" . $extendPath . "/'";
         }
 
@@ -119,19 +119,19 @@ EOF;
 
     protected function normalizePath($path)
     {
-        $parts    = [];
-        $path     = strtr($path, '\\', '/');
-        $prefix   = '';
+        $parts = [];
+        $path = strtr($path, '\\', '/');
+        $prefix = '';
         $absolute = false;
 
         if (preg_match('{^([0-9a-z]+:(?://(?:[a-z]:)?)?)}i', $path, $match)) {
             $prefix = $match[1];
-            $path   = substr($path, strlen($prefix));
+            $path = substr($path, strlen($prefix));
         }
 
         if (substr($path, 0, 1) === '/') {
             $absolute = true;
-            $path     = substr($path, 1);
+            $path = substr($path, 1);
         }
 
         $up = false;
@@ -141,7 +141,7 @@ EOF;
                 $up = !(empty($parts) || '..' === end($parts));
             } elseif ('.' !== $chunk && '' !== $chunk) {
                 $parts[] = $chunk;
-                $up      = '..' !== $chunk;
+                $up = '..' !== $chunk;
             }
         }
 
@@ -256,7 +256,7 @@ EOF;
             )
         }ix', $contents, $matches);
 
-        $classes   = [];
+        $classes = [];
         $namespace = '';
 
         for ($i = 0, $len = count($matches['type']); $i < $len; $i++) {

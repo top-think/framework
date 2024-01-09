@@ -167,13 +167,13 @@ class App extends Container
         }
 
         $this->initialized = true;
-        $this->beginTime   = microtime(true);
-        $this->beginMem    = memory_get_usage();
+        $this->beginTime = microtime(true);
+        $this->beginMem = memory_get_usage();
 
-        $this->rootPath    = dirname($this->appPath) . DIRECTORY_SEPARATOR;
+        $this->rootPath = dirname($this->appPath) . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
-        $this->routePath   = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
-        $this->configPath  = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
+        $this->routePath = $this->rootPath . 'route' . DIRECTORY_SEPARATOR;
+        $this->configPath = $this->rootPath . 'config' . DIRECTORY_SEPARATOR;
 
         static::setInstance($this);
 
@@ -191,14 +191,14 @@ class App extends Container
 
         // 设置路径环境变量
         $this->env->set([
-            'think_path'   => $this->thinkPath,
-            'root_path'    => $this->rootPath,
-            'app_path'     => $this->appPath,
-            'config_path'  => $this->configPath,
-            'route_path'   => $this->routePath,
+            'think_path' => $this->thinkPath,
+            'root_path' => $this->rootPath,
+            'app_path' => $this->appPath,
+            'config_path' => $this->configPath,
+            'route_path' => $this->routePath,
             'runtime_path' => $this->runtimePath,
-            'extend_path'  => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
-            'vendor_path'  => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
+            'extend_path' => $this->rootPath . 'extend' . DIRECTORY_SEPARATOR,
+            'vendor_path' => $this->rootPath . 'vendor' . DIRECTORY_SEPARATOR,
         ]);
 
         $this->namespace = $this->env->get('app_namespace', $this->namespace);
@@ -269,7 +269,7 @@ class App extends Container
     {
         // 定位模块目录
         $module = $module ? $module . DIRECTORY_SEPARATOR : '';
-        $path   = $this->appPath . $module;
+        $path = $this->appPath . $module;
 
         // 加载初始化文件
         if (is_file($path . 'init.php')) {
@@ -425,7 +425,7 @@ class App extends Container
             $data = null;
         } catch (HttpResponseException $exception) {
             $dispatch = null;
-            $data     = $exception->getResponse();
+            $data = $exception->getResponse();
         }
 
         $this->middleware->add(function (Request $request, $next) use ($dispatch, $data) {
@@ -443,7 +443,7 @@ class App extends Container
     protected function getRouteCacheKey()
     {
         if ($this->config->get('route_check_cache_key')) {
-            $closure  = $this->config->get('route_check_cache_key');
+            $closure = $this->config->get('route_check_cache_key');
             $routeKey = $closure($this->request);
         } else {
             $routeKey = md5($this->request->baseUrl(true) . ':' . $this->request->method());
@@ -583,7 +583,7 @@ class App extends Container
         // 检测路由缓存
         if (!$this->appDebug && $this->config->get('route_check_cache')) {
             $routeKey = $this->getRouteCacheKey();
-            $option   = $this->config->get('route_cache_option');
+            $option = $this->config->get('route_cache_option');
 
             if ($option && $this->cache->connect($option)->has($routeKey)) {
                 return $this->cache->connect($option)->get($routeKey);
@@ -639,7 +639,7 @@ class App extends Container
     protected function parseModuleAndClass($name, $layer, $appendSuffix)
     {
         if (false !== strpos($name, '\\')) {
-            $class  = $name;
+            $class = $name;
             $module = $this->request->module();
         } else {
             if (strpos($name, '/')) {
@@ -773,10 +773,10 @@ class App extends Container
      */
     public function action($url, $vars = [], $layer = 'controller', $appendSuffix = false)
     {
-        $info   = pathinfo($url);
+        $info = pathinfo($url);
         $action = $info['basename'];
         $module = '.' != $info['dirname'] ? $info['dirname'] : $this->request->controller();
-        $class  = $this->controller($module, $layer, $appendSuffix);
+        $class = $this->controller($module, $layer, $appendSuffix);
 
         if (is_scalar($vars)) {
             if (strpos($vars, '=')) {
@@ -800,10 +800,10 @@ class App extends Container
      */
     public function parseClass($module, $layer, $name, $appendSuffix = false)
     {
-        $name  = str_replace(['/', '.'], '\\', $name);
+        $name = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
         $class = Loader::parseName(array_pop($array), 1) . ($this->suffix || $appendSuffix ? ucfirst($layer) : '');
-        $path  = $array ? implode('\\', $array) . '\\' : '';
+        $path = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . ($module ? $module . '\\' : '') . $layer . '\\' . $path . $class;
     }

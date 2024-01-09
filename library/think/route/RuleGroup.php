@@ -23,13 +23,13 @@ class RuleGroup extends Rule
 {
     // 分组路由（包括子分组）
     protected $rules = [
-        '*'       => [],
-        'get'     => [],
-        'post'    => [],
-        'put'     => [],
-        'patch'   => [],
-        'delete'  => [],
-        'head'    => [],
+        '*' => [],
+        'get' => [],
+        'post' => [],
+        'put' => [],
+        'patch' => [],
+        'delete' => [],
+        'head' => [],
         'options' => [],
     ];
 
@@ -57,11 +57,11 @@ class RuleGroup extends Rule
      */
     public function __construct(Route $router, RuleGroup $parent = null, $name = '', $rule = [], $option = [], $pattern = [])
     {
-        $this->router  = $router;
-        $this->parent  = $parent;
-        $this->rule    = $rule;
-        $this->name    = trim($name, '/');
-        $this->option  = $option;
+        $this->router = $router;
+        $this->parent = $parent;
+        $this->rule = $rule;
+        $this->name = trim($name, '/');
+        $this->option = $option;
         $this->pattern = $pattern;
 
         $this->setFullName();
@@ -149,7 +149,7 @@ class RuleGroup extends Rule
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->getMethodRules($method);
+        $rules = $this->getMethodRules($method);
 
         if ($this->parent) {
             // 合并分组参数
@@ -279,7 +279,7 @@ class RuleGroup extends Rule
     protected function checkMergeRuleRegex($request, &$rules, $url, $completeMatch)
     {
         $depr = $this->router->config('pathinfo_depr');
-        $url  = $depr . str_replace('|', $depr, $url);
+        $url = $depr . str_replace('|', $depr, $url);
 
         foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
@@ -312,7 +312,7 @@ class RuleGroup extends Rule
                 if (preg_match_all('/[' . $slash . ']?<?\w+\??>?/', $rule, $matches)) {
                     unset($rules[$key]);
                     $pattern = array_merge($this->getPattern(), $item->getPattern());
-                    $option  = array_merge($this->getOption(), $item->getOption());
+                    $option = array_merge($this->getOption(), $item->getOption());
 
                     $regex[$key] = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
                     $items[$key] = $item;
@@ -349,7 +349,7 @@ class RuleGroup extends Rule
                 }
             }
 
-            $rule  = $items[$pos]->getRule();
+            $rule = $items[$pos]->getRule();
             $array = $this->router->getRule($rule);
 
             foreach ($array as $item) {
@@ -473,8 +473,8 @@ class RuleGroup extends Rule
             }
 
             if (is_array($val)) {
-                $route   = array_shift($val);
-                $option  = $val ? array_shift($val) : [];
+                $route = array_shift($val);
+                $option = $val ? array_shift($val) : [];
                 $pattern = $val ? array_shift($val) : [];
             } else {
                 $route = $val;
@@ -588,13 +588,13 @@ class RuleGroup extends Rule
     public function clear()
     {
         $this->rules = [
-            '*'       => [],
-            'get'     => [],
-            'post'    => [],
-            'put'     => [],
-            'patch'   => [],
-            'delete'  => [],
-            'head'    => [],
+            '*' => [],
+            'get' => [],
+            'post' => [],
+            'put' => [],
+            'patch' => [],
+            'delete' => [],
+            'head' => [],
             'options' => [],
         ];
     }

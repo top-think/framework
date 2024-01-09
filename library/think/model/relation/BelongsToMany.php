@@ -43,14 +43,14 @@ class BelongsToMany extends Relation
      */
     public function __construct(Model $parent, $model, $table, $foreignKey, $localKey)
     {
-        $this->parent     = $parent;
-        $this->model      = $model;
+        $this->parent = $parent;
+        $this->model = $model;
         $this->foreignKey = $foreignKey;
-        $this->localKey   = $localKey;
+        $this->localKey = $localKey;
 
         if (false !== strpos($table, '\\')) {
             $this->pivotName = $table;
-            $this->middle    = basename(str_replace('\\', '/', $table));
+            $this->middle = basename(str_replace('\\', '/', $table));
         } else {
             $this->middle = $table;
         }
@@ -91,7 +91,7 @@ class BelongsToMany extends Relation
     protected function getUpdateWhere($data)
     {
         return [
-            $this->localKey   => $data[$this->localKey],
+            $this->localKey => $data[$this->localKey],
             $this->foreignKey => $data[$this->foreignKey],
         ];
     }
@@ -149,7 +149,7 @@ class BelongsToMany extends Relation
     protected function buildQuery()
     {
         $foreignKey = $this->foreignKey;
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
 
         // 关联查询
         $pk = $this->parent->getPk();
@@ -298,10 +298,10 @@ class BelongsToMany extends Relation
      */
     public function eagerlyResultSet(&$resultSet, $relation, $subRelation, $closure)
     {
-        $localKey   = $this->localKey;
+        $localKey = $this->localKey;
         $foreignKey = $this->foreignKey;
 
-        $pk    = $resultSet[0]->getPk();
+        $pk = $resultSet[0]->getPk();
         $range = [];
         foreach ($resultSet as $result) {
             // 获取关联外键列表
@@ -472,8 +472,8 @@ class BelongsToMany extends Relation
     {
         // 关联查询封装
         $tableName = $this->query->getTable();
-        $table     = $this->pivot->getTable();
-        $fields    = $this->getQueryFields($tableName);
+        $table = $this->pivot->getTable();
+        $fields = $this->getQueryFields($tableName);
 
         $query = $this->query
             ->field($fields)
@@ -542,7 +542,7 @@ class BelongsToMany extends Relation
             } else {
                 // 保存关联表数据
                 $model = new $this->model;
-                $id    = $model->insertGetId($data);
+                $id = $model->insertGetId($data);
             }
         } elseif (is_numeric($data) || is_string($data)) {
             // 根据关联表主键直接写入中间表
@@ -550,14 +550,14 @@ class BelongsToMany extends Relation
         } elseif ($data instanceof Model) {
             // 根据关联表主键直接写入中间表
             $relationFk = $data->getPk();
-            $id         = $data->$relationFk;
+            $id = $data->$relationFk;
         }
 
         if ($id) {
             // 保存中间表数据
-            $pk                     = $this->parent->getPk();
+            $pk = $this->parent->getPk();
             $pivot[$this->localKey] = $this->parent->$pk;
-            $ids                    = (array) $id;
+            $ids = (array) $id;
 
             foreach ($ids as $id) {
                 $pivot[$this->foreignKey] = $id;
@@ -619,11 +619,11 @@ class BelongsToMany extends Relation
         } elseif ($data instanceof Model) {
             // 根据关联表主键直接写入中间表
             $relationFk = $data->getPk();
-            $id         = $data->$relationFk;
+            $id = $data->$relationFk;
         }
 
         // 删除中间表数据
-        $pk      = $this->parent->getPk();
+        $pk = $this->parent->getPk();
         $pivot[] = [$this->localKey, '=', $this->parent->$pk];
 
         if (isset($id)) {
@@ -653,7 +653,7 @@ class BelongsToMany extends Relation
         $changes = [
             'attached' => [],
             'detached' => [],
-            'updated'  => [],
+            'updated' => [],
         ];
 
         $pk = $this->parent->getPk();
@@ -699,7 +699,7 @@ class BelongsToMany extends Relation
     protected function baseQuery()
     {
         if (empty($this->baseQuery) && $this->parent->getData()) {
-            $pk    = $this->parent->getPk();
+            $pk = $this->parent->getPk();
             $table = $this->pivot->getTable();
 
             $this->query

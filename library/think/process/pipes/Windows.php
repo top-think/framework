@@ -97,12 +97,12 @@ class Windows extends Pipes
         $this->write($blocking, $close);
 
         $read = [];
-        $fh   = $this->fileHandles;
+        $fh = $this->fileHandles;
         foreach ($fh as $type => $fileHandle) {
             if (0 !== fseek($fileHandle, $this->readBytes[$type])) {
                 continue;
             }
-            $data     = '';
+            $data = '';
             $dataread = null;
             while (!feof($fileHandle)) {
                 if (false !== $dataread = fread($fileHandle, self::CHUNK_SIZE)) {

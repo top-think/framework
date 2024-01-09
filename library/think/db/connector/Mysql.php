@@ -86,17 +86,17 @@ class Mysql extends Connection
             $tableName = '`' . $tableName . '`';
         }
 
-        $sql    = 'SHOW COLUMNS FROM ' . $tableName;
-        $pdo    = $this->query($sql, [], false, true);
+        $sql = 'SHOW COLUMNS FROM ' . $tableName;
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
 
         if ($result) {
             foreach ($result as $key => $val) {
-                $val                 = array_change_key_case($val);
+                $val = array_change_key_case($val);
                 $info[$val['field']] = [
-                    'name'    => $val['field'],
-                    'type'    => $val['type'],
+                    'name' => $val['field'],
+                    'type' => $val['type'],
                     'notnull' => 'NO' == $val['null'],
                     'default' => $val['default'],
                     'primary' => strtolower($val['key']) == 'pri',
@@ -116,10 +116,10 @@ class Mysql extends Connection
      */
     public function getTables($dbName = '')
     {
-        $sql    = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
-        $pdo    = $this->query($sql, [], false, true);
+        $sql = !empty($dbName) ? 'SHOW TABLES FROM ' . $dbName : 'SHOW TABLES ';
+        $pdo = $this->query($sql, [], false, true);
         $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        $info   = [];
+        $info = [];
 
         foreach ($result as $key => $val) {
             $info[$key] = current($val);

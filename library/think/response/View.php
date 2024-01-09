@@ -17,8 +17,8 @@ class View extends Response
 {
     // 输出参数
     protected $options = [];
-    protected $vars    = [];
-    protected $config  = [];
+    protected $vars = [];
+    protected $config = [];
     protected $filter;
     protected $contentType = 'text/html';
 

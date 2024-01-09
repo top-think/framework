@@ -23,7 +23,7 @@ use think\Loader;
 
 abstract class Connection
 {
-    const PARAM_FLOAT          = 21;
+    const PARAM_FLOAT = 21;
     protected static $instance = [];
     /** @var PDOStatement PDO操作实例 */
     protected $PDOStatement;
@@ -62,51 +62,51 @@ abstract class Connection
     // 数据库连接参数配置
     protected $config = [
         // 数据库类型
-        'type'            => '',
+        'type' => '',
         // 服务器地址
-        'hostname'        => '',
+        'hostname' => '',
         // 数据库名
-        'database'        => '',
+        'database' => '',
         // 用户名
-        'username'        => '',
+        'username' => '',
         // 密码
-        'password'        => '',
+        'password' => '',
         // 端口
-        'hostport'        => '',
+        'hostport' => '',
         // 连接dsn
-        'dsn'             => '',
+        'dsn' => '',
         // 数据库连接参数
-        'params'          => [],
+        'params' => [],
         // 数据库编码默认采用utf8
-        'charset'         => 'utf8',
+        'charset' => 'utf8',
         // 数据库表前缀
-        'prefix'          => '',
+        'prefix' => '',
         // 数据库调试模式
-        'debug'           => false,
+        'debug' => false,
         // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
-        'deploy'          => 0,
+        'deploy' => 0,
         // 数据库读写是否分离 主从式有效
-        'rw_separate'     => false,
+        'rw_separate' => false,
         // 读写分离后 主服务器数量
-        'master_num'      => 1,
+        'master_num' => 1,
         // 指定从服务器序号
-        'slave_no'        => '',
+        'slave_no' => '',
         // 模型写入后自动读取主服务器
-        'read_master'     => false,
+        'read_master' => false,
         // 是否严格检查字段是否存在
-        'fields_strict'   => true,
+        'fields_strict' => true,
         // 数据集返回类型
-        'resultset_type'  => '',
+        'resultset_type' => '',
         // 自动写入时间戳字段
-        'auto_timestamp'  => false,
+        'auto_timestamp' => false,
         // 时间字段取出后的默认时间格式
         'datetime_format' => 'Y-m-d H:i:s',
         // 是否需要进行SQL性能分析
-        'sql_explain'     => false,
+        'sql_explain' => false,
         // Builder类
-        'builder'         => '',
+        'builder' => '',
         // Query类
-        'query'           => '\\think\\db\\Query',
+        'query' => '\\think\\db\\Query',
         // 是否需要断线重连
         'break_reconnect' => false,
         // 断线标识字符串
@@ -115,11 +115,11 @@ abstract class Connection
 
     // PDO连接参数
     protected $params = [
-        PDO::ATTR_CASE              => PDO::CASE_NATURAL,
-        PDO::ATTR_ERRMODE           => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_ORACLE_NULLS      => PDO::NULL_NATURAL,
+        PDO::ATTR_CASE => PDO::CASE_NATURAL,
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_ORACLE_NULLS => PDO::NULL_NATURAL,
         PDO::ATTR_STRINGIFY_FETCHES => false,
-        PDO::ATTR_EMULATE_PREPARES  => false,
+        PDO::ATTR_EMULATE_PREPARES => false,
     ];
 
     // 服务器断线标识字符
@@ -377,7 +377,7 @@ abstract class Connection
             }
 
             $fields = array_keys($info);
-            $bind   = $type   = [];
+            $bind = $type = [];
 
             foreach ($info as $key => $val) {
                 // 记录字段类型
@@ -789,7 +789,7 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->getOptions();
-        $pk      = $query->getPk($options);
+        $pk = $query->getPk($options);
 
         $data = $options['data'];
         $query->setOption('limit', 1);
@@ -814,7 +814,7 @@ abstract class Connection
         if (is_string($pk) && !is_array($data)) {
             if (isset($key) && strpos($key, '|')) {
                 list($a, $val) = explode('|', $key);
-                $item[$pk]     = $val;
+                $item[$pk] = $val;
             } else {
                 $item[$pk] = $data;
             }
@@ -875,7 +875,7 @@ abstract class Connection
         $bind = $query->getBind();
 
         $condition = isset($options['where']['AND']) ? $options['where']['AND'] : null;
-        $relation  = isset($options['relaltion']) ? $options['relation'] : null;
+        $relation = isset($options['relaltion']) ? $options['relation'] : null;
 
         // 执行查询操作
         return $this->getCursor($sql, $bind, $options['master'], $query->getModel(), $condition, $relation);
@@ -963,7 +963,7 @@ abstract class Connection
         $result = '' == $sql ? 0 : $this->execute($sql, $bind, $query);
 
         if ($result) {
-            $sequence  = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
+            $sequence = $sequence ?: (isset($options['sequence']) ? $options['sequence'] : null);
             $lastInsId = $this->getLastInsID($sequence);
 
             $data = $options['data'];
@@ -1015,7 +1015,7 @@ abstract class Connection
                 $count = 0;
 
                 foreach ($array as $item) {
-                    $sql  = $this->builder->insertAll($query, $item, $replace);
+                    $sql = $this->builder->insertAll($query, $item, $replace);
                     $bind = $query->getBind();
 
                     if (!empty($options['fetch_sql'])) {
@@ -1038,7 +1038,7 @@ abstract class Connection
             return isset($fetchSql) ? implode(';', $fetchSql) : $count;
         }
 
-        $sql  = $this->builder->insertAll($query, $dataSet, $replace);
+        $sql = $this->builder->insertAll($query, $dataSet, $replace);
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
@@ -1091,7 +1091,7 @@ abstract class Connection
             $key = $options['cache']['key'];
         }
 
-        $pk   = $query->getPk($options);
+        $pk = $query->getPk($options);
         $data = $options['data'];
 
         if (empty($options['where'])) {
@@ -1134,7 +1134,7 @@ abstract class Connection
         $query->setOption('data', $data);
 
         // 生成UPDATE SQL语句
-        $sql  = $this->builder->update($query);
+        $sql = $this->builder->update($query);
         $bind = $query->getBind();
 
         if (!empty($options['fetch_sql'])) {
@@ -1160,7 +1160,7 @@ abstract class Connection
                 $data[$pk] = $where[$pk];
             } elseif (is_string($pk) && isset($key) && strpos($key, '|')) {
                 list($a, $val) = explode('|', $key);
-                $data[$pk]     = $val;
+                $data[$pk] = $val;
             }
 
             $query->setOption('data', $data);
@@ -1182,8 +1182,8 @@ abstract class Connection
     {
         // 分析查询表达式
         $options = $query->getOptions();
-        $pk      = $query->getPk($options);
-        $data    = $options['data'];
+        $pk = $query->getPk($options);
+        $data = $options['data'];
 
         if (isset($options['cache']) && is_string($options['cache']['key'])) {
             $key = $options['cache']['key'];
@@ -1228,8 +1228,8 @@ abstract class Connection
         if ($result) {
             if (!is_array($data) && is_string($pk) && isset($key) && strpos($key, '|')) {
                 list($a, $val) = explode('|', $key);
-                $item[$pk]     = $val;
-                $data          = $item;
+                $item[$pk] = $val;
+                $data = $item;
             }
 
             $options['data'] = $data;
@@ -1264,7 +1264,7 @@ abstract class Connection
         $query->setOption('field', $field);
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
-            $cache  = $options['cache'];
+            $cache = $options['cache'];
             $result = $this->getCacheData($query, $cache, null, $key);
 
             if (false !== $result) {
@@ -1357,7 +1357,7 @@ abstract class Connection
 
         if (empty($options['fetch_sql']) && !empty($options['cache'])) {
             // 判断查询缓存
-            $cache  = $options['cache'];
+            $cache = $options['cache'];
             $result = $this->getCacheData($query, $cache, null, $guid);
 
             if (false !== $result) {
@@ -1394,10 +1394,10 @@ abstract class Connection
                 $result = array_column($resultSet, null, $key);
             } elseif ($resultSet) {
                 $fields = array_keys($resultSet[0]);
-                $count  = count($fields);
-                $key1   = array_shift($fields);
-                $key2   = $fields ? array_shift($fields) : '';
-                $key    = $key ?: $key1;
+                $count = count($fields);
+                $key1 = array_shift($fields);
+                $key2 = $fields ? array_shift($fields) : '';
+                $key = $key ?: $key1;
 
                 if (strpos($key, '.')) {
                     list($alias, $key) = explode('.', $key);
@@ -1464,7 +1464,7 @@ abstract class Connection
 
         foreach ($bind as $key => $val) {
             $value = is_array($val) ? $val[0] : $val;
-            $type  = is_array($val) ? $val[1] : PDO::PARAM_STR;
+            $type = is_array($val) ? $val[1] : PDO::PARAM_STR;
 
             if ((self::PARAM_FLOAT == $type || PDO::PARAM_STR == $type) && is_string($value)) {
                 $value = '\'' . addslashes($value) . '\'';
@@ -1826,10 +1826,10 @@ abstract class Connection
      */
     public function close()
     {
-        $this->linkID    = null;
+        $this->linkID = null;
         $this->linkWrite = null;
-        $this->linkRead  = null;
-        $this->links     = [];
+        $this->linkRead = null;
+        $this->links = [];
 
         // 释放查询
         $this->free();
@@ -1931,8 +1931,8 @@ abstract class Connection
                 // 记录操作结束时间
                 $debug->remark('queryEndTime', 'time');
                 $runtime = $debug->getRangeTime('queryStartTime', 'queryEndTime');
-                $sql     = $sql ?: $this->getLastsql();
-                $result  = [];
+                $sql = $sql ?: $this->getLastsql();
+                $result = [];
 
                 // SQL性能分析
                 if ($this->config['sql_explain'] && 0 === stripos(trim($sql), 'select')) {

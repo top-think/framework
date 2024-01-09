@@ -14,14 +14,14 @@ namespace think;
 class Log implements LoggerInterface
 {
     const EMERGENCY = 'emergency';
-    const ALERT     = 'alert';
-    const CRITICAL  = 'critical';
-    const ERROR     = 'error';
-    const WARNING   = 'warning';
-    const NOTICE    = 'notice';
-    const INFO      = 'info';
-    const DEBUG     = 'debug';
-    const SQL       = 'sql';
+    const ALERT = 'alert';
+    const CRITICAL = 'critical';
+    const ERROR = 'error';
+    const WARNING = 'warning';
+    const NOTICE = 'notice';
+    const INFO = 'info';
+    const DEBUG = 'debug';
+    const SQL = 'sql';
 
     /**
      * 日志信息
@@ -186,7 +186,7 @@ class Log implements LoggerInterface
     public function close()
     {
         $this->allowWrite = false;
-        $this->log        = [];
+        $this->log = [];
 
         return $this;
     }

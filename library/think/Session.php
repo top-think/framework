@@ -489,7 +489,7 @@ class Session
         empty($this->init) && $this->boot();
 
         $prefix = !is_null($prefix) ? $prefix : $this->prefix;
-        $value  = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
+        $value = $prefix ? (!empty($_SESSION[$prefix]) ? $_SESSION[$prefix] : []) : $_SESSION;
 
         $name = explode('.', $name);
 
@@ -550,7 +550,7 @@ class Session
         session_unset();
         session_destroy();
 
-        $this->init       = null;
+        $this->init = null;
         $this->lockDriver = null;
     }
 

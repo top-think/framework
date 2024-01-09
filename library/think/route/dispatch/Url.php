@@ -138,7 +138,7 @@ class Url extends Dispatch
      */
     protected function autoFindController($module, &$path)
     {
-        $dir    = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->rule->getConfig('url_controller_layer');
+        $dir = $this->app->getAppPath() . ($module ? $module . '/' : '') . $this->rule->getConfig('url_controller_layer');
         $suffix = $this->app->getSuffix() || $this->rule->getConfig('controller_suffix') ? ucfirst($this->rule->getConfig('url_controller_layer')) : '';
 
         $item = [];
@@ -146,8 +146,8 @@ class Url extends Dispatch
 
         foreach ($path as $val) {
             $item[] = $val;
-            $file   = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
-            $file   = pathinfo($file, PATHINFO_DIRNAME) . '/' . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
+            $file = $dir . '/' . str_replace('.', '/', $val) . $suffix . '.php';
+            $file = pathinfo($file, PATHINFO_DIRNAME) . '/' . Loader::parseName(pathinfo($file, PATHINFO_FILENAME), 1) . '.php';
             if (is_file($file)) {
                 $find = true;
                 break;
@@ -158,7 +158,7 @@ class Url extends Dispatch
 
         if ($find) {
             $controller = implode('.', $item);
-            $path       = array_slice($path, count($item));
+            $path = array_slice($path, count($item));
         } else {
             $controller = array_shift($path);
         }

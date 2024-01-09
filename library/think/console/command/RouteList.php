@@ -21,10 +21,10 @@ use think\Container;
 class RouteList extends Command
 {
     protected $sortBy = [
-        'rule'   => 0,
-        'route'  => 1,
+        'rule' => 0,
+        'route' => 1,
         'method' => 2,
-        'name'   => 3,
+        'name' => 3,
         'domain' => 4,
     ];
 
@@ -86,7 +86,7 @@ class RouteList extends Command
         $table->setHeader($header);
 
         $routeList = Container::get('route')->getRuleList();
-        $rows      = [];
+        $rows = [];
 
         foreach ($routeList as $domain => $items) {
             foreach ($items as $item) {

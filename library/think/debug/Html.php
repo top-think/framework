@@ -40,9 +40,9 @@ class Html
      */
     public function output(Response $response, array $log = [])
     {
-        $request     = Container::get('request');
+        $request = Container::get('request');
         $contentType = $response->getHeader('Content-Type');
-        $accept      = $request->header('accept');
+        $accept = $request->header('accept');
         if (strpos($accept, 'application/json') === 0 || $request->isAjax()) {
             return false;
         } elseif (!empty($contentType) && strpos($contentType, 'html') === false) {
@@ -50,8 +50,8 @@ class Html
         }
         // 获取基本信息
         $runtime = number_format(microtime(true) - Container::get('app')->getBeginTime(), 10, '.', '');
-        $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
-        $mem     = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
+        $reqs = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
+        $mem = number_format((memory_get_usage() - Container::get('app')->getBeginMem()) / 1024, 2);
 
         // 页面Trace信息
         if ($request->host()) {
@@ -86,7 +86,7 @@ class Html
                 default: // 调试信息
                     if (strpos($name, '|')) {
                         // 多组信息
-                        $names  = explode('|', $name);
+                        $names = explode('|', $name);
                         $result = [];
                         foreach ($names as $name) {
                             $result = array_merge($result, isset($log[$name]) ? $log[$name] : []);

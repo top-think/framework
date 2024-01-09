@@ -64,26 +64,26 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
      * @var array
      */
     protected $bind = [
-        'app'                   => App::class,
-        'build'                 => Build::class,
-        'cache'                 => Cache::class,
-        'config'                => Config::class,
-        'cookie'                => Cookie::class,
-        'debug'                 => Debug::class,
-        'env'                   => Env::class,
-        'hook'                  => Hook::class,
-        'lang'                  => Lang::class,
-        'log'                   => Log::class,
-        'middleware'            => Middleware::class,
-        'request'               => Request::class,
-        'response'              => Response::class,
-        'route'                 => Route::class,
-        'session'               => Session::class,
-        'template'              => Template::class,
-        'url'                   => Url::class,
-        'validate'              => Validate::class,
-        'view'                  => View::class,
-        'rule_name'             => route\RuleName::class,
+        'app' => App::class,
+        'build' => Build::class,
+        'cache' => Cache::class,
+        'config' => Config::class,
+        'cookie' => Cookie::class,
+        'debug' => Debug::class,
+        'env' => Env::class,
+        'hook' => Hook::class,
+        'lang' => Lang::class,
+        'log' => Log::class,
+        'middleware' => Middleware::class,
+        'request' => Request::class,
+        'response' => Response::class,
+        'route' => Route::class,
+        'session' => Session::class,
+        'template' => Template::class,
+        'url' => Url::class,
+        'validate' => Validate::class,
+        'view' => View::class,
+        'rule_name' => route\RuleName::class,
         // 接口依赖注入
         'think\LoggerInterface' => Log::class,
     ];
@@ -262,7 +262,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
         if (true === $vars) {
             // 总是创建新的实例化对象
             $newInstance = true;
-            $vars        = [];
+            $vars = [];
         }
 
         $abstract = isset($this->name[$abstract]) ? $this->name[$abstract] : $abstract;
@@ -326,8 +326,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     public function flush()
     {
         $this->instances = [];
-        $this->bind      = [];
-        $this->name      = [];
+        $this->bind = [];
+        $this->name = [];
     }
 
     /**
@@ -361,7 +361,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     {
         try {
             if (is_array($method)) {
-                $class   = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
+                $class = is_object($method[0]) ? $method[0] : $this->invokeClass($method[0]);
                 $reflect = new ReflectionMethod($class, $method[1]);
             } else {
                 // 静态方法
@@ -458,7 +458,7 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
 
         // 判断数组类型 数字数组时按顺序绑定参数
         reset($vars);
-        $type   = key($vars) === 0 ? 1 : 0;
+        $type = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
 
         if (version_compare(PHP_VERSION, '8.0', '>=')) {
@@ -481,9 +481,9 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     protected function parseParams($params, $vars, $type)
     {
         foreach ($params as $param) {
-            $name      = $param->getName();
+            $name = $param->getName();
             $lowerName = Loader::parseName($name);
-            $class     = $param->getClass();
+            $class = $param->getClass();
 
             if ($class) {
                 $args[] = $this->getObjectParam($class->getName(), $vars);
@@ -513,8 +513,8 @@ class Container implements ArrayAccess, IteratorAggregate, Countable
     protected function parseParamsForPHP8($params, $vars, $type)
     {
         foreach ($params as $param) {
-            $name           = $param->getName();
-            $lowerName      = Loader::parseName($name);
+            $name = $param->getName();
+            $lowerName = Loader::parseName($name);
             $reflectionType = $param->getType();
 
             if ($reflectionType && $reflectionType->isBuiltin() === false) {

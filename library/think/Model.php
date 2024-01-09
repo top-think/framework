@@ -195,10 +195,10 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         if (empty($this->name)) {
             // 当前模型名
-            $name       = str_replace('\\', '/', static::class);
+            $name = str_replace('\\', '/', static::class);
             $this->name = basename($name);
             if (Container::get('config')->get('class_suffix')) {
-                $suffix     = basename(dirname($name));
+                $suffix = basename(dirname($name));
                 $this->name = substr($this->name, 0, -strlen($suffix));
             }
         }
@@ -468,7 +468,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     {
         if (is_string($data)) {
             $sequence = $data;
-            $data     = [];
+            $data = [];
         }
 
         if (!$this->checkBeforeSave($data, $where)) {
@@ -486,7 +486,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
 
         // 重新记录原始数据
         $this->origin = $this->data;
-        $this->set    = [];
+        $this->set = [];
 
         return true;
     }
@@ -507,7 +507,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
 
             if (!empty($where)) {
-                $this->exists      = true;
+                $this->exists = true;
                 $this->updateWhere = $where;
             }
         }
@@ -602,7 +602,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
             }
         }
 
-        $pk    = $this->getPk();
+        $pk = $this->getPk();
         $array = [];
 
         foreach ((array) $pk as $key) {
@@ -862,7 +862,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
                 $this->updateWhere = $where;
             }
         } else {
-            $this->exists      = true;
+            $this->exists = true;
             $this->updateWhere = $update;
         }
 
@@ -1019,7 +1019,7 @@ abstract class Model implements \JsonSerializable, \ArrayAccess
     public function __debugInfo()
     {
         return [
-            'data'     => $this->data,
+            'data' => $this->data,
             'relation' => $this->relation,
         ];
     }

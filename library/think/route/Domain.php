@@ -32,10 +32,10 @@ class Domain extends RuleGroup
      */
     public function __construct(Route $router, $name = '', $rule = null, $option = [], $pattern = [])
     {
-        $this->router  = $router;
-        $this->domain  = $name;
-        $this->option  = $option;
-        $this->rule    = $rule;
+        $this->router = $router;
+        $this->domain = $name;
+        $this->option = $option;
+        $this->rule = $rule;
         $this->pattern = $pattern;
     }
 
@@ -128,8 +128,8 @@ class Domain extends RuleGroup
 
             $bindTo = [
                 '\\' => 'bindToClass',
-                '@'  => 'bindToController',
-                ':'  => 'bindToNamespace',
+                '@' => 'bindToController',
+                ':' => 'bindToNamespace',
             ];
 
             if (isset($bindTo[$type])) {
@@ -159,9 +159,9 @@ class Domain extends RuleGroup
      */
     protected function bindToClass($request, $url, $class)
     {
-        $array  = explode('|', $url, 2);
+        $array = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
-        $param  = [];
+        $param = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);
@@ -180,10 +180,10 @@ class Domain extends RuleGroup
      */
     protected function bindToNamespace($request, $url, $namespace)
     {
-        $array  = explode('|', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : $this->router->config('default_controller');
+        $array = explode('|', $url, 3);
+        $class = !empty($array[0]) ? $array[0] : $this->router->config('default_controller');
         $method = !empty($array[1]) ? $array[1] : $this->router->config('default_action');
-        $param  = [];
+        $param = [];
 
         if (!empty($array[2])) {
             $this->parseUrlParams($request, $array[2], $param);
@@ -202,9 +202,9 @@ class Domain extends RuleGroup
      */
     protected function bindToController($request, $url, $controller)
     {
-        $array  = explode('|', $url, 2);
+        $array = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
-        $param  = [];
+        $param = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);
@@ -223,9 +223,9 @@ class Domain extends RuleGroup
      */
     protected function bindToModule($request, $url, $controller)
     {
-        $array  = explode('|', $url, 2);
+        $array = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->router->config('default_action');
-        $param  = [];
+        $param = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($request, $array[1], $param);

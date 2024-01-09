@@ -25,7 +25,7 @@ class Middleware
 
     public function __construct(App $app, array $config = [])
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->config = array_merge($this->config, $config);
     }
 

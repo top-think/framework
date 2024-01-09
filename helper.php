@@ -505,7 +505,7 @@ if (!function_exists('redirect')) {
     function redirect($url = [], $params = [], $code = 302)
     {
         if (is_integer($params)) {
-            $code   = $params;
+            $code = $params;
             $params = [];
         }
 

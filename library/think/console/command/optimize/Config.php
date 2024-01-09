@@ -34,7 +34,7 @@ class Config extends Command
             $module = '';
         }
 
-        $content     = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
+        $content = '<?php ' . PHP_EOL . $this->buildCacheContent($module);
         $runtimePath = App::getRuntimePath();
         if (!is_dir($runtimePath . $module)) {
             @mkdir($runtimePath . $module, 0755, true);
@@ -48,13 +48,13 @@ class Config extends Command
     protected function buildCacheContent($module)
     {
         $content = '// This cache file is automatically generated at:' . date('Y-m-d H:i:s') . PHP_EOL;
-        $path    = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;
+        $path = realpath(App::getAppPath() . $module) . DIRECTORY_SEPARATOR;
         if ($module) {
             $configPath = is_dir($path . 'config') ? $path . 'config' : App::getConfigPath() . $module;
         } else {
             $configPath = App::getConfigPath();
         }
-        $ext    = App::getConfigExt();
+        $ext = App::getConfigExt();
         $config = Container::get('config');
 
         $files = is_dir($configPath) ? scandir($configPath) : [];

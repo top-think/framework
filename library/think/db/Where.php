@@ -35,7 +35,7 @@ class Where implements ArrayAccess
      */
     public function __construct(array $where = [], $enclose = false)
     {
-        $this->where   = $where;
+        $this->where = $where;
         $this->enclose = $enclose;
     }
 
@@ -84,7 +84,7 @@ class Where implements ArrayAccess
      */
     protected function parseItem($field, $where = [])
     {
-        $op        = $where[0];
+        $op = $where[0];
         $condition = isset($where[1]) ? $where[1] : null;
 
         if (is_array($op)) {
