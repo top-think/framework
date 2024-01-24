@@ -541,8 +541,8 @@ class Template
 
                     foreach ($array as $k => $v) {
                         // 以$开头字符串转换成模板变量
-                        if (0 === strpos($v, '$')) {
-                            $v = $this->get(substr($v, 1));
+                        if (0 === strpos($v, '$') || 0 === strpos($v, ':')) {
+                            $v = '{' . $v . '}';
                         }
 
                         $parseStr = str_replace('[' . $k . ']', $v, $parseStr);
