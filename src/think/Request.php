@@ -1214,7 +1214,7 @@ class Request implements ArrayAccess
                 } else {
                     if ($file['error'] > 0) {
                         if ($key == $name) {
-                            $this->throwUploadFileError($file['error']);
+                            $this->($file['error']);
                         } else {
                             continue;
                         }
@@ -1237,6 +1237,7 @@ class Request implements ArrayAccess
             4 => 'no file to uploaded',
             6 => 'upload temp dir not found',
             7 => 'file write error',
+            8 => 'file upload was stopped by a PHP extension',
         ];
 
         $msg = Lang::get($fileUploadErrors[$error]);
