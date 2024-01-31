@@ -1214,7 +1214,7 @@ class Request implements ArrayAccess
                 } else {
                     if ($file['error'] > 0) {
                         if ($key == $name) {
-                            $this->($file['error']);
+                            $this->throwUploadFileError($file['error']);
                         } else {
                             continue;
                         }
