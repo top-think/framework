@@ -47,8 +47,8 @@ class RuleItem extends Rule
     {
         $this->router = $router;
         $this->parent = $parent;
-        $this->name   = $name;
-        $this->route  = $route;
+        $this->name = $name;
+        $this->route = $route;
         $this->method = $method;
 
         $this->setRule($rule);
@@ -170,9 +170,9 @@ class RuleItem extends Rule
         }
 
         // 合并分组参数
-        $option  = $this->getOption();
+        $option = $this->getOption();
         $pattern = $this->getPattern();
-        $url     = $this->urlSuffixCheck($request, $url, $option);
+        $url = $this->urlSuffixCheck($request, $url, $option);
 
         if (is_null($match)) {
             $match = $this->checkMatch($url, $option, $pattern, $completeMatch);
@@ -211,7 +211,7 @@ class RuleItem extends Rule
         // 是否区分 / 地址访问
         if (!empty($option['remove_slash']) && '/' != $this->rule) {
             $this->rule = rtrim($this->rule, '/');
-            $url        = rtrim($url, '|');
+            $url = rtrim($url, '|');
         }
 
         if (isset($option['ext'])) {
@@ -249,8 +249,8 @@ class RuleItem extends Rule
             return false;
         }
 
-        $var  = [];
-        $url  = $depr . str_replace('|', $depr, $url);
+        $var = [];
+        $url = $depr . str_replace('|', $depr, $url);
         $rule = $depr . str_replace('/', $depr, $this->rule);
 
         if ($depr == $rule && $depr != $url) {
