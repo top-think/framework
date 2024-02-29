@@ -26,25 +26,25 @@ class Lang
      */
     protected $config = [
         // 默认语言
-        'default_lang' => 'zh-cn',
+        'default_lang'    => 'zh-cn',
         // 允许的语言列表
         'allow_lang_list' => [],
         // 是否使用Cookie记录
-        'use_cookie' => true,
+        'use_cookie'      => true,
         // 扩展语言包
-        'extend_list' => [],
+        'extend_list'     => [],
         // 多语言cookie变量
-        'cookie_var' => 'think_lang',
+        'cookie_var'      => 'think_lang',
         // 多语言header变量
-        'header_var' => 'think-lang',
+        'header_var'      => 'think-lang',
         // 多语言自动侦测变量名
-        'detect_var' => 'lang',
+        'detect_var'      => 'lang',
         // Accept-Language转义为对应语言包名称
         'accept_language' => [
             'zh-hans-cn' => 'zh-cn',
         ],
         // 是否支持语言分组
-        'allow_group' => false,
+        'allow_group'     => false,
     ];
 
     /**
@@ -67,8 +67,8 @@ class Lang
     public function __construct(App $app, array $config = [])
     {
         $this->config = array_merge($this->config, array_change_key_case($config));
-        $this->range = $this->config['default_lang'];
-        $this->app = $app;
+        $this->range  = $this->config['default_lang'];
+        $this->app    = $app;
     }
 
     public static function __make(App $app, Config $config)
@@ -167,7 +167,7 @@ class Lang
         foreach ((array) $file as $name) {
             if (is_file($name)) {
                 $result = $this->parse($name);
-                $lang = array_change_key_case($result) + $lang;
+                $lang   = array_change_key_case($result) + $lang;
             }
         }
 
@@ -186,12 +186,12 @@ class Lang
      */
     protected function parse(string $file): array
     {
-        $type = pathinfo($file, PATHINFO_EXTENSION);
+        $type   = pathinfo($file, PATHINFO_EXTENSION);
         $result = match ($type) {
-            'php' => include $file,
-            'yml','yaml' => function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
-            'json' => json_decode(file_get_contents($file), true),
-            default => [],
+            'php'       =>  include $file,
+            'yml','yaml'=>  function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
+            'json'      =>  json_decode(file_get_contents($file), true),
+            default     =>  [],
         };
 
         return is_array($result) ? $result : [];

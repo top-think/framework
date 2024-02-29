@@ -20,11 +20,11 @@ class DbTest extends TestCase
 
     public function testMake()
     {
-        $event = m::mock(Event::class);
+        $event  = m::mock(Event::class);
         $config = m::mock(Config::class);
-        $log = m::mock(Log::class);
-        $cache = m::mock(Cache::class);
-        $store = m::mock(Driver::class);
+        $log    = m::mock(Log::class);
+        $cache  = m::mock(Cache::class);
+        $store  = m::mock(Driver::class);
 
         $config->shouldReceive('get')->with('database.cache_store', null)->andReturn(null);
         $cache->shouldReceive('store')->with(null)->andReturn($store);

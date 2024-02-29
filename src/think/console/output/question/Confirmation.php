@@ -39,7 +39,7 @@ class Confirmation extends Question
     private function getDefaultNormalizer()
     {
         $default = $this->getDefault();
-        $regex = $this->trueAnswerRegex;
+        $regex   = $this->trueAnswerRegex;
 
         return function ($answer) use ($default, $regex) {
             if (is_bool($answer)) {

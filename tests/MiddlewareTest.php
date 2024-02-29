@@ -64,7 +64,7 @@ class MiddlewareTest extends TestCase
         $bar = m::mock("overload:BarMiddleware");
         $foo = m::mock("overload:FooMiddleware", Foo::class);
 
-        $request = m::mock(Request::class);
+        $request  = m::mock(Request::class);
         $response = m::mock(Response::class);
 
         $e = new Exception();

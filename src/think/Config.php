@@ -35,7 +35,7 @@ class Config
     public static function __make(App $app)
     {
         $path = $app->getConfigPath();
-        $ext = $app->getConfigExt();
+        $ext  = $app->getConfigExt();
 
         return new static($path, $ext);
     }
@@ -71,14 +71,14 @@ class Config
      */
     protected function parse(string $file, string $name): array
     {
-        $type = pathinfo($file, PATHINFO_EXTENSION);
+        $type   = pathinfo($file, PATHINFO_EXTENSION);
         $config = [];
         $config = match ($type) {
-            'php' => include $file,
-            'yml','yaml' => function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
-            'ini' => parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [],
-            'json' => json_decode(file_get_contents($file), true),
-            default => [],
+            'php'           =>  include $file,
+            'yml','yaml'    =>  function_exists('yaml_parse_file') ? yaml_parse_file($file) : [],
+            'ini'           =>  parse_ini_file($file, true, INI_SCANNER_TYPED) ?: [],
+            'json'          =>  json_decode(file_get_contents($file), true),
+            default         =>  [],
         };
 
         return is_array($config) ? $this->set($config, strtolower($name)) : [];
@@ -130,9 +130,9 @@ class Config
             return $this->pull($name);
         }
 
-        $name = explode('.', $name);
+        $name    = explode('.', $name);
         $name[0] = strtolower($name[0]);
-        $config = $this->config;
+        $config  = $this->config;
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {

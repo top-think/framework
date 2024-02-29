@@ -31,9 +31,9 @@ class Xml extends Response
         //数字索引的子节点名
         'item_node' => 'item',
         // 数字索引子节点key转换的属性名
-        'item_key' => 'id',
+        'item_key'  => 'id',
         // 数据编码
-        'encoding' => 'utf-8',
+        'encoding'  => 'utf-8',
     ];
 
     protected $contentType = 'text/xml';
@@ -55,8 +55,8 @@ class Xml extends Response
         if (is_string($data)) {
             if (!str_starts_with($data, '<?xml')) {
                 $encoding = $this->options['encoding'];
-                $xml = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
-                $data = $xml . $data;
+                $xml      = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
+                $data     = $xml . $data;
             }
             return $data;
         }
@@ -88,7 +88,7 @@ class Xml extends Response
 
         $attr = trim($attr);
         $attr = empty($attr) ? '' : " {$attr}";
-        $xml = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
+        $xml  = "<?xml version=\"1.0\" encoding=\"{$encoding}\"?>";
         $xml .= "<{$root}{$attr}>";
         $xml .= $this->dataToXml($data, $item, $id);
         $xml .= "</{$root}>";
@@ -115,7 +115,7 @@ class Xml extends Response
         foreach ($data as $key => $val) {
             if (is_numeric($key)) {
                 $id && $attr = " {$id}=\"{$key}\"";
-                $key = $item;
+                $key         = $item;
             }
             $xml .= "<{$key}{$attr}>";
             $xml .= (is_array($val) || is_object($val)) ? $this->dataToXml($val, $item, $id) : $val;

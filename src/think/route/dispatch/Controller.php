@@ -52,7 +52,7 @@ class Controller extends Dispatch
         $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
 
         if (str_contains($controller, '.')) {
-            $pos = strrpos($controller, '.');
+            $pos              = strrpos($controller, '.');
             $this->controller = substr($controller, 0, $pos) . '.' . Str::studly(substr($controller, $pos + 1));
         } else {
             $this->controller = Str::studly($controller);
@@ -99,7 +99,7 @@ class Controller extends Dispatch
                         $this->request->setAction($actionName);
                     } catch (ReflectionException $e) {
                         $reflect = new ReflectionMethod($instance, '__call');
-                        $vars = [$action, $vars];
+                        $vars    = [$action, $vars];
                         $this->request->setAction($action);
                     }
                 } else {
@@ -135,18 +135,18 @@ class Controller extends Dispatch
             $reflectionProperty->setAccessible(true);
 
             $middlewares = $reflectionProperty->getValue($controller);
-            $action = $this->request->action(true);
+            $action      = $this->request->action(true);
 
             foreach ($middlewares as $key => $val) {
                 if (!is_int($key)) {
                     $middleware = $key;
-                    $options = $val;
+                    $options    = $val;
                 } elseif (isset($val['middleware'])) {
                     $middleware = $val['middleware'];
-                    $options = $val['options'] ?? [];
+                    $options    = $val['options'] ?? [];
                 } else {
                     $middleware = $val;
-                    $options = [];
+                    $options    = [];
                 }
 
                 if (isset($options['only']) && !in_array($action, $this->parseActions($options['only']))) {
