@@ -26,14 +26,14 @@ class Memcache extends Driver
      * @var array
      */
     protected $options = [
-        'host' => '127.0.0.1',
-        'port' => 11211,
-        'expire' => 0,
-        'timeout' => 0, // 超时时间（单位：毫秒）
+        'host'       => '127.0.0.1',
+        'port'       => 11211,
+        'expire'     => 0,
+        'timeout'    => 0, // 超时时间（单位：毫秒）
         'persistent' => true,
-        'prefix' => '',
+        'prefix'     => '',
         'tag_prefix' => 'tag:',
-        'serialize' => [],
+        'serialize'  => [],
     ];
 
     /**
@@ -112,9 +112,9 @@ class Memcache extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key = $this->getCacheKey($name);
+        $key    = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value = $this->serialize($value);
+        $value  = $this->serialize($value);
 
         if ($this->handler->set($key, $value, 0, $expire)) {
             return true;
@@ -150,9 +150,9 @@ class Memcache extends Driver
      */
     public function dec($name, $step = 1)
     {
-        $key = $this->getCacheKey($name);
+        $key   = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
-        $res = $this->handler->set($key, $value);
+        $res   = $this->handler->set($key, $value);
 
         return !$res ? false : $value;
     }

@@ -52,30 +52,30 @@ class Console
     protected $wantHelps = false;
 
     protected $catchExceptions = true;
-    protected $autoExit = true;
+    protected $autoExit        = true;
     protected $definition;
-    protected $defaultCommand = 'list';
+    protected $defaultCommand  = 'list';
 
     protected $defaultCommands = [
-        'help' => Help::class,
-        'list' => Lists::class,
-        'clear' => Clear::class,
-        'make:command' => MakeCommand::class,
-        'make:controller' => Controller::class,
-        'make:model' => Model::class,
-        'make:middleware' => Middleware::class,
-        'make:validate' => Validate::class,
-        'make:event' => Event::class,
-        'make:listener' => Listener::class,
-        'make:service' => Service::class,
-        'make:subscribe' => Subscribe::class,
-        'optimize:route' => Route::class,
-        'optimize:schema' => Schema::class,
-        'run' => RunServer::class,
-        'version' => Version::class,
-        'route:list' => RouteList::class,
+        'help'             => Help::class,
+        'list'             => Lists::class,
+        'clear'            => Clear::class,
+        'make:command'     => MakeCommand::class,
+        'make:controller'  => Controller::class,
+        'make:model'       => Model::class,
+        'make:middleware'  => Middleware::class,
+        'make:validate'    => Validate::class,
+        'make:event'       => Event::class,
+        'make:listener'    => Listener::class,
+        'make:service'     => Service::class,
+        'make:subscribe'   => Subscribe::class,
+        'optimize:route'   => Route::class,
+        'optimize:schema'  => Schema::class,
+        'run'              => RunServer::class,
+        'version'          => Version::class,
+        'route:list'       => RouteList::class,
         'service:discover' => ServiceDiscover::class,
-        'vendor:publish' => VendorPublish::class,
+        'vendor:publish'   => VendorPublish::class,
     ];
 
     /**
@@ -121,19 +121,19 @@ class Console
         if (isset($components['path'])) {
             $server = array_merge($server, [
                 'SCRIPT_FILENAME' => $components['path'],
-                'SCRIPT_NAME' => $components['path'],
-                'REQUEST_URI' => $components['path'],
+                'SCRIPT_NAME'     => $components['path'],
+                'REQUEST_URI'     => $components['path'],
             ]);
         }
 
         if (isset($components['host'])) {
             $server['SERVER_NAME'] = $components['host'];
-            $server['HTTP_HOST'] = $components['host'];
+            $server['HTTP_HOST']   = $components['host'];
         }
 
         if (isset($components['scheme'])) {
             if ('https' === $components['scheme']) {
-                $server['HTTPS'] = 'on';
+                $server['HTTPS']       = 'on';
                 $server['SERVER_PORT'] = 443;
             } else {
                 unset($server['HTTPS']);
@@ -218,7 +218,7 @@ class Console
     {
         array_unshift($parameters, $command);
 
-        $input = new Input($parameters);
+        $input  = new Input($parameters);
         $output = new Output($driver);
 
         $this->setCatchExceptions(false);
@@ -236,7 +236,7 @@ class Console
      */
     public function run()
     {
-        $input = new Input();
+        $input  = new Input();
         $output = new Output();
 
         $this->configureIO($input, $output);
@@ -291,7 +291,7 @@ class Console
 
         if (true === $input->hasParameterOption(['--help', '-h'])) {
             if (!$name) {
-                $name = 'help';
+                $name  = 'help';
                 $input = new Input(['help']);
             } else {
                 $this->wantHelps = true;
@@ -299,7 +299,7 @@ class Console
         }
 
         if (!$name) {
-            $name = $this->defaultCommand;
+            $name  = $this->defaultCommand;
             $input = new Input([$this->defaultCommand]);
         }
 
@@ -508,10 +508,10 @@ class Console
     public function findNamespace(string $namespace): string
     {
         $allNamespaces = $this->getNamespaces();
-        $expr = preg_replace_callback('{([^:]+|)}', function ($matches) {
+        $expr          = preg_replace_callback('{([^:]+|)}', function ($matches) {
             return preg_quote($matches[1]) . '[^:]*';
         }, $namespace);
-        $namespaces = preg_grep('{^' . $expr . '}', $allNamespaces);
+        $namespaces    = preg_grep('{^' . $expr . '}', $allNamespaces);
 
         if (empty($namespaces)) {
             $message = sprintf('There are no commands defined in the "%s" namespace.', $namespace);
@@ -714,7 +714,7 @@ class Console
      */
     private function findAlternatives(string $name, array|\Traversable $collection): array
     {
-        $threshold = 1e3;
+        $threshold    = 1e3;
         $alternatives = [];
 
         $collectionParts = [];
@@ -764,7 +764,7 @@ class Console
      */
     private function extractAllNamespaces(string $name): array
     {
-        $parts = explode(':', $name, -1);
+        $parts      = explode(':', $name, -1);
         $namespaces = [];
 
         foreach ($parts as $part) {

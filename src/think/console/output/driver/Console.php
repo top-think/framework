@@ -30,10 +30,10 @@ class Console
 
     public function __construct(Output $output)
     {
-        $this->output = $output;
+        $this->output    = $output;
         $this->formatter = new Formatter();
-        $this->stdout = $this->openOutputStream();
-        $decorated = $this->hasColorSupport($this->stdout);
+        $this->stdout    = $this->openOutputStream();
+        $decorated       = $this->hasColorSupport($this->stdout);
         $this->formatter->setDecorated($decorated);
     }
 
@@ -70,7 +70,7 @@ class Console
 
     public function renderException(\Throwable $e)
     {
-        $stderr = $this->openErrorStream();
+        $stderr    = $this->openErrorStream();
         $decorated = $this->hasColorSupport($stderr);
         $this->formatter->setDecorated($decorated);
 
@@ -89,13 +89,13 @@ class Console
                 foreach ($this->splitStringByWidth($line, $width - 4) as $line) {
 
                     $lineLength = $this->stringWidth(preg_replace('/\[[^m]*m/', '', $line)) + 4;
-                    $lines[] = [$line, $lineLength];
+                    $lines[]    = [$line, $lineLength];
 
                     $len = max($lineLength, $len);
                 }
             }
 
-            $messages = ['', ''];
+            $messages   = ['', ''];
             $messages[] = $emptyLine = sprintf('<error>%s</error>', str_repeat(' ', $len));
             $messages[] = sprintf('<error>%s%s</error>', $title, str_repeat(' ', max(0, $len - $this->stringWidth($title))));
             foreach ($lines as $line) {
@@ -114,17 +114,17 @@ class Console
                 $trace = $e->getTrace();
                 array_unshift($trace, [
                     'function' => '',
-                    'file' => $e->getFile() !== null ? $e->getFile() : 'n/a',
-                    'line' => $e->getLine() !== null ? $e->getLine() : 'n/a',
-                    'args' => [],
+                    'file'     => $e->getFile() !== null ? $e->getFile() : 'n/a',
+                    'line'     => $e->getLine() !== null ? $e->getLine() : 'n/a',
+                    'args'     => [],
                 ]);
 
                 for ($i = 0, $count = count($trace); $i < $count; ++$i) {
-                    $class = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
-                    $type = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
+                    $class    = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';
+                    $type     = isset($trace[$i]['type']) ? $trace[$i]['type'] : '';
                     $function = $trace[$i]['function'];
-                    $file = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
-                    $line = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
+                    $file     = isset($trace[$i]['file']) ? $trace[$i]['file'] : 'n/a';
+                    $line     = isset($trace[$i]['line']) ? $trace[$i]['line'] : 'n/a';
 
                     $this->write(sprintf(' %s%s%s() at <info>%s:%s</info>', $class, $type, $function, $file, $line), true, Output::OUTPUT_NORMAL, $stderr);
                 }
@@ -200,7 +200,7 @@ class Console
         }
 
         $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $process = proc_open('stty -a | grep columns', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
+        $process        = proc_open('stty -a | grep columns', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
         if (is_resource($process)) {
             $info = stream_get_contents($pipes[1]);
             fclose($pipes[1]);
@@ -223,7 +223,7 @@ class Console
         }
 
         $descriptorspec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-        $process = proc_open('mode CON', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
+        $process        = proc_open('mode CON', $descriptorspec, $pipes, null, null, ['suppress_errors' => true]);
         if (is_resource($process)) {
             $info = stream_get_contents($pipes[1]);
             fclose($pipes[1]);
@@ -262,15 +262,15 @@ class Console
         }
 
         $utf8String = mb_convert_encoding($string, 'utf8', $encoding);
-        $lines = [];
-        $line = '';
+        $lines      = [];
+        $line       = '';
         foreach (preg_split('//u', $utf8String) as $char) {
             if (mb_strwidth($line . $char, 'utf8') <= $width) {
                 $line .= $char;
                 continue;
             }
             $lines[] = str_pad($line, $width);
-            $line = $char;
+            $line    = $char;
         }
         if (strlen($line)) {
             $lines[] = count($lines) ? str_pad($line, $width) : $line;

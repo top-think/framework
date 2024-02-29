@@ -32,11 +32,11 @@ abstract class Command
     private $definition;
     private $help;
     private $description;
-    private $ignoreValidationErrors = false;
-    private $consoleDefinitionMerged = false;
+    private $ignoreValidationErrors          = false;
+    private $consoleDefinitionMerged         = false;
     private $consoleDefinitionMergedWithArgs = false;
-    private $synopsis = [];
-    private $usages = [];
+    private $synopsis                        = [];
+    private $usages                          = [];
 
     /** @var  Input */
     protected $input;
@@ -166,7 +166,7 @@ abstract class Command
      */
     public function run(Input $input, Output $output): int
     {
-        $this->input = $input;
+        $this->input  = $input;
         $this->output = $output;
 
         $this->getSynopsis(true);
