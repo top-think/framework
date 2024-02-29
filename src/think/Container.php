@@ -382,7 +382,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         if ($reflect->hasMethod('__make')) {
             $method = $reflect->getMethod('__make');
             if ($method->isPublic() && $method->isStatic()) {
-                $args   = $this->bindParams($method, $vars);
+                $args = $this->bindParams($method, $vars);
                 $object = $method->invokeArgs(null, $args);
                 $this->invokeAfter($class, $object);
                 return $object;
@@ -437,13 +437,13 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
         // 判断数组类型 数字数组时按顺序绑定参数
         reset($vars);
-        $type   = key($vars) === 0 ? 1 : 0;
+        $type = key($vars) === 0 ? 1 : 0;
         $params = $reflect->getParameters();
-        $args   = [];
+        $args = [];
 
         foreach ($params as $param) {
-            $name           = $param->getName();
-            $lowerName      = Str::snake($name);
+            $name = $param->getName();
+            $lowerName = Str::snake($name);
             $reflectionType = $param->getType();
 
             if ($param->isVariadic()) {
