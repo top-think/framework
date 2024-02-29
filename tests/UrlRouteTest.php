@@ -36,7 +36,7 @@ class UrlRouteTest extends TestCase
             ->andReturn($controller->mockery_getName());
         $this->app->shouldReceive('make')->with($controller->mockery_getName(), [], true)->andReturn($controller);
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }

@@ -63,8 +63,8 @@ class Input
      */
     public function bind(Definition $definition): void
     {
-        $this->arguments  = [];
-        $this->options    = [];
+        $this->arguments = [];
+        $this->options = [];
         $this->definition = $definition;
 
         $this->parse();

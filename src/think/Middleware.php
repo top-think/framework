@@ -60,7 +60,7 @@ class Middleware
 
         if (!empty($middleware)) {
             $this->queue[$type][] = $middleware;
-            $this->queue[$type]   = array_unique($this->queue[$type], SORT_REGULAR);
+            $this->queue[$type] = array_unique($this->queue[$type], SORT_REGULAR);
         }
     }
 
