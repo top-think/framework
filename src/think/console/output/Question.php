@@ -16,7 +16,7 @@ class Question
 
     private $question;
     private $attempts;
-    private $hidden         = false;
+    private $hidden = false;
     private $hiddenFallback = true;
     private $autocompleterValues;
     private $validator;
@@ -31,7 +31,7 @@ class Question
     public function __construct($question, $default = null)
     {
         $this->question = $question;
-        $this->default  = $default;
+        $this->default = $default;
     }
 
     /**
