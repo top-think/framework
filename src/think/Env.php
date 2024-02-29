@@ -31,10 +31,10 @@ class Env implements ArrayAccess
      * @var array
      */
     protected $convert = [
-        'true'  => true,
+        'true' => true,
         'false' => false,
-        'off'   => false,
-        'on'    => true,
+        'off' => false,
+        'on' => true,
     ];
 
     public function __construct()
