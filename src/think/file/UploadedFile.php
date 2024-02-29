@@ -26,9 +26,9 @@ class UploadedFile extends File
     public function __construct(string $path, string $originalName, string $mimeType = null, int $error = null, bool $test = false)
     {
         $this->originalName = $originalName;
-        $this->mimeType = $mimeType ?: 'application/octet-stream';
-        $this->test = $test;
-        $this->error = $error ?: UPLOAD_ERR_OK;
+        $this->mimeType     = $mimeType ?: 'application/octet-stream';
+        $this->test         = $test;
+        $this->error        = $error ?: UPLOAD_ERR_OK;
 
         parent::__construct($path, UPLOAD_ERR_OK === $this->error);
     }
@@ -82,11 +82,11 @@ class UploadedFile extends File
     protected function getErrorMessage(): string
     {
         return match ($this->error) {
-            1,2 => 'upload File size exceeds the maximum value',
-            3 => 'only the portion of file is uploaded',
-            4 => 'no file to uploaded',
-            6 => 'upload temp dir not found',
-            7 => 'file write error',
+            1,2     => 'upload File size exceeds the maximum value',
+            3       => 'only the portion of file is uploaded',
+            4       => 'no file to uploaded',
+            6       => 'upload temp dir not found',
+            7       => 'file write error',
             default => 'unknown upload error',
         };
     }

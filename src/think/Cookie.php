@@ -26,13 +26,13 @@ class Cookie
      */
     protected $config = [
         // cookie 保存时间
-        'expire' => 0,
+        'expire'   => 0,
         // cookie 保存路径
-        'path' => '/',
+        'path'     => '/',
         // cookie 有效域名
-        'domain' => '',
+        'domain'   => '',
         //  cookie 启用安全传输
-        'secure' => false,
+        'secure'   => false,
         // httponly设置
         'httponly' => false,
         // samesite 设置，支持 'strict' 'lax'
@@ -51,7 +51,7 @@ class Cookie
      */
     public function __construct(protected Request $request, array $config = [])
     {
-        $this->config = array_merge($this->config, array_change_key_case($config));
+        $this->config  = array_merge($this->config, array_change_key_case($config));
     }
 
     public static function __make(Request $request, Config $config)
@@ -209,10 +209,10 @@ class Cookie
     protected function saveCookie(string $name, string $value, int $expire, string $path, string $domain, bool $secure, bool $httponly, string $samesite): void
     {
         setcookie($name, $value, [
-            'expires' => $expire,
-            'path' => $path,
-            'domain' => $domain,
-            'secure' => $secure,
+            'expires'  => $expire,
+            'path'     => $path,
+            'domain'   => $domain,
+            'secure'   => $secure,
             'httponly' => $httponly,
             'samesite' => $samesite,
         ]);

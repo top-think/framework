@@ -35,7 +35,7 @@ class Domain extends RuleGroup
     {
         $this->router = $router;
         $this->domain = $name;
-        $this->rule = $rule;
+        $this->rule   = $rule;
 
         if (!$lazy && !is_null($rule)) {
             $this->parseGroupRule($rule);
@@ -100,8 +100,8 @@ class Domain extends RuleGroup
 
             $bindTo = [
                 '\\' => 'bindToClass',
-                '@' => 'bindToController',
-                ':' => 'bindToNamespace',
+                '@'  => 'bindToController',
+                ':'  => 'bindToNamespace',
             ];
 
             if (isset($bindTo[$type])) {
@@ -131,9 +131,9 @@ class Domain extends RuleGroup
      */
     protected function bindToClass(Request $request, string $url, string $class): CallbackDispatch
     {
-        $array = explode('|', $url, 2);
+        $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
-        $param = [];
+        $param  = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);
@@ -152,10 +152,10 @@ class Domain extends RuleGroup
      */
     protected function bindToNamespace(Request $request, string $url, string $namespace): CallbackDispatch
     {
-        $array = explode('|', $url, 3);
-        $class = !empty($array[0]) ? $array[0] : $this->config('default_controller');
+        $array  = explode('|', $url, 3);
+        $class  = !empty($array[0]) ? $array[0] : $this->config('default_controller');
         $method = !empty($array[1]) ? $array[1] : $this->config('default_action');
-        $param = [];
+        $param  = [];
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2], $param);
@@ -174,9 +174,9 @@ class Domain extends RuleGroup
      */
     protected function bindToController(Request $request, string $url, string $controller): ControllerDispatch
     {
-        $array = explode('|', $url, 2);
+        $array  = explode('|', $url, 2);
         $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
-        $param = [];
+        $param  = [];
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);

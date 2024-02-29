@@ -24,34 +24,34 @@ class Socket implements LogHandlerInterface
 {
     protected $config = [
         // socket服务器地址
-        'host' => 'localhost',
+        'host'                => 'localhost',
         // socket服务器端口
-        'port' => 1116,
+        'port'                => 1116,
         // 是否显示加载的文件列表
         'show_included_files' => false,
         // 日志强制记录到配置的client_id
-        'force_client_ids' => [],
+        'force_client_ids'    => [],
         // 限制允许读取日志的client_id
-        'allow_client_ids' => [],
+        'allow_client_ids'    => [],
         // 调试开关
-        'debug' => false,
+        'debug'               => false,
         // 输出到浏览器时默认展开的日志级别
-        'expand_level' => ['debug'],
+        'expand_level'        => ['debug'],
         // 日志头渲染回调
-        'format_head' => null,
+        'format_head'         => null,
         // curl opt
-        'curl_opt' => [
+        'curl_opt'            => [
             CURLOPT_CONNECTTIMEOUT => 1,
-            CURLOPT_TIMEOUT => 10,
+            CURLOPT_TIMEOUT        => 10,
         ],
     ];
 
     protected $css = [
-        'sql' => 'color:#009bb4;',
+        'sql'      => 'color:#009bb4;',
         'sql_warn' => 'color:#009bb4;font-size:14px;',
-        'error' => 'color:#f4006b;font-size:14px;',
-        'page' => 'color:#40e2ff;background:#171717;',
-        'big' => 'font-size:20px;color:red;',
+        'error'    => 'color:#f4006b;font-size:14px;',
+        'page'     => 'color:#40e2ff;background:#171717;',
+        'big'      => 'font-size:20px;color:red;',
     ];
 
     protected $allowForceClientIds = []; //配置强制推送且被授权的client_id
@@ -107,8 +107,8 @@ class Socket implements LogHandlerInterface
             // 基本信息
             $trace[] = [
                 'type' => 'group',
-                'msg' => $currentUri,
-                'css' => $this->css['page'],
+                'msg'  => $currentUri,
+                'css'  => $this->css['page'],
             ];
         }
 
@@ -117,8 +117,8 @@ class Socket implements LogHandlerInterface
         foreach ($log as $type => $val) {
             $trace[] = [
                 'type' => isset($expandLevel[$type]) ? 'group' : 'groupCollapsed',
-                'msg' => '[ ' . $type . ' ]',
-                'css' => $this->css[$type] ?? '',
+                'msg'  => '[ ' . $type . ' ]',
+                'css'  => $this->css[$type] ?? '',
             ];
 
             foreach ($val as $msg) {
@@ -127,42 +127,42 @@ class Socket implements LogHandlerInterface
                 }
                 $trace[] = [
                     'type' => 'log',
-                    'msg' => $msg,
-                    'css' => '',
+                    'msg'  => $msg,
+                    'css'  => '',
                 ];
             }
 
             $trace[] = [
                 'type' => 'groupEnd',
-                'msg' => '',
-                'css' => '',
+                'msg'  => '',
+                'css'  => '',
             ];
         }
 
         if ($this->config['show_included_files']) {
             $trace[] = [
                 'type' => 'groupCollapsed',
-                'msg' => '[ file ]',
-                'css' => '',
+                'msg'  => '[ file ]',
+                'css'  => '',
             ];
 
             $trace[] = [
                 'type' => 'log',
-                'msg' => implode("\n", get_included_files()),
-                'css' => '',
+                'msg'  => implode("\n", get_included_files()),
+                'css'  => '',
             ];
 
             $trace[] = [
                 'type' => 'groupEnd',
-                'msg' => '',
-                'css' => '',
+                'msg'  => '',
+                'css'  => '',
             ];
         }
 
         $trace[] = [
             'type' => 'groupEnd',
-            'msg' => '',
-            'css' => '',
+            'msg'  => '',
+            'css'  => '',
         ];
 
         $tabid = $this->getClientArg('tabid');
@@ -196,13 +196,13 @@ class Socket implements LogHandlerInterface
     protected function sendToClient($tabid, $clientId, $logs, $forceClientId)
     {
         $logs = [
-            'tabid' => $tabid,
-            'client_id' => $clientId,
-            'logs' => $logs,
+            'tabid'           => $tabid,
+            'client_id'       => $clientId,
+            'logs'            => $logs,
             'force_client_id' => $forceClientId,
         ];
 
-        $msg = json_encode($logs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $msg     = json_encode($logs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PARTIAL_OUTPUT_ON_ERROR);
         $address = '/' . $clientId; //将client_id作为地址， server端通过地址判断将日志发布给谁
 
         $this->send($this->config['host'], $this->config['port'], $msg, $address);
@@ -287,7 +287,7 @@ class Socket implements LogHandlerInterface
     protected function send($host, $port, $message = '', $address = '/')
     {
         $url = 'http://' . $host . ':' . $port . $address;
-        $ch = curl_init();
+        $ch  = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);

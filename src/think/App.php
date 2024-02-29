@@ -134,27 +134,27 @@ class App extends Container
      * @var array
      */
     protected $bind = [
-        'app' => App::class,
-        'cache' => Cache::class,
-        'config' => Config::class,
-        'console' => Console::class,
-        'cookie' => Cookie::class,
-        'db' => Db::class,
-        'env' => Env::class,
-        'event' => Event::class,
-        'http' => Http::class,
-        'lang' => Lang::class,
-        'log' => Log::class,
-        'middleware' => Middleware::class,
-        'request' => Request::class,
-        'response' => Response::class,
-        'route' => Route::class,
-        'session' => Session::class,
-        'validate' => Validate::class,
-        'view' => View::class,
-        'think\DbManager' => Db::class,
-        'think\LogManager' => Log::class,
-        'think\CacheManager' => Cache::class,
+        'app'                     => App::class,
+        'cache'                   => Cache::class,
+        'config'                  => Config::class,
+        'console'                 => Console::class,
+        'cookie'                  => Cookie::class,
+        'db'                      => Db::class,
+        'env'                     => Env::class,
+        'event'                   => Event::class,
+        'http'                    => Http::class,
+        'lang'                    => Lang::class,
+        'log'                     => Log::class,
+        'middleware'              => Middleware::class,
+        'request'                 => Request::class,
+        'response'                => Response::class,
+        'route'                   => Route::class,
+        'session'                 => Session::class,
+        'validate'                => Validate::class,
+        'view'                    => View::class,
+        'think\DbManager'         => Db::class,
+        'think\LogManager'        => Log::class,
+        'think\CacheManager'      => Cache::class,
 
         // 接口依赖注入
         'Psr\Log\LoggerInterface' => Log::class,
@@ -167,9 +167,9 @@ class App extends Container
      */
     public function __construct(string $rootPath = '')
     {
-        $this->thinkPath = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
-        $this->rootPath = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
-        $this->appPath = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
+        $this->thinkPath   = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->rootPath    = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
+        $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
 
         if (is_file($this->appPath . 'provider.php')) {
@@ -438,7 +438,7 @@ class App extends Container
         $this->initialized = true;
 
         $this->beginTime = microtime(true);
-        $this->beginMem = memory_get_usage();
+        $this->beginMem  = memory_get_usage();
 
         $this->loadEnv($this->envName);
 
@@ -591,10 +591,10 @@ class App extends Container
      */
     public function parseClass(string $layer, string $name): string
     {
-        $name = str_replace(['/', '.'], '\\', $name);
+        $name  = str_replace(['/', '.'], '\\', $name);
         $array = explode('\\', $name);
         $class = Str::studly(array_pop($array));
-        $path = $array ? implode('\\', $array) . '\\' : '';
+        $path  = $array ? implode('\\', $array) . '\\' : '';
 
         return $this->namespace . '\\' . $layer . '\\' . $path . $class;
     }

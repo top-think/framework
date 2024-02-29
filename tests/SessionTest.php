@@ -173,9 +173,9 @@ class SessionTest extends TestCase
         $this->assertTrue($root->hasChild("foo/bar"));
 
         $handler = new TestFileHandle($this->app, [
-            'path' => $root->url(),
+            'path'           => $root->url(),
             'gc_probability' => 1,
-            'gc_divisor' => 1,
+            'gc_divisor'     => 1,
         ]);
 
         $this->assertTrue($root->hasChild("bar"));
