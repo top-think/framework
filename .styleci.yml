@@ -1,0 +1,10 @@
+risky: false
+version: 8.3
+preset: recommended
+tab-width: 4
+use-tabs: false
+disabled:
+  - phpdoc_summary
+  - phpdoc_separation
+  - blank_line_after_opening_tag
+  - concat_without_spaces
