@@ -11,7 +11,7 @@ class EnvTest extends TestCase
 {
     public function testEnvFile()
     {
-        $root    = vfsStream::setup();
+        $root = vfsStream::setup();
         $envFile = vfsStream::newFile('.env')->setContent("key1=value1\nkey2=value2");
         $root->addChild($envFile);
 

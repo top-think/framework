@@ -26,7 +26,7 @@ class Url extends Controller
     public function __construct(Request $request, Rule $rule, $dispatch)
     {
         $this->request = $request;
-        $this->rule    = $rule;
+        $this->rule = $rule;
         // 解析默认的URL规则
         $dispatch = $this->parseUrl($dispatch);
 
@@ -64,7 +64,7 @@ class Url extends Controller
 
         // 解析操作
         $action = !empty($path) ? array_shift($path) : null;
-        $var    = [];
+        $var = [];
 
         // 解析额外参数
         if ($path) {
@@ -105,7 +105,7 @@ class Url extends Controller
         // 检查地址是否被定义过路由
         $name = strtolower(Str::studly($controller) . '/' . $action);
 
-        $host   = $this->request->host(true);
+        $host = $this->request->host(true);
         $method = $this->request->method();
 
         if ($this->rule->getRouter()->getName($name, $host, $method)) {

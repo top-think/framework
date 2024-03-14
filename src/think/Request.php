@@ -256,18 +256,18 @@ class Request implements ArrayAccess
      * @var array
      */
     protected $mimeType = [
-        'xml'   => 'application/xml,text/xml,application/x-xml',
-        'json'  => 'application/json,text/x-json,application/jsonrequest,text/json',
-        'js'    => 'text/javascript,application/javascript,application/x-javascript',
-        'css'   => 'text/css',
-        'rss'   => 'application/rss+xml',
-        'yaml'  => 'application/x-yaml,text/yaml',
-        'atom'  => 'application/atom+xml',
-        'pdf'   => 'application/pdf',
-        'text'  => 'text/plain',
+        'xml' => 'application/xml,text/xml,application/x-xml',
+        'json' => 'application/json,text/x-json,application/jsonrequest,text/json',
+        'js' => 'text/javascript,application/javascript,application/x-javascript',
+        'css' => 'text/css',
+        'rss' => 'application/rss+xml',
+        'yaml' => 'application/x-yaml,text/yaml',
+        'atom' => 'application/atom+xml',
+        'pdf' => 'application/pdf',
+        'text' => 'text/plain',
         'image' => 'image/png,image/jpg,image/jpeg,image/pjpeg,image/gif,image/webp,image/*',
-        'csv'   => 'text/csv',
-        'html'  => 'text/html,application/xhtml+xml,*/*',
+        'csv' => 'text/csv',
+        'html' => 'text/html,application/xhtml+xml,*/*',
     ];
 
     /**
@@ -322,7 +322,7 @@ class Request implements ArrayAccess
             $server = $_SERVER;
             foreach ($server as $key => $val) {
                 if (str_starts_with($key, 'HTTP_')) {
-                    $key          = str_replace('_', '-', strtolower(substr($key, 5)));
+                    $key = str_replace('_', '-', strtolower(substr($key, 5)));
                     $header[$key] = $val;
                 }
             }
@@ -336,16 +336,16 @@ class Request implements ArrayAccess
 
         $request->header = array_change_key_case($header);
         $request->server = $_SERVER;
-        $request->env    = $app->env;
+        $request->env = $app->env;
 
         $inputData = $request->getInputData($request->input);
 
-        $request->get     = $_GET;
-        $request->post    = $_POST ?: $inputData;
-        $request->put     = $inputData;
+        $request->get = $_GET;
+        $request->post = $_POST ?: $inputData;
+        $request->put = $inputData;
         $request->request = $_REQUEST;
-        $request->cookie  = $_COOKIE;
-        $request->file    = $_FILES ?? [];
+        $request->cookie = $_COOKIE;
+        $request->file = $_FILES ?? [];
 
         return $request;
     }
@@ -394,7 +394,7 @@ class Request implements ArrayAccess
         $root = $this->rootDomain;
 
         if (!$root) {
-            $item  = explode('.', $this->host(true));
+            $item = explode('.', $this->host(true));
             $count = count($item);
             if ($count > 1) {
                 $root = $item[$count - 2] . '.' . $item[$count - 1];
@@ -402,7 +402,7 @@ class Request implements ArrayAccess
                     $root = $item[$count - 3] . '.' . $root;
                 }
             } else {
-                $root  = $item[0];
+                $root = $item[0];
             }
         }
 
@@ -433,7 +433,7 @@ class Request implements ArrayAccess
             $rootDomain = $this->rootDomain();
 
             if ($rootDomain) {
-                $sub             = stristr($this->host(), $rootDomain, true);
+                $sub = stristr($this->host(), $rootDomain, true);
                 $this->subDomain = $sub ? rtrim($sub, '.') : '';
             } else {
                 $this->subDomain = '';
@@ -523,7 +523,7 @@ class Request implements ArrayAccess
     public function baseUrl(bool $complete = false): string
     {
         if (!$this->baseUrl) {
-            $str           = $this->url();
+            $str = $this->url();
             $this->baseUrl = str_contains($str, '?') ? strstr($str, '?', true) : $str;
         }
 
@@ -749,7 +749,7 @@ class Request implements ArrayAccess
             if (isset($this->post[$this->varMethod])) {
                 $method = strtolower($this->post[$this->varMethod]);
                 if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
-                    $this->method    = strtoupper($method);
+                    $this->method = strtoupper($method);
                     $this->{$method} = $this->post;
                 } else {
                     $this->method = 'POST';
@@ -869,10 +869,10 @@ class Request implements ArrayAccess
             $method = $this->method(true);
 
             // 自动获取请求变量
-            $vars   =   match ($method) {
-                'POST'  =>  $this->post(false),
-                'PUT','DELETE','PATCH'  =>  $this->put(false),
-                default =>  [],
+            $vars = match ($method) {
+                'POST' => $this->post(false),
+                'PUT','DELETE','PATCH' => $this->put(false),
+                default => [],
             };
 
             // 当前请求参数和URL地址中的参数合并
@@ -938,7 +938,7 @@ class Request implements ArrayAccess
      */
     public function setRoute(array $route)
     {
-        $this->route      = array_merge($this->route, $route);
+        $this->route = array_merge($this->route, $route);
         $this->mergeParam = false;
         return $this;
     }
@@ -1185,8 +1185,8 @@ class Request implements ArrayAccess
         $array = [];
         foreach ($files as $key => $file) {
             if (is_array($file['name'])) {
-                $item  = [];
-                $keys  = array_keys($file);
+                $item = [];
+                $keys = array_keys($file);
                 $count = count($file['name']);
 
                 for ($i = 0; $i < $count; $i++) {
@@ -1329,12 +1329,12 @@ class Request implements ArrayAccess
     {
         $type = strtolower($type);
         if (in_array($type, ['a', 'b', 'd', 'f', 's'])) {
-            $data   =   match ($type) {
-                'a'     =>  (array) $data,  // 数组
-                'b'     =>  (bool) $data,   // 布尔
-                'd'     =>  (int) $data,    // 数字
-                'f'     =>  (float) $data,  // 浮点
-                's'     =>  is_scalar($data) ? (string) $data : throw new \InvalidArgumentException('variable type error：' . gettype($data)), //字符串
+            $data = match ($type) {
+                'a' => (array) $data,  // 数组
+                'b' => (bool) $data,   // 布尔
+                'd' => (int) $data,    // 数字
+                'f' => (float) $data,  // 浮点
+                's' => is_scalar($data) ? (string) $data : throw new \InvalidArgumentException('variable type error：' . gettype($data)), //字符串
             };
         }
     }
@@ -1487,7 +1487,7 @@ class Request implements ArrayAccess
 
             if (is_int($key)) {
                 $default = null;
-                $key     = $val;
+                $key = $val;
                 if (!key_exists($key, $data)) {
                     continue;
                 }
@@ -1563,7 +1563,7 @@ class Request implements ArrayAccess
      */
     public function isAjax(bool $ajax = false): bool
     {
-        $value  = $this->server('HTTP_X_REQUESTED_WITH');
+        $value = $this->server('HTTP_X_REQUESTED_WITH');
         $result = $value && 'xmlhttprequest' == strtolower($value) ? true : false;
 
         if (true === $ajax) {
@@ -1605,7 +1605,7 @@ class Request implements ArrayAccess
 
         // 如果指定了前端代理服务器IP以及其会发送的IP头
         // 则尝试获取前端代理服务器发送过来的真实IP
-        $proxyIp       = $this->proxyServerIp;
+        $proxyIp = $this->proxyServerIp;
         $proxyIpHeader = $this->proxyServerIpHeader;
 
         if (count($proxyIp) > 0 && count($proxyIpHeader) > 0) {
@@ -1636,9 +1636,9 @@ class Request implements ArrayAccess
 
                 foreach ($proxyIp as $ip) {
                     $serverIPElements = explode('/', $ip);
-                    $serverIP         = $serverIPElements[0];
-                    $serverIPPrefix   = $serverIPElements[1] ?? 128;
-                    $serverIPBin      = $this->ip2bin($serverIP);
+                    $serverIP = $serverIPElements[0];
+                    $serverIPPrefix = $serverIPElements[1] ?? 128;
+                    $serverIPBin = $this->ip2bin($serverIP);
 
                     // IP类型不符
                     if (strlen($realIPBin) !== strlen($serverIPBin)) {
@@ -1670,10 +1670,10 @@ class Request implements ArrayAccess
      */
     public function isValidIP(string $ip, string $type = ''): bool
     {
-        $flag   =   match (strtolower($type)) {
-            'ipv4'  =>  FILTER_FLAG_IPV4,
-            'ipv6'  =>  FILTER_FLAG_IPV6,
-            default =>  0,
+        $flag = match (strtolower($type)) {
+            'ipv4' => FILTER_FLAG_IPV4,
+            'ipv6' => FILTER_FLAG_IPV6,
+            default => 0,
         };
 
         return boolval(filter_var($ip, FILTER_VALIDATE_IP, $flag));
@@ -1921,7 +1921,7 @@ class Request implements ArrayAccess
      */
     public function buildToken(string $name = '__token__', $type = 'md5'): string
     {
-        $type  = is_callable($type) ? $type : 'md5';
+        $type = is_callable($type) ? $type : 'md5';
         $token = call_user_func($type, $this->server('REQUEST_TIME_FLOAT'));
 
         $this->session->set($name, $token);
@@ -2079,7 +2079,7 @@ class Request implements ArrayAccess
             $inputData = $this->getInputData($input);
             if (!empty($inputData)) {
                 $this->post = $inputData;
-                $this->put  = $inputData;
+                $this->put = $inputData;
             }
         }
         return $this;

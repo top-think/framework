@@ -14,8 +14,8 @@ namespace think\console;
 
 class Table
 {
-    const ALIGN_LEFT   = 1;
-    const ALIGN_RIGHT  = 0;
+    const ALIGN_LEFT = 1;
+    const ALIGN_RIGHT = 0;
     const ALIGN_CENTER = 2;
 
     /**
@@ -59,45 +59,45 @@ class Table
      * @var array
      */
     protected $format = [
-        'compact'    => [],
-        'default'    => [
-            'top'          => ['+', '-', '+', '+'],
-            'cell'         => ['|', ' ', '|', '|'],
-            'middle'       => ['+', '-', '+', '+'],
-            'bottom'       => ['+', '-', '+', '+'],
-            'cross-top'    => ['+', '-', '-', '+'],
+        'compact' => [],
+        'default' => [
+            'top' => ['+', '-', '+', '+'],
+            'cell' => ['|', ' ', '|', '|'],
+            'middle' => ['+', '-', '+', '+'],
+            'bottom' => ['+', '-', '+', '+'],
+            'cross-top' => ['+', '-', '-', '+'],
             'cross-bottom' => ['+', '-', '-', '+'],
         ],
-        'markdown'   => [
-            'top'          => [' ', ' ', ' ', ' '],
-            'cell'         => ['|', ' ', '|', '|'],
-            'middle'       => ['|', '-', '|', '|'],
-            'bottom'       => [' ', ' ', ' ', ' '],
-            'cross-top'    => ['|', ' ', ' ', '|'],
+        'markdown' => [
+            'top' => [' ', ' ', ' ', ' '],
+            'cell' => ['|', ' ', '|', '|'],
+            'middle' => ['|', '-', '|', '|'],
+            'bottom' => [' ', ' ', ' ', ' '],
+            'cross-top' => ['|', ' ', ' ', '|'],
             'cross-bottom' => ['|', ' ', ' ', '|'],
         ],
         'borderless' => [
-            'top'          => ['=', '=', ' ', '='],
-            'cell'         => [' ', ' ', ' ', ' '],
-            'middle'       => ['=', '=', ' ', '='],
-            'bottom'       => ['=', '=', ' ', '='],
-            'cross-top'    => ['=', '=', ' ', '='],
+            'top' => ['=', '=', ' ', '='],
+            'cell' => [' ', ' ', ' ', ' '],
+            'middle' => ['=', '=', ' ', '='],
+            'bottom' => ['=', '=', ' ', '='],
+            'cross-top' => ['=', '=', ' ', '='],
             'cross-bottom' => ['=', '=', ' ', '='],
         ],
-        'box'        => [
-            'top'          => ['┌', '─', '┬', '┐'],
-            'cell'         => ['│', ' ', '│', '│'],
-            'middle'       => ['├', '─', '┼', '┤'],
-            'bottom'       => ['└', '─', '┴', '┘'],
-            'cross-top'    => ['├', '─', '┴', '┤'],
+        'box' => [
+            'top' => ['┌', '─', '┬', '┐'],
+            'cell' => ['│', ' ', '│', '│'],
+            'middle' => ['├', '─', '┼', '┤'],
+            'bottom' => ['└', '─', '┴', '┘'],
+            'cross-top' => ['├', '─', '┴', '┤'],
             'cross-bottom' => ['├', '─', '┬', '┤'],
         ],
         'box-double' => [
-            'top'          => ['╔', '═', '╤', '╗'],
-            'cell'         => ['║', ' ', '│', '║'],
-            'middle'       => ['╠', '─', '╪', '╣'],
-            'bottom'       => ['╚', '═', '╧', '╝'],
-            'cross-top'    => ['╠', '═', '╧', '╣'],
+            'top' => ['╔', '═', '╤', '╗'],
+            'cell' => ['║', ' ', '│', '║'],
+            'middle' => ['╠', '─', '╪', '╣'],
+            'bottom' => ['╚', '═', '╧', '╝'],
+            'cross-top' => ['╠', '═', '╧', '╣'],
             'cross-bottom' => ['╠', '═', '╤', '╣'],
         ],
     ];
@@ -111,7 +111,7 @@ class Table
      */
     public function setHeader(array $header, int $align = 1): void
     {
-        $this->header      = $header;
+        $this->header = $header;
         $this->headerAlign = $align;
 
         $this->checkColWidth($header);
@@ -126,7 +126,7 @@ class Table
      */
     public function setRows(array $rows, int $align = 1): void
     {
-        $this->rows      = $rows;
+        $this->rows = $rows;
         $this->cellAlign = $align;
 
         foreach ($rows as $row) {
@@ -217,7 +217,7 @@ class Table
      */
     protected function renderHeader(): string
     {
-        $style   = $this->getStyle('cell');
+        $style = $this->getStyle('cell');
         $content = $this->renderSeparator('top');
 
         foreach ($this->header as $key => $header) {
@@ -260,7 +260,7 @@ class Table
 
         // 输出头部
         $content = $this->renderHeader();
-        $style   = $this->getStyle('cell');
+        $style = $this->getStyle('cell');
 
         if (!empty($this->rows)) {
             foreach ($this->rows as $row) {

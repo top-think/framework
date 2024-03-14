@@ -25,15 +25,15 @@ class File implements LogHandlerInterface
      * @var array
      */
     protected $config = [
-        'time_format'  => 'c',
-        'single'       => false,
-        'file_size'    => 2097152,
-        'path'         => '',
-        'apart_level'  => [],
-        'max_files'    => 0,
-        'json'         => false,
+        'time_format' => 'c',
+        'single' => false,
+        'file_size' => 2097152,
+        'path' => '',
+        'apart_level' => [],
+        'max_files' => 0,
+        'json' => false,
         'json_options' => JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
-        'format'       => '[%s][%s] %s',
+        'format' => '[%s][%s] %s',
     ];
 
     // 实例化并传入参数
@@ -149,7 +149,7 @@ class File implements LogHandlerInterface
         }
 
         if ($this->config['single']) {
-            $name        = is_string($this->config['single']) ? $this->config['single'] : 'single';
+            $name = is_string($this->config['single']) ? $this->config['single'] : 'single';
             $destination = $this->config['path'] . $name . '.log';
         } else {
 

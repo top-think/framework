@@ -17,7 +17,7 @@ class Formatter
 {
 
     private $decorated = false;
-    private $styles    = [];
+    private $styles = [];
     private $styleStack;
 
     /**
@@ -105,12 +105,12 @@ class Formatter
      */
     public function format($message)
     {
-        $offset   = 0;
-        $output   = '';
+        $offset = 0;
+        $output = '';
         $tagRegex = '[a-z][a-z0-9_=;-]*';
         preg_match_all("#<(($tagRegex) | /($tagRegex)?)>#isx", $message, $matches, PREG_OFFSET_CAPTURE);
         foreach ($matches[0] as $i => $match) {
-            $pos  = $match[1];
+            $pos = $match[1];
             $text = $match[0];
 
             if (0 != $pos && '\\' == $message[$pos - 1]) {

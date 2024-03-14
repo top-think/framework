@@ -68,8 +68,8 @@ class HttpTest extends TestCase
     public function testRun()
     {
         $root = vfsStream::setup('rootDir', null, [
-            'app'   => [
-                'controller'     => [],
+            'app' => [
+                'controller' => [],
                 'middleware.php' => '<?php return [];',
             ],
             'route' => [
@@ -80,7 +80,7 @@ class HttpTest extends TestCase
         $this->app->shouldReceive('getBasePath')->andReturn($root->getChild('app')->url() . DIRECTORY_SEPARATOR);
         $this->app->shouldReceive('getRootPath')->andReturn($root->url() . DIRECTORY_SEPARATOR);
 
-        $request  = m::mock(Request::class)->makePartial();
+        $request = m::mock(Request::class)->makePartial();
         $response = m::mock(Response::class)->makePartial();
 
         $this->prepareApp($request, $response);
@@ -119,7 +119,7 @@ class HttpTest extends TestCase
 
     public function testRunWithException()
     {
-        $request  = m::mock(Request::class);
+        $request = m::mock(Request::class);
         $response = m::mock(Response::class);
 
         $this->app->shouldReceive('instance')->once()->with('request', $request);
@@ -142,7 +142,7 @@ class HttpTest extends TestCase
     public function testEnd()
     {
         $response = m::mock(Response::class);
-        $event    = m::mock(Event::class);
+        $event = m::mock(Event::class);
         $event->shouldReceive('trigger')->once()->with(HttpEnd::class, $response);
         $this->app->shouldReceive('get')->once()->with('event')->andReturn($event);
         $log = m::mock(Log::class);

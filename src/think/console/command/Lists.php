@@ -56,7 +56,7 @@ EOF
     protected function execute(Input $input, Output $output)
     {
         $output->describe($this->getConsole(), [
-            'raw_text'  => $input->getOption('raw'),
+            'raw_text' => $input->getOption('raw'),
             'namespace' => $input->getArgument('namespace'),
         ]);
     }

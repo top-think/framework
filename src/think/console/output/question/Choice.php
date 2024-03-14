@@ -17,8 +17,8 @@ class Choice extends Question
 {
 
     private $choices;
-    private $multiselect  = false;
-    private $prompt       = ' > ';
+    private $multiselect = false;
+    private $prompt = ' > ';
     private $errorMessage = 'Value "%s" is invalid';
 
     /**
@@ -103,10 +103,10 @@ class Choice extends Question
      */
     private function getDefaultValidator()
     {
-        $choices      = $this->choices;
+        $choices = $this->choices;
         $errorMessage = $this->errorMessage;
-        $multiselect  = $this->multiselect;
-        $isAssoc      = $this->isAssoc($choices);
+        $multiselect = $this->multiselect;
+        $isAssoc = $this->isAssoc($choices);
 
         return function ($selected) use ($choices, $errorMessage, $multiselect, $isAssoc) {
             // Collapse all spaces.

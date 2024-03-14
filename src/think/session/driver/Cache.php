@@ -29,8 +29,8 @@ class Cache implements SessionHandlerInterface
     public function __construct(\think\Cache $cache, array $config = [])
     {
         $this->handler = $cache->store(Arr::get($config, 'store'));
-        $this->expire  = Arr::get($config, 'expire', 1440);
-        $this->prefix  = Arr::get($config, 'prefix', '');
+        $this->expire = Arr::get($config, 'expire', 1440);
+        $this->prefix = Arr::get($config, 'prefix', '');
     }
 
     public function read(string $sessionId): string

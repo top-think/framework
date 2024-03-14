@@ -62,7 +62,7 @@ class View extends Response
         $this->init($data, $code);
 
         $this->cookie = $cookie;
-        $this->view   = $view;
+        $this->view = $view;
     }
 
     /**
