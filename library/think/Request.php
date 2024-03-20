@@ -1581,7 +1581,7 @@ class Request
                 $default = $val;
             }
 
-            if (isset($param[$key])) {
+            if (key_exists($key, $param)) {
                 $item[$key] = $param[$key];
             } elseif (isset($default)) {
                 $item[$key] = $default;
