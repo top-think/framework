@@ -27,7 +27,7 @@ class Buffer
 
     public function fetch()
     {
-        $content      = $this->buffer;
+        $content = $this->buffer;
         $this->buffer = '';
         return $content;
     }
