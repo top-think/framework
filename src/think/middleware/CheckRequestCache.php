@@ -35,18 +35,18 @@ class CheckRequestCache
      */
     protected $config = [
         // 请求缓存规则 true为自动规则
-        'request_cache_key'    => true,
+        'request_cache_key' => true,
         // 请求缓存有效期
         'request_cache_expire' => null,
         // 全局请求缓存排除规则
         'request_cache_except' => [],
         // 请求缓存的Tag
-        'request_cache_tag'    => '',
+        'request_cache_tag' => '',
     ];
 
     public function __construct(Cache $cache, Config $config)
     {
-        $this->cache  = $cache;
+        $this->cache = $cache;
         $this->config = array_merge($this->config, $config->get('route'));
     }
 
@@ -72,9 +72,9 @@ class CheckRequestCache
                 if (is_array($cache)) {
                     [$key, $expire, $tag] = array_pad($cache, 3, null);
                 } else {
-                    $key    = md5($request->url(true));
+                    $key = md5($request->url(true));
                     $expire = $cache;
-                    $tag    = null;
+                    $tag = null;
                 }
 
                 $key = $this->parseCacheKey($request, $key);
@@ -94,10 +94,10 @@ class CheckRequestCache
         $response = $next($request);
 
         if (isset($key) && 200 == $response->getCode() && $response->isAllowCache()) {
-            $header                  = $response->getHeader();
+            $header = $response->getHeader();
             $header['Cache-Control'] = 'max-age=' . $expire . ',must-revalidate';
             $header['Last-Modified'] = gmdate('D, d M Y H:i:s') . ' GMT';
-            $header['Expires']       = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
+            $header['Expires'] = gmdate('D, d M Y H:i:s', time() + $expire) . ' GMT';
 
             $this->cache->tag($tag)->set($key, [$response->getContent(), $header, time()], $expire);
         }
@@ -113,10 +113,10 @@ class CheckRequestCache
      */
     protected function getRequestCache($request)
     {
-        $key    = $this->config['request_cache_key'];
+        $key = $this->config['request_cache_key'];
         $expire = $this->config['request_cache_expire'];
         $except = $this->config['request_cache_except'];
-        $tag    = $this->config['request_cache_tag'];
+        $tag = $this->config['request_cache_tag'];
 
         foreach ($except as $rule) {
             if (0 === stripos($request->url(), $rule)) {

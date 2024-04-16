@@ -84,7 +84,7 @@ class Facade
         if (true === $args) {
             // 总是创建新的实例化对象
             $newInstance = true;
-            $args        = [];
+            $args = [];
         }
 
         return self::createFacade($class, $args, $newInstance);

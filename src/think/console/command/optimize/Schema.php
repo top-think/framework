@@ -53,10 +53,10 @@ class Schema extends Command
             $this->buildDataBaseSchema($connection, (array) $table, $dbName);
         } else {
             if ($dir) {
-                $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
+                $appPath = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
                 $namespace = 'app\\' . $dir;
             } else {
-                $appPath   = $this->app->getBasePath();
+                $appPath = $this->app->getBasePath();
                 $namespace = 'app';
             }
 
@@ -84,7 +84,7 @@ class Schema extends Command
         if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
             try {
                 /** @var \think\Model $model */
-                $model      = new $class;
+                $model = new $class;
                 $connection = $model->db()->getConnection();
                 if ($connection instanceof PDOConnection) {
                     $table = $model->getTable();

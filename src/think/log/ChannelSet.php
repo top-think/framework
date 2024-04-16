@@ -26,7 +26,7 @@ class ChannelSet
 
     public function __construct(Log $log, array $channels)
     {
-        $this->log      = $log;
+        $this->log = $log;
         $this->channels = $channels;
     }
 

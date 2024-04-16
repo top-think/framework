@@ -24,16 +24,16 @@ class Memcached extends Driver
      * @var array
      */
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 11211,
-        'expire'     => 0,
-        'timeout'    => 0, // 超时时间（单位：毫秒）
-        'prefix'     => '',
-        'username'   => '', //账号
-        'password'   => '', //密码
-        'option'     => [],
+        'host' => '127.0.0.1',
+        'port' => 11211,
+        'expire' => 0,
+        'timeout' => 0, // 超时时间（单位：毫秒）
+        'prefix' => '',
+        'username' => '', //账号
+        'password' => '', //密码
+        'option' => [],
         'tag_prefix' => 'tag:',
-        'serialize'  => [],
+        'serialize' => [],
     ];
 
     /**
@@ -128,9 +128,9 @@ class Memcached extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if ($this->handler->set($key, $value, $expire)) {
             return true;
@@ -170,9 +170,9 @@ class Memcached extends Driver
     {
         $this->writeTimes++;
 
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = $this->handler->get($key) - $step;
-        $res   = $this->handler->set($key, $value);
+        $res = $this->handler->set($key, $value);
 
         return !$res ? false : $value;
     }

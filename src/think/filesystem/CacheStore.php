@@ -25,8 +25,8 @@ class CacheStore extends AbstractCache
 
     public function __construct(CacheInterface $store, $key = 'flysystem', $expire = null)
     {
-        $this->key    = $key;
-        $this->store  = $store;
+        $this->key = $key;
+        $this->store = $store;
         $this->expire = $expire;
     }
 

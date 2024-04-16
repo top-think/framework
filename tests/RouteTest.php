@@ -62,12 +62,12 @@ class RouteTest extends TestCase
             });
         });
 
-        $request  = $this->makeRequest('foo', 'post');
+        $request = $this->makeRequest('foo', 'post');
         $response = $this->route->dispatch($request);
         $this->assertEquals(200, $response->getCode());
         $this->assertEquals('post-foo', $response->getContent());
 
-        $request  = $this->makeRequest('foo', 'get');
+        $request = $this->makeRequest('foo', 'get');
         $response = $this->route->dispatch($request);
         $this->assertEquals(200, $response->getCode());
         $this->assertEquals('get-foo', $response->getContent());
@@ -100,22 +100,22 @@ class RouteTest extends TestCase
 
         $this->route->resource('bar', 'SomeClass');
 
-        $request  = $this->makeRequest('foo', 'options');
+        $request = $this->makeRequest('foo', 'options');
         $response = $this->route->dispatch($request);
         $this->assertEquals(204, $response->getCode());
         $this->assertEquals('GET, PUT, POST', $response->getHeader('Allow'));
 
-        $request  = $this->makeRequest('bar', 'options');
+        $request = $this->makeRequest('bar', 'options');
         $response = $this->route->dispatch($request);
         $this->assertEquals(204, $response->getCode());
         $this->assertEquals('GET, POST', $response->getHeader('Allow'));
 
-        $request  = $this->makeRequest('bar/1', 'options');
+        $request = $this->makeRequest('bar/1', 'options');
         $response = $this->route->dispatch($request);
         $this->assertEquals(204, $response->getCode());
         $this->assertEquals('GET, PUT, DELETE', $response->getHeader('Allow'));
 
-        $request  = $this->makeRequest('xxxx', 'options');
+        $request = $this->makeRequest('xxxx', 'options');
         $response = $this->route->dispatch($request);
         $this->assertEquals(204, $response->getCode());
         $this->assertEquals('GET, POST, PUT, DELETE', $response->getHeader('Allow'));
@@ -127,13 +127,13 @@ class RouteTest extends TestCase
             return 'get-foo';
         })->allowCrossDomain(['some' => 'bar']);
 
-        $request  = $this->makeRequest('foo', 'get');
+        $request = $this->makeRequest('foo', 'get');
         $response = $this->route->dispatch($request);
 
         $this->assertEquals('bar', $response->getHeader('some'));
         $this->assertArrayHasKey('Access-Control-Allow-Credentials', $response->getHeader());
 
-        $request  = $this->makeRequest('foo2', 'options');
+        $request = $this->makeRequest('foo2', 'options');
         $response = $this->route->dispatch($request);
 
         $this->assertEquals(204, $response->getCode());
@@ -152,7 +152,7 @@ class RouteTest extends TestCase
 
         $controller->shouldReceive('bar')->andReturn('bar');
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }
@@ -168,7 +168,7 @@ class RouteTest extends TestCase
 
         $controller->shouldReceive('bar')->andReturn('bar');
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }
@@ -193,10 +193,10 @@ class RouteTest extends TestCase
         $controller->middleware = [
             $this->createMiddleware()->mockery_getName() . ":params1:params2",
             $this->createMiddleware(0)->mockery_getName() => ['except' => 'bar'],
-            $this->createMiddleware()->mockery_getName()  => ['only' => 'bar'],
+            $this->createMiddleware()->mockery_getName() => ['only' => 'bar'],
             [
                 'middleware' => [$this->createMiddleware()->mockery_getName(), [new \stdClass()]],
-                'options'    => ['only' => 'bar'],
+                'options' => ['only' => 'bar'],
             ],
         ];
 
@@ -205,7 +205,7 @@ class RouteTest extends TestCase
 
         $controller->shouldReceive('bar')->once()->andReturn('bar');
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }
@@ -219,7 +219,7 @@ class RouteTest extends TestCase
             ->andReturn($controller->mockery_getName());
         $this->app->shouldReceive('make')->with($controller->mockery_getName(), [], true)->andReturn($controller);
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
         $this->assertEquals('bar', $response->getContent());
     }
@@ -241,7 +241,7 @@ class RouteTest extends TestCase
     {
         $this->route->view('foo', 'index/hello', ['city' => 'shanghai']);
 
-        $request  = $this->makeRequest('foo');
+        $request = $this->makeRequest('foo');
         $response = $this->route->dispatch($request);
 
         $this->assertInstanceOf(View::class, $response);
@@ -256,7 +256,7 @@ class RouteTest extends TestCase
             ->code(200)
             ->contentType('text/plain'));
 
-        $request  = $this->makeRequest('hello/some');
+        $request = $this->makeRequest('hello/some');
         $response = $this->route->dispatch($request);
 
         $this->assertEquals('Hello,ThinkPHP', $response->getContent());
@@ -271,7 +271,7 @@ class RouteTest extends TestCase
             });
         });
 
-        $request  = $this->makeRequest('', 'get', 'test.domain.com');
+        $request = $this->makeRequest('', 'get', 'test.domain.com');
         $response = $this->route->dispatch($request);
 
         $this->assertEquals('Hello,ThinkPHP', $response->getContent());

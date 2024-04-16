@@ -32,12 +32,12 @@ class Event
      * @var array
      */
     protected $bind = [
-        'AppInit'     => event\AppInit::class,
-        'HttpRun'     => event\HttpRun::class,
-        'HttpEnd'     => event\HttpEnd::class,
+        'AppInit' => event\AppInit::class,
+        'HttpRun' => event\HttpRun::class,
+        'HttpEnd' => event\HttpEnd::class,
         'RouteLoaded' => event\RouteLoaded::class,
-        'LogWrite'    => event\LogWrite::class,
-        'LogRecord'   => event\LogRecord::class,
+        'LogWrite' => event\LogWrite::class,
+        'LogRecord' => event\LogRecord::class,
     ];
 
     /**
@@ -207,14 +207,14 @@ class Event
     {
         if (is_object($event)) {
             $params = $event;
-            $event  = get_class($event);
+            $event = get_class($event);
         }
 
         if (isset($this->bind[$event])) {
             $event = $this->bind[$event];
         }
 
-        $result    = [];
+        $result = [];
         $listeners = $this->listener[$event] ?? [];
 
         if (strpos($event, '.')) {
@@ -262,7 +262,7 @@ class Event
         } elseif (strpos($event, '::')) {
             $call = $event;
         } else {
-            $obj  = $this->app->make($event);
+            $obj = $this->app->make($event);
             $call = [$obj, 'handle'];
         }
 

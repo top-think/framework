@@ -26,9 +26,9 @@ class UploadedFile extends File
     public function __construct(string $path, string $originalName, string $mimeType = null, int $error = null, bool $test = false)
     {
         $this->originalName = $originalName;
-        $this->mimeType     = $mimeType ?: 'application/octet-stream';
-        $this->test         = $test;
-        $this->error        = $error ?: UPLOAD_ERR_OK;
+        $this->mimeType = $mimeType ?: 'application/octet-stream';
+        $this->test = $test;
+        $this->error = $error ?: UPLOAD_ERR_OK;
 
         parent::__construct($path, UPLOAD_ERR_OK === $this->error);
     }

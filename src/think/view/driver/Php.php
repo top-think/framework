@@ -29,20 +29,20 @@ class Php implements TemplateHandlerInterface
     // 模板引擎参数
     protected $config = [
         // 默认模板渲染规则 1 解析为小写+下划线 2 全部转换小写 3 保持操作方法
-        'auto_rule'     => 1,
+        'auto_rule' => 1,
         // 视图目录名
         'view_dir_name' => 'view',
         // 应用模板路径
-        'view_path'     => '',
+        'view_path' => '',
         // 模板文件后缀
-        'view_suffix'   => 'php',
+        'view_suffix' => 'php',
         // 模板文件名分隔符
-        'view_depr'     => DIRECTORY_SEPARATOR,
+        'view_depr' => DIRECTORY_SEPARATOR,
     ];
 
     public function __construct(App $app, array $config = [])
     {
-        $this->app    = $app;
+        $this->app = $app;
         $this->config = array_merge($this->config, (array) $config);
     }
 
@@ -123,7 +123,7 @@ class Php implements TemplateHandlerInterface
             $path = $this->config['view_path'];
         } else {
             $appName = isset($app) ? $app : $this->app->http->getName();
-            $view    = $this->config['view_dir_name'];
+            $view = $this->config['view_dir_name'];
 
             if (is_dir($this->app->getAppPath() . $view)) {
                 $path = isset($app) ? $this->app->getBasePath() . ($appName ? $appName . DIRECTORY_SEPARATOR : '') . $view . DIRECTORY_SEPARATOR : $this->app->getAppPath() . $view . DIRECTORY_SEPARATOR;
@@ -135,10 +135,10 @@ class Php implements TemplateHandlerInterface
         $depr = $this->config['view_depr'];
 
         if (0 !== strpos($template, '/')) {
-            $template   = str_replace(['/', ':'], $depr, $template);
+            $template = str_replace(['/', ':'], $depr, $template);
             $controller = $request->controller();
             if (strpos($controller, '.')) {
-                $pos        = strrpos($controller, '.');
+                $pos = strrpos($controller, '.');
                 $controller = substr($controller, 0, $pos) . '.' . Str::snake(substr($controller, $pos + 1));
             } else {
                 $controller = Str::snake($controller);

@@ -43,10 +43,10 @@ abstract class Driver
 
     public function __construct(Cache $cache, array $config)
     {
-        $this->cache  = $cache;
+        $this->cache = $cache;
         $this->config = array_merge($this->config, $config);
 
-        $adapter          = $this->createAdapter();
+        $adapter = $this->createAdapter();
         $this->filesystem = $this->createFilesystem($adapter);
     }
 
@@ -126,7 +126,7 @@ abstract class Driver
     public function putFileAs(string $path, File $file, string $name, array $options = [])
     {
         $stream = fopen($file->getRealPath(), 'r');
-        $path   = trim($path . '/' . $name, '/');
+        $path = trim($path . '/' . $name, '/');
 
         $result = $this->putStream($path, $stream, $options);
 

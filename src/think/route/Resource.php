@@ -66,12 +66,12 @@ class Resource extends RuleGroup
      */
     public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
     {
-        $name           = ltrim($name, '/');
-        $this->router   = $router;
-        $this->parent   = $parent;
+        $name = ltrim($name, '/');
+        $this->router = $router;
+        $this->parent = $parent;
         $this->resource = $name;
-        $this->route    = $route;
-        $this->name     = strpos($name, '.') ? strstr($name, '.', true) : $name;
+        $this->route = $route;
+        $this->name = strpos($name, '.') ? strstr($name, '.', true) : $name;
 
         $this->setFullName();
 
@@ -97,7 +97,7 @@ class Resource extends RuleGroup
      */
     protected function buildResourceRule(): void
     {
-        $rule   = $this->resource;
+        $rule = $this->resource;
         $option = $this->option;
         $origin = $this->router->getGroup();
         $this->router->setGroup($this);
@@ -105,8 +105,8 @@ class Resource extends RuleGroup
         if (strpos($rule, '.')) {
             // 注册嵌套资源路由
             $array = explode('.', $rule);
-            $last  = array_pop($array);
-            $item  = [];
+            $last = array_pop($array);
+            $item = [];
 
             foreach ($array as $val) {
                 $item[] = $val . '/<' . ($option['var'][$val] ?? $val . '_id') . '>';

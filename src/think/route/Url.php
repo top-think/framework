@@ -77,9 +77,9 @@ class Url
     public function __construct(Route $route, App $app, string $url = '', array $vars = [])
     {
         $this->route = $route;
-        $this->app   = $app;
-        $this->url   = $url;
-        $this->vars  = $vars;
+        $this->app = $app;
+        $this->url = $url;
+        $this->vars = $vars;
     }
 
     /**
@@ -155,12 +155,12 @@ class Url
             return '';
         }
 
-        $request    = $this->app->request;
+        $request = $this->app->request;
         $rootDomain = $request->rootDomain();
 
         if (true === $domain) {
             // 自动判断域名
-            $domain  = $request->host();
+            $domain = $request->host();
             $domains = $this->route->getDomains();
 
             if (!empty($domains)) {
@@ -170,7 +170,7 @@ class Url
                         foreach ($domains as $key => $rule) {
                             $rule = is_array($rule) ? $rule[0] : $rule;
                             if (is_string($rule) && false === strpos($key, '*') && 0 === strpos($url, $rule)) {
-                                $url    = ltrim($url, $rule);
+                                $url = ltrim($url, $rule);
                                 $domain = $key;
 
                                 // 生成对应子域名
@@ -246,8 +246,8 @@ class Url
         } else {
             $controller = $request->controller();
 
-            $path       = explode('/', $url);
-            $action     = array_pop($path);
+            $path = explode('/', $url);
+            $action = array_pop($path);
             $controller = empty($path) ? $controller : array_pop($path);
 
             $url = $controller . '/' . $action;
@@ -272,7 +272,7 @@ class Url
                 $optional = false;
 
                 if (strpos($name, '?')) {
-                    $name     = substr($name, 1, -2);
+                    $name = substr($name, 1, -2);
                     $optional = true;
                 } else {
                     $name = substr($name, 1, -1);
@@ -302,10 +302,10 @@ class Url
         $port = $request->port();
 
         foreach ($rule as $item) {
-            $url     = $item['rule'];
+            $url = $item['rule'];
             $pattern = $this->parseVar($url);
-            $domain  = $item['domain'];
-            $suffix  = $item['suffix'];
+            $domain = $item['domain'];
+            $suffix = $item['suffix'];
 
             if ('-' == $domain) {
                 $domain = is_string($allowDomain) ? $allowDomain : $request->host(true);
@@ -328,17 +328,17 @@ class Url
 
             foreach ($pattern as $key => $val) {
                 if (isset($vars[$key])) {
-                    $url    = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? (string) $vars[$key] : urlencode((string) $vars[$key]), $url);
+                    $url = str_replace(['[:' . $key . ']', '<' . $key . '?>', ':' . $key, '<' . $key . '>'], $type ? (string) $vars[$key] : urlencode((string) $vars[$key]), $url);
                     $keys[] = $key;
-                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $url = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?-'), $domain, $suffix];
                 } elseif (2 == $val) {
-                    $url    = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
-                    $url    = str_replace(['/?', '-?'], ['/', '-'], $url);
+                    $url = str_replace(['/[:' . $key . ']', '[:' . $key . ']', '<' . $key . '?>'], '', $url);
+                    $url = str_replace(['/?', '-?'], ['/', '-'], $url);
                     $result = [rtrim($url, '?-'), $domain, $suffix];
                 } else {
                     $result = null;
-                    $keys   = [];
+                    $keys = [];
                     break;
                 }
             }
@@ -361,21 +361,21 @@ class Url
     public function build(): string
     {
         // 解析URL
-        $url     = $this->url;
-        $suffix  = $this->suffix;
-        $domain  = $this->domain;
+        $url = $this->url;
+        $suffix = $this->suffix;
+        $domain = $this->domain;
         $request = $this->app->request;
-        $vars    = $this->vars;
+        $vars = $this->vars;
 
         if (0 === strpos($url, '[') && $pos = strpos($url, ']')) {
             // [name] 表示使用路由命名标识生成URL
             $name = substr($url, 1, $pos - 1);
-            $url  = 'name' . substr($url, $pos + 1);
+            $url = 'name' . substr($url, $pos + 1);
         }
 
         if (false === strpos($url, '://') && 0 !== strpos($url, '/')) {
             $info = parse_url($url);
-            $url  = !empty($info['path']) ? $info['path'] : '';
+            $url = !empty($info['path']) ? $info['path'] : '';
 
             if (isset($info['fragment'])) {
                 // 解析锚点
@@ -397,7 +397,7 @@ class Url
         }
 
         if ($url) {
-            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkName = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
             $rule = $this->route->getName($checkName, $checkDomain);
@@ -435,7 +435,7 @@ class Url
 
                 foreach ($binds as $key => $val) {
                     if (is_string($val) && 0 === strpos($url, $val) && substr_count($val, '/') > 1) {
-                        $url    = substr($url, strlen($val) + 1);
+                        $url = substr($url, strlen($val) + 1);
                         $domain = $key;
                         break;
                     }
@@ -454,7 +454,7 @@ class Url
 
         // 还原URL分隔符
         $depr = $this->route->config('pathinfo_depr');
-        $url  = str_replace('/', $depr, $url);
+        $url = str_replace('/', $depr, $url);
 
         $file = $request->baseFile();
         if ($file && 0 !== strpos($request->url(), $file)) {
@@ -508,8 +508,8 @@ class Url
     public function __debugInfo()
     {
         return [
-            'url'    => $this->url,
-            'vars'   => $this->vars,
+            'url' => $this->url,
+            'vars' => $this->vars,
             'suffix' => $this->suffix,
             'domain' => $this->domain,
         ];

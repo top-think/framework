@@ -51,7 +51,7 @@ class Store
 
     public function __construct($name, SessionHandlerInterface $handler, array $serialize = null)
     {
-        $this->name    = $name;
+        $this->name = $name;
         $this->handler = $handler;
 
         if (!empty($serialize)) {
@@ -289,7 +289,7 @@ class Store
      */
     public function reflash(): void
     {
-        $keys   = $this->get('__flash__.__current__', []);
+        $keys = $this->get('__flash__.__current__', []);
         $values = array_unique(array_merge($this->get('__flash__.__next__', []), $keys));
         $this->set('__flash__.__next__', $values);
         $this->set('__flash__.__current__', []);

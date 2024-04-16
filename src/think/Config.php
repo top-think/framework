@@ -43,13 +43,13 @@ class Config
     public function __construct(string $path = null, string $ext = '.php')
     {
         $this->path = $path ?: '';
-        $this->ext  = $ext;
+        $this->ext = $ext;
     }
 
     public static function __make(App $app)
     {
         $path = $app->getConfigPath();
-        $ext  = $app->getConfigExt();
+        $ext = $app->getConfigExt();
 
         return new static($path, $ext);
     }
@@ -85,7 +85,7 @@ class Config
      */
     protected function parse(string $file, string $name): array
     {
-        $type   = pathinfo($file, PATHINFO_EXTENSION);
+        $type = pathinfo($file, PATHINFO_EXTENSION);
         $config = [];
         switch ($type) {
             case 'php':
@@ -154,9 +154,9 @@ class Config
             return $this->pull($name);
         }
 
-        $name    = explode('.', $name);
+        $name = explode('.', $name);
         $name[0] = strtolower($name[0]);
-        $config  = $this->config;
+        $config = $this->config;
 
         // 按.拆分成多维数组进行判断
         foreach ($name as $val) {

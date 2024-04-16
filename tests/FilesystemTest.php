@@ -70,16 +70,16 @@ class FilesystemTest extends TestCase
     public function testCache()
     {
         $this->config->shouldReceive('get')->with('filesystem.disks.local', null)->andReturn([
-            'type'  => 'local',
-            'root'  => $this->root->url(),
+            'type' => 'local',
+            'root' => $this->root->url(),
             'cache' => true,
         ]);
 
         $this->assertInstanceOf(Local::class, $this->filesystem->disk());
 
         $this->config->shouldReceive('get')->with('filesystem.disks.cache', null)->andReturn([
-            'type'  => NullDriver::class,
-            'root'  => $this->root->url(),
+            'type' => NullDriver::class,
+            'root' => $this->root->url(),
             'cache' => [
                 'store' => 'flysystem',
             ],
@@ -107,8 +107,8 @@ class FilesystemTest extends TestCase
         ]);
 
         $this->config->shouldReceive('get')->with('filesystem.disks.local', null)->andReturn([
-            'type'  => NullDriver::class,
-            'root'  => $root->url(),
+            'type' => NullDriver::class,
+            'root' => $root->url(),
             'cache' => true,
         ]);
 

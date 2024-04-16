@@ -140,7 +140,7 @@ class File extends SplFileInfo
     protected function getName(string $name): string
     {
         $originalName = str_replace('\\', '/', $name);
-        $pos          = strrpos($originalName, '/');
+        $pos = strrpos($originalName, '/');
         $originalName = false === $pos ? $originalName : substr($originalName, $pos + 1);
 
         return $originalName;
@@ -169,7 +169,7 @@ class File extends SplFileInfo
             } else {
                 switch (true) {
                     case in_array($rule, hash_algos()):
-                        $hash           = $this->hash($rule);
+                        $hash = $this->hash($rule);
                         $this->hashName = substr($hash, 0, 2) . DIRECTORY_SEPARATOR . substr($hash, 2);
                         break;
                     case is_callable($rule):
