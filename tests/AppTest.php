@@ -173,10 +173,10 @@ class AppTest extends TestCase
     public function testInitialize()
     {
         $root = vfsStream::setup('rootDir', null, [
-            '.env'   => '',
-            'app'    => [
-                'common.php'   => '',
-                'event.php'    => '<?php return ["bind"=>[],"listen"=>[],"subscribe"=>[]];',
+            '.env' => '',
+            'app' => [
+                'common.php' => '',
+                'event.php' => '<?php return ["bind"=>[],"listen"=>[],"subscribe"=>[]];',
                 'provider.php' => '<?php return [];',
             ],
             'config' => [

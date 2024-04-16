@@ -26,12 +26,12 @@ use think\contract\SessionHandlerInterface;
 class File implements SessionHandlerInterface
 {
     protected $config = [
-        'path'           => '',
-        'expire'         => 1440,
-        'prefix'         => '',
-        'data_compress'  => false,
+        'path' => '',
+        'expire' => 1440,
+        'prefix' => '',
+        'data_compress' => false,
         'gc_probability' => 1,
-        'gc_divisor'     => 100,
+        'gc_divisor' => 100,
     ];
 
     public function __construct(App $app, array $config = [])
@@ -74,7 +74,7 @@ class File implements SessionHandlerInterface
     public function gc(): void
     {
         $lifetime = $this->config['expire'];
-        $now      = time();
+        $now = time();
 
         $files = $this->findFiles($this->config['path'], function (SplFileInfo $item) use ($lifetime, $now) {
             return $now - $lifetime > $item->getMTime();
@@ -124,7 +124,7 @@ class File implements SessionHandlerInterface
         }
 
         $filename = $this->config['path'] . $name;
-        $dir      = dirname($filename);
+        $dir = dirname($filename);
 
         if ($auto && !is_dir($dir)) {
             try {
@@ -210,7 +210,7 @@ class File implements SessionHandlerInterface
     public function write(string $sessID, string $sessData): bool
     {
         $filename = $this->getFileName($sessID, true);
-        $data     = $sessData;
+        $data = $sessData;
 
         if ($this->config['data_compress'] && function_exists('gzcompress')) {
             //数据压缩

@@ -27,14 +27,14 @@ use think\log\ChannelSet;
 class Log extends Manager implements LoggerInterface
 {
     const EMERGENCY = 'emergency';
-    const ALERT     = 'alert';
-    const CRITICAL  = 'critical';
-    const ERROR     = 'error';
-    const WARNING   = 'warning';
-    const NOTICE    = 'notice';
-    const INFO      = 'info';
-    const DEBUG     = 'debug';
-    const SQL       = 'sql';
+    const ALERT = 'alert';
+    const CRITICAL = 'critical';
+    const ERROR = 'error';
+    const WARNING = 'warning';
+    const NOTICE = 'notice';
+    const INFO = 'info';
+    const DEBUG = 'debug';
+    const SQL = 'sql';
 
     protected $namespace = '\\think\\log\\driver\\';
 
@@ -102,7 +102,7 @@ class Log extends Manager implements LoggerInterface
     {
         $driver = parent::createDriver($name);
 
-        $lazy  = !$this->getChannelConfig($name, "realtime_write", false) && !$this->app->runningInConsole();
+        $lazy = !$this->getChannelConfig($name, "realtime_write", false) && !$this->app->runningInConsole();
         $allow = array_merge($this->getConfig("level", []), $this->getChannelConfig($name, "level", []));
 
         return new Channel($name, $driver, $allow, $lazy, $this->app->event);

@@ -26,14 +26,14 @@ class File extends Driver
      * @var array
      */
     protected $options = [
-        'expire'        => 0,
-        'cache_subdir'  => true,
-        'prefix'        => '',
-        'path'          => '',
-        'hash_type'     => 'md5',
+        'expire' => 0,
+        'cache_subdir' => true,
+        'prefix' => '',
+        'path' => '',
+        'hash_type' => 'md5',
         'data_compress' => false,
-        'tag_prefix'    => 'tag:',
-        'serialize'     => [],
+        'tag_prefix' => 'tag:',
+        'serialize' => [],
     ];
 
     /**
@@ -155,7 +155,7 @@ class File extends Driver
             $expire = $this->options['expire'];
         }
 
-        $expire   = $this->getExpireTime($expire);
+        $expire = $this->getExpireTime($expire);
         $filename = $this->getCacheKey($name);
 
         $dir = dirname($filename);
@@ -175,7 +175,7 @@ class File extends Driver
             $data = gzcompress($data, 3);
         }
 
-        $data   = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
+        $data = "<?php\n//" . sprintf('%012d', $expire) . "\n exit();?>\n" . $data;
 
         $result = file_put_contents($filename, $data, LOCK_EX);
 
@@ -197,10 +197,10 @@ class File extends Driver
     public function inc(string $name, int $step = 1)
     {
         if ($raw = $this->getRaw($name)) {
-            $value  = $this->unserialize($raw['content']) + $step;
+            $value = $this->unserialize($raw['content']) + $step;
             $expire = $raw['expire'];
         } else {
-            $value  = $step;
+            $value = $step;
             $expire = 0;
         }
 

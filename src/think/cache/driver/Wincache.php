@@ -24,10 +24,10 @@ class Wincache extends Driver
      * @var array
      */
     protected $options = [
-        'prefix'     => '',
-        'expire'     => 0,
+        'prefix' => '',
+        'expire' => 0,
         'tag_prefix' => 'tag:',
-        'serialize'  => [],
+        'serialize' => [],
     ];
 
     /**
@@ -94,9 +94,9 @@ class Wincache extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if (wincache_ucache_set($key, $value, $expire)) {
             return true;

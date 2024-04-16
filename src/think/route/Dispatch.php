@@ -56,10 +56,10 @@ abstract class Dispatch
 
     public function __construct(Request $request, Rule $rule, $dispatch, array $param = [])
     {
-        $this->request  = $request;
-        $this->rule     = $rule;
+        $this->request = $request;
+        $this->rule = $rule;
         $this->dispatch = $dispatch;
-        $this->param    = $param;
+        $this->param = $param;
     }
 
     public function init(App $app)
@@ -93,13 +93,13 @@ abstract class Dispatch
             }
         } elseif (!is_null($data)) {
             // 默认自动识别响应输出类型
-            $type     = $this->request->isJson() ? 'json' : 'html';
+            $type = $this->request->isJson() ? 'json' : 'html';
             $response = Response::create($data, $type);
         } else {
             $data = ob_get_clean();
 
-            $content  = false === $data ? '' : $data;
-            $status   = '' === $content && $this->request->isJson() ? 204 : 200;
+            $content = false === $data ? '' : $data;
+            $status = '' === $content && $this->request->isJson() ? 204 : 200;
             $response = Response::create($content, 'html', $status);
         }
 
@@ -159,7 +159,7 @@ abstract class Dispatch
                 if (is_array($val)) {
                     [$model, $exception] = $val;
                 } else {
-                    $model     = $val;
+                    $model = $val;
                     $exception = true;
                 }
 
@@ -239,7 +239,7 @@ abstract class Dispatch
 
     public function __wakeup()
     {
-        $this->app     = Container::pull('app');
+        $this->app = Container::pull('app');
         $this->request = $this->app->request;
     }
 
@@ -247,8 +247,8 @@ abstract class Dispatch
     {
         return [
             'dispatch' => $this->dispatch,
-            'param'    => $this->param,
-            'rule'     => $this->rule,
+            'param' => $this->param,
+            'rule' => $this->rule,
         ];
     }
 }

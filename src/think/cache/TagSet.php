@@ -37,7 +37,7 @@ class TagSet
      */
     public function __construct(array $tag, Driver $cache)
     {
-        $this->tag     = $tag;
+        $this->tag = $tag;
         $this->handler = $cache;
     }
 

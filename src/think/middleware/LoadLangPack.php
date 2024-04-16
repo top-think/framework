@@ -31,8 +31,8 @@ class LoadLangPack
 
     public function __construct(App $app, Lang $lang, Config $config)
     {
-        $this->app    = $app;
-        $this->lang   = $lang;
+        $this->app = $app;
+        $this->lang = $lang;
         $this->config = $lang->getConfig();
     }
 

@@ -196,7 +196,7 @@ abstract class Driver implements CacheInterface, CacheHandlerInterface
     public function tag($name): TagSet
     {
         $name = (array) $name;
-        $key  = implode('-', $name);
+        $key = implode('-', $name);
 
         if (!isset($this->tag[$key])) {
             $this->tag[$key] = new TagSet($name, $this);

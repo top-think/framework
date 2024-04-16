@@ -45,11 +45,11 @@ class Channel implements LoggerInterface
 
     public function __construct(string $name, LogHandlerInterface $logger, array $allow, bool $lazy = true, Event $event = null)
     {
-        $this->name   = $name;
+        $this->name = $name;
         $this->logger = $logger;
-        $this->allow  = $allow;
-        $this->lazy   = $lazy;
-        $this->event  = $event;
+        $this->allow = $allow;
+        $this->lazy = $lazy;
+        $this->event = $event;
     }
 
     /**

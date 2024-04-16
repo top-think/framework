@@ -31,16 +31,16 @@ class Redis extends Driver
      * @var array
      */
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 6379,
-        'password'   => '',
-        'select'     => 0,
-        'timeout'    => 0,
-        'expire'     => 0,
+        'host' => '127.0.0.1',
+        'port' => 6379,
+        'password' => '',
+        'select' => 0,
+        'timeout' => 0,
+        'expire' => 0,
         'persistent' => false,
-        'prefix'     => '',
+        'prefix' => '',
         'tag_prefix' => 'tag:',
-        'serialize'  => [],
+        'serialize' => [],
     ];
 
     /**
@@ -112,7 +112,7 @@ class Redis extends Driver
     public function get($name, $default = null)
     {
         $this->readTimes++;
-        $key   = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $value = $this->handler->get($key);
 
         if (false === $value || is_null($value)) {
@@ -138,9 +138,9 @@ class Redis extends Driver
             $expire = $this->options['expire'];
         }
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $expire = $this->getExpireTime($expire);
-        $value  = $this->serialize($value);
+        $value = $this->serialize($value);
 
         if ($expire) {
             $this->handler->setex($key, $expire, $value);
@@ -191,7 +191,7 @@ class Redis extends Driver
     {
         $this->writeTimes++;
 
-        $key    = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         $result = $this->handler->del($key);
         return $result > 0;
     }
@@ -242,7 +242,7 @@ class Redis extends Driver
     public function getTagItems(string $tag): array
     {
         $name = $this->getTagKey($tag);
-        $key  = $this->getCacheKey($name);
+        $key = $this->getCacheKey($name);
         return $this->handler->sMembers($key);
     }
 

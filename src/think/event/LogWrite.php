@@ -26,6 +26,6 @@ class LogWrite
     public function __construct($channel, $log)
     {
         $this->channel = $channel;
-        $this->log     = $log;
+        $this->log = $log;
     }
 }
