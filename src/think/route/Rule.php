@@ -648,7 +648,11 @@ abstract class Rule
      */
     protected function dispatch(Request $request, $route, array $option): Dispatch
     {
-        if (is_subclass_of($route, Dispatch::class)) {
+        if (is_subclass_of($option['dispatcher'], Dispatch::class)) {
+            // 指定分组的调度处理对象
+            $result = new $option['dispatcher']($request, $this, $route, $this->vars);
+        } elseif (is_subclass_of($route, Dispatch::class)) {
+            // 路由到调度对象
             $result = new $route($request, $this, $route, $this->vars);
         } elseif ($route instanceof Closure) {
             // 执行闭包
