@@ -607,13 +607,13 @@ abstract class Rule
 
         // 替换路由地址中的变量
         $extraParams = true;
-        $search      = $replace      = [];
-        $depr        = $this->config('pathinfo_depr');
+        $search = $replace = [];
+        $depr = $this->config('pathinfo_depr');
         foreach ($matches as $key => $value) {
-            $search[]  = '<' . $key . '>';
+            $search[] = '<' . $key . '>';
             $replace[] = $value;
 
-            $search[]  = ':' . $key;
+            $search[] = ':' . $key;
             $replace[] = $value;
 
             if (str_contains($value, $depr)) {
@@ -628,7 +628,7 @@ abstract class Rule
         // 解析额外参数
         if ($extraParams) {
             $count = substr_count($rule, '/');
-            $url   = array_slice(explode('|', $url), $count + 1);
+            $url = array_slice(explode('|', $url), $count + 1);
             $this->parseUrlParams(implode('|', $url), $matches);
         }
 
@@ -659,7 +659,7 @@ abstract class Rule
             $result = new CallbackDispatch($request, $this, $route, $this->vars);
         } elseif (str_contains($route, '@') || str_contains($route, '::') || str_contains($route, '\\')) {
             // 路由到类的方法
-            $route  = str_replace('::', '@', $route);
+            $route = str_replace('::', '@', $route);
             $result = $this->dispatchMethod($request, $route);
         } else {
             // 路由到控制器/操作
@@ -680,7 +680,7 @@ abstract class Rule
     {
         $path = $this->parseUrlPath($route);
 
-        $route  = str_replace('/', '@', implode('/', $path));
+        $route = str_replace('/', '@', implode('/', $path));
         $method = str_contains($route, '@') ? explode('@', $route) : $route;
 
         return new CallbackDispatch($request, $this, $method, $this->vars);
@@ -697,7 +697,7 @@ abstract class Rule
     {
         $path = $this->parseUrlPath($route);
 
-        $action     = array_pop($path);
+        $action = array_pop($path);
         $controller = !empty($path) ? array_pop($path) : null;
 
         // 路由到模块/控制器/操作
@@ -821,7 +821,7 @@ abstract class Rule
         foreach ($match as $name) {
             $value = $this->buildNameRegex($name, $pattern, $suffix);
             if ($value) {
-                $origin[]  = $name;
+                $origin[] = $name;
                 $replace[] = $value;
             }
         }
@@ -831,7 +831,7 @@ abstract class Rule
             if (!empty($option['remove_slash'])) {
                 $rule = rtrim($rule, '/');
             } elseif (str_ends_with($rule, '/')) {
-                $rule     = rtrim($rule, '/');
+                $rule = rtrim($rule, '/');
                 $hasSlash = true;
             }
         }
@@ -857,12 +857,12 @@ abstract class Rule
     protected function buildNameRegex(string $name, array $pattern, string $suffix): string
     {
         $optional = '';
-        $slash    = substr($name, 0, 1);
+        $slash = substr($name, 0, 1);
 
         if (in_array($slash, ['/', '-'])) {
             $prefix = $slash;
-            $name   = substr($name, 1);
-            $slash  = substr($name, 0, 1);
+            $name = substr($name, 1);
+            $slash = substr($name, 0, 1);
         } else {
             $prefix = '';
         }
@@ -872,7 +872,7 @@ abstract class Rule
         }
 
         if (str_contains($name, '?')) {
-            $name     = substr($name, 1, -2);
+            $name = substr($name, 1, -2);
             $optional = '?';
         } elseif (str_contains($name, '>')) {
             $name = substr($name, 1, -1);
@@ -920,12 +920,12 @@ abstract class Rule
     public function __debugInfo()
     {
         return [
-            'name'    => $this->name,
-            'rule'    => $this->rule,
-            'route'   => $this->route,
-            'method'  => $this->method,
-            'vars'    => $this->vars,
-            'option'  => $this->option,
+            'name' => $this->name,
+            'rule' => $this->rule,
+            'route' => $this->route,
+            'method' => $this->method,
+            'vars' => $this->vars,
+            'option' => $this->option,
             'pattern' => $this->pattern,
         ];
     }
