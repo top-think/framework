@@ -429,14 +429,7 @@ class Url
         // 还原URL分隔符
         $depr = $this->route->config('pathinfo_depr');
         $url  = str_replace('/', $depr, $url);
-
-        $file = $request->baseFile();
-        if ($file && !str_starts_with($request->url(), $file)) {
-            $file = str_replace('\\', '/', dirname($file));
-        }
-
-        $url = rtrim($file, '/') . '/' . $url;
-
+        
         // URL后缀
         if (str_ends_with($url, '/') || '' == $url) {
             $suffix = '';
