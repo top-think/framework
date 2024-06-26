@@ -29,7 +29,7 @@ class Redirect extends Response
     {
         $this->init((string) $data, $code);
 
-        $this->cookie  = $cookie;
+        $this->cookie = $cookie;
         $this->request = $request;
         $this->session = $session;
 

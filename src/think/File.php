@@ -147,7 +147,7 @@ class File extends SplFileInfo
     protected function getName(string $name): string
     {
         $originalName = str_replace('\\', '/', $name);
-        $pos          = strrpos($originalName, '/');
+        $pos = strrpos($originalName, '/');
         $originalName = false === $pos ? $originalName : substr($originalName, $pos + 1);
 
         return $originalName;
@@ -185,9 +185,9 @@ class File extends SplFileInfo
                 $this->hashName = call_user_func_array($rule, [$this]);
             } else {
                 $this->hashName = match (true) {
-                    in_array($rule, hash_algos()) && $hash = $this->hash($rule)   =>  substr($hash, 0, 2) . DIRECTORY_SEPARATOR . substr($hash, 2),
-                    is_callable($rule)  =>  call_user_func($rule),
-                    default     =>  date('Ymd') . DIRECTORY_SEPARATOR . md5(microtime(true) . $this->getPathname()),
+                    in_array($rule, hash_algos()) && $hash = $this->hash($rule) => substr($hash, 0, 2) . DIRECTORY_SEPARATOR . substr($hash, 2),
+                    is_callable($rule) => call_user_func($rule),
+                    default => date('Ymd') . DIRECTORY_SEPARATOR . md5(microtime(true) . $this->getPathname()),
                 };
             }
         }

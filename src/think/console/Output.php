@@ -43,19 +43,19 @@ use Throwable;
 class Output
 {
     // 不显示信息(静默)
-    const VERBOSITY_QUIET        = 0;
+    const VERBOSITY_QUIET = 0;
     // 正常信息
-    const VERBOSITY_NORMAL       = 1;
+    const VERBOSITY_NORMAL = 1;
     // 详细信息
-    const VERBOSITY_VERBOSE      = 2;
+    const VERBOSITY_VERBOSE = 2;
     // 非常详细的信息
     const VERBOSITY_VERY_VERBOSE = 3;
     // 调试信息
-    const VERBOSITY_DEBUG        = 4;
+    const VERBOSITY_DEBUG = 4;
 
     const OUTPUT_NORMAL = 0;
-    const OUTPUT_RAW    = 1;
-    const OUTPUT_PLAIN  = 2;
+    const OUTPUT_RAW = 1;
+    const OUTPUT_PLAIN = 2;
 
     // 输出信息级别
     private $verbosity = self::VERBOSITY_NORMAL;
@@ -108,7 +108,7 @@ class Output
     public function choice(Input $input, $question, array $choices, $default = null)
     {
         if (null !== $default) {
-            $values  = array_flip($choices);
+            $values = array_flip($choices);
             $default = $values[$default];
         }
 
@@ -117,7 +117,7 @@ class Output
 
     protected function askQuestion(Input $input, Question $question)
     {
-        $ask    = new Ask($input, $this, $question);
+        $ask = new Ask($input, $this, $question);
         $answer = $ask->run();
 
         if ($input->isInteractive()) {
@@ -208,7 +208,7 @@ class Output
     public function describe($object, array $options = []): void
     {
         $descriptor = new Descriptor();
-        $options    = array_merge([
+        $options = array_merge([
             'raw_text' => false,
         ], $options);
 
