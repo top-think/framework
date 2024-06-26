@@ -37,11 +37,11 @@ class Route
      * @var array
      */
     protected $rest = [
-        'index'  => ['get', '', 'index'],
+        'index' => ['get', '', 'index'],
         'create' => ['get', '/create', 'create'],
-        'edit'   => ['get', '/<id>/edit', 'edit'],
-        'read'   => ['get', '/<id>', 'read'],
-        'save'   => ['post', '', 'save'],
+        'edit' => ['get', '/<id>/edit', 'edit'],
+        'read' => ['get', '/<id>', 'read'],
+        'save' => ['post', '', 'save'],
         'update' => ['put', '/<id>', 'update'],
         'delete' => ['delete', '/<id>', 'delete'],
     ];
@@ -52,39 +52,39 @@ class Route
      */
     protected $config = [
         // pathinfo分隔符
-        'pathinfo_depr'         => '/',
+        'pathinfo_depr' => '/',
         // 是否开启路由延迟解析
-        'url_lazy_route'        => false,
+        'url_lazy_route' => false,
         // 是否强制使用路由
-        'url_route_must'        => false,
+        'url_route_must' => false,
         // 是否区分大小写
-        'url_case_sensitive'    => false,
+        'url_case_sensitive' => false,
         // 合并路由规则
-        'route_rule_merge'      => false,
+        'route_rule_merge' => false,
         // 路由是否完全匹配
-        'route_complete_match'  => false,
+        'route_complete_match' => false,
         // 去除斜杠
-        'remove_slash'          => false,
+        'remove_slash' => false,
         // 使用注解路由
-        'route_annotation'      => false,
+        'route_annotation' => false,
         // 默认的路由变量规则
         'default_route_pattern' => '[\w\.]+',
         // URL伪静态后缀
-        'url_html_suffix'       => 'html',
+        'url_html_suffix' => 'html',
         // 访问控制器层名称
-        'controller_layer'      => 'controller',
+        'controller_layer' => 'controller',
         // 空控制器名
-        'empty_controller'      => 'Error',
+        'empty_controller' => 'Error',
         // 是否使用控制器后缀
-        'controller_suffix'     => false,
+        'controller_suffix' => false,
         // 默认控制器名
-        'default_controller'    => 'Index',
+        'default_controller' => 'Index',
         // 默认操作名
-        'default_action'        => 'index',
+        'default_action' => 'index',
         // 操作方法后缀
-        'action_suffix'         => '',
+        'action_suffix' => '',
         // 非路由变量是否使用普通参数方式（用于URL生成）
-        'url_common_param'      => true,
+        'url_common_param' => true,
     ];
 
     /**
@@ -169,7 +169,7 @@ class Route
 
         $this->lazy($this->config['url_lazy_route']);
         $this->mergeRuleRegex = $this->config['route_rule_merge'];
-        $this->removeSlash    = $this->config['remove_slash'];
+        $this->removeSlash = $this->config['remove_slash'];
 
         $this->group->removeSlash($this->removeSlash);
 
@@ -517,7 +517,7 @@ class Route
     {
         if ($name instanceof Closure) {
             $route = $name;
-            $name  = '';
+            $name = '';
         }
 
         return (new RuleGroup($this, $this->group, $name, $route, $this->lazy))
@@ -665,14 +665,14 @@ class Route
     public function redirect(string $rule, string $route = '', int $status = 301): RuleItem
     {
         return $this->rule($rule, function (Request $request) use ($status, $route) {
-            $search  = $replace  = [];
+            $search = $replace = [];
             $matches = $request->rule()->getVars();
 
             foreach ($matches as $key => $value) {
-                $search[]  = '<' . $key . '>';
+                $search[] = '<' . $key . '>';
                 $replace[] = $value;
 
-                $search[]  = ':' . $key;
+                $search[] = ':' . $key;
                 $replace[] = $value;
             }
 
@@ -735,7 +735,7 @@ class Route
     public function dispatch(Request $request, Closure|bool $withRoute = true)
     {
         $this->request = $request;
-        $this->host    = $this->request->host(true);
+        $this->host = $this->request->host(true);
 
         if ($withRoute) {
             //加载路由
@@ -792,7 +792,7 @@ class Route
      */
     protected function path(): string
     {
-        $suffix   = $this->config['url_html_suffix'];
+        $suffix = $this->config['url_html_suffix'];
         $pathinfo = $this->request->pathinfo();
 
         if (false === $suffix) {
@@ -840,7 +840,7 @@ class Route
             // 获取当前子域名
             $subDomain = $this->request->subDomain();
 
-            $domain  = $subDomain ? explode('.', $subDomain) : [];
+            $domain = $subDomain ? explode('.', $subDomain) : [];
             $domain2 = $domain ? array_pop($domain) : '';
 
             if ($domain) {
@@ -855,12 +855,12 @@ class Route
                 $item = $this->domains[$subDomain];
             } elseif (isset($this->domains['*.' . $domain2]) && !empty($domain3)) {
                 // 泛三级域名
-                $item      = $this->domains['*.' . $domain2];
+                $item = $this->domains['*.' . $domain2];
                 $panDomain = $domain3;
             } elseif (isset($this->domains['*']) && !empty($domain2)) {
                 // 泛二级域名
                 if ('www' != $domain2) {
-                    $item      = $this->domains['*'];
+                    $item = $this->domains['*'];
                     $panDomain = $domain2;
                 }
             }

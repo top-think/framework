@@ -132,7 +132,7 @@ class RuleName
                 $val = [];
 
                 foreach (['method', 'rule', 'name', 'route', 'domain', 'pattern', 'option'] as $param) {
-                    $call        = 'get' . $param;
+                    $call = 'get' . $param;
                     $val[$param] = $item->$call();
                 }
 
@@ -172,7 +172,7 @@ class RuleName
             return $this->item;
         }
 
-        $name   = strtolower($name);
+        $name = strtolower($name);
         $method = strtolower($method);
         $result = [];
 
@@ -203,7 +203,7 @@ class RuleName
     protected function getRuleItemInfo(RuleItem $item): array
     {
         return [
-            'rule'   => $item->getRule(),
+            'rule' => $item->getRule(),
             'domain' => $item->getDomain(),
             'method' => $item->getMethod(),
             'suffix' => $item->getSuffix(),
