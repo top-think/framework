@@ -54,15 +54,15 @@ class Handle
             // 收集异常数据
             if ($this->app->isDebug()) {
                 $data = [
-                    'file'    => $exception->getFile(),
-                    'line'    => $exception->getLine(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
                     'message' => $this->getMessage($exception),
-                    'code'    => $this->getCode($exception),
+                    'code' => $this->getCode($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
-                    'code'    => $this->getCode($exception),
+                    'code' => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
                 $log = "[{$data['code']}]{$data['message']}";
@@ -130,7 +130,7 @@ class Handle
      */
     protected function renderHttpException(HttpException $e): Response
     {
-        $status   = $e->getStatusCode();
+        $status = $e->getStatusCode();
         $template = $this->app->config->get('app.http_exception_template');
 
         if (!$this->app->isDebug() && !empty($template[$status])) {
@@ -149,42 +149,42 @@ class Handle
     {
         if ($this->app->isDebug()) {
             // 调试模式，获取详细的错误信息
-            $traces        = [];
+            $traces = [];
             $nextException = $exception;
             do {
                 $traces[] = [
-                    'name'    => $nextException::class,
-                    'file'    => $nextException->getFile(),
-                    'line'    => $nextException->getLine(),
-                    'code'    => $this->getCode($nextException),
+                    'name' => $nextException::class,
+                    'file' => $nextException->getFile(),
+                    'line' => $nextException->getLine(),
+                    'code' => $this->getCode($nextException),
                     'message' => $this->getMessage($nextException),
-                    'trace'   => $nextException->getTrace(),
-                    'source'  => $this->getSourceCode($nextException),
+                    'trace' => $nextException->getTrace(),
+                    'source' => $this->getSourceCode($nextException),
                 ];
             } while ($nextException = $nextException->getPrevious());
             $data = [
-                'code'    => $this->getCode($exception),
+                'code' => $this->getCode($exception),
                 'message' => $this->getMessage($exception),
-                'traces'  => $traces,
-                'datas'   => $this->getExtendData($exception),
-                'tables'  => [
-                    'GET Data'            => $this->app->request->get(),
-                    'POST Data'           => $this->app->request->post(),
-                    'Files'               => $this->app->request->file(),
-                    'Cookies'             => $this->app->request->cookie(),
-                    'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
+                'traces' => $traces,
+                'datas' => $this->getExtendData($exception),
+                'tables' => [
+                    'GET Data' => $this->app->request->get(),
+                    'POST Data' => $this->app->request->post(),
+                    'Files' => $this->app->request->file(),
+                    'Cookies' => $this->app->request->cookie(),
+                    'Session' => $this->app->exists('session') ? $this->app->session->all() : [],
                     'Server/Request Data' => $this->app->request->server(),
                 ],
             ];
         } else {
             // 部署模式仅显示 Code 和 Message
             $data = [
-                'code'    => $this->getCode($exception),
+                'code' => $this->getCode($exception),
                 'message' => $this->getMessage($exception),
             ];
 
             $reflectionClass = new ReflectionClass($exception);
-            $alwaysMsg       = $reflectionClass->getAttributes(AlwaysErrorMsg::class);
+            $alwaysMsg = $reflectionClass->getAttributes(AlwaysErrorMsg::class);
 
             if (empty($alwaysMsg) && !$this->app->config->get('app.show_error_msg')) {
                 // 不显示详细错误信息
@@ -262,10 +262,10 @@ class Handle
         $lang = $this->app->lang;
 
         if (str_contains($message, ':')) {
-            $name    = strstr($message, ':', true);
+            $name = strstr($message, ':', true);
             $message = $lang->has($name) ? $lang->get($name) . strstr($message, ':') : $message;
         } elseif (str_contains($message, ',')) {
-            $name    = strstr($message, ',', true);
+            $name = strstr($message, ',', true);
             $message = $lang->has($name) ? $lang->get($name) . ':' . substr(strstr($message, ','), 1) : $message;
         } elseif ($lang->has($message)) {
             $message = $lang->get($message);
@@ -284,13 +284,13 @@ class Handle
     protected function getSourceCode(Throwable $exception): array
     {
         // 读取前9行和后9行
-        $line  = $exception->getLine();
+        $line = $exception->getLine();
         $first = ($line - 9 > 0) ? $line - 9 : 1;
 
         try {
             $contents = file($exception->getFile()) ?: [];
-            $source   = [
-                'first'  => $first,
+            $source = [
+                'first' => $first,
                 'source' => array_slice($contents, $first - 1, 19),
             ];
         } catch (Exception $e) {
