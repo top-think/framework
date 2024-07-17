@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\exception;
 
 use Exception;
+use ReflectionClass;
 use think\App;
 use think\console\Output;
 use think\db\exception\DataNotFoundException;
@@ -182,7 +183,10 @@ class Handle
                 'message' => $this->getMessage($exception),
             ];
 
-            if (!$this->app->config->get('app.show_error_msg')) {
+            $reflectionClass = new ReflectionClass($exception);
+            $alwaysMsg       = $reflectionClass->getAttributes(AlwaysErrorMsg::class);
+
+            if (empty($alwaysMsg) && !$this->app->config->get('app.show_error_msg')) {
                 // 不显示详细错误信息
                 $data['message'] = $this->app->config->get('app.error_message');
             }
