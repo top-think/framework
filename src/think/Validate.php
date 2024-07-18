@@ -1217,7 +1217,8 @@ class Validate
      */
     public function requireIf($value, $rule, array $data = []): bool
     {
-        [$field, $val] = explode(',', $rule);
+
+        [$field, $val] = is_string($rule) ? explode(',', $rule) : $rule;
 
         if ($this->getDataValue($data, $field) == $val) {
             return !empty($value) || '0' == $value;
@@ -1317,10 +1318,7 @@ class Validate
      */
     public function between($value, $rule): bool
     {
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
-        [$min, $max] = $rule;
+        [$min, $max] = is_string($rule) ? explode(',', $rule) : $rule;
 
         return $value >= $min && $value <= $max;
     }
@@ -1334,10 +1332,7 @@ class Validate
      */
     public function notBetween($value, $rule): bool
     {
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
-        [$min, $max] = $rule;
+        [$min, $max] = is_string($rule) ? explode(',', $rule) : $rule;
 
         return $value < $min || $value > $max;
     }
@@ -1472,11 +1467,7 @@ class Validate
      */
     public function expire($value, $rule): bool
     {
-        if (is_string($rule)) {
-            $rule = explode(',', $rule);
-        }
-
-        [$start, $end] = $rule;
+        [$start, $end] = is_string($rule) ? explode(',', $rule) : $rule;
 
         if (!is_numeric($start)) {
             $start = strtotime($start);
