@@ -147,7 +147,7 @@ class Handle
      */
     protected function convertExceptionToArray(Throwable $exception): array
     {
-        return $this->app->isDebug() ? $this->getDedugMsg($exception) : $this->getDeployMsg($exception);
+        return $this->app->isDebug() ? $this->getDebugMsg($exception) : $this->getDeployMsg($exception);
     }
 
     /**
