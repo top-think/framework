@@ -170,9 +170,7 @@ class RuleGroup extends Rule
             }
         }
 
-        if (!empty($option['dispatcher'])) {
-            $result = $this->parseRule($request, '', $option['dispatcher'], $url, $option);
-        } elseif ($miss = $this->getMissRule($method)) {
+        if ($miss = $this->getMissRule($method)) {
             // 未匹配所有路由的路由规则处理
             $result = $miss->parseRule($request, '', $miss->getRoute(), $url, $miss->getOption());
         } else {
