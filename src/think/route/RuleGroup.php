@@ -66,8 +66,8 @@ class RuleGroup extends Rule
     {
         $this->router = $router;
         $this->parent = $parent;
-        $this->rule   = $rule;
-        $this->name   = trim($name, '/');
+        $this->rule = $rule;
+        $this->name = trim($name, '/');
 
         $this->setFullName();
 
@@ -145,7 +145,7 @@ class RuleGroup extends Rule
 
         // 获取当前路由规则
         $method = strtolower($request->method());
-        $rules  = $this->getRules($method);
+        $rules = $this->getRules($method);
         $option = $this->getOption();
 
         if (isset($option['complete_match'])) {
@@ -256,8 +256,8 @@ class RuleGroup extends Rule
      */
     protected function checkMergeRuleRegex(Request $request, array &$rules, string $url, bool $completeMatch)
     {
-        $depr  = $this->config('pathinfo_depr');
-        $url   = $depr . str_replace('|', $depr, $url);
+        $depr = $this->config('pathinfo_depr');
+        $url = $depr . str_replace('|', $depr, $url);
         $regex = [];
         $items = [];
 
@@ -292,7 +292,7 @@ class RuleGroup extends Rule
                 if (preg_match_all('/[' . $slash . ']?<?\w+\??>?/', $rule, $matches)) {
                     unset($rules[$key]);
                     $pattern = array_merge($this->getPattern(), $item->getPattern());
-                    $option  = array_merge($this->getOption(), $item->getOption());
+                    $option = array_merge($this->getOption(), $item->getOption());
 
                     $regex[$key] = $this->buildRuleRegex($rule, $matches[0], $pattern, $option, $complete, '_THINK_' . $key);
                     $items[$key] = $item;
@@ -329,7 +329,7 @@ class RuleGroup extends Rule
                 }
             }
 
-            $rule  = $items[$pos]->getRule();
+            $rule = $items[$pos]->getRule();
             $array = $this->router->getRule($rule);
 
             foreach ($array as $item) {
@@ -356,8 +356,8 @@ class RuleGroup extends Rule
     public function miss(string|Closure $route, string $method = '*'): RuleItem
     {
         // 创建路由规则实例
-        $method     =   strtolower($method);
-        $ruleItem   =   new RuleItem($this->router, $this, null, '', $route, $method);
+        $method = strtolower($method);
+        $ruleItem = new RuleItem($this->router, $this, null, '', $route, $method);
 
         $this->miss[$method] = $ruleItem->setMiss();
 
