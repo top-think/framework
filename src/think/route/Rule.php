@@ -685,6 +685,8 @@ abstract class Rule
 
             $route  = str_replace('/', '@', implode('/', $path));
             $method = str_contains($route, '@') ? explode('@', $route) : $route;
+        } else {
+            $method = $route;
         }
 
         return new CallbackDispatch($request, $this, $method, $this->vars);
