@@ -423,7 +423,7 @@ class Validate
      * 指定需要覆盖的字段验证规则
      * @access public
      * @param string $field 字段名
-     * @param mixed  $rule  验证规则
+     * @param mixed  $rules 验证规则
      * @return $this
      */
     public function replace(string $field, $rules)
@@ -530,14 +530,7 @@ class Validate
             $value = $this->getDataValue($data, $key);
 
             // 字段验证
-            if ($rule instanceof Closure) {
-                $result = call_user_func_array($rule, [$value, $data]);
-            } elseif ($rule instanceof ValidateRule) {
-                //  验证因子
-                $result = $this->checkItem($key, $value, $rule->getRule(), $data, $rule->getTitle() ?: $title, $rule->getMsg());
-            } else {
-                $result = $this->checkItem($key, $value, $rule, $data, $title);
-            }
+            $result = $this->checkItem($key, $value, $rule, $data, $title);
 
             if (true !== $result) {
                 // 没有返回true 则表示验证失败
@@ -617,6 +610,16 @@ class Validate
      */
     protected function checkItem(string $field, $value, $rules, $data, string $title = '', array $msg = [])
     {
+        if ($rules instanceof Closure) {
+            return call_user_func_array($rules, [$value, $data]);
+        }
+
+        if ($rules instanceof ValidateRule) {
+            $title = $rules->getTitle() ?: $title;
+            $msg   = $rules->getMsg();
+            $rules = $rules->getRule();
+        }
+
         if (isset($this->remove[$field]) && true === $this->remove[$field] && empty($this->append[$field])) {
             // 字段已经移除 无需验证
             return true;
