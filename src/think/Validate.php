@@ -195,6 +195,12 @@ class Validate
     protected $append = [];
 
     /**
+     * 场景需要覆盖的验证规则
+     * @var array
+     */
+    protected $replace = [];
+
+    /**
      * 验证正则定义
      * @var array
      */
@@ -414,6 +420,20 @@ class Validate
     }
 
     /**
+     * 指定需要覆盖的字段验证规则
+     * @access public
+     * @param string $field 字段名
+     * @param mixed  $rule  验证规则
+     * @return $this
+     */
+    public function replace(string $field, $rules)
+    {
+        $this->replace[$field] = $rules;
+
+        return $this;
+    }
+
+    /**
      * 移除某个字段的验证规则
      * @access public
      * @param string|array $field 字段名
@@ -502,7 +522,7 @@ class Validate
             }
 
             // 场景检测
-            if (!empty($this->only) && !in_array($key, $this->only)) {
+            if (!empty($this->only) && (!in_array($key, $this->only) && !array_key_exists($key, $this->only))) {
                 continue;
             }
 
@@ -600,6 +620,12 @@ class Validate
         if (isset($this->remove[$field]) && true === $this->remove[$field] && empty($this->append[$field])) {
             // 字段已经移除 无需验证
             return true;
+        }
+
+        if (isset($this->replace[$field])) {
+            $rules = $this->replace[$field];
+        } elseif (isset($this->only[$field])) {
+            $rules = $this->only[$field];
         }
 
         // 支持多规则验证 require|in:a,b,c|... 或者 ['require','in'=>'a,b,c',...]
