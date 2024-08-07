@@ -580,9 +580,7 @@ class Validate
                 // 判断验证类型
                 [$type, $rule] = $this->getValidateType($key, $rule);
 
-                $callback = $this->type[$type] ?? [$this, $type];
-
-                $result = call_user_func_array($callback, [$value, $rule]);
+                $result = call_user_func_array($this->type[$type] ?? [$this, $type], [$value, $rule]);
             }
 
             if (true !== $result) {
@@ -1697,8 +1695,6 @@ class Validate
      */
     protected function getScene(string $scene): void
     {
-        $this->only = $this->append = $this->remove = [];
-
         if (method_exists($this, 'scene' . $scene)) {
             call_user_func([$this, 'scene' . $scene]);
         } elseif (isset($this->scene[$scene])) {
