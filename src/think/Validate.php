@@ -527,21 +527,23 @@ class Validate
             }
 
             // 获取数据 支持二维数组
-            $value = $this->getDataValue($data, $key);
+            $values = $this->getDataValue($data, $key);
 
-            // 字段验证
-            $result = $this->checkItem($key, $value, $rule, $data, $title);
+            // 字段数据因子验证
+            foreach ($values as $value) {
+                $result = $this->checkItem($key, $value, $rule, $data, $title);
 
-            if (true !== $result) {
-                // 没有返回true 则表示验证失败
-                if (!empty($this->batch)) {
-                    // 批量验证
-                    $this->error[$key] = $result;
-                } elseif ($this->failException) {
-                    throw new ValidateException($result);
-                } else {
-                    $this->error = $result;
-                    return false;
+                if (true !== $result) {
+                    // 没有返回true 则表示验证失败
+                    if (!empty($this->batch)) {
+                        // 批量验证
+                        $this->error[$key] = $result;
+                    } elseif ($this->failException) {
+                        throw new ValidateException($result);
+                    } else {
+                        $this->error = $result;
+                        return false;
+                    }
                 }
             }
         }
@@ -864,7 +866,7 @@ class Validate
             } elseif (function_exists('ctype_' . $rule)) {
                 // ctype验证规则
                 $ctypeFun = 'ctype_' . $rule;
-                $result   = $ctypeFun($value);
+                $result   = $ctypeFun((string) $value);
             } elseif (isset($this->filter[$rule])) {
                 // Filter_var验证规则
                 $result = $this->filter($value, $this->filter[$rule]);
@@ -1570,23 +1572,50 @@ class Validate
      * @param string $key  数据标识 支持二维
      * @return mixed
      */
-    protected function getDataValue(array $data, $key)
+    protected function getDataValue(array $data, $key): array
     {
         if (is_numeric($key)) {
             $value = $key;
         } elseif (is_string($key) && str_contains($key, '.')) {
-            // 支持多维数组验证
-            foreach (explode('.', $key) as $key) {
-                if (!isset($data[$key])) {
-                    $value = null;
-                    break;
+            if (str_contains($key, '*')) {
+                if (str_ends_with($key, '*')) {
+                    // user.id.*
+                    [$key] = explode('.*', $key);
+                    $value = $this->getRecursiveData($data, $key);
+                    return is_array($value) ? $value : [$value];
                 }
-                $value = $data = $data[$key];
+                // user.*.id
+                [$key, $column] = explode('.*.', $key);
+                return array_column($this->getRecursiveData($data, $key), $column);
+            } else {
+                // 支持多维数组验证
+                $value = $this->getRecursiveData($data, $key);
             }
         } else {
             $value = $data[$key] ?? null;
         }
 
+        return [$value];
+    }
+
+    /**
+     * 获取数据值
+     * @access protected
+     * @param array  $data 数据
+     * @param string $key  数据标识 支持二维
+     * @return mixed
+     */
+
+    protected function getRecursiveData(array $data, string $key)
+    {
+        $keys = explode('.', $key);
+        foreach ($keys as $key) {
+            if (!isset($data[$key])) {
+                $value = null;
+                break;
+            }
+            $value = $data = $data[$key];
+        }
         return $value;
     }
 
