@@ -440,7 +440,7 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
-        $this->loadEnv($this->envName ?: $this->env->get('env_name', ''));
+        $this->loadEnv($this->envName ?: (string)$this->env->get('env_name'));
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
