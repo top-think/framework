@@ -88,6 +88,18 @@ abstract class Rule
     protected $pattern = [];
 
     /**
+     * 预定义变量规则
+     * @var array
+     */
+    protected $regex = [
+        'int'       => '\d+',
+        'float'     => '\d+\.\d+',
+        'alpha'     => '[A-Za-z]+',
+        'alphaNum'  => '[A-Za-z0-9]+',
+        'alphaDash' => '[A-Za-z0-9\-\_]+',
+    ];
+
+    /**
      * 需要和分组合并的路由参数
      * @var array
      */
@@ -118,6 +130,19 @@ abstract class Rule
     public function setOption(string $name, $value)
     {
         $this->option[$name] = $value;
+
+        return $this;
+    }
+
+    /**
+     * 注册变量规则
+     * @access public
+     * @param  array $regex 变量规则
+     * @return $this
+     */
+    public function regex(array $regex)
+    {
+        $this->regex = array_merge($this->regex, $regex);
 
         return $this;
     }
@@ -632,6 +657,16 @@ abstract class Rule
             $this->parseUrlParams(implode('|', $url), $matches);
         }
 
+        foreach ($matches as $key => &$val) {
+            if (isset($this->pattern[$key]) && in_array($this->pattern[$key], ['\d+', 'int', 'float'])) {
+                $val = match ($this->pattern[$key]) {
+                    'int', '\d+' => (int) $val,
+                    'float'      => (float) $val,
+                    default      => $val,
+                };
+            }
+        }
+
         $this->vars = $matches;
 
         // 发起路由调度
@@ -886,6 +921,10 @@ abstract class Rule
 
         if (isset($pattern[$name])) {
             $nameRule = $pattern[$name];
+            if (isset($this->regex[$nameRule])) {
+                $nameRule = $this->regex[$nameRule];
+            }
+
             if (str_starts_with($nameRule, '/') && str_ends_with($nameRule, '/')) {
                 $nameRule = substr($nameRule, 1, -1);
             }
