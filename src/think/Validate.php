@@ -655,8 +655,7 @@ class Validate
                 // 判断验证类型
                 [$type, $rule, $info] = $this->getValidateType($key, $rule);
 
-                if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-                } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
+                if ((isset($this->remove[$field]) && in_array($info, $this->remove[$field])) && !(isset($this->append[$field]) && in_array($info, $this->append[$field]))) {
                     // 规则已经移除
                     $i++;
                     continue;
@@ -1323,7 +1322,7 @@ class Validate
      */
     public function in($value, $rule): bool
     {
-        return in_array($value, is_array($rule) ? $rule : explode(',', $rule));
+        return in_array($value, is_array($rule) ? $rule : explode(',', $rule), true);
     }
 
     /**

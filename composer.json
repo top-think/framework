@@ -22,6 +22,7 @@
         "php": ">=8.0.0",
         "ext-json": "*",
         "ext-mbstring": "*",
+        "ext-ctype": "*",
         "psr/log": "^1.0|^2.0|^3.0",
         "psr/container": "^2.0",
         "psr/simple-cache": "^1.0|^2.0|^3.0",
