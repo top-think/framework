@@ -527,7 +527,7 @@ class Validate
             }
 
             // 获取数据 支持二维数组
-            $values = $this->getDataValue($data, $key);
+            $values = $this->getDataSet($data, $key);
 
             // 字段数据因子验证
             foreach ($values as $value) {
@@ -1570,9 +1570,9 @@ class Validate
      * @access protected
      * @param array  $data 数据
      * @param string $key  数据标识 支持二维
-     * @return mixed
+     * @return array
      */
-    protected function getDataValue(array $data, $key): array
+    protected function getDataSet(array $data, $key): array
     {
         if (is_numeric($key)) {
             $value = $key;
@@ -1596,6 +1596,27 @@ class Validate
         }
 
         return [$value];
+    }
+
+    /**
+     * 获取数据值
+     * @access protected
+     * @param array  $data 数据
+     * @param string $key  数据标识 支持二维
+     * @return mixed
+     */
+    protected function getDataValue(array $data, $key)
+    {
+        if (is_numeric($key)) {
+            $value = $key;
+        } elseif (is_string($key) && str_contains($key, '.')) {
+            // 支持多维数组验证
+            $value = $this->getRecursiveData($data, $key);
+        } else {
+            $value = $data[$key] ?? null;
+        }
+
+        return $value;
     }
 
     /**
