@@ -13,7 +13,6 @@ declare (strict_types = 1);
 namespace think\exception;
 
 use Exception;
-use ReflectionClass;
 use think\App;
 use think\console\Output;
 use think\db\exception\DataNotFoundException;
@@ -33,6 +32,10 @@ class Handle
         ModelNotFoundException::class,
         DataNotFoundException::class,
         ValidateException::class,
+    ];
+
+    protected $showErrorMsg = [
+
     ];
 
     public function __construct(protected App $app)
@@ -149,6 +152,22 @@ class Handle
     }
 
     /**
+     * 是否显示错误信息
+     * @param \Throwable $exception
+     * @return bool
+     */
+    protected function isShowErrorMsg(Throwable $exception)
+    {
+        foreach ($this->showErrorMsg as $class) {
+            if ($exception instanceof $class) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * 获取部署模式异常数据
      * @access protected
      * @param Throwable $exception
@@ -156,20 +175,18 @@ class Handle
      */
     protected function getDeployMsg(Throwable $exception): array
     {
-        $data = [
-            'code'    => $this->getCode($exception),
-            'message' => $this->getMessage($exception),
-        ];
-
-        $reflectionClass = new ReflectionClass($exception);
-        $alwaysMsg       = $reflectionClass->getAttributes(AlwaysErrorMsg::class);
-
-        if (empty($alwaysMsg) && !$this->app->config->get('app.show_error_msg')) {
+        $showErrorMsg = $this->isShowErrorMsg($exception);
+        if ($showErrorMsg || $this->app->config->get('app.show_error_msg', false)) {
+            $message = $this->getMessage($exception);
+        } else {
             // 不显示详细错误信息
-            $data['message'] = $this->app->config->get('app.error_message');
+            $message = $this->app->config->get('app.error_message');
         }
 
-        return $data;
+        return [
+            'code'    => $this->getCode($exception),
+            'message' => $message,
+        ];
     }
 
     /**
