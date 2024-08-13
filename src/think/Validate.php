@@ -1566,7 +1566,7 @@ class Validate
     }
 
     /**
-     * 获取数据值
+     * 获取数据集合
      * @access protected
      * @param array  $data 数据
      * @param string $key  数据标识 支持二维
@@ -1574,28 +1574,19 @@ class Validate
      */
     protected function getDataSet(array $data, $key): array
     {
-        if (is_numeric($key)) {
-            $value = $key;
-        } elseif (is_string($key) && str_contains($key, '.')) {
-            if (str_contains($key, '*')) {
-                if (str_ends_with($key, '*')) {
-                    // user.id.*
-                    [$key] = explode('.*', $key);
-                    $value = $this->getRecursiveData($data, $key);
-                    return is_array($value) ? $value : [$value];
-                }
-                // user.*.id
-                [$key, $column] = explode('.*.', $key);
-                return array_column($this->getRecursiveData($data, $key), $column);
-            } else {
-                // 支持多维数组验证
+        if (is_string($key) && str_contains($key, '*')) {
+            if (str_ends_with($key, '*')) {
+                // user.id.*
+                [$key] = explode('.*', $key);
                 $value = $this->getRecursiveData($data, $key);
+                return is_array($value) ? $value : [$value];
             }
-        } else {
-            $value = $data[$key] ?? null;
+            // user.*.id
+            [$key, $column] = explode('.*.', $key);
+            return array_column($this->getRecursiveData($data, $key), $column);
         }
 
-        return [$value];
+        return [$this->getDataValue($data, $key)];
     }
 
     /**
