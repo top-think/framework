@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think;
 
@@ -189,7 +189,7 @@ class App extends Container
      * @param bool           $force   强制重新注册
      * @return Service|null
      */
-    public function register(Service|string $service, bool $force = false)
+    public function register(Service | string $service, bool $force = false)
     {
         $registered = $this->getService($service);
 
@@ -230,7 +230,7 @@ class App extends Container
      * @param string|Service $service
      * @return Service|null
      */
-    public function getService(Service|string $service): ?Service
+    public function getService(Service | string $service): ?Service
     {
         $name = is_string($service) ? $service : $service::class;
         return array_values(array_filter($this->services, function ($value) use ($name) {
@@ -546,6 +546,9 @@ class App extends Container
         // 应用调试模式
         if (!$this->appDebug) {
             $this->appDebug = $this->env->get('app_debug') ? true : false;
+        }
+
+        if (!$this->appDebug) {
             ini_set('display_errors', 'Off');
         }
 
