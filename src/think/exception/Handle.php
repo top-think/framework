@@ -35,8 +35,6 @@ class Handle
         ValidateException::class,
     ];
 
-    protected $isJson = false;
-
     public function __construct(protected App $app)
     {
     }
@@ -59,13 +57,13 @@ class Handle
                     'message' => $this->getMessage($exception),
                     'code'    => $this->getCode($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
+                $log  = "[{$data['code']}]{$data['message']}[{$data['file']}:{$data['line']}]";
             } else {
                 $data = [
                     'code'    => $this->getCode($exception),
                     'message' => $this->getMessage($exception),
                 ];
-                $log = "[{$data['code']}]{$data['message']}";
+                $log  = "[{$data['code']}]{$data['message']}";
             }
 
             if ($this->app->config->get('log.record_trace')) {
@@ -74,7 +72,8 @@ class Handle
 
             try {
                 $this->app->log->record($log, 'error');
-            } catch (Exception $e) {}
+            } catch (Exception $e) {
+            }
         }
     }
 
@@ -99,13 +98,12 @@ class Handle
      */
     public function render(Request $request, Throwable $e): Response
     {
-        $this->isJson = $request->isJson();
         if ($e instanceof HttpResponseException) {
             return $e->getResponse();
         } elseif ($e instanceof HttpException) {
-            return $this->renderHttpException($e);
+            return $this->renderHttpException($request, $e);
         } else {
-            return $this->convertExceptionToResponse($e);
+            return $this->convertExceptionToResponse($request, $e);
         }
     }
 
@@ -128,7 +126,7 @@ class Handle
      * @param HttpException $e
      * @return Response
      */
-    protected function renderHttpException(HttpException $e): Response
+    protected function renderHttpException(Request $request, HttpException $e): Response
     {
         $status   = $e->getStatusCode();
         $template = $this->app->config->get('app.http_exception_template');
@@ -136,7 +134,7 @@ class Handle
         if (!$this->app->isDebug() && !empty($template[$status])) {
             return Response::create($template[$status], 'view', $status)->assign(['e' => $e]);
         } else {
-            return $this->convertExceptionToResponse($e);
+            return $this->convertExceptionToResponse($request, $e);
         }
     }
 
@@ -214,17 +212,22 @@ class Handle
         ];
     }
 
+    protected function isJson(Request $request, Throwable $exception)
+    {
+        return $request->isJson();
+    }
+
     /**
      * @access protected
      * @param Throwable $exception
      * @return Response
      */
-    protected function convertExceptionToResponse(Throwable $exception): Response
+    protected function convertExceptionToResponse(Request $request, Throwable $exception): Response
     {
-        if (!$this->isJson) {
-            $response = Response::create($this->renderExceptionContent($exception));
-        } else {
+        if ($this->isJson($request, $exception)) {
             $response = Response::create($this->convertExceptionToArray($exception), 'json');
+        } else {
+            $response = Response::create($this->renderExceptionContent($exception));
         }
 
         if ($exception instanceof HttpException) {
