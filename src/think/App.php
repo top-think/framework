@@ -48,6 +48,12 @@ class App extends Container
     protected $appDebug = false;
 
     /**
+     * 公共环境变量标识
+     * @var string
+     */
+    protected $baseEnvName = '';
+
+    /**
      * 环境变量标识
      * @var string
      */
@@ -283,6 +289,18 @@ class App extends Container
     }
 
     /**
+     * 设置公共环境变量标识
+     * @access public
+     * @param string $name 环境标识
+     * @return $this
+     */
+    public function setBaseEnvName(string $name)
+    {
+        $this->baseEnvName = $name;
+        return $this;
+    }
+
+    /**
      * 设置环境变量标识
      * @access public
      * @param string $name 环境标识
@@ -440,6 +458,12 @@ class App extends Container
         $this->beginTime = microtime(true);
         $this->beginMem  = memory_get_usage();
 
+        // 加载环境变量
+        if ($this->baseEnvName) {
+            $this->loadEnv($this->baseEnvName);
+        }
+
+        $this->envName = $this->envName ?: (string) $this->env->get('env_name', '');
         $this->loadEnv($this->envName);
 
         $this->configExt = $this->env->get('config_ext', '.php');
