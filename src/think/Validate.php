@@ -1583,7 +1583,7 @@ class Validate
             }
             // user.*.id
             [$key, $column] = explode('.*.', $key);
-            return array_column($this->getRecursiveData($data, $key), $column);
+            return array_column($this->getRecursiveData($data, $key) ?: [], $column);
         }
 
         return [$this->getDataValue($data, $key)];
