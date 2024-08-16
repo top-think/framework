@@ -239,4 +239,9 @@ class Redis extends Driver
         $key  = $this->getCacheKey($name);
         return $this->handler()->sMembers($key);
     }
+
+    public function __call($method, $args)
+    {
+        return call_user_func_array([$this->handler(), $method], $args);
+    }    
 }
