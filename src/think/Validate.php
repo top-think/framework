@@ -70,7 +70,8 @@ class Validate
         'email'       => ':attribute not a valid email address',
         'mobile'      => ':attribute not a valid mobile',
         'array'       => ':attribute must be a array',
-        'accepted'    => ':attribute must be yes,on or 1',
+        'accepted'    => ':attribute must be yes,on,true or 1',
+        'declined'    => ':attribute must be no,off,false or 0',
         'date'        => ':attribute not a valid datetime',
         'file'        => ':attribute not a valid file',
         'image'       => ':attribute not a valid image',
@@ -114,6 +115,7 @@ class Validate
         'startWith'   => ':attribute must start with :rule',
         'endWith'     => ':attribute must end with :rule',
         'contain'     => ':attribute must contain :rule',
+        'multipleOf'  => ':attribute must multiple :rule',
     ];
 
     /**
@@ -608,7 +610,7 @@ class Validate
      * @param array  $msg   提示信息
      * @return mixed
      */
-    protected function checkItem(string $field, $value, $rules, $data, string $title = '', array $msg = [])
+    protected function checkItem(string $field, $value, $rules, $data, string $title = '', array $msg = []): mixed
     {
         if ($rules instanceof Closure) {
             return call_user_func_array($rules, [$value, $data]);
@@ -665,6 +667,8 @@ class Validate
                 if (isset($this->type[$type])) {
                     $result = call_user_func_array($this->type[$type], [$value, $rule, $data, $field, $title]);
                 } elseif ('must' == $info || str_starts_with($info, 'require') || (!is_null($value) && '' !== $value)) {
+                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
+                } elseif (str_starts_with($info, 'accepted') || str_starts_with($info, 'declined')) {
                     $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
@@ -879,14 +883,15 @@ class Validate
 
         return match (Str::camel($rule)) {
             'require' => !empty($value) || '0' == $value, // 必须
-            'accepted' => in_array($value, ['1', 'on', 'yes']), // 接受
-            'date'   => false !== strtotime($value), // 是否是一个有效日期
+            'accepted' => in_array($value, ['1', 'on', 'yes', 'true', 1, true], true), // 接受
+            'declined' => in_array($value, ['0', 'off', 'no', 'false', 0, false], true), // 不接受
+            'date' => false !== strtotime($value), // 是否是一个有效日期
             'activeUrl' => checkdnsrr($value), // 是否为有效的网址
             'boolean', 'bool' => in_array($value, [true, false, 0, 1, '0', '1'], true), // 是否为布尔值
             'number' => ctype_digit((string) $value),
             'alphaNum' => ctype_alnum($value),
             'array'    => is_array($value), // 是否为数组
-            'string' => is_string($value),
+            'string'   => is_string($value),
             'file'     => $value instanceof File,
             'image'    => $value instanceof File && in_array($this->getImageType($value->getRealPath()), [1, 2, 3, 6]),
             'token'    => $this->token($value, '__token__', $data),
@@ -1246,7 +1251,6 @@ class Validate
      */
     public function requireIf($value, $rule, array $data = []): bool
     {
-
         [$field, $val] = is_string($rule) ? explode(',', $rule) : $rule;
 
         if ($this->getDataValue($data, $field) == $val) {
@@ -1534,6 +1538,59 @@ class Validate
     }
 
     /**
+     * 验证某个字段等于指定的值，则验证中的字段必须为 yes、on、1 或 true
+     * @access public
+     * @param mixed $value 字段值
+     * @param mixed $rule 验证规则
+     * @param array $data 数据
+     * @return bool
+     */
+    public function acceptedIf($value, $rule, array $data = []): bool
+    {
+        [$field, $val] = is_string($rule) ? explode(',', $rule) : $rule;
+
+        if ($this->getDataValue($data, $field) == $val) {
+            return in_array($value, ['1', 'on', 'yes', 'true', 1, true], true);
+        }
+
+        return true;
+    }
+
+    /**
+     * 验证某个字段等于指定的值，则验证中的字段必须为 no、off、0 或 false
+     * @access public
+     * @param mixed $value 字段值
+     * @param mixed $rule 验证规则
+     * @param array $data 数据
+     * @return bool
+     */
+    public function declinedIf($value, $rule, array $data = []): bool
+    {
+        [$field, $val] = is_string($rule) ? explode(',', $rule) : $rule;
+
+        if ($this->getDataValue($data, $field) == $val) {
+            return in_array($value, ['0', 'off', 'no', 'false', 0, false], true);
+        }
+
+        return true;
+    }
+
+    /**
+     * 验证某个字段必须是指定值的倍数
+     * @param mixed $value 字段值
+     * * @param mixed $rule 验证规则
+     * @return bool
+     */
+    public function multipleOf($value, $rule): bool
+    {
+        if ($rule == '0' || $value < $rule) {
+            return false;
+        }
+
+        return $value % $rule === 0;
+    }
+
+    /**
      * 使用正则验证数据
      * @access public
      * @param mixed $value 字段值
@@ -1652,6 +1709,10 @@ class Validate
             $msg = $this->typeMsg[$type];
         } elseif (str_starts_with($type, 'require')) {
             $msg = $this->typeMsg['require'];
+        } elseif (str_starts_with($type, 'accepted')) {
+            $msg = $this->typeMsg['accepted'];
+        } elseif (str_starts_with($type, 'declined')) {
+            $msg = $this->typeMsg['declined'];
         } else {
             $msg = $title . $this->lang->get('not conform to the rules');
         }
