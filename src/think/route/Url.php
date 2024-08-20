@@ -371,7 +371,7 @@ class Url
         }
 
         if ($url) {
-            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkName   = $name ?? $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
             $rule = $this->route->getName($checkName, $checkDomain);

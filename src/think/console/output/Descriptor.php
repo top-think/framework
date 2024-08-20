@@ -212,7 +212,7 @@ class Descriptor
      */
     protected function describeConsole(Console $console, array $options = [])
     {
-        $describedNamespace = isset($options['namespace']) ? $options['namespace'] : null;
+        $describedNamespace = $options['namespace'] ?? null;
         $description        = new ConsoleDescription($console, $describedNamespace);
 
         if (isset($options['raw_text']) && $options['raw_text']) {

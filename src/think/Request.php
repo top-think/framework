@@ -1086,7 +1086,7 @@ class Request implements ArrayAccess
      * @param  string $default 默认值
      * @return mixed
      */
-    public function env(string $name = '', string $default = null)
+    public function env(string $name = '', ?string $default = null)
     {
         if (empty($name)) {
             return $this->env->get();
@@ -1250,7 +1250,7 @@ class Request implements ArrayAccess
      * @param  string $default 默认值
      * @return string|array|null
      */
-    public function header(string $name = '', string $default = null)
+    public function header(string $name = '', ?string $default = null)
     {
         if ('' === $name) {
             return $this->header;

@@ -332,10 +332,10 @@ class Validate
      * 设置验证规则的默认提示信息
      * @access public
      * @param string|array $type 验证规则类型名称或者数组
-     * @param string       $msg  验证提示信息
+     * @param string|null  $msg  验证提示信息
      * @return void
      */
-    public function setTypeMsg(string | array $type, string $msg = null): void
+    public function setTypeMsg(string | array $type, ?string $msg = null): void
     {
         if (is_array($type)) {
             $this->typeMsg = array_merge($this->typeMsg, $type);

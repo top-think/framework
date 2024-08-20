@@ -436,7 +436,7 @@ class Route
      * @param RuleItem $ruleItem RuleItem对象
      * @return void
      */
-    public function setRule(string $rule, RuleItem $ruleItem = null): void
+    public function setRule(string $rule, ?RuleItem $ruleItem = null): void
     {
         $this->ruleName->setRule($rule, $ruleItem);
     }

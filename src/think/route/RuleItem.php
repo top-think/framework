@@ -156,13 +156,13 @@ class RuleItem extends Rule
     /**
      * 检测路由
      * @access public
-     * @param  Request      $request  请求对象
-     * @param  string       $url      访问地址
-     * @param  array        $match    匹配路由变量
-     * @param  bool         $completeMatch   路由是否完全匹配
+     * @param Request    $request       请求对象
+     * @param string     $url           访问地址
+     * @param array|null $match         匹配路由变量
+     * @param bool       $completeMatch 路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule(Request $request, string $url, array $match = null, bool $completeMatch = false)
+    public function checkRule(Request $request, string $url, ?array $match = null, bool $completeMatch = false)
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {

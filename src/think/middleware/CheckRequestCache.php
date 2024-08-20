@@ -66,7 +66,7 @@ class CheckRequestCache
                 $cache = false;
             }
 
-            $cache = $cache ?? $this->getRequestCache($request);
+            $cache ??= $this->getRequestCache($request);
 
             if ($cache) {
                 if (is_array($cache)) {

@@ -18,13 +18,13 @@ namespace think\console\input;
 class Option
 {
     // 无需传值
-    const VALUE_NONE = 1;
+    public const VALUE_NONE = 1;
     // 必须传值
-    const VALUE_REQUIRED = 2;
+    public const VALUE_REQUIRED = 2;
     // 可选传值
-    const VALUE_OPTIONAL = 4;
+    public const VALUE_OPTIONAL = 4;
     // 传数组值
-    const VALUE_IS_ARRAY = 8;
+    public const VALUE_IS_ARRAY = 8;
 
     /**
      * 选项名

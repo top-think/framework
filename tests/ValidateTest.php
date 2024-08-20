@@ -10,6 +10,9 @@ use think\Validate;
 
 class ValidateTest extends TestCase
 {
+    protected $app;
+    protected Lang $lang;
+
     protected function tearDown(): void
     {
         m::close();

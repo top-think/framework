@@ -57,7 +57,7 @@ class Stack
      * @return Style
      * @throws \InvalidArgumentException
      */
-    public function pop(Style $style = null): Style
+    public function pop(?Style $style = null): Style
     {
         if (empty($this->styles)) {
             return $this->emptyStyle;

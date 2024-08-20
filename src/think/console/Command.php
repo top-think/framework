@@ -73,9 +73,9 @@ abstract class Command
 
     /**
      * 设置控制台
-     * @param Console $console
+     * @param Console|null $console
      */
-    public function setConsole(Console $console = null): void
+    public function setConsole(?Console $console = null): void
     {
         $this->console = $console;
     }
@@ -279,13 +279,13 @@ abstract class Command
 
     /**
      * 添加参数
-     * @param string $name        名称
-     * @param int    $mode        类型
-     * @param string $description 描述
-     * @param mixed  $default     默认值
+     * @param string   $name        名称
+     * @param int|null $mode        类型
+     * @param string   $description 描述
+     * @param mixed    $default     默认值
      * @return Command
      */
-    public function addArgument(string $name, int $mode = null, string $description = '', $default = null)
+    public function addArgument(string $name, ?int $mode = null, string $description = '', $default = null)
     {
         $this->definition->addArgument(new Argument($name, $mode, $description, $default));
 
@@ -294,14 +294,14 @@ abstract class Command
 
     /**
      * 添加选项
-     * @param string $name        选项名称
-     * @param string $shortcut    别名
-     * @param int    $mode        类型
-     * @param string $description 描述
-     * @param mixed  $default     默认值
+     * @param string      $name        选项名称
+     * @param string|null $shortcut    别名
+     * @param int|null    $mode        类型
+     * @param string      $description 描述
+     * @param mixed       $default     默认值
      * @return Command
      */
-    public function addOption(string $name, string $shortcut = null, int $mode = null, string $description = '', $default = null)
+    public function addOption(string $name, ?string $shortcut = null, ?int $mode = null, string $description = '', $default = null)
     {
         $this->definition->addOption(new Option($name, $shortcut, $mode, $description, $default));
 

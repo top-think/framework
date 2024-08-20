@@ -155,7 +155,7 @@ class Http
         $this->initialize();
 
         //自动创建request对象
-        $request = $request ?? $this->app->make('request', [], true);
+        $request ??= $this->app->make('request', [], true);
         $this->app->instance('request', $request);
 
         try {

@@ -56,13 +56,13 @@ class RuleGroup extends Rule
     /**
      * 架构函数
      * @access public
-     * @param  Route     $router 路由对象
-     * @param  RuleGroup $parent 上级对象
-     * @param  string    $name   分组名称
-     * @param  mixed     $rule   分组路由
-     * @param  bool      $lazy   延迟解析
+     * @param Route          $router 路由对象
+     * @param RuleGroup|null $parent 上级对象
+     * @param string         $name   分组名称
+     * @param mixed          $rule   分组路由
+     * @param bool           $lazy   延迟解析
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
+    public function __construct(Route $router, ?RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
         $this->router = $router;
         $this->parent = $parent;

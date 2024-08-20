@@ -14,9 +14,9 @@ namespace think\console;
 
 class Table
 {
-    const ALIGN_LEFT   = 1;
-    const ALIGN_RIGHT  = 0;
-    const ALIGN_CENTER = 2;
+    public const ALIGN_LEFT   = 1;
+    public const ALIGN_RIGHT  = 0;
+    public const ALIGN_CENTER = 2;
 
     /**
      * 头信息数据

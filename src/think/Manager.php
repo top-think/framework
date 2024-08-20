@@ -143,7 +143,7 @@ abstract class Manager
      */
     public function forgetDriver($name = null)
     {
-        $name = $name ?? $this->getDefaultDriver();
+        $name ??= $this->getDefaultDriver();
 
         foreach ((array) $name as $cacheName) {
             if (isset($this->drivers[$cacheName])) {

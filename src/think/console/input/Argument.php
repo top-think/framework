@@ -14,13 +14,13 @@ namespace think\console\input;
 class Argument
 {
     // 必传参数
-    const REQUIRED = 1;
+    public const REQUIRED = 1;
 
     // 可选参数
-    const OPTIONAL = 2;
+    public const OPTIONAL = 2;
 
     // 数组参数
-    const IS_ARRAY = 4;
+    public const IS_ARRAY = 4;
 
     /**
      * 参数名
@@ -48,13 +48,13 @@ class Argument
 
     /**
      * 构造方法
-     * @param string $name        参数名
-     * @param int    $mode        参数类型: self::REQUIRED 或者 self::OPTIONAL
-     * @param string $description 描述
-     * @param mixed  $default     默认值 (仅 self::OPTIONAL 类型有效)
+     * @param string   $name        参数名
+     * @param int|null $mode        参数类型: self::REQUIRED 或者 self::OPTIONAL
+     * @param string   $description 描述
+     * @param mixed    $default     默认值 (仅 self::OPTIONAL 类型有效)
      * @throws \InvalidArgumentException
      */
-    public function __construct(string $name, int $mode = null, string $description = '', $default = null)
+    public function __construct(string $name, ?int $mode = null, string $description = '', $default = null)
     {
         if (null === $mode) {
             $mode = self::OPTIONAL;

@@ -388,12 +388,12 @@ abstract class Rule
     /**
      * 绑定模型
      * @access public
-     * @param  array|string|Closure $var  路由变量名 多个使用 & 分割
-     * @param  string|Closure       $model 绑定模型类
-     * @param  bool                  $exception 是否抛出异常
+     * @param array|string|Closure $var       路由变量名 多个使用 & 分割
+     * @param string|Closure|null  $model     绑定模型类
+     * @param bool                 $exception 是否抛出异常
      * @return $this
      */
-    public function model(array | string | Closure $var, string | Closure $model = null, bool $exception = true)
+    public function model(array | string | Closure $var, string | Closure| null $model = null, bool $exception = true)
     {
         if ($var instanceof Closure) {
             $this->option['model'][] = $var;
@@ -424,13 +424,13 @@ abstract class Rule
     /**
      * 绑定验证
      * @access public
-     * @param  mixed  $validate 验证器类
-     * @param  string $scene 验证场景
-     * @param  array  $message 验证提示
-     * @param  bool   $batch 批量验证
+     * @param mixed       $validate 验证器类
+     * @param string|null $scene    验证场景
+     * @param array       $message  验证提示
+     * @param bool        $batch    批量验证
      * @return $this
      */
-    public function validate($validate, string $scene = null, array $message = [], bool $batch = false)
+    public function validate($validate, ?string $scene = null, array $message = [], bool $batch = false)
     {
         $this->option['validate'] = [$validate, $scene, $message, $batch];
 
