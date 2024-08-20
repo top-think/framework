@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -21,7 +22,6 @@ use think\console\output\descriptor\Console as ConsoleDescription;
 
 class Descriptor
 {
-
     /**
      * @var Output
      */

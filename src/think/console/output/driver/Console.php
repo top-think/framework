@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
@@ -16,7 +17,6 @@ use think\console\output\Formatter;
 
 class Console
 {
-
     /** @var  Resource */
     private $stdout;
 

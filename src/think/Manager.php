@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -29,9 +30,7 @@ abstract class Manager
      */
     protected $namespace = null;
 
-    public function __construct(protected App $app)
-    {
-    }
+    public function __construct(protected App $app) {}
 
     /**
      * 获取驱动实例
@@ -45,7 +44,7 @@ abstract class Manager
         if (is_null($name)) {
             throw new InvalidArgumentException(sprintf(
                 'Unable to resolve NULL driver for [%s].',
-                static::class
+                static::class,
             ));
         }
 

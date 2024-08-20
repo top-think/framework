@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\console;
 
@@ -23,7 +24,6 @@ use think\console\input\Option;
 
 abstract class Command
 {
-
     /** @var  Console */
     private $console;
     private $name;
@@ -120,9 +120,7 @@ abstract class Command
     /**
      * 配置指令
      */
-    protected function configure()
-    {
-    }
+    protected function configure() {}
 
     /**
      * 执行指令
@@ -142,18 +140,14 @@ abstract class Command
      * @param Input  $input
      * @param Output $output
      */
-    protected function interact(Input $input, Output $output)
-    {
-    }
+    protected function interact(Input $input, Output $output) {}
 
     /**
      * 初始化
      * @param Input  $input  An InputInterface instance
      * @param Output $output An OutputInterface instance
      */
-    protected function initialize(Input $input, Output $output)
-    {
-    }
+    protected function initialize(Input $input, Output $output) {}
 
     /**
      * 执行

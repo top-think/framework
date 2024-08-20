@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -2153,11 +2154,7 @@ class Request implements ArrayAccess
         return $this->param($name);
     }
 
-    public function offsetSet(mixed $name, mixed $value): void
-    {
-    }
+    public function offsetSet(mixed $name, mixed $value): void {}
 
-    public function offsetUnset(mixed $name): void
-    {
-    }
+    public function offsetUnset(mixed $name): void {}
 }

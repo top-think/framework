@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -16,7 +17,6 @@ use think\console\Command;
 
 class Console
 {
-
     public const GLOBAL_NAMESPACE = '_global';
 
     /**
