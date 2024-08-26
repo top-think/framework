@@ -2019,6 +2019,18 @@ class Request implements ArrayAccess
     }
 
     /**
+     * 更新COOKIE数据
+     * @access public
+     * @param string $name  cookie名
+     * @param mixed  $value 数据
+     * @return void
+     */
+    public function setCookie(string $name, mixed $value)
+    {
+        $this->cookie[$name] = $value;
+    }
+
+    /**
      * 设置SESSION数据
      * @access public
      * @param Session $session 数据
