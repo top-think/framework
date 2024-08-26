@@ -111,6 +111,7 @@ class Cookie
         }
 
         $this->setCookie($name, $value, $expire, $config);
+        $this->request->setCookie($name, $value);
     }
 
     /**
@@ -158,6 +159,7 @@ class Cookie
     {
         $config = array_merge($this->config, array_change_key_case($options));
         $this->setCookie($name, '', time() - 3600, $config);
+        $this->request->setCookie($name, null);
     }
 
     /**
