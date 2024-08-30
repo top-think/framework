@@ -16,7 +16,7 @@ use think\Service;
 
 class SomeService extends Service
 {
-    public $bind = [
+    public array $bind = [
         'some' => 'class',
     ];
 
@@ -126,10 +126,10 @@ class AppTest extends TestCase
 
     /**
      * @param vfsStreamDirectory $root
-     * @param bool               $debug
+     * @param bool $debug
      * @return App
      */
-    protected function prepareAppForInitialize(vfsStreamDirectory $root, $debug = true)
+    protected function prepareAppForInitialize(vfsStreamDirectory $root, bool $debug = true): App
     {
         $rootPath = $root->url() . DIRECTORY_SEPARATOR;
 
@@ -204,4 +204,25 @@ class AppTest extends TestCase
         $this->assertEquals('app2\\controller\\SomeClass', $this->app->parseClass('controller', 'some_class'));
     }
 
+    public function testBaseEnvName()
+    {
+        $name = 'test';
+        $this->app->setBaseEnvName($name);
+        $this->assertEquals($name, $this->app->getBaseEnvName());
+    }
+
+    public function testEnvName()
+    {
+        $this->assertEquals('', $this->app->getEnvName());
+        $name = 'test';
+        $this->app->setEnvName($name);
+        $this->assertEquals($name, $this->app->getEnvName());
+    }
+
+    public function testBeginTime()
+    {
+        $name = microtime(true);
+        $this->app->setBeginTime($name);
+        $this->assertEquals($name, $this->app->getBeginTime());
+    }
 }
