@@ -29,6 +29,9 @@ ThinkPHP 生态服务由[顶想云](https://www.topthink.com)（TOPThink Cloud�
 
 [完全开发手册](https://doc.thinkphp.cn)
 
+基于官方手册的数据训练和提供精准解答服务
+[官方专家智能体](https://chat.topthink.com/chat/eorole)
+
 ## 赞助商
 
 全新的[赞助计划](https://www.thinkphp.cn/sponsor)可以让你通过我们的网站、手册、欢迎页及 GIT 仓库获得巨大曝光，同时提升企业的品牌声誉，也更好保障 ThinkPHP 的可持续发展。
