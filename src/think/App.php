@@ -540,7 +540,9 @@ class App extends Container
 
         if (is_dir($configPath)) {
             foreach (scandir($configPath) as $name) {
-                if (!str_ends_with($name, $this->configExt) || !is_file($configPath . $name)) continue;
+                if (!str_ends_with($name, $this->configExt) || !is_file($configPath . $name)) {
+                    continue;
+                }
 
                 $this->config->load($configPath . $name, pathinfo($name, PATHINFO_FILENAME));
             }
