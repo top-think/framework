@@ -173,7 +173,7 @@ class App extends Container
      */
     public function __construct(string $rootPath = '')
     {
-        $this->thinkPath   = realpath(dirname(__DIR__)) . DIRECTORY_SEPARATOR;
+        $this->thinkPath   = dirname(__DIR__) . DIRECTORY_SEPARATOR;
         $this->rootPath    = $rootPath ? rtrim($rootPath, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR : $this->getDefaultRootPath();
         $this->appPath     = $this->rootPath . 'app' . DIRECTORY_SEPARATOR;
         $this->runtimePath = $this->rootPath . 'runtime' . DIRECTORY_SEPARATOR;
@@ -538,14 +538,12 @@ class App extends Container
 
         $configPath = $this->getConfigPath();
 
-        $files = [];
-
         if (is_dir($configPath)) {
-            $files = glob($configPath . '*' . $this->configExt);
-        }
+            foreach (scandir($configPath) as $name) {
+                if (!str_ends_with($name, $this->configExt) || !is_file($configPath . $name)) continue;
 
-        foreach ($files as $file) {
-            $this->config->load($file, pathinfo($file, PATHINFO_FILENAME));
+                $this->config->load($configPath . $name, pathinfo($name, PATHINFO_FILENAME));
+            }
         }
 
         if (is_file($appPath . 'event.php')) {
