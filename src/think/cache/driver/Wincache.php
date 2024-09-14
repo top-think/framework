@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache\driver;
 
@@ -75,7 +76,7 @@ class Wincache extends Driver
     {
         $key = $this->getCacheKey($name);
 
-        return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
+        return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key), $name, $default) : $default;
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache;
 
@@ -247,18 +248,38 @@ abstract class Driver implements CacheHandlerInterface
     /**
      * 反序列化数据
      * @access protected
-     * @param string $data 缓存数据
+     * @param string $data    缓存数据
+     * @param string $name    缓存名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    protected function unserialize(string $data)
+    protected function unserialize(string $data, string $name = '', mixed $default = null)
     {
         if (is_numeric($data)) {
             return $data;
         }
 
-        $unserialize = $this->options['serialize'][1] ?? "unserialize";
+        set_error_handler(function ($code, $message, $filename, $line) {
+            throw new \ErrorException($message, $code, 0, $filename, $line);
+        });
 
-        return $unserialize($data);
+        try {
+            $unserialize = $this->options['serialize'][1] ?? 'unserialize';
+            $content = $unserialize($data);
+
+            restore_error_handler();
+        } catch (Throwable $e) {
+            restore_error_handler();
+
+            if (empty($this->options['serialize'][2])) {
+                throw $e;
+            } else {
+                $content = $default;
+                $this->delete($name);
+            }
+        }
+
+        return $content;
     }
 
     /**

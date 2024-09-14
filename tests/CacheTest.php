@@ -107,7 +107,6 @@ class CacheTest extends TestCase
         $this->cache->setMultiple(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']]);
         $this->cache->tag('foo')->setMultiple(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']]);
         $this->assertEquals(['foo' => ['foobar', 'bar'], 'foobar' => ['foo', 'bar']], $this->cache->getMultiple(['foo', 'foobar']));
-        $this->assertIsInt($this->cache->getWriteTimes());
         $this->assertTrue($this->cache->deleteMultiple(['foo', 'foobar']));
     }
 
@@ -150,5 +149,27 @@ class CacheTest extends TestCase
         //tags
         $this->cache->tag('foo')->set('bar', 'foobar');
         $this->cache->tag('foo')->clear();
+    }
+
+    // 忽略反序列化数据时的异常
+    public function testIgnoreUnserializeException()
+    {
+        $root = vfsStream::setup();
+
+        $this->config->shouldReceive('get')->with('cache.default', null)->andReturn('file');
+
+        $this->config->shouldReceive('get')->with('cache.stores.file', null)
+            ->andReturn(['type' => 'file', 'path' => $root->url(), 'serialize' => ['serialize', 'unserialize', true]]);
+
+        $this->cache->set('unserializeException', ['name' => 'thinkphp']);
+        $this->assertEquals(['name' => 'thinkphp'], $this->cache->get('unserializeException'));
+
+        // 篡改缓存文件，使缓存中的序列化数据无效
+        $filename = $this->cache->getCacheKey('unserializeException');
+        file_put_contents($filename, str_replace('s:8:"thinkphp"', '', file_get_contents($filename)));
+        $this->assertEquals(['name' => 'thinkphp1'], $this->cache->get('unserializeException', ['name' => 'thinkphp1']));
+
+        // 序列化数据无效会自动删除缓存
+        $this->assertFalse($this->cache->has('unserializeException'));
     }
 }

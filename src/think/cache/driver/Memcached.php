@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache\driver;
 
@@ -53,7 +54,7 @@ class Memcached extends Driver
             $this->options = array_merge($this->options, $options);
         }
 
-        $this->handler = new \Memcached;
+        $this->handler = new \Memcached();
 
         if (!empty($this->options['option'])) {
             $this->handler->setOptions($this->options['option']);
@@ -109,7 +110,7 @@ class Memcached extends Driver
     {
         $result = $this->handler->get($this->getCacheKey($name));
 
-        return false !== $result ? $this->unserialize($result) : $default;
+        return false !== $result ? $this->unserialize($result, $name, $default) : $default;
     }
 
     /**

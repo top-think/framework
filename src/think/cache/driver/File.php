@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache\driver;
 
@@ -135,7 +136,7 @@ class File extends Driver
     {
         $raw = $this->getRaw($name);
 
-        return is_null($raw) ? $default : $this->unserialize($raw['content']);
+        return is_null($raw) ? $default : $this->unserialize($raw['content'], $name, $default);
     }
 
     /**
@@ -199,7 +200,7 @@ class File extends Driver
     public function inc($name, $step = 1)
     {
         if ($raw = $this->getRaw($name)) {
-            $value  = $this->unserialize($raw['content']) + $step;
+            $value  = $this->unserialize($raw['content'], $name, 0) + $step;
             $expire = $raw['expire'];
         } else {
             $value  = $step;

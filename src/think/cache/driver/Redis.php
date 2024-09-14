@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache\driver;
 
@@ -54,7 +55,7 @@ class Redis extends Driver
     {
         if (!$this->handler) {
             if (extension_loaded('redis')) {
-                $this->handler = new \Redis;
+                $this->handler = new \Redis();
 
                 if ($this->options['persistent']) {
                     $this->handler->pconnect($this->options['host'], (int) $this->options['port'], (int) $this->options['timeout'], 'persistent_id_' . $this->options['select']);
@@ -120,7 +121,7 @@ class Redis extends Driver
             return $default;
         }
 
-        return $this->unserialize($value);
+        return $this->unserialize($value, $name, $value);
     }
 
     /**
@@ -243,5 +244,5 @@ class Redis extends Driver
     public function __call($method, $args)
     {
         return call_user_func_array([$this->handler(), $method], $args);
-    }    
+    }
 }

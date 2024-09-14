@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\cache\driver;
 
@@ -52,7 +53,7 @@ class Memcache extends Driver
             $this->options = array_merge($this->options, $options);
         }
 
-        $this->handler = new \Memcache;
+        $this->handler = new \Memcache();
 
         // 支持集群
         $hosts = (array) $this->options['host'];
@@ -95,7 +96,7 @@ class Memcache extends Driver
     {
         $result = $this->handler->get($this->getCacheKey($name));
 
-        return false !== $result ? $this->unserialize($result) : $default;
+        return false !== $result ? $this->unserialize($result, $name, $default) : $default;
     }
 
     /**
