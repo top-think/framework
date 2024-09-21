@@ -22,7 +22,7 @@ class ValidateException extends \RuntimeException
     public function __construct($error)
     {
         $this->error   = $error;
-        $this->message = is_array($error) ? implode(PHP_EOL, $error) : $error;
+        $this->message = is_array($error) ? json_encode($error) : $error;
     }
 
     /**
