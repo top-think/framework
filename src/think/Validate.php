@@ -531,6 +531,19 @@ class Validate
             // 获取数据 支持二维数组
             $values = $this->getDataSet($data, $key);
 
+            if (empty($values)) {
+                if (is_string($rule)) {
+                    $items = explode('|', $rule);
+                } elseif (is_array($rule)) {
+                    $items = $rule;
+                }
+
+                if (isset($items) && false !== array_search('require', $items)) {
+                    $message = $this->getRuleMsg($key, $title, 'require', $rule);
+                    throw new ValidateException($message);
+                }
+            }
+
             // 字段数据因子验证
             foreach ($values as $value) {
                 $result = $this->checkItem($key, $value, $rule, $data, $title);
@@ -1583,7 +1596,7 @@ class Validate
      */
     public function multipleOf($value, $rule): bool
     {
-        if ($rule == '0' || $value < $rule) {
+        if ('0' == $rule || $value < $rule) {
             return false;
         }
 
