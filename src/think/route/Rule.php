@@ -458,6 +458,18 @@ abstract class Rule
     }
 
     /**
+     * 不使用中间件
+     * @access public
+     * @return $this
+     */
+    public function withoutMiddleware()
+    {
+        $this->option['without_middleware'] = true;
+
+        return $this;
+    }
+
+    /**
      * 允许跨域
      * @access public
      * @param  array $header 自定义Header

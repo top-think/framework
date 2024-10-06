@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\route;
 
@@ -88,7 +88,7 @@ abstract class Dispatch
         $option = $this->rule->getOption();
 
         // 添加中间件
-        if (!empty($option['middleware'])) {
+        if (empty($option['without_middleware']) && !empty($option['middleware'])) {
             $this->app->middleware->import($option['middleware'], 'route');
         }
 
