@@ -38,6 +38,9 @@ class Channel implements LoggerInterface
 
     public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow, protected bool $lazy, protected Event $event)
     {
+        if($event) {
+            $this->event = $event;
+        }
     }
 
     /**
