@@ -2,7 +2,7 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2015 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
@@ -12,9 +12,7 @@ declare (strict_types = 1);
 
 namespace think\console;
 
-use think\console\input\Argument;
 use think\console\input\Definition;
-use think\console\input\Option;
 
 class Input
 {
@@ -25,12 +23,12 @@ class Input
     protected $definition;
 
     /**
-     * @var Option[]
+     * @var array
      */
     protected $options = [];
 
     /**
-     * @var Argument[]
+     * @var array
      */
     protected $arguments = [];
 
@@ -209,7 +207,7 @@ class Input
         }
 
         if (null !== $value && !$option->acceptValue()) {
-            throw new \RuntimeException(sprintf('The "--%s" option does not accept a value.', $name, $value));
+            throw new \RuntimeException(sprintf('The "--%s" option does not accept a value.', $name));
         }
 
         if (null === $value && $option->acceptValue() && count($this->parsed)) {
@@ -244,7 +242,7 @@ class Input
      * 获取第一个参数
      * @return string|null
      */
-    public function getFirstArgument()
+    public function getFirstArgument(): ?string
     {
         foreach ($this->tokens as $token) {
             if ($token && '-' === $token[0]) {
@@ -253,7 +251,8 @@ class Input
 
             return $token;
         }
-        return;
+
+        return null;
     }
 
     /**
@@ -335,7 +334,7 @@ class Input
 
     /**
      * 获取所有的参数
-     * @return Argument[]
+     * @return array
      */
     public function getArguments(): array
     {
@@ -385,7 +384,7 @@ class Input
 
     /**
      * 获取所有的选项
-     * @return Option[]
+     * @return array
      */
     public function getOptions(): array
     {
