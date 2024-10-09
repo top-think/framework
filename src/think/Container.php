@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think;
 
@@ -21,10 +21,10 @@ use IteratorAggregate;
 use Psr\Container\ContainerInterface;
 use ReflectionClass;
 use ReflectionException;
-use ReflectionNamedType;
 use ReflectionFunction;
 use ReflectionFunctionAbstract;
 use ReflectionMethod;
+use ReflectionNamedType;
 use think\exception\ClassNotFoundException;
 use think\exception\FuncNotFoundException;
 use think\helper\Str;
@@ -95,7 +95,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param Closure|null   $callback
      * @return void
      */
-    public function resolving(string|Closure $abstract, ?Closure $callback = null): void
+    public function resolving(string | Closure $abstract, ?Closure $callback = null): void
     {
         if ($abstract instanceof Closure) {
             $this->invokeCallback['*'][] = $abstract;
@@ -142,7 +142,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param mixed        $concrete 要绑定的类、闭包或者实例
      * @return $this
      */
-    public function bind(string|array $abstract, $concrete = null)
+    public function bind(string | array $abstract, $concrete = null)
     {
         if (is_array($abstract)) {
             foreach ($abstract as $key => $val) {
@@ -282,7 +282,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array          $vars     参数
      * @return mixed
      */
-    public function invokeFunction(string|Closure $function, array $vars = [])
+    public function invokeFunction(string | Closure $function, array $vars = [])
     {
         try {
             $reflect = new ReflectionFunction($function);
@@ -449,7 +449,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             if ($param->isVariadic()) {
                 return array_merge($args, array_values($vars));
             } elseif ($reflectionType && $reflectionType instanceof ReflectionNamedType && $reflectionType->isBuiltin() === false) {
-                $args[] = $this->getObjectParam($reflectionType->getName(), $vars);
+                $args[] = $this->getObjectParam($reflectionType->getName(), $vars, $param->isDefaultValueAvailable() ? true : false);
             } elseif (1 == $type && !empty($vars)) {
                 $args[] = array_shift($vars);
             } elseif (0 == $type && array_key_exists($name, $vars)) {
@@ -487,9 +487,10 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @access protected
      * @param string $className 类名
      * @param array  $vars      参数
+     * @param bool   $allowNull 允许为空
      * @return mixed
      */
-    protected function getObjectParam(string $className, array &$vars)
+    protected function getObjectParam(string $className, array &$vars, bool $allowNull = false)
     {
         $array = $vars;
         $value = array_shift($array);
@@ -498,7 +499,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $result = $value;
             array_shift($vars);
         } else {
-            $result = $this->make($className);
+            $result = $allowNull ? null : $this->make($className);
         }
 
         return $result;
