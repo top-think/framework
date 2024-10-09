@@ -550,12 +550,13 @@ class Validate
 
                 if (true !== $result) {
                     // 没有返回true 则表示验证失败
-                    $this->error[$key] = $result;
                     if (!empty($this->batch)) {
                         // 批量验证
+                        $this->error[$key] = $result;
                     } elseif ($this->failException) {
                         throw new ValidateException($result, $key);
                     } else {
+                        $this->error = $result;
                         return false;
                     }
                 }
