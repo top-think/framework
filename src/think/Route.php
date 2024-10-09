@@ -179,7 +179,7 @@ class Route
         }, 'options');
     }
 
-    public function config(string $name = null)
+    public function config(?string $name = null)
     {
         if (is_null($name)) {
             return $this->config;
@@ -247,7 +247,7 @@ class Route
      * @param string $name 分组标识
      * @return RuleGroup
      */
-    public function getGroup(string $name = null)
+    public function getGroup(?string $name = null)
     {
         return $name ? $this->ruleName->getGroup($name) : $this->group;
     }
@@ -338,7 +338,7 @@ class Route
      * @param string $domain 域名
      * @return $this
      */
-    public function bind(string $bind, string $domain = null)
+    public function bind(string $bind, ?string $domain = null)
     {
         $domain = is_null($domain) ? '-' : $domain;
 
@@ -363,7 +363,7 @@ class Route
      * @param string $domain 域名
      * @return string|null
      */
-    public function getDomainBind(string $domain = null)
+    public function getDomainBind(?string $domain = null)
     {
         if (is_null($domain)) {
             $domain = $this->host;
@@ -400,7 +400,7 @@ class Route
      * @param string $method 请求类型
      * @return array
      */
-    public function getName(string $name = null, string $domain = null, string $method = '*'): array
+    public function getName(?string $name = null, ?string $domain = null, string $method = '*'): array
     {
         return $this->ruleName->getName($name, $domain, $method);
     }
@@ -436,7 +436,7 @@ class Route
      * @param RuleItem $ruleItem RuleItem对象
      * @return void
      */
-    public function setRule(string $rule, RuleItem $ruleItem = null): void
+    public function setRule(string $rule, ?RuleItem $ruleItem = null): void
     {
         $this->ruleName->setRule($rule, $ruleItem);
     }
@@ -705,7 +705,7 @@ class Route
      * @param string $name 方法名称
      * @return array|null
      */
-    public function getRest(string $name = null)
+    public function getRest(?string $name = null)
     {
         if (is_null($name)) {
             return $this->rest;

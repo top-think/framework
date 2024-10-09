@@ -119,7 +119,7 @@ class Config
      * @param  mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name = null, $default = null)
+    public function get(?string $name = null, $default = null)
     {
         // 无参数时获取所有
         if (empty($name)) {
@@ -153,7 +153,7 @@ class Config
      * @param  string $name 配置名
      * @return array
      */
-    public function set(array $config, string $name = null): array
+    public function set(array $config, ?string $name = null): array
     {
         if (empty($name)) {
             $this->config = array_merge($this->config, array_change_key_case($config));

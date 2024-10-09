@@ -95,7 +95,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param Closure|null   $callback
      * @return void
      */
-    public function resolving(string|Closure $abstract, Closure $callback = null): void
+    public function resolving(string|Closure $abstract, ?Closure $callback = null): void
     {
         if ($abstract instanceof Closure) {
             $this->invokeCallback['*'][] = $abstract;

@@ -596,7 +596,7 @@ class Console
      * @return Command[]
      * @api
      */
-    public function all(string $namespace = null): array
+    public function all(?string $namespace = null): array
     {
         if (null === $namespace) {
             return $this->commands;

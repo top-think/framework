@@ -92,7 +92,7 @@ if (!function_exists('cache')) {
      * @param string $tag     缓存标签
      * @return mixed
      */
-    function cache(string $name = null, $value = '', $options = null, $tag = null)
+    function cache(?string $name = null, $value = '', $options = null, $tag = null)
     {
         if (is_null($name)) {
             return app('cache');
@@ -211,7 +211,7 @@ if (!function_exists('env')) {
      * @param string $default 默认值
      * @return mixed
      */
-    function env(string $name = null, $default = null)
+    function env(?string $name = null, $default = null)
     {
         return Env::get($name, $default);
     }
@@ -660,5 +660,13 @@ if (!function_exists('root_path')) {
     function root_path($path = '')
     {
         return app()->getRootPath() . ($path ? $path . DIRECTORY_SEPARATOR : $path);
+    }
+}
+
+if (!function_exists('json_validate')) {
+    function json_validate(string $string): bool {
+        json_decode($string);
+
+        return json_last_error() === JSON_ERROR_NONE;
     }
 }

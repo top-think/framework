@@ -61,7 +61,7 @@ class Env implements ArrayAccess
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(string $name = null, $default = null)
+    public function get(?string $name = null, $default = null)
     {
         if (is_null($name)) {
             return $this->data;

@@ -42,7 +42,7 @@ class View extends Manager
      * @param string $type 模板引擎类型
      * @return TemplateHandlerInterface
      */
-    public function engine(string $type = null)
+    public function engine(?string $type = null)
     {
         return $this->driver($type);
     }
@@ -71,7 +71,7 @@ class View extends Manager
      * @param Callable $filter 过滤方法或闭包
      * @return $this
      */
-    public function filter(callable $filter = null)
+    public function filter(?callable $filter = null)
     {
         $this->filter = $filter;
         return $this;
