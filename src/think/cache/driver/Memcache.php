@@ -15,6 +15,7 @@ namespace think\cache\driver;
 use DateInterval;
 use DateTimeInterface;
 use think\cache\Driver;
+use think\exception\InvalidCacheException;
 
 /**
  * Memcache缓存类
@@ -66,8 +67,8 @@ class Memcache extends Driver
         foreach ($hosts as $i => $host) {
             $port = $ports[$i] ?? $ports[0];
             $this->options['timeout'] > 0 ?
-                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
-                $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1, (int) $this->options['timeout']) :
+            $this->handler->addServer($host, (int) $port, $this->options['persistent'], 1);
         }
     }
 
@@ -95,7 +96,12 @@ class Memcache extends Driver
     {
         $result = $this->handler->get($this->getCacheKey($name));
 
-        return false !== $result ? $this->unserialize($result) : $default;
+        try {
+            return false !== $result ? $this->unserialize($result) : $default;
+        } catch (InvalidCacheException $e) {
+            $this->delete($name);
+            return $default;
+        }
     }
 
     /**
@@ -169,8 +175,8 @@ class Memcache extends Driver
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-            $this->handler->delete($key) :
-            $this->handler->delete($key, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**

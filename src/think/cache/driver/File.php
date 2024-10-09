@@ -16,6 +16,7 @@ use DateTimeInterface;
 use FilesystemIterator;
 use think\App;
 use think\cache\Driver;
+use think\exception\InvalidCacheException;
 
 /**
  * 文件缓存类
@@ -135,7 +136,12 @@ class File extends Driver
     {
         $raw = $this->getRaw($name);
 
-        return is_null($raw) ? $default : $this->unserialize($raw['content']);
+        try {
+            return is_null($raw) ? $default : $this->unserialize($raw['content']);
+        } catch (InvalidCacheException $e) {
+            $this->delete($name);
+            return $default;
+        }
     }
 
     /**

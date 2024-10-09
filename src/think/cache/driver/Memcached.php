@@ -15,6 +15,7 @@ namespace think\cache\driver;
 use DateInterval;
 use DateTimeInterface;
 use think\cache\Driver;
+use think\exception\InvalidCacheException;
 
 /**
  * Memcached缓存类
@@ -30,10 +31,10 @@ class Memcached extends Driver
         'port'       => 11211,
         'expire'     => 0,
         'timeout'    => 0, // 超时时间（单位：毫秒）
-        'prefix'     => '',
+        'prefix'   => '',
         'username'   => '', //账号
-        'password'   => '', //密码
-        'option'     => [],
+        'password' => '', //密码
+        'option' => [],
         'tag_prefix' => 'tag:',
         'serialize'  => [],
     ];
@@ -108,8 +109,12 @@ class Memcached extends Driver
     public function get($name, $default = null): mixed
     {
         $result = $this->handler->get($this->getCacheKey($name));
-
-        return false !== $result ? $this->unserialize($result) : $default;
+        try {
+            return false !== $result ? $this->unserialize($result) : $default;
+        } catch (InvalidCacheException $e) {
+            $this->delete($name);
+            return $default;
+        }
     }
 
     /**
@@ -183,8 +188,8 @@ class Memcached extends Driver
         $key = $this->getCacheKey($name);
 
         return false === $ttl ?
-            $this->handler->delete($key) :
-            $this->handler->delete($key, $ttl);
+        $this->handler->delete($key) :
+        $this->handler->delete($key, $ttl);
     }
 
     /**

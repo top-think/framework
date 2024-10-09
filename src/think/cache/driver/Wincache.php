@@ -15,6 +15,7 @@ namespace think\cache\driver;
 use DateInterval;
 use DateTimeInterface;
 use think\cache\Driver;
+use think\exception\InvalidCacheException;
 
 /**
  * Wincache缓存驱动
@@ -74,8 +75,12 @@ class Wincache extends Driver
     public function get($name, $default = null): mixed
     {
         $key = $this->getCacheKey($name);
-
-        return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
+        try {
+            return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
+        } catch (InvalidCacheException $e) {
+            $this->delete($name);
+            return $default;
+        }
     }
 
     /**

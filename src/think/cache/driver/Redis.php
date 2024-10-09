@@ -15,6 +15,7 @@ namespace think\cache\driver;
 use DateInterval;
 use DateTimeInterface;
 use think\cache\Driver;
+use think\exception\InvalidCacheException;
 
 class Redis extends Driver
 {
@@ -120,7 +121,12 @@ class Redis extends Driver
             return $default;
         }
 
-        return $this->unserialize($value);
+        try {
+            return $this->unserialize($value);
+        } catch (InvalidCacheException $e) {
+            $this->delete($name);
+            return $default;
+        }
     }
 
     /**
@@ -243,5 +249,5 @@ class Redis extends Driver
     public function __call($method, $args)
     {
         return call_user_func_array([$this->handler(), $method], $args);
-    }    
+    }
 }

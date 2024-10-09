@@ -20,7 +20,8 @@ use Exception;
 use think\Container;
 use think\contract\CacheHandlerInterface;
 use think\exception\InvalidArgumentException;
-use throwable;
+use think\exception\InvalidCacheException;
+use Throwable;
 
 /**
  * 缓存基础类
@@ -63,14 +64,14 @@ abstract class Driver implements CacheHandlerInterface
      * @param integer|DateInterval|DateTimeInterface $expire 有效期
      * @return int
      */
-    protected function getExpireTime(int|DateInterval|DateTimeInterface $expire): int
+    protected function getExpireTime(int | DateInterval | DateTimeInterface $expire): int
     {
         if ($expire instanceof DateTimeInterface) {
             $expire = $expire->getTimestamp() - time();
         } elseif ($expire instanceof DateInterval) {
             $expire = DateTime::createFromFormat('U', (string) time())
-                    ->add($expire)
-                    ->format('U') - time();
+                ->add($expire)
+                ->format('U') - time();
         }
 
         return $expire;
@@ -178,7 +179,7 @@ abstract class Driver implements CacheHandlerInterface
 
             // 解锁
             $this->delete($name . '_lock');
-        } catch (Exception|throwable $e) {
+        } catch (Exception | Throwable $e) {
             $this->delete($name . '_lock');
             throw $e;
         }
@@ -255,10 +256,17 @@ abstract class Driver implements CacheHandlerInterface
         if (is_numeric($data)) {
             return $data;
         }
-
-        $unserialize = $this->options['serialize'][1] ?? "unserialize";
-
-        return $unserialize($data);
+        try {
+            $unserialize = $this->options['serialize'][1] ?? "unserialize";
+            $content     = $unserialize($data);
+            if (is_null($content)) {
+                throw new InvalidCacheException;
+            } else {
+                return $content;
+            }
+        } catch (Exception | Throwable $e) {
+            throw new InvalidCacheException;
+        }
     }
 
     /**
