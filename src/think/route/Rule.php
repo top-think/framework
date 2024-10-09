@@ -697,22 +697,22 @@ abstract class Rule
     {
         if (isset($option['dispatcher']) && is_subclass_of($option['dispatcher'], Dispatch::class)) {
             // 指定分组的调度处理对象
-            $result = new $option['dispatcher']($request, $this, $route, $this->vars);
+            $result = new $option['dispatcher']($request, $this, $route, $this->vars, $option);
         } elseif (is_subclass_of($route, Dispatch::class)) {
-            $result = new $route($request, $this, $route, $this->vars);
+            $result = new $route($request, $this, $route, $this->vars, $option);
         } elseif ($route instanceof Closure) {
             // 执行闭包
-            $result = new CallbackDispatch($request, $this, $route, $this->vars);
+            $result = new CallbackDispatch($request, $this, $route, $this->vars, $option);
         } elseif (is_array($route)) {
             // 路由到类的方法
-            $result = $this->dispatchMethod($request, $route);
+            $result = $this->dispatchMethod($request, $route, $option);
         } elseif (str_contains($route, '@') || str_contains($route, '::') || str_contains($route, '\\')) {
             // 路由到类的方法
             $route  = str_replace('::', '@', $route);
-            $result = $this->dispatchMethod($request, $route);
+            $result = $this->dispatchMethod($request, $route, $option);
         } else {
             // 路由到控制器/操作
-            $result = $this->dispatchController($request, $route);
+            $result = $this->dispatchController($request, $route, $option);
         }
 
         return $result;
@@ -725,7 +725,7 @@ abstract class Rule
      * @param  string|array  $route 路由地址
      * @return CallbackDispatch
      */
-    protected function dispatchMethod(Request $request, string | array $route): CallbackDispatch
+    protected function dispatchMethod(Request $request, string | array $route, array $option = []): CallbackDispatch
     {
         if (is_string($route)) {
             $path = $this->parseUrlPath($route);
@@ -736,7 +736,7 @@ abstract class Rule
             $method = $route;
         }
 
-        return new CallbackDispatch($request, $this, $method, $this->vars);
+        return new CallbackDispatch($request, $this, $method, $this->vars, $option);
     }
 
     /**
@@ -746,7 +746,7 @@ abstract class Rule
      * @param  string  $route 路由地址
      * @return ControllerDispatch
      */
-    protected function dispatchController(Request $request, string $route): ControllerDispatch
+    protected function dispatchController(Request $request, string $route, array $option = []): ControllerDispatch
     {
         $path = $this->parseUrlPath($route);
 
@@ -754,7 +754,7 @@ abstract class Rule
         $controller = !empty($path) ? array_pop($path) : null;
 
         // 路由到模块/控制器/操作
-        return new ControllerDispatch($request, $this, [$controller, $action], $this->vars);
+        return new ControllerDispatch($request, $this, [$controller, $action], $this->vars, $option);
     }
 
     /**

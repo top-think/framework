@@ -30,7 +30,7 @@ abstract class Dispatch
      */
     protected $app;
 
-    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [])
+    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [], protected array $option = [])
     {
     }
 
@@ -85,7 +85,7 @@ abstract class Dispatch
      */
     protected function doRouteAfter(): void
     {
-        $option = $this->rule->getOption();
+        $option = $this->option;
 
         // 添加中间件
         if (empty($option['without_middleware']) && !empty($option['middleware'])) {
