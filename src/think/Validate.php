@@ -317,7 +317,7 @@ class Validate
      * @param string   $message  验证失败提示信息
      * @return $this
      */
-    public function extend(string $type, ?callable $callback = null, ?string $message = null)
+    public function extend(string $type, callable $callback, ?string $message = null)
     {
         $this->type[$type] = $callback;
 
@@ -540,7 +540,7 @@ class Validate
 
                 if (isset($items) && false !== array_search('require', $items)) {
                     $message = $this->getRuleMsg($key, $title, 'require', $rule);
-                    throw new ValidateException($message);
+                    throw new ValidateException($message, $key);
                 }
             }
 
@@ -550,13 +550,12 @@ class Validate
 
                 if (true !== $result) {
                     // 没有返回true 则表示验证失败
+                    $this->error[$key] = $result;
                     if (!empty($this->batch)) {
                         // 批量验证
-                        $this->error[$key] = $result;
                     } elseif ($this->failException) {
-                        throw new ValidateException($result);
+                        throw new ValidateException($result, $key);
                     } else {
-                        $this->error = $result;
                         return false;
                     }
                 }
@@ -602,7 +601,7 @@ class Validate
 
             if (true !== $result) {
                 if ($this->failException) {
-                    throw new ValidateException($result);
+                    throw new ValidateException($result, $key);
                 }
 
                 return $result;
