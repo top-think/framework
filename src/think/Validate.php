@@ -12,10 +12,12 @@ declare (strict_types = 1);
 
 namespace think;
 
+use BackedEnum;
 use Closure;
 use think\exception\ValidateException;
 use think\helper\Str;
 use think\validate\ValidateRule;
+use UnitEnum;
 
 /**
  * 数据验证类
@@ -665,6 +667,9 @@ class Validate
         foreach ($rules as $key => $rule) {
             if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
+                $info   = is_numeric($key) ? '' : $key;
+            } elseif (is_subclass_of($rule, UnitEnum::class)) {
+                $result = $this->enum($value, $rule);
                 $info   = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
@@ -1341,6 +1346,24 @@ class Validate
     public function in($value, $rule): bool
     {
         return in_array($value, is_array($rule) ? $rule : explode(',', $rule));
+    }
+
+    /**
+     * 验证是否为枚举
+     * @access public
+     * @param mixed $value 字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    public function enum($value, $rule): bool
+    {
+        if (is_subclass_of($rule, BackedEnum::class)) {
+            $values = array_map(fn($case) => $case->value, $rule::cases());
+        } elseif (is_subclass_of($rule, UnitEnum::class)) {
+            $values = array_map(fn($case) => $case->name, $rule::cases());
+        }
+
+        return in_array($value, $values ?? []);
     }
 
     /**
