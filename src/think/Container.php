@@ -96,7 +96,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param Closure|null   $callback
      * @return void
      */
-    public function resolving(string | Closure $abstract, ?Closure $callback = null): void
+    public function resolving(string|Closure $abstract, ?Closure $callback = null): void
     {
         if ($abstract instanceof Closure) {
             $this->invokeCallback['*'][] = $abstract;
@@ -143,7 +143,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param mixed        $concrete 要绑定的类、闭包或者实例
      * @return $this
      */
-    public function bind(string | array $abstract, $concrete = null)
+    public function bind(string|array $abstract, $concrete = null)
     {
         if (is_array($abstract)) {
             foreach ($abstract as $key => $val) {
@@ -165,7 +165,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
     /**
      * 根据别名获取真实类名
-     * @param  string $abstract
+     * @param string $abstract
      * @return string
      */
     public function getAlias(string $abstract): string
@@ -254,6 +254,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
             $object = $this->invokeClass($abstract, $vars);
         }
 
+        $this->invokeAfter($abstract, $object);
+
         if (!$newInstance) {
             $this->instances[$abstract] = $object;
         }
@@ -283,7 +285,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
      * @param array          $vars     参数
      * @return mixed
      */
-    public function invokeFunction(string | Closure $function, array $vars = [])
+    public function invokeFunction(string|Closure $function, array $vars = [])
     {
         try {
             $reflect = new ReflectionFunction($function);
@@ -383,10 +385,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         if ($reflect->hasMethod('__make')) {
             $method = $reflect->getMethod('__make');
             if ($method->isPublic() && $method->isStatic()) {
-                $args   = $this->bindParams($method, $vars);
-                $object = $method->invokeArgs(null, $args);
-                $this->invokeAfter($class, $object);
-                return $object;
+                $args = $this->bindParams($method, $vars);
+                return $method->invokeArgs(null, $args);
             }
         }
 
@@ -394,11 +394,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
 
         $args = $constructor ? $this->bindParams($constructor, $vars) : [];
 
-        $object = $reflect->newInstanceArgs($args);
-
-        $this->invokeAfter($class, $object);
-
-        return $object;
+        return $reflect->newInstanceArgs($args);
     }
 
     /**
@@ -486,8 +482,8 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
     /**
      * 获取对象类型的参数值
      * @access protected
-     * @param string $className 类名
-     * @param array  $vars      参数
+     * @param string              $className 类名
+     * @param array               $vars      参数
      * @param ReflectionParameter $param
      * @return mixed
      */
