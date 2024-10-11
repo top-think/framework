@@ -14,6 +14,7 @@ namespace think;
 
 use BackedEnum;
 use Closure;
+use think\contract\Enumable;
 use think\exception\ValidateException;
 use think\helper\Str;
 use think\validate\ValidateRule;
@@ -668,7 +669,7 @@ class Validate
             if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
                 $info   = is_numeric($key) ? '' : $key;
-            } elseif (is_subclass_of($rule, UnitEnum::class)) {
+            } elseif (is_subclass_of($rule, UnitEnum::class) || is_subclass_of($rule, Enumable::class)) {
                 $result = $this->enum($value, $rule);
                 $info   = is_numeric($key) ? '' : $key;
             } else {
@@ -1361,6 +1362,11 @@ class Validate
             $values = array_map(fn($case) => $case->value, $rule::cases());
         } elseif (is_subclass_of($rule, UnitEnum::class)) {
             $values = array_map(fn($case) => $case->name, $rule::cases());
+        } elseif (is_subclass_of($rule, Enumable::class)) {
+            $values = $rule::values();
+        } else {
+            $reflect = new \ReflectionClass($rule);
+            $values  = $reflect->getConstants();
         }
 
         return in_array($value, $values ?? []);
