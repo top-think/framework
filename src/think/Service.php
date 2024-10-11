@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think;
 
@@ -31,7 +31,7 @@ abstract class Service
      * @access protected
      * @param string $path 路由路径
      */
-    protected function loadRoutesFrom(string $path)
+    protected function loadRoutesFrom(string $path): void
     {
         $this->registerRoutes(function () use ($path) {
             include $path;
@@ -42,7 +42,7 @@ abstract class Service
      * 注册路由
      * @param Closure $closure
      */
-    protected function registerRoutes(Closure $closure)
+    protected function registerRoutes(Closure $closure): void
     {
         $this->app->event->listen(RouteLoaded::class, $closure);
     }
@@ -52,7 +52,7 @@ abstract class Service
      * @access protected
      * @param array|string $commands 指令
      */
-    protected function commands($commands)
+    protected function commands(array | string $commands): void
     {
         $commands = is_array($commands) ? $commands : func_get_args();
 

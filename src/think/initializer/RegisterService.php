@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\initializer;
 
@@ -23,13 +23,13 @@ use think\service\ValidateService;
 class RegisterService
 {
 
-    protected $services = [
+    protected array $services = [
         PaginatorService::class,
         ValidateService::class,
         ModelService::class,
     ];
 
-    public function init(App $app)
+    public function init(App $app): void
     {
         $file = $app->getRootPath() . 'vendor/services.php';
 

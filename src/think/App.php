@@ -45,79 +45,79 @@ class App extends Container
      * 应用调试模式
      * @var bool
      */
-    protected $appDebug = false;
+    protected bool $appDebug = false;
 
     /**
      * 公共环境变量标识
      * @var string
      */
-    protected $baseEnvName = '';
+    protected string $baseEnvName = '';
 
     /**
      * 环境变量标识
      * @var string
      */
-    protected $envName = '';
+    protected string $envName = '';
 
     /**
      * 应用开始时间
      * @var float
      */
-    protected $beginTime;
+    protected float $beginTime;
 
     /**
      * 应用内存初始占用
      * @var integer
      */
-    protected $beginMem;
+    protected int $beginMem;
 
     /**
      * 当前应用类库命名空间
      * @var string
      */
-    protected $namespace = 'app';
+    protected string $namespace = 'app';
 
     /**
      * 应用根目录
      * @var string
      */
-    protected $rootPath = '';
+    protected string $rootPath = '';
 
     /**
      * 框架目录
      * @var string
      */
-    protected $thinkPath = '';
+    protected string $thinkPath = '';
 
     /**
      * 应用目录
      * @var string
      */
-    protected $appPath = '';
+    protected string $appPath = '';
 
     /**
      * Runtime目录
      * @var string
      */
-    protected $runtimePath = '';
+    protected string $runtimePath = '';
 
     /**
      * 路由定义目录
      * @var string
      */
-    protected $routePath = '';
+    protected string $routePath = '';
 
     /**
      * 配置后缀
      * @var string
      */
-    protected $configExt = '.php';
+    protected string $configExt = '.php';
 
     /**
      * 应用初始化器
      * @var array
      */
-    protected $initializers = [
+    protected array $initializers = [
         Error::class,
         RegisterService::class,
         BootService::class,
@@ -127,13 +127,13 @@ class App extends Container
      * 注册的系统服务
      * @var array
      */
-    protected $services = [];
+    protected array $services = [];
 
     /**
      * 初始化
      * @var bool
      */
-    protected $initialized = false;
+    protected bool $initialized = false;
 
     /**
      * 容器绑定标识
@@ -195,7 +195,7 @@ class App extends Container
      * @param bool           $force   强制重新注册
      * @return Service|null
      */
-    public function register(Service | string $service, bool $force = false)
+    public function register(Service | string $service, bool $force = false): ?Service
     {
         $registered = $this->getService($service);
 
@@ -216,19 +216,22 @@ class App extends Container
         }
 
         $this->services[] = $service;
+
+        return null;
     }
 
     /**
      * 执行服务
      * @access public
      * @param Service $service 服务
-     * @return mixed
      */
-    public function bootService(Service $service)
+    public function bootService(Service $service): ?Service
     {
         if (method_exists($service, 'boot')) {
             return $this->invoke([$service, 'boot']);
         }
+
+        return null;
     }
 
     /**
@@ -250,7 +253,7 @@ class App extends Container
      * @param bool $debug 开启应用调试模式
      * @return $this
      */
-    public function debug(bool $debug = true)
+    public function debug(bool $debug = true): static
     {
         $this->appDebug = $debug;
         return $this;
@@ -272,7 +275,7 @@ class App extends Container
      * @param string $namespace 应用命名空间
      * @return $this
      */
-    public function setNamespace(string $namespace)
+    public function setNamespace(string $namespace): static
     {
         $this->namespace = $namespace;
         return $this;
@@ -294,10 +297,20 @@ class App extends Container
      * @param string $name 环境标识
      * @return $this
      */
-    public function setBaseEnvName(string $name)
+    public function setBaseEnvName(string $name): static
     {
         $this->baseEnvName = $name;
         return $this;
+    }
+
+    /**
+     * 获取公共环境变量标识
+     * @access public
+     * @return string
+     */
+    public function getBaseEnvName(): string
+    {
+        return $this->baseEnvName;
     }
 
     /**
@@ -306,10 +319,21 @@ class App extends Container
      * @param string $name 环境标识
      * @return $this
      */
-    public function setEnvName(string $name)
+    public function setEnvName(string $name): static
     {
         $this->envName = $name;
         return $this;
+    }
+
+    /**
+     * 获取环境变量标识
+     * @access public
+     * @return string
+     */
+    public function getEnvName(): string
+    {
+        $envName = $this->env->get('env_name', '');
+        return $this->envName ?? (string) $envName;
     }
 
     /**
@@ -356,7 +380,7 @@ class App extends Container
      * 设置应用目录
      * @param string $path 应用目录
      */
-    public function setAppPath(string $path)
+    public function setAppPath(string $path): void
     {
         $this->appPath = $path;
     }
@@ -421,6 +445,18 @@ class App extends Container
     }
 
     /**
+     * 设置应用开启时间
+     * @access public
+     * @param float $beginTime
+     * @return $this
+     */
+    public function setBeginTime(float $beginTime): static
+    {
+        $this->beginTime = $beginTime;
+        return $this;
+    }
+
+    /**
      * 获取应用初始内存占用
      * @access public
      * @return integer
@@ -428,6 +464,17 @@ class App extends Container
     public function getBeginMem(): int
     {
         return $this->beginMem;
+    }
+
+    /**
+     * 设置应用初始内存占用
+     * @access public
+     * @return $this
+     */
+    public function setBeginMem(int $beginMem): static
+    {
+        $this->beginMem = $beginMem;
+        return $this;
     }
 
     /**
@@ -451,20 +498,22 @@ class App extends Container
      * @access public
      * @return $this
      */
-    public function initialize()
+    public function initialize(): static
     {
         $this->initialized = true;
 
-        $this->beginTime = microtime(true);
-        $this->beginMem  = memory_get_usage();
+        // 设置应用开启时间
+        $this->setBeginTime(microtime(true))
+            ->setBeginMem(memory_get_usage());
 
         // 加载环境变量
-        if ($this->baseEnvName) {
-            $this->loadEnv($this->baseEnvName);
+        $baseEnvName = $this->getBaseEnvName();
+        if ($baseEnvName) {
+            $this->loadEnv($baseEnvName);
         }
 
-        $this->envName = $this->envName ?: (string) $this->env->get('env_name', '');
-        $this->loadEnv($this->envName);
+        $envName = $this->getEnvName();
+        $this->loadEnv($envName);
 
         $this->configExt = $this->env->get('config_ext', '.php');
 
@@ -493,7 +542,7 @@ class App extends Container
      * 是否初始化过
      * @return bool
      */
-    public function initialized()
+    public function initialized(): bool
     {
         return $this->initialized;
     }
@@ -569,7 +618,7 @@ class App extends Container
     {
         // 应用调试模式
         if (!$this->appDebug) {
-            $this->appDebug = $this->env->get('app_debug') ? true : false;
+            $this->appDebug = (bool) $this->env->get('app_debug');
         }
 
         if (!$this->appDebug) {
