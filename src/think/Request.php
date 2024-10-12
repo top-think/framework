@@ -1486,16 +1486,27 @@ class Request implements ArrayAccess
         foreach ($name as $key => $val) {
 
             if (is_int($key)) {
+                if (str_contains($val, '/')) {
+                    [$val, $type] = explode('/', $val);
+                }
                 $default = null;
                 $key     = $val;
                 if (!key_exists($key, $data)) {
                     continue;
                 }
             } else {
+                if (str_contains($key, '/')) {
+                    [$key, $type] = explode('/', $key);
+                }
                 $default = $val;
             }
 
             $item[$key] = $this->filterData($data[$key] ?? $default, $filter, $key, $default);
+
+            if (isset($type)) {
+                // 强制类型转换
+                $this->typeCast($item[$key], $type);
+            }
         }
 
         return $item;
