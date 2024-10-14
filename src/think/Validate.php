@@ -182,6 +182,12 @@ class Validate
     protected $failException = false;
 
     /**
+     * 必须验证的规则
+     * @var array
+     */
+    protected $must = [];
+
+    /**
      * 场景需要验证的规则
      * @var array
      */
@@ -683,7 +689,7 @@ class Validate
                     continue;
                 }
 
-                if ('must' == $type || str_starts_with($type, 'require') || (!is_null($value) && '' !== $value)) {
+                if ('must' == $type || str_starts_with($type, 'require') || in_array($type, $this->must) || (!is_null($value) && '' !== $value)) {
                     $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
