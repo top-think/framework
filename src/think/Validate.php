@@ -736,12 +736,14 @@ class Validate
     protected function getValidateType($key, $rule): array
     {
         // 判断验证类型
+        $hasParam = true;
         if (!is_numeric($key)) {
             $type = $key;
         } elseif (str_contains($rule, ':')) {
             [$type, $rule] = explode(':', $rule, 2);
         } else {
-            $type = $rule;
+            $type     = $rule;
+            $hasParam = false;
         }
 
         // 验证类型别名
@@ -752,7 +754,12 @@ class Validate
             $call = $this->type[$type];
         } else {
             $method = Str::camel($type);
-            $call   = [$this, method_exists($this, $method) ? $method : 'is'];
+            if (method_exists($this, $method)) {
+                $call = [$this, $method];
+                $rule = $hasParam ? $rule : '';
+            } else {
+                $call = [$this, 'is'];
+            }
         }
 
         return [$type, $rule, $call];
@@ -1329,6 +1336,26 @@ class Validate
         }
 
         return true;
+    }
+
+    /**
+     * 验证是否为数组，支持检查键名
+     * @access public
+     * @param mixed $value 字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    public function array($value, $rule): bool
+    {
+        if (!is_array($value)) {
+            return false;
+        }
+        if ($rule) {
+            $keys = is_string($rule) ? explode(',', $rule) : $rule;
+            return empty(array_diff($keys, array_keys($value)));
+        } else {
+            return true;
+        }
     }
 
     /**
