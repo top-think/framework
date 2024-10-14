@@ -598,9 +598,9 @@ class Validate
                 $result = call_user_func_array($rule, [$value]);
             } else {
                 // 判断验证类型
-                [$type, $rule] = $this->getValidateType($key, $rule);
+                [$type, $rule, $callback] = $this->getValidateType($key, $rule);
 
-                $result = call_user_func_array($this->type[$type] ?? [$this, $type], [$value, $rule]);
+                $result = call_user_func_array($callback, [$value, $rule]);
             }
 
             if (true !== $result) {
@@ -668,27 +668,23 @@ class Validate
         foreach ($rules as $key => $rule) {
             if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value, $data]);
-                $info   = is_numeric($key) ? '' : $key;
+                $type   = is_numeric($key) ? '' : $key;
             } elseif (is_subclass_of($rule, UnitEnum::class) || is_subclass_of($rule, Enumable::class)) {
                 $result = $this->enum($value, $rule);
-                $info   = is_numeric($key) ? '' : $key;
+                $type   = is_numeric($key) ? '' : $key;
             } else {
                 // 判断验证类型
-                [$type, $rule, $info] = $this->getValidateType($key, $rule);
+                [$type, $rule, $callback] = $this->getValidateType($key, $rule);
 
-                if (isset($this->append[$field]) && in_array($info, $this->append[$field])) {
-                } elseif (isset($this->remove[$field]) && in_array($info, $this->remove[$field])) {
+                if (isset($this->append[$field]) && in_array($type, $this->append[$field])) {
+                } elseif (isset($this->remove[$field]) && in_array($type, $this->remove[$field])) {
                     // 规则已经移除
                     $i++;
                     continue;
                 }
 
-                if (isset($this->type[$type])) {
-                    $result = call_user_func_array($this->type[$type], [$value, $rule, $data, $field, $title]);
-                } elseif ('must' == $info || str_starts_with($info, 'require') || (!is_null($value) && '' !== $value)) {
-                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
-                } elseif (str_starts_with($info, 'accepted') || str_starts_with($info, 'declined')) {
-                    $result = call_user_func_array([$this, $type], [$value, $rule, $data, $field, $title]);
+                if ('must' == $type || str_starts_with($type, 'require') || (!is_null($value) && '' !== $value)) {
+                    $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
                 }
@@ -702,7 +698,7 @@ class Validate
                         $message = $this->lang->get(substr($message, 2, -1));
                     }
                 } else {
-                    $message = $this->getRuleMsg($field, $title, $info, $rule);
+                    $message = $this->getRuleMsg($field, $title, $type, $rule);
                 }
 
                 return $message;
@@ -735,30 +731,25 @@ class Validate
     {
         // 判断验证类型
         if (!is_numeric($key)) {
-            if (isset($this->alias[$key])) {
-                // 判断别名
-                $key = $this->alias[$key];
-            }
-            return [$key, $rule, $key];
-        }
-
-        if (str_contains($rule, ':')) {
+            $type = $key;
+        } elseif (str_contains($rule, ':')) {
             [$type, $rule] = explode(':', $rule, 2);
-            if (isset($this->alias[$type])) {
-                // 判断别名
-                $type = $this->alias[$type];
-            }
-            $info = $type;
-        } elseif (method_exists($this, $rule)) {
-            $type = $rule;
-            $info = $rule;
-            $rule = '';
         } else {
-            $type = 'is';
-            $info = $rule;
+            $type = $rule;
         }
 
-        return [$type, $rule, $info];
+        // 验证类型别名
+        $type = $this->alias[$type] ?? $type;
+
+        if (isset($this->type[$type])) {
+            // 自定义验证
+            $call = $this->type[$type];
+        } else {
+            $method = Str::camel($type);
+            $call   = [$this, method_exists($this, $method) ? $method : 'is'];
+        }
+
+        return [$type, $rule, $call];
     }
 
     /**
@@ -883,10 +874,7 @@ class Validate
     public function is($value, string $rule, array $data = []): bool
     {
         $call = function ($value, $rule) {
-            if (isset($this->type[$rule])) {
-                // 注册的验证规则
-                $result = call_user_func_array($this->type[$rule], [$value]);
-            } elseif (function_exists('ctype_' . $rule)) {
+            if (function_exists('ctype_' . $rule)) {
                 // ctype验证规则
                 $ctypeFun = 'ctype_' . $rule;
                 $result   = $ctypeFun((string) $value);
@@ -1641,11 +1629,7 @@ class Validate
      */
     public function regex($value, $rule): bool
     {
-        if (isset($this->regex[$rule])) {
-            $rule = $this->regex[$rule];
-        } elseif (isset($this->defaultRegex[$rule])) {
-            $rule = $this->defaultRegex[$rule];
-        }
+        $rule = $this->regex[$rule] ?? $this->getDefaultRegexRule($rule);
 
         if (is_string($rule) && !str_starts_with($rule, '/') && !preg_match('/\/[imsU]{0,4}$/', $rule)) {
             // 不是正则表达式则两端补上/
@@ -1653,6 +1637,21 @@ class Validate
         }
 
         return is_scalar($value) && 1 === preg_match($rule, (string) $value);
+    }
+
+    /**
+     * 获取内置正则验证规则
+     * @access public
+     * @param string $rule  验证规则 正则规则或者预定义正则名
+     * @return bool
+     */
+    protected function getDefaultRegexRule(string $rule): string
+    {
+        $name = Str::camel($rule);
+        if (isset($this->defaultRegex[$name])) {
+            $rule = $this->defaultRegex[$name];
+        }
+        return $rule;
     }
 
     /**
