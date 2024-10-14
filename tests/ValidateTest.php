@@ -68,7 +68,7 @@ class ValidateTest extends TestCase
 
         $rule = [
             'tag'      => 'require',
-            'password' => 'acceptedIf:tag,1',
+            'password' => 'require|acceptedIf:tag,1',
         ];
 
         $data = [
@@ -88,7 +88,7 @@ class ValidateTest extends TestCase
 
         $rule = [
             'tag'      => 'require',
-            'password' => 'declinedIf:tag,1',
+            'password' => 'require|declinedIf:tag,1',
         ];
 
         $data = [
