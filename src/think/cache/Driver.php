@@ -92,16 +92,17 @@ abstract class Driver implements CacheHandlerInterface
      * 读取缓存并删除
      * @access public
      * @param string $name 缓存变量名
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function pull($name)
+    public function pull($name, $default = null)
     {
-        $result = $this->get($name, false);
-
-        if ($result) {
+        if ($this->has($name)) {
+            $result = $this->get($name, $default);
             $this->delete($name);
             return $result;
         }
+        return $this->getDefaultValue($name, $default);
     }
 
     /**
@@ -267,6 +268,22 @@ abstract class Driver implements CacheHandlerInterface
         } catch (Exception | Throwable $e) {
             throw new InvalidCacheException;
         }
+    }
+
+    /**
+     * 获取默认值
+     * @access protected
+     * @param string $name 缓存标识
+     * @param mixed $default 默认值
+     * @param bool $fail 是否有异常
+     * @return mixed
+     */
+    protected function getDefaultValue($name, $default, $fail = false)
+    {
+        if ($fail && $this->options['fail_delete']) {
+            $this->delete($name);
+        }
+        return $default instanceof Closure ? $default() : $default;
     }
 
     /**

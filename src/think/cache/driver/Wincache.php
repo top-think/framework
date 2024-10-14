@@ -27,10 +27,11 @@ class Wincache extends Driver
      * @var array
      */
     protected $options = [
-        'prefix'     => '',
-        'expire'     => 0,
-        'tag_prefix' => 'tag:',
-        'serialize'  => [],
+        'prefix'      => '',
+        'expire'      => 0,
+        'tag_prefix'  => 'tag:',
+        'serialize'   => [],
+        'fail_delete' => false,
     ];
 
     /**
@@ -76,10 +77,9 @@ class Wincache extends Driver
     {
         $key = $this->getCacheKey($name);
         try {
-            return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $default;
+            return wincache_ucache_exists($key) ? $this->unserialize(wincache_ucache_get($key)) : $this->getDefaultValue($name, $default);
         } catch (InvalidCacheException $e) {
-            $this->delete($name);
-            return $default;
+            return $this->getDefaultValue($name, $default, true);
         }
     }
 
