@@ -74,7 +74,9 @@ class Validate
         'mobile'      => ':attribute not a valid mobile',
         'array'       => ':attribute must be a array',
         'accepted'    => ':attribute must be yes,on,true or 1',
+        'acceptedIf'  => ':attribute must be yes,on,true or 1',
         'declined'    => ':attribute must be no,off,false or 0',
+        'declinedIf'  => ':attribute must be no,off,false or 0',
         'date'        => ':attribute not a valid datetime',
         'file'        => ':attribute not a valid file',
         'image'       => ':attribute not a valid image',
@@ -1783,10 +1785,6 @@ class Validate
             $msg = $this->typeMsg[$type];
         } elseif (str_starts_with($type, 'require')) {
             $msg = $this->typeMsg['require'];
-        } elseif (str_starts_with($type, 'accepted')) {
-            $msg = $this->typeMsg['accepted'];
-        } elseif (str_starts_with($type, 'declined')) {
-            $msg = $this->typeMsg['declined'];
         } else {
             $msg = $title . $this->lang->get('not conform to the rules');
         }
