@@ -1487,29 +1487,29 @@ class Request implements ArrayAccess
         $data = is_array($data) ? $data : $this->$data();
 
         $item = [];
+        $valType = '';
         foreach ($name as $key => $val) {
-
             if (is_int($key)) {
                 if (str_contains($val, '/')) {
-                    [$val, $type] = explode('/', $val);
+                    [$val, $valType] = explode('/', $val);
                 }
                 $default = null;
-                $key     = $val;
+                $key = $val;
                 if (!key_exists($key, $data)) {
                     continue;
                 }
             } else {
                 if (str_contains($key, '/')) {
-                    [$key, $type] = explode('/', $key);
+                    [$key, $valType] = explode('/', $key);
                 }
                 $default = $val;
             }
 
             $item[$key] = $this->filterData($data[$key] ?? $default, $filter, $key, $default);
-
-            if (isset($type)) {
+            if ($valType != '') {
                 // 强制类型转换
-                $this->typeCast($item[$key], $type);
+                $this->typeCast($item[$key], $valType);
+                $valType = '';
             }
         }
 
