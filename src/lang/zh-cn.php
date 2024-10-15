@@ -143,6 +143,7 @@ return [
     ':attribute must less than or equal :rule'                  => ':attribute必须小于等于 :rule',
     ':attribute must less than :rule'                           => ':attribute必须小于 :rule',
     ':attribute must equal :rule'                               => ':attribute必须等于 :rule',
+    ':attribute must not be equal to :rule'                     => ':attribute必须不等于 :rule',
     ':attribute has exists'                                     => ':attribute已存在',
     ':attribute not conform to the rules'                       => ':attribute不符合指定规则',
     ':attribute must multiple :rule'                            => ':attribute必须是 :rule 的倍数',

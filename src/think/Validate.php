@@ -37,7 +37,7 @@ class Validate
      * @var array
      */
     protected $alias = [
-        '>' => 'gt', '>=' => 'egt', '<' => 'lt', '<=' => 'elt', '=' => 'eq', 'same' => 'eq',
+        '>' => 'gt', '>=' => 'egt', '<' => 'lt', '<=' => 'elt', '=' => 'eq', 'same' => 'eq', '<>' => 'neq',
     ];
 
     /**
@@ -110,6 +110,7 @@ class Validate
         'elt'         => ':attribute must less than or equal :rule',
         'lt'          => ':attribute must less than :rule',
         'eq'          => ':attribute must equal :rule',
+        'neq'         => ':attribute must not be equal to :rule',
         'unique'      => ':attribute has exists',
         'regex'       => ':attribute not conform to the rules',
         'method'      => 'invalid Request method',
@@ -864,6 +865,18 @@ class Validate
     public function eq($value, $rule): bool
     {
         return $value == $rule;
+    }
+
+    /**
+     * 验证是否不等于某个值
+     * @access public
+     * @param mixed $value 字段值
+     * @param mixed $rule  验证规则
+     * @return bool
+     */
+    public function neq($value, $rule): bool
+    {
+        return $value != $rule;
     }
 
     /**

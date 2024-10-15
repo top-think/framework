@@ -121,4 +121,20 @@ class ValidateTest extends TestCase
         $this->assertFalse($validate->multipleOf('4', 3));
 
     }
+
+    /**
+     * 关系运算规则
+     * @return void
+     */
+    public function testRelationalOperator()
+    {
+        $validate = new Validate();
+
+        $this->assertTrue($validate->gt('2', 1)); // >
+        $this->assertTrue($validate->egt('1', 1)); // >=
+        $this->assertTrue($validate->lt('1', 2)); // <
+        $this->assertTrue($validate->elt('1', 1)); // <=
+        $this->assertTrue($validate->eq('1', 1)); // ==
+        $this->assertTrue($validate->neq('1', 0)); // <>
+    }
 }
