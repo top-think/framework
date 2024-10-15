@@ -60,7 +60,7 @@ class RouteList extends Command
         $this->app->route->lazy(false);
 
         if ($dir) {
-            $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR;
+            $path = $this->app->getAppPath() . $dir . DIRECTORY_SEPARATOR . 'route' . DIRECTORY_SEPARATOR;
         } else {
             $path = $this->app->getRootPath() . 'route' . DIRECTORY_SEPARATOR;
         }
