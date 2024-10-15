@@ -1290,7 +1290,7 @@ class Request implements ArrayAccess
             $data = $this->getData($data, $name);
         }
 
-        return $this->filterData($data, $filter, $name, $default, $type);
+        return $this->filterData($data, $filter, $name, $default, $type ?? '');
     }
 
     protected function filterData($data, $filter, $name, $default, $type)
