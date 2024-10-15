@@ -745,7 +745,9 @@ class Request implements ArrayAccess
         if ($origin) {
             // 获取原始请求类型
             return $this->server('REQUEST_METHOD') ?: 'GET';
-        } elseif (!$this->method) {
+        }
+
+        if (!$this->method) {
             if (isset($this->post[$this->varMethod])) {
                 $method = strtolower($this->post[$this->varMethod]);
                 if (in_array($method, ['get', 'post', 'put', 'patch', 'delete'])) {
@@ -1029,7 +1031,9 @@ class Request implements ArrayAccess
         if ('application/x-www-form-urlencoded' == $contentType) {
             parse_str($content, $data);
             return $data;
-        } elseif (str_contains($contentType, 'json')) {
+        } 
+
+        if (str_contains($contentType, 'json')) {
             return (array) json_decode($content, true);
         }
 

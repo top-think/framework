@@ -36,6 +36,7 @@ class File extends Driver
         'data_compress' => false,
         'tag_prefix'    => 'tag:',
         'serialize'     => [],
+        'fail_delete'   => false,
     ];
 
     /**
@@ -137,10 +138,9 @@ class File extends Driver
         $raw = $this->getRaw($name);
 
         try {
-            return is_null($raw) ? $default : $this->unserialize($raw['content']);
+            return is_null($raw) ? $this->getDefaultValue($name, $default) : $this->unserialize($raw['content']);
         } catch (InvalidCacheException $e) {
-            $this->delete($name);
-            return $default;
+            return $this->getDefaultValue($name, $default, true);
         }
     }
 

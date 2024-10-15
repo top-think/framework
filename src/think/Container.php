@@ -433,8 +433,7 @@ class Container implements ContainerInterface, ArrayAccess, IteratorAggregate, C
         }
 
         // 判断数组类型 数字数组时按顺序绑定参数
-        reset($vars);
-        $type   = key($vars) === 0 ? 1 : 0;
+        $type   = array_is_list($vars) ? 1 : 0;
         $params = $reflect->getParameters();
         $args   = [];
 

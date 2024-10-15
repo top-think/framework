@@ -67,18 +67,19 @@ class ValidateTest extends TestCase
         $validate->setLang($this->lang);
 
         $rule = [
-            'tag'      => 'require',
-            'password' => 'acceptedIf:tag,1',
+            'tag'    => 'require',
+            'accept' => 'require|acceptedIf:tag,1',
         ];
 
         $data = [
-            'tag' => '1',
+            'tag'    => '1',
+            'accept' => 2,
         ];
 
         $result = $validate->rule($rule)->check($data);
 
         $this->assertFalse($result);
-        $this->assertEquals('password must be yes,on,true or 1', $validate->getError());
+        $this->assertEquals('accept must be yes,on,true or 1', $validate->getError());
     }
 
     public function testDeclinedIf()
@@ -87,18 +88,19 @@ class ValidateTest extends TestCase
         $validate->setLang($this->lang);
 
         $rule = [
-            'tag'      => 'require',
-            'password' => 'declinedIf:tag,1',
+            'tag'    => 'require',
+            'accept' => 'require|declinedIf:tag,1',
         ];
 
         $data = [
-            'tag' => '1',
+            'tag'    => '1',
+            'accept' => 1,
         ];
 
         $result = $validate->rule($rule)->check($data);
 
         $this->assertFalse($result);
-        $this->assertEquals('password must be no,off,false or 0', $validate->getError());
+        $this->assertEquals('accept must be no,off,false or 0', $validate->getError());
     }
 
     public function testMultipleOf()

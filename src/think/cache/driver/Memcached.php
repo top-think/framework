@@ -27,16 +27,17 @@ class Memcached extends Driver
      * @var array
      */
     protected $options = [
-        'host'       => '127.0.0.1',
-        'port'       => 11211,
-        'expire'     => 0,
-        'timeout'    => 0, // 超时时间（单位：毫秒）
-        'prefix'   => '',
-        'username'   => '', //账号
-        'password' => '', //密码
-        'option' => [],
-        'tag_prefix' => 'tag:',
-        'serialize'  => [],
+        'host'        => '127.0.0.1',
+        'port'        => 11211,
+        'expire'      => 0,
+        'timeout'     => 0,
+        'prefix'      => '',
+        'option'      => [],
+        'username'    => '',
+        'password'    => '',
+        'tag_prefix'  => 'tag:',
+        'serialize'   => [],
+        'fail_delete' => false,
     ];
 
     /**
@@ -110,10 +111,9 @@ class Memcached extends Driver
     {
         $result = $this->handler->get($this->getCacheKey($name));
         try {
-            return false !== $result ? $this->unserialize($result) : $default;
+            return false !== $result ? $this->unserialize($result) : $this->getDefaultValue($name, $default);
         } catch (InvalidCacheException $e) {
-            $this->delete($name);
-            return $default;
+            return $this->getDefaultValue($name, $default, true);
         }
     }
 
