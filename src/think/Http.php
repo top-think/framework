@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -229,9 +230,12 @@ class Http
         $routePath = $this->getRoutePath();
 
         if (is_dir($routePath)) {
-            $files = glob($routePath . '*.php');
-            foreach ($files as $file) {
-                include $file;
+            foreach (scandir($routePath) as $name) {
+                if (!str_ends_with($name, '.php') || !is_file($routePath . $name)) {
+                    continue;
+                }
+
+                include $routePath . $name;
             }
         }
 

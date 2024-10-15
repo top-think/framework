@@ -137,8 +137,22 @@ class Lang
         ]);
 
         // 加载系统语言包
-        $files = glob($this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.*');
-        $this->load($files);
+        $appLangDir = $this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR;
+        if (is_dir($appLangDir)) {
+            $files = [];
+
+            foreach (scandir($appLangDir) as $name) {
+                $path = $appLangDir . $name;
+
+                if (!str_starts_with($name, $langset) || !is_file($path) || !in_array(pathinfo($name, PATHINFO_EXTENSION), ['php', 'yaml', 'json'])) {
+                    continue;
+                }
+
+                $files[] = $path;
+            }
+
+            $this->load($files);
+        }
 
         // 加载扩展（自定义）语言包
         $list = $this->app->config->get('lang.extend_list', []);

@@ -135,7 +135,14 @@ class File implements LogHandlerInterface
     {
 
         if ($this->config['max_files']) {
-            $files = glob($this->config['path'] . '*.log');
+            $files = [];
+            foreach (scandir($this->config['path']) as $name) {
+                if (!str_ends_with($name, '.log') || !is_file($this->config['path'] . $name)) {
+                    continue;
+                }
+
+                $files[] = $this->config['path'] . $name;
+            }
 
             try {
                 if (count($files) > $this->config['max_files']) {
