@@ -562,14 +562,18 @@ class Validate
                 $result = $this->checkItem($key, $value, $rule, $data, $title);
 
                 if (true !== $result) {
-                    // 没有返回true 则表示验证失败
+                    // 验证失败 记录错误信息
+                    if (false === $result) {
+                        $result = $this->getRuleMsg($key, $title, '', $rule);
+                    }
+
+                    $this->error[$key] = $result;
+
                     if (!empty($this->batch)) {
                         // 批量验证
-                        $this->error[$key] = $result;
                     } elseif ($this->failException) {
                         throw new ValidateException($result, $key);
                     } else {
-                        $this->error = $result;
                         return false;
                     }
                 }
@@ -615,7 +619,10 @@ class Validate
 
             if (true !== $result) {
                 if ($this->failException) {
-                    throw new ValidateException($result, $key);
+                    if (false === $result) {
+                        $result = $this->getRuleMsg('', '', $type, $rule);
+                    }
+                    throw new ValidateException($result, $type);
                 }
 
                 return $result;
@@ -714,20 +721,25 @@ class Validate
                 return $message;
             } elseif (true !== $result) {
                 // 返回自定义错误信息
-                if (is_string($result) && str_contains($result, ':')) {
-                    $result = str_replace(':attribute', $title, $result);
-
-                    if (str_contains($result, ':rule') && is_scalar($rule)) {
-                        $result = str_replace(':rule', (string) $rule, $result);
-                    }
-                }
-
-                return $result;
+                return $this->parseUserErrorMessage($result, $title, $rule);
             }
             $i++;
         }
 
         return $result ?? true;
+    }
+
+    protected function parseUserErrorMessage($message, $title, $rule)
+    {
+        if (is_string($message) && str_contains($message, ':')) {
+            $message = str_replace(':attribute', $title, $message);
+
+            if (str_contains($message, ':rule') && is_scalar($rule)) {
+                $message = str_replace(':rule', (string) $rule, $message);
+            }
+        }
+
+        return $message;
     }
 
     /**
