@@ -153,11 +153,12 @@ class Store
      * session获取并删除
      * @access public
      * @param string $name session名称
+     * @param mixed  $default 默认值
      * @return mixed
      */
-    public function pull(string $name)
+    public function pull(string $name, $default = null)
     {
-        return Arr::pull($this->data, $name);
+        return Arr::pull($this->data, $name, $default);
     }
 
     /**

@@ -136,7 +136,7 @@ class Lang
             $this->app->getThinkPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.php',
         ]);
 
-        // 加载系统语言包
+        // 加载应用语言包（支持多种类型）
         $files = glob($this->app->getAppPath() . 'lang' . DIRECTORY_SEPARATOR . $langset . '.*');
         $this->load($files);
 
