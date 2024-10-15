@@ -79,7 +79,7 @@ class ValidateTest extends TestCase
         $result = $validate->rule($rule)->check($data);
 
         $this->assertFalse($result);
-        $this->assertEquals('accept must be yes,on,true or 1', $validate->getError());
+        $this->assertEquals('accept must be yes,on,true or 1', $validate->getError('accept'));
     }
 
     public function testDeclinedIf()
@@ -100,7 +100,7 @@ class ValidateTest extends TestCase
         $result = $validate->rule($rule)->check($data);
 
         $this->assertFalse($result);
-        $this->assertEquals('accept must be no,off,false or 0', $validate->getError());
+        $this->assertEquals('accept must be no,off,false or 0', $validate->getError('accept'));
     }
 
     public function testMultipleOf()

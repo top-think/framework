@@ -1717,10 +1717,14 @@ class Validate
 
     /**
      * 获取错误信息
+     * @param string $field 验证字段
      * @return array|string
      */
-    public function getError()
+    public function getError(?string $field = null)
     {
+        if ($field) {
+            return $this->error[$field] ?? '';
+        }
         return $this->error;
     }
 
