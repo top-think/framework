@@ -610,6 +610,8 @@ class Validate
         foreach ($rules as $key => $rule) {
             if ($rule instanceof Closure) {
                 $result = call_user_func_array($rule, [$value]);
+            } elseif (is_subclass_of($rule, UnitEnum::class) || is_subclass_of($rule, Enumable::class)) {
+                $result = $this->enum($value, $rule);
             } else {
                 // 判断验证类型
                 [$type, $rule, $callback] = $this->getValidateType($key, $rule);
