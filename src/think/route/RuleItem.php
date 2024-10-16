@@ -13,6 +13,7 @@ declare (strict_types = 1);
 namespace think\route;
 
 use think\Exception;
+use think\facade\Validate;
 use think\Request;
 use think\Route;
 
@@ -288,6 +289,10 @@ class RuleItem extends Rule
             foreach ($match as $key => $val) {
                 if (is_string($key)) {
                     $var[$key] = $val;
+                    if (isset($option['var_rule'][$key]) && !Validate::checkRule($val, $option['var_rule'][$key])) {
+                        // 检查变量
+                        return false;
+                    }
                 }
             }
         }

@@ -148,7 +148,7 @@ abstract class Rule
     }
 
     /**
-     * 注册变量规则
+     * 注册变量(正则）规则
      * @access public
      * @param  array $pattern 变量规则
      * @return $this
@@ -156,6 +156,25 @@ abstract class Rule
     public function pattern(array $pattern)
     {
         $this->pattern = array_merge($this->pattern, $pattern);
+
+        return $this;
+    }
+
+    /**
+     * 注册路由变量的匹配规则（支持验证类的所有内置规则）
+     * 
+     * @access public
+     * @param  string $name 变量名
+     * @param  mixed  $rule 变量规则
+     * @return $this
+     */
+    public function when(string|array $name, $rule = null)
+    {
+        if (is_array($name)) {
+            $this->option['var_rule'] = $name;
+        } else {
+            $this->option['var_rule'][$name] = $rule;
+        }
 
         return $this;
     }
