@@ -1254,7 +1254,7 @@ class Request implements ArrayAccess
      * @param  string $default 默认值
      * @return string|array|null
      */
-    public function header(string $name = '', string | null $default = null)
+    public function header(string $name = '', ?string $default = null)
     {
         if ('' === $name) {
             return $this->header;

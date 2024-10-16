@@ -37,7 +37,7 @@ class Store
     /** @var array */
     protected $serialize = [];
 
-    public function __construct(protected string $name, protected SessionHandlerInterface $handler, array $serialize = null)
+    public function __construct(protected string $name, protected SessionHandlerInterface $handler, ?array $serialize = null)
     {
         if (!empty($serialize)) {
             $this->serialize = $serialize;
@@ -101,7 +101,7 @@ class Store
      * @param string $id session_id
      * @return void
      */
-    public function setId(string $id = null): void
+    public function setId(?string $id = null): void
     {
         $this->id = is_string($id) && strlen($id) === 32 && ctype_alnum($id) ? $id : md5(microtime(true) . session_create_id());
     }

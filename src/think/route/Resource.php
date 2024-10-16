@@ -52,7 +52,7 @@ class Resource extends RuleGroup
      * @param  string        $route      路由地址
      * @param  array         $rest       资源定义
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
+    public function __construct(Route $router, ?RuleGroup $parent = null, string $name = '', string $route = '', array $rest = [])
     {
         $name           = ltrim($name, '/');
         $this->router   = $router;

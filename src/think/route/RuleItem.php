@@ -43,7 +43,7 @@ class RuleItem extends Rule
      * @param  string|\Closure   $route 路由地址
      * @param  string            $method 请求类型
      */
-    public function __construct(Route $router, RuleGroup $parent, string $name = null, string $rule = '', $route = null, string $method = '*')
+    public function __construct(Route $router, RuleGroup $parent, ?string $name = null, string $rule = '', $route = null, string $method = '*')
     {
         $this->router = $router;
         $this->parent = $parent;
@@ -162,7 +162,7 @@ class RuleItem extends Rule
      * @param  bool         $completeMatch   路由是否完全匹配
      * @return Dispatch|false
      */
-    public function checkRule(Request $request, string $url, array $match = null, bool $completeMatch = false)
+    public function checkRule(Request $request, string $url, ?array $match = null, bool $completeMatch = false)
     {
         // 检查参数有效性
         if (!$this->checkOption($this->option, $request)) {

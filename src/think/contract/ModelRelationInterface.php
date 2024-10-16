@@ -62,7 +62,7 @@ interface ModelRelationInterface
      * @param  string  $name 统计字段别名
      * @return integer
      */
-    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', string &$name = null);
+    public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', ?string &$name = null);
 
     /**
      * 创建关联统计子查询

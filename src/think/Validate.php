@@ -371,15 +371,19 @@ class Validate
     }
 
     /**
-     * 设置验证场景
+     * 设置验证场景或直接指定需要验证的字段
      * @access public
-     * @param string $name 场景名
+     * @param string|array $name 场景名
      * @return $this
      */
-    public function scene(string $name)
+    public function scene(string | array $name)
     {
-        // 设置当前场景
-        $this->currentScene = $name;
+        if (is_array($name)) {
+            $this->only = $name;
+        } else {
+            // 设置当前场景
+            $this->currentScene = $name;
+        }
 
         return $this;
     }

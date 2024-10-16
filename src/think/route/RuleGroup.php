@@ -62,7 +62,7 @@ class RuleGroup extends Rule
      * @param  mixed     $rule   分组路由
      * @param  bool      $lazy   延迟解析
      */
-    public function __construct(Route $router, RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
+    public function __construct(Route $router, ?RuleGroup $parent = null, string $name = '', $rule = null, bool $lazy = false)
     {
         $this->router = $router;
         $this->parent = $parent;
