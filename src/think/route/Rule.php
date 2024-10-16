@@ -14,6 +14,7 @@ namespace think\route;
 
 use Closure;
 use think\Container;
+use think\facade\Validate;
 use think\middleware\AllowCrossDomain;
 use think\middleware\CheckRequestCache;
 use think\middleware\FormTokenCheck;
@@ -21,6 +22,7 @@ use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
+use think\validate\ValidateRule;
 
 /**
  * 路由规则基础类
@@ -830,7 +832,11 @@ abstract class Rule
         // 请求参数检查
         if (isset($option['filter'])) {
             foreach ($option['filter'] as $name => $value) {
-                if ($request->param($name, '') != $value) {
+                if ($value instanceof ValidateRule || $value instanceof Closure) {
+                    if (!Validate::checkRule($request->param($name, ''), $value)) {
+                        return false;
+                    }
+                } elseif ($request->param($name, '') != $value) {
                     return false;
                 }
             }
