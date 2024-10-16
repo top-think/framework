@@ -604,8 +604,11 @@ class Validate
     public function checkRule($value, $rules): bool
     {
         if ($rules instanceof Closure) {
-            return call_user_func_array($rules, [$value]);
-        } elseif ($rules instanceof ValidateRule) {
+            $result = call_user_func_array($rules, [$value]);
+            return is_bool($result) ? $result : false;
+        }
+
+        if ($rules instanceof ValidateRule) {
             $rules = $rules->getRule();
         } elseif (is_string($rules)) {
             $rules = explode('|', $rules);
@@ -624,14 +627,7 @@ class Validate
             }
 
             if (true !== $result) {
-                if ($this->failException) {
-                    if (false === $result) {
-                        $result = $this->getRuleMsg('', '', $type, $rule);
-                    }
-                    throw new ValidateException($result, $type);
-                }
-
-                return $result;
+                return false;
             }
         }
 
