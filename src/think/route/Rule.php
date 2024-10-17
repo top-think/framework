@@ -22,7 +22,6 @@ use think\Request;
 use think\Route;
 use think\route\dispatch\Callback as CallbackDispatch;
 use think\route\dispatch\Controller as ControllerDispatch;
-use think\validate\ValidateRule;
 
 /**
  * 路由规则基础类
@@ -163,7 +162,7 @@ abstract class Rule
     }
 
     /**
-     * 注册路由变量的匹配规则（支持验证类的所有内置规则）
+     * 注册路由变量和请求变量的匹配规则（支持验证类的所有内置规则）
      * 
      * @access public
      * @param  string $name 变量名
@@ -829,14 +828,19 @@ abstract class Rule
             return false;
         }
 
-        // 请求参数检查
+        // 请求参数过滤
         if (isset($option['filter'])) {
             foreach ($option['filter'] as $name => $value) {
-                if ($value instanceof ValidateRule || $value instanceof Closure) {
-                    if (!Validate::checkRule($request->param($name, ''), $value)) {
-                        return false;
-                    }
-                } elseif ($request->param($name, '') != $value) {
+                if ($request->param($name, '') != $value) {
+                    return false;
+                }
+            }
+        }
+
+        // 请求参数检查
+        if (isset($option['var_rule'])) {
+            foreach ($option['var_rule'] as $name => $rule) {
+                if ($request->has($name) && !Validate::checkRule($request->param($name), $rule)) {
                     return false;
                 }
             }

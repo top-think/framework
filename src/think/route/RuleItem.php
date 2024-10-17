@@ -288,11 +288,11 @@ class RuleItem extends Rule
 
             foreach ($match as $key => $val) {
                 if (is_string($key)) {
-                    $var[$key] = $val;
                     if (isset($option['var_rule'][$key]) && !Validate::checkRule($val, $option['var_rule'][$key])) {
                         // 检查变量
                         return false;
                     }
+                    $var[$key] = $val;
                 }
             }
         }
