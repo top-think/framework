@@ -71,6 +71,7 @@ class Validate
         'float'       => ':attribute must be float',
         'string'      => ':attribute must be string',
         'boolean'     => ':attribute must be bool',
+        'enum'        => ':attribute must be :rule enum',
         'email'       => ':attribute not a valid email address',
         'mobile'      => ':attribute not a valid mobile',
         'array'       => ':attribute must be a array',

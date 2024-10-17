@@ -102,6 +102,7 @@ return [
     ':attribute must be integer'                                => ':attribute必须是整数',
     ':attribute must be float'                                  => ':attribute必须是浮点数',
     ':attribute must be string'                                 => ':attribute必须是字符串',
+    ':attribute must be :rule enum'                             => ':attribute必须是有效的 :rule 枚举',
     ':attribute must start with :rule'                          => ':attribute必须以 :rule 开头',
     ':attribute must end with :rule'                            => ':attribute必须以 :rule 结尾',
     ':attribute must contain :rule'                             => ':attribute必须包含 :rule',
