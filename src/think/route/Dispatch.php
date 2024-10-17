@@ -88,8 +88,13 @@ abstract class Dispatch
         $option = $this->option;
 
         // 添加中间件
-        if (empty($option['without_middleware']) && !empty($option['middleware'])) {
-            $this->app->middleware->import($option['middleware'], 'route');
+        if (!empty($option['middleware'])) {
+            if (isset($option['without_middleware'])) {
+                $middleware = !empty($option['without_middleware']) ? array_diff($option['middleware'], $option['without_middleware']) : [];
+            } else {
+                $middleware = $option['middleware'];
+            }
+            $this->app->middleware->import($middleware, 'route');
         }
 
         if (!empty($option['append'])) {

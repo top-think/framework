@@ -163,13 +163,13 @@ abstract class Rule
 
     /**
      * 注册路由变量和请求变量的匹配规则（支持验证类的所有内置规则）
-     * 
+     *
      * @access public
      * @param  string $name 变量名
      * @param  mixed  $rule 变量规则
      * @return $this
      */
-    public function when(string|array $name, $rule = null)
+    public function when(string | array $name, $rule = null)
     {
         if (is_array($name)) {
             $this->option['var_rule'] = $name;
@@ -478,13 +478,14 @@ abstract class Rule
     }
 
     /**
-     * 不使用中间件
+     * 设置不使用的中间件 留空则为全部不用
      * @access public
+     * @param array $middleware 中间件
      * @return $this
      */
-    public function withoutMiddleware()
+    public function withoutMiddleware(array $middleware = [])
     {
-        $this->option['without_middleware'] = true;
+        $this->option['without_middleware'] = $middleware;
 
         return $this;
     }
