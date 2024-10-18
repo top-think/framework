@@ -213,20 +213,24 @@ class Handle
             ];
         } while ($nextException = $nextException->getPrevious());
 
-        return [
+        $data = [
             'code'    => $this->getCode($exception),
             'message' => $this->getMessage($exception),
             'traces'  => $traces,
             'datas'   => $this->getExtendData($exception),
-            'tables'  => [
+        ];
+        if($this->app->config->get('app.show_env_msg')){
+            $data['tables'] = [
                 'GET Data'            => $this->app->request->get(),
                 'POST Data'           => $this->app->request->post(),
                 'Files'               => $this->app->request->file(),
                 'Cookies'             => $this->app->request->cookie(),
                 'Session'             => $this->app->exists('session') ? $this->app->session->all() : [],
                 'Server/Request Data' => $this->app->request->server(),
-            ],
-        ];
+            ];
+        }
+
+        return $data;
     }
 
     protected function isJson(Request $request, Throwable $exception)
