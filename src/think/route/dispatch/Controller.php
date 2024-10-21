@@ -68,20 +68,6 @@ class Controller extends Dispatch
             ->setModule($module)
             ->setController($this->controller)
             ->setAction($this->actionName);
-
-        // 注册模块中间件
-        if ($module) {
-            $middleware = $this->app->config->get('middleware.' . $module, []);
-
-            if (is_array($middleware) && !empty($middleware)) {
-                $this->app->middleware->import($middleware, 'module');
-            }
-
-            $this->app->middleware->pipeline('module')
-                ->send($this->request)
-                ->then(function () {
-                });
-        }
     }
 
     public function exec()

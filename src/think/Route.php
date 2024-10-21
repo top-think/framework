@@ -78,12 +78,10 @@ class Route
         'controller_suffix'     => false,
         // 是否使用多模块
         'use_multi_module'      => false,
-        // 默认路由 [路由规则, 路由地址]
-        'default_route'         => [],
         // 默认模块名
         'default_module'        => 'Index',
         // 默认控制器名
-        'default_controller'    => 'Index',        
+        'default_controller'    => 'Index',
         // 默认操作名
         'default_action'        => 'index',
         // 操作方法后缀
@@ -750,7 +748,7 @@ class Route
             }
             $dispatch = $this->check($completeMatch);
         } else {
-            $dispatch = $this->url($this->path(), $completeMatch);
+            $dispatch = $this->url()->check($this->request, $this->path(), $completeMatch);
         }
 
         $dispatch->init($this->app);
@@ -786,7 +784,7 @@ class Route
         } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
-        return $this->url($url, $completeMatch);
+        return $this->url()->check($this->request, $url, $completeMatch);
     }
 
     /**
@@ -814,13 +812,12 @@ class Route
     }
 
     /**
-     * 默认URL解析
+     * 注册默认URL解析路由
      * @access public
-     * @param string $url URL地址
-     * @param  bool $completeMatch
-     * @return Dispatch
+     * @param  string|array $option 解析规则
+     * @return RuleItem
      */
-    public function url(string $url, bool $completeMatch): Dispatch
+    public function url(string | array $option = ''): RuleItem
     {
         if ($this->request->method() == 'OPTIONS') {
             // 自动响应options请求
@@ -829,14 +826,14 @@ class Route
             });
         }
 
-        if (!empty($this->config['default_route'])) {
-            [$rule, $route] = $this->config['default_route'];
+        if (is_array($option)) {
+            [$rule, $route] = $option;
         } elseif (!empty($this->config['use_multi_module'])) {
-            $rule  = '[:module]/[:controller]/[:action]';
-            $route = ':module.:controller/:action';
+            $rule  = ($option ? $option : '[:module]') . '/[:controller]/[:action]';
+            $route = ($option ? $option : ':module') . '/:controller/:action';
         } else {
-            $rule  = '[:controller]/[:action]';
-            $route = ':controller/:action';
+            $rule  = ($option ? $option . '/' : '') . '[:controller]/[:action]';
+            $route = ($option ? $option . '/' : '') . ':controller/:action';
         }
 
         $ruleItem = new RuleItem($this, $this->group, '_default_route_', $rule, $route, '*');
@@ -846,10 +843,10 @@ class Route
             'controller' => $this->config['default_controller'],
             'action'     => $this->config['default_action'],
         ])->pattern([
-            'module'     =>  '[A-Za-z0-9\.\_]+',
-            'controller' =>  '[A-Za-z0-9\.\_]+',
-            'action'     =>  '[A-Za-z0-9\_]+',
-        ])->check($this->request, $url, $completeMatch);
+            'module'     => '[A-Za-z0-9\.\_]+',
+            'controller' => '[A-Za-z0-9\.\_]+',
+            'action'     => '[A-Za-z0-9\_]+',
+        ]);
     }
 
     /**

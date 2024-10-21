@@ -54,6 +54,12 @@ class RuleGroup extends Rule
     protected $hasParsed;
 
     /**
+     * 默认URL 调度
+     * @var RuleItem
+     */
+    protected $urlDispatch;
+
+    /**
      * 架构函数
      * @access public
      * @param  Route     $router 路由对象
@@ -170,7 +176,10 @@ class RuleGroup extends Rule
             }
         }
 
-        if ($miss = $this->getMissRule($method)) {
+        if ($this->urlDispatch) {
+            // 分组默认URL路由规则
+            $result = $this->urlDispatch->check($request, $url, $completeMatch);
+        } elseif ($miss = $this->getMissRule($method)) {
             // 未匹配所有路由的路由规则处理
             $result = $miss->parseRule($request, '', $miss->getRoute(), $url, $miss->getOption());
         } else {
@@ -344,6 +353,19 @@ class RuleGroup extends Rule
         }
 
         return false;
+    }
+
+    /**
+     * 开启分组默认路由
+     * @access public
+     * @param  string|array $option
+     * @return $this
+     */
+    public function useUrlDispatch(string | array $option = '')
+    {
+        $this->urlDispatch = $this->router->url($option ? $option : $this->name);
+
+        return $this;
     }
 
     /**
