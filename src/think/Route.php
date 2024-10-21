@@ -746,7 +746,8 @@ class Route
             }
             $dispatch = $this->check($completeMatch);
         } else {
-            $dispatch = $this->url()->check($this->request, $this->path(), $completeMatch);
+            $dispatch = $this->url($this->group, $this->config['default_route'])
+                ->check($this->request, $this->path(), $completeMatch);
         }
 
         $dispatch->init($this->app);
@@ -782,7 +783,8 @@ class Route
         } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
-        return $this->url()->check($this->request, $url, $completeMatch);
+        return $this->url($this->group, $this->config['default_route'])
+            ->check($this->request, $url, $completeMatch);
     }
 
     /**
@@ -812,14 +814,15 @@ class Route
     /**
      * 自动多模块路由解析
      * @access public
+     * @param  array  $rule    默认路由规则
      * @param  string $default 默认模块
      * @return RuleItem
      */
-    public function autoMultiModule(string $default = '')
+    public function autoMultiModule(array $rule = [], string $default = '')
     {
         $this->group(':module')->pattern([
             'module' => '[A-Za-z0-9\.\_]+',
-        ])->useUrlDispatch($this->config['default_route']);
+        ])->useUrlDispatch($rule ?: $this->config['default_route']);
 
         if ($default) {
             $this->get('/', $default . '/' . $this->config['default_controller'] . '/' . $this->config['default_action']);
