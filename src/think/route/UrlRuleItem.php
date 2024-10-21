@@ -32,9 +32,9 @@ class UrlRuleItem extends RuleItem
      */
     public function check(Request $request, string $url, bool $completeMatch = false)
     {
-        if ($this->request->method() == 'OPTIONS') {
+        if ($request->method() == 'OPTIONS') {
             // 自动响应options请求
-            return new Callback($this->request, $this->group, function () {
+            return new Callback($request, $this->parent, function () {
                 return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
             });
         }
