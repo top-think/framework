@@ -24,6 +24,7 @@ use think\route\RuleGroup;
 use think\route\RuleItem;
 use think\route\RuleName;
 use think\route\Url as UrlBuild;
+use think\route\UrlRuleItem;
 
 /**
  * 路由管理类
@@ -76,10 +77,6 @@ class Route
         'empty_controller'      => 'Error',
         // 是否使用控制器后缀
         'controller_suffix'     => false,
-        // 是否使用多模块
-        'use_multi_module'      => false,
-        // 默认模块名
-        'default_module'        => 'Index',
         // 默认控制器名
         'default_controller'    => 'Index',
         // 默认操作名
@@ -812,6 +809,23 @@ class Route
     }
 
     /**
+     * 自动多模块路由解析
+     * @access public
+     * @param  string $default 默认模块
+     * @return RuleItem
+     */
+    public function autoMultiModule(string $default = '') 
+    {
+        $this->group(':module')->->pattern([
+            'module' => '[A-Za-z0-9\.\_]+',
+        ])->useUrlDispatch();
+
+        if ($default) {
+            $this->get('/', $default . '/' . $this->config['default_controller'] . '/' . $this->config['default_action']);            
+        }
+    }
+
+    /**
      * 注册默认URL解析路由
      * @access public
      * @param  string|array $option 解析规则
@@ -819,31 +833,19 @@ class Route
      */
     public function url(string | array $option = ''): RuleItem
     {
-        if ($this->request->method() == 'OPTIONS') {
-            // 自动响应options请求
-            return new Callback($this->request, $this->group, function () {
-                return Response::create('', 'html', 204)->header(['Allow' => 'GET, POST, PUT, DELETE']);
-            });
-        }
-
         if (is_array($option)) {
             [$rule, $route] = $option;
-        } elseif (!empty($this->config['use_multi_module'])) {
-            $rule  = ($option ? $option : '[:module]') . '/[:controller]/[:action]';
-            $route = ($option ? $option : ':module') . '/:controller/:action';
         } else {
             $rule  = ($option ? $option . '/' : '') . '[:controller]/[:action]';
             $route = ($option ? $option . '/' : '') . ':controller/:action';
         }
 
-        $ruleItem = new RuleItem($this, $this->group, '_default_route_', $rule, $route, '*');
+        $ruleItem = new UrlRuleItem($this, $this->group, '_default_route_', $rule, $route, '*');
 
         return $ruleItem->default([
-            'module'     => $this->config['default_module'],
             'controller' => $this->config['default_controller'],
             'action'     => $this->config['default_action'],
         ])->pattern([
-            'module'     => '[A-Za-z0-9\.\_]+',
             'controller' => '[A-Za-z0-9\.\_]+',
             'action'     => '[A-Za-z0-9\_]+',
         ]);

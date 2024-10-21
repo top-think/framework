@@ -879,7 +879,7 @@ abstract class Rule
         $url = trim($url, '/');
 
         if (str_contains($url, '/')) {
-            // [控制器/操作]
+            // [模块/.../控制器/操作]
             $path = explode('/', $url);
         } else {
             $path = [$url];

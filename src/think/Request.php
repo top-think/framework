@@ -156,10 +156,10 @@ class Request implements ArrayAccess
     protected $realIP;
 
     /**
-     * 当前模块名
+     * 当前控制器分层名
      * @var string
      */
-    protected $module;
+    protected $layer;
 
     /**
      * 当前控制器名
@@ -1853,14 +1853,14 @@ class Request implements ArrayAccess
     }
 
     /**
-     * 设置当前的模块名
+     * 设置当前的分层名
      * @access public
-     * @param  string $module 模块名
+     * @param  string $layer 控制器分层名
      * @return $this
      */
-    public function setModule(string $module)
+    public function setLayer(string $layer)
     {
-        $this->module = $module;
+        $this->layer = $layer;
         return $this;
     }
 
@@ -1894,9 +1894,9 @@ class Request implements ArrayAccess
      * @param  bool $convert 转换为小写
      * @return string
      */
-    public function module(bool $convert = false): string
+    public function layer(bool $convert = false): string
     {
-        $name = $this->module ?: '';
+        $name = $this->layer ?: '';
         return $convert ? strtolower($name) : $name;
     }
 

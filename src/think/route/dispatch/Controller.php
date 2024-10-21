@@ -49,23 +49,23 @@ class Controller extends Dispatch
 
         $action     = !empty($path) ? array_pop($path) : $this->rule->config('default_action');
         $controller = !empty($path) ? array_pop($path) : $this->rule->config('default_controller');
-        $module     = !empty($path) ? array_pop($path) : '';
+        $layer      = !empty($path) ? implode('/', $path) : '';
 
-        // 获取控制器名
+        // 获取控制器名和分层（目录）名
         if (str_contains($controller, '.')) {
             $pos        = strrpos($controller, '.');
-            $module     = ($module ? $module . '.' : '') . substr($controller, 0, $pos);
+            $layer      = ($layer ? $layer . '.' : '') . substr($controller, 0, $pos);
             $controller = Str::studly(substr($controller, $pos + 1));
         } else {
             $controller = Str::studly($controller);
         }
 
         $this->actionName = $action;
-        $this->controller = ($module ? $module . '.' : '') . $controller;
+        $this->controller = ($layer ? $layer . '.' : '') . $controller;
 
         // 设置当前请求的控制器、操作
         $this->request
-            ->setModule($module)
+            ->setLayer($layer)
             ->setController($this->controller)
             ->setAction($this->actionName);
     }
