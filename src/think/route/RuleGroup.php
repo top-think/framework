@@ -376,10 +376,8 @@ class RuleGroup extends Rule
             $miss = $this->miss[$method];
         } elseif (isset($this->miss['*'])) {
             $miss = $this->miss['*'];
-        } else {
-            return null;
         }
-        return $miss;
+        return $miss ?? null;
     }
 
     /**

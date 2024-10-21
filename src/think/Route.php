@@ -16,7 +16,6 @@ use Closure;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
 use think\route\dispatch\Callback;
-use think\route\dispatch\Url as UrlDispatch;
 use think\route\Domain;
 use think\route\Resource;
 use think\route\ResourceRegister;
@@ -77,8 +76,14 @@ class Route
         'empty_controller'      => 'Error',
         // 是否使用控制器后缀
         'controller_suffix'     => false,
+        // 是否使用多模块
+        'use_multi_module'      => false,
+        // 默认路由 [路由规则, 路由地址]
+        'default_route'         => [],
+        // 默认模块名
+        'default_module'        => 'Index',
         // 默认控制器名
-        'default_controller'    => 'Index',
+        'default_controller'    => 'Index',        
         // 默认操作名
         'default_action'        => 'index',
         // 操作方法后缀
@@ -736,15 +741,16 @@ class Route
     {
         $this->request = $request;
         $this->host    = $this->request->host(true);
+        $completeMatch = (bool) $this->config['route_complete_match'];
 
         if ($withRoute) {
             //加载路由
             if ($withRoute instanceof Closure) {
                 $withRoute();
             }
-            $dispatch = $this->check();
+            $dispatch = $this->check($completeMatch);
         } else {
-            $dispatch = $this->url($this->path());
+            $dispatch = $this->url($this->path(), $completeMatch);
         }
 
         $dispatch->init($this->app);
@@ -759,15 +765,14 @@ class Route
     /**
      * 检测URL路由
      * @access public
+     * @param  bool $completeMatch
      * @return Dispatch|false
      * @throws RouteNotFoundException
      */
-    public function check()
+    public function check(bool $completeMatch = false)
     {
         // 自动检测域名路由
         $url = str_replace($this->config['pathinfo_depr'], '|', $this->path());
-
-        $completeMatch = $this->config['route_complete_match'];
 
         $result = $this->checkDomain()->check($this->request, $url, $completeMatch);
 
@@ -781,8 +786,7 @@ class Route
         } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
-
-        return $this->url($url);
+        return $this->url($url, $completeMatch);
     }
 
     /**
@@ -813,9 +817,10 @@ class Route
      * 默认URL解析
      * @access public
      * @param string $url URL地址
+     * @param  bool $completeMatch
      * @return Dispatch
      */
-    public function url(string $url): Dispatch
+    public function url(string $url, bool $completeMatch): Dispatch
     {
         if ($this->request->method() == 'OPTIONS') {
             // 自动响应options请求
@@ -824,7 +829,27 @@ class Route
             });
         }
 
-        return new UrlDispatch($this->request, $this->group, $url);
+        if (!empty($this->config['default_route'])) {
+            [$rule, $route] = $this->config['default_route'];
+        } elseif (!empty($this->config['use_multi_module'])) {
+            $rule  = '[:module]/[:controller]/[:action]';
+            $route = ':module.:controller/:action';
+        } else {
+            $rule  = '[:controller]/[:action]';
+            $route = ':controller/:action';
+        }
+
+        $ruleItem = new RuleItem($this, $this->group, '_default_route_', $rule, $route, '*');
+
+        return $ruleItem->default([
+            'module'     => $this->config['default_module'],
+            'controller' => $this->config['default_controller'],
+            'action'     => $this->config['default_action'],
+        ])->pattern([
+            'module'     =>  '[A-Za-z0-9\.\_]+',
+            'controller' =>  '[A-Za-z0-9\.\_]+',
+            'action'     =>  '[A-Za-z0-9\_]+',
+        ])->check($this->request, $url, $completeMatch);
     }
 
     /**

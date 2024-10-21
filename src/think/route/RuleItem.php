@@ -53,7 +53,6 @@ class RuleItem extends Rule
         $this->method = $method;
 
         $this->setRule($rule);
-
         $this->router->setRule($this->rule, $this);
     }
 
@@ -89,11 +88,9 @@ class RuleItem extends Rule
             $suffix = $this->option['ext'];
         } elseif ($this->parent->getOption('ext')) {
             $suffix = $this->parent->getOption('ext');
-        } else {
-            $suffix = null;
         }
 
-        return $suffix;
+        return $suffix ?? null;
     }
 
     /**
@@ -293,6 +290,15 @@ class RuleItem extends Rule
                         return false;
                     }
                     $var[$key] = $val;
+                }
+            }
+        }
+
+        if (!empty($option['default'])) {
+            // 可选路由变量设置默认值
+            foreach ($option['default'] as $name => $default) {
+                if (!isset($var[$name])) {
+                    $var[$name] = $default;
                 }
             }
         }

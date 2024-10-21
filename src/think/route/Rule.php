@@ -14,7 +14,6 @@ namespace think\route;
 
 use Closure;
 use think\Container;
-use think\facade\Validate;
 use think\middleware\AllowCrossDomain;
 use think\middleware\CheckRequestCache;
 use think\middleware\FormTokenCheck;
@@ -406,6 +405,19 @@ abstract class Rule
     }
 
     /**
+     * 设置路由变量默认值
+     * @access public
+     * @param  array $default 可选路由变量默认值
+     * @return $this
+     */
+    public function default(array $default)
+    {
+        $this->option['default'] = $default;
+
+        return $this;
+    }
+
+    /**
      * 绑定模型
      * @access public
      * @param  array|string|Closure $var  路由变量名 多个使用 & 分割
@@ -732,7 +744,7 @@ abstract class Rule
             $route  = str_replace('::', '@', $route);
             $result = $this->dispatchMethod($request, $route, $option);
         } else {
-            // 路由到控制器/操作
+            // 路由到模块/控制器/操作
             $result = $this->dispatchController($request, $route, $option);
         }
 
@@ -771,11 +783,8 @@ abstract class Rule
     {
         $path = $this->parseUrlPath($route);
 
-        $action     = array_pop($path);
-        $controller = !empty($path) ? array_pop($path) : null;
-
         // 路由到模块/控制器/操作
-        return new ControllerDispatch($request, $this, [$controller, $action], $this->vars, $option);
+        return new ControllerDispatch($request, $this, $path, $this->vars, $option);
     }
 
     /**
@@ -833,15 +842,6 @@ abstract class Rule
         if (isset($option['filter'])) {
             foreach ($option['filter'] as $name => $value) {
                 if ($request->param($name, '') != $value) {
-                    return false;
-                }
-            }
-        }
-
-        // 请求参数检查
-        if (isset($option['var_rule'])) {
-            foreach ($option['var_rule'] as $name => $rule) {
-                if ($request->has($name) && !Validate::checkRule($request->param($name), $rule)) {
                     return false;
                 }
             }

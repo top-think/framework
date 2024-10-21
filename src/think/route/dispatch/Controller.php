@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare(strict_types=1);
+declare (strict_types = 1);
 
 namespace think\route\dispatch;
 
@@ -42,27 +42,30 @@ class Controller extends Dispatch
     {
         parent::init($app);
 
-        $result = $this->dispatch;
-
-        if (is_string($result)) {
-            $result = explode('/', $result);
+        $path = $this->dispatch;
+        if (is_string($path)) {
+            $path = explode('/', $path);
         }
+
+        $action     = !empty($path) ? array_pop($path) : $this->rule->config('default_action');
+        $controller = !empty($path) ? array_pop($path) : $this->rule->config('default_controller');
+        $module     = !empty($path) ? array_pop($path) : '';
 
         // 获取控制器名
-        $controller = strip_tags($result[0] ?: $this->rule->config('default_controller'));
-
         if (str_contains($controller, '.')) {
-            $pos              = strrpos($controller, '.');
-            $this->controller = substr($controller, 0, $pos) . '.' . Str::studly(substr($controller, $pos + 1));
+            $pos        = strrpos($controller, '.');
+            $module     = ($module ? $module . '.' : '') . substr($controller, 0, $pos);
+            $controller = Str::studly(substr($controller, $pos + 1));
         } else {
-            $this->controller = Str::studly($controller);
+            $controller = Str::studly($controller);
         }
 
-        // 获取操作名
-        $this->actionName = strip_tags($result[1] ?: $this->rule->config('default_action'));
+        $this->actionName = $action;
+        $this->controller = ($module ? $module . '.' : '') . $controller;
 
         // 设置当前请求的控制器、操作
         $this->request
+            ->setModule($module)
             ->setController($this->controller)
             ->setAction($this->actionName);
     }
