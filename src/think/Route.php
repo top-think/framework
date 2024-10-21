@@ -76,6 +76,8 @@ class Route
         'empty_controller'      => 'Error',
         // 是否使用控制器后缀
         'controller_suffix'     => false,
+        // 默认路由 [路由规则, 路由地址]
+        'default_route'         =>  [],
         // 默认控制器名
         'default_controller'    => 'Index',
         // 默认操作名
@@ -843,7 +845,7 @@ class Route
             $route = $layer . ':controller/:action';
         }
 
-        $ruleItem = new UrlRuleItem($this, new RuleGroup($this), '_default_route_', $rule, $route, '*');
+        $ruleItem = new UrlRuleItem($this, new RuleGroup($this), '_default_route_', $rule, $route);
 
         return $ruleItem->default([
             'controller' => $this->config['default_controller'],
