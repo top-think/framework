@@ -71,7 +71,6 @@ class Controller extends Dispatch
 
         // 注册模块中间件
         if ($module) {
-            $name = 
             $middleware = $this->app->config->get('middleware.' . $module, []);
 
             if (is_array($middleware) && !empty($middleware)) {
