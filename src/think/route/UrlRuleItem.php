@@ -14,7 +14,6 @@ namespace think\route;
 
 use think\Request;
 use think\Response;
-use think\Route;
 use think\route\dispatch\Callback;
 
 /**

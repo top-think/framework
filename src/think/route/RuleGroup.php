@@ -358,12 +358,12 @@ class RuleGroup extends Rule
     /**
      * 开启分组默认路由
      * @access public
-     * @param  string|array $option
+     * @param  array $option
      * @return $this
      */
-    public function useUrlDispatch(string | array $option = '')
+    public function useUrlDispatch(array $option = [])
     {
-        $this->urlDispatch = $this->router->url($option ? $option : $this->name);
+        $this->urlDispatch = $this->router->url($this, $option);
 
         return $this;
     }

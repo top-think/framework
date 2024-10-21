@@ -15,7 +15,6 @@ namespace think;
 use Closure;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
-use think\route\dispatch\Callback;
 use think\route\Domain;
 use think\route\Resource;
 use think\route\ResourceRegister;
@@ -814,33 +813,37 @@ class Route
      * @param  string $default 默认模块
      * @return RuleItem
      */
-    public function autoMultiModule(string $default = '') 
+    public function autoMultiModule(string $default = '')
     {
         $this->group(':module')->pattern([
             'module' => '[A-Za-z0-9\.\_]+',
-        ])->useUrlDispatch();
+        ])->useUrlDispatch($this->config['default_route']);
 
         if ($default) {
-            $this->get('/', $default . '/' . $this->config['default_controller'] . '/' . $this->config['default_action']);            
+            $this->get('/', $default . '/' . $this->config['default_controller'] . '/' . $this->config['default_action']);
         }
     }
 
     /**
      * 注册默认URL解析路由
      * @access public
-     * @param  string|array $option 解析规则
+     * @param  RuleGroup $group 解析规则
+     * @param  array     $option 解析规则
      * @return RuleItem
      */
-    public function url(string | array $option = ''): RuleItem
+    public function url(?RuleGroup $group = null, array $option = []): RuleItem
     {
-        if (is_array($option)) {
+        if (!empty($option)) {
             [$rule, $route] = $option;
         } else {
-            $rule  = ($option ? $option . '/' : '') . '[:controller]/[:action]';
-            $route = ($option ? $option . '/' : '') . ':controller/:action';
+            $group = $group ?: $this->group;
+            $name  = $group->getfullName();
+            $layer = $name ? $name . '/' : '';
+            $rule  = $layer . '[:controller]/[:action]';
+            $route = $layer . ':controller/:action';
         }
 
-        $ruleItem = new UrlRuleItem($this, $this->group, '_default_route_', $rule, $route, '*');
+        $ruleItem = new UrlRuleItem($this, new RuleGroup($this), '_default_route_', $rule, $route, '*');
 
         return $ruleItem->default([
             'controller' => $this->config['default_controller'],
