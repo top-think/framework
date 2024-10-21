@@ -816,7 +816,7 @@ class Route
      */
     public function autoMultiModule(string $default = '') 
     {
-        $this->group(':module')->->pattern([
+        $this->group(':module')->pattern([
             'module' => '[A-Za-z0-9\.\_]+',
         ])->useUrlDispatch();
 
