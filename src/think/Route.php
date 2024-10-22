@@ -839,9 +839,9 @@ class Route
      * @param  array     $option 解析规则
      * @return RuleItem
      */
-    protected function autoUrl(array $option = []): RuleItem
+    public function autoUrl(array $option = []): RuleItem
     {
-        return $this->group->autoUrl($option);
+        return $this->group->urlDispatch($option);
     }
 
     /**

@@ -356,12 +356,24 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 注册分组默认URL解析路由
+     * 注册分组自动URL解析
+     * @access public
+     * @param  array     $option 解析规则
+     * @return $this
+     */
+    public function autoUrl(array $option = [])
+    {
+        $this->urlDispatch($option);
+        return $this;
+    }
+
+    /**
+     * 注册URL解析路由
      * @access public
      * @param  array     $option 解析规则
      * @return RuleItem
      */
-    public function autoUrl(array $option = []): RuleItem
+    public function urlDispatch(array $option = []): RuleItem
     {
         if (!empty($option)) {
             [$rule, $route] = $option;
