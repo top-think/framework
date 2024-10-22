@@ -77,7 +77,9 @@ class Route
         // 是否使用控制器后缀
         'controller_suffix'     => false,
         // 默认路由 [路由规则, 路由地址]
-        'default_route'         =>  [],
+        'default_route'         => [],
+        // 默认模块名
+        'default_module'        => 'index',
         // 默认控制器名
         'default_controller'    => 'Index',
         // 默认操作名
@@ -812,25 +814,28 @@ class Route
     }
 
     /**
-     * 自动多模块路由解析
+     * 自动多模块URL路由 如使用多模块在路由定义文件最后定义
      * @access public
-     * @param  array  $rule    默认路由规则
-     * @param  string $default 默认模块
+     * @param  string $rule    路由规则
+     * @param  mixed  $route   路由地址
      * @return RuleItem
      */
-    public function autoMultiModule(array $rule = [], string $default = '')
+    public function auto(string $rule = '[:module]/[:controller]/[:action]', $route = ':module/:controller/:action'): RuleItem
     {
-        $this->group(':module')->pattern([
-            'module' => '[A-Za-z0-9\.\_]+',
-        ])->useUrlDispatch($rule ?: $this->config['default_route']);
-
-        if ($default) {
-            $this->get('/', $default . '/' . $this->config['default_controller'] . '/' . $this->config['default_action']);
-        }
+        return $this->rule($rule, $route)
+            ->pattern([
+                'module'     => '[A-Za-z0-9\.\_]+',
+                'controller' => '[A-Za-z0-9\.\_]+',
+                'action'     => '[A-Za-z0-9\_]+',
+            ])->default([
+                'module'     => $this->config['default_module'],
+                'controller' => $this->config['default_controller'],
+                'action'     => $this->config['default_action'],
+            ]);
     }
 
     /**
-     * 注册默认URL解析路由
+     * 注册分组默认URL解析路由
      * @access public
      * @param  RuleGroup $group 解析规则
      * @param  array     $option 解析规则
