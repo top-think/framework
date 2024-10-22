@@ -356,16 +356,34 @@ class RuleGroup extends Rule
     }
 
     /**
-     * 开启分组默认路由
+     * 注册分组默认URL解析路由
      * @access public
-     * @param  array $option
-     * @return $this
+     * @param  array     $option 解析规则
+     * @return RuleItem
      */
-    public function useUrlDispatch(array $option = [])
+    public function autoUrl(array $option = []): RuleItem
     {
-        $this->urlDispatch = $this->router->url($this, $option)->option($this->getOption());
+        if (!empty($option)) {
+            [$rule, $route] = $option;
+        } else {
+            $name  = $this->getfullName();
+            $layer = $name ? $name . '/' : '';
+            $rule  = $layer . '[:controller]/[:action]';
+            $route = $layer . ':controller/:action';
+        }
 
-        return $this;
+        $ruleItem = new UrlRuleItem($this->router, new RuleGroup($this->router), '_default_route_', $rule, $route);
+
+        $ruleItem = $ruleItem->default([
+            'controller' => $this->config('default_controller'),
+            'action'     => $this->config('default_action'),
+        ])->pattern([
+            'controller' => '[A-Za-z0-9\.\_]+',
+            'action'     => '[A-Za-z0-9\_]+',
+        ])->option($this->getOption());
+
+        $this->urlDispatch = $ruleItem;
+        return $ruleItem;
     }
 
     /**

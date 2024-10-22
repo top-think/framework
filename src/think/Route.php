@@ -23,7 +23,6 @@ use think\route\RuleGroup;
 use think\route\RuleItem;
 use think\route\RuleName;
 use think\route\Url as UrlBuild;
-use think\route\UrlRuleItem;
 
 /**
  * 路由管理类
@@ -748,7 +747,7 @@ class Route
             }
             $dispatch = $this->check($completeMatch);
         } else {
-            $dispatch = $this->url($this->group, $this->config['default_route'])
+            $dispatch = $this->autoUrl($this->config['default_route'])
                 ->check($this->request, $this->path(), $completeMatch);
         }
 
@@ -785,7 +784,7 @@ class Route
         } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
-        return $this->url($this->group, $this->config['default_route'])
+        return $this->autoUrl($this->config['default_route'])
             ->check($this->request, $url, $completeMatch);
     }
 
@@ -837,31 +836,12 @@ class Route
     /**
      * 注册分组默认URL解析路由
      * @access public
-     * @param  RuleGroup $group 解析规则
      * @param  array     $option 解析规则
      * @return RuleItem
      */
-    public function url(?RuleGroup $group = null, array $option = []): RuleItem
+    protected function autoUrl(array $option = []): RuleItem
     {
-        if (!empty($option)) {
-            [$rule, $route] = $option;
-        } else {
-            $group = $group ?: $this->group;
-            $name  = $group->getfullName();
-            $layer = $name ? $name . '/' : '';
-            $rule  = $layer . '[:controller]/[:action]';
-            $route = $layer . ':controller/:action';
-        }
-
-        $ruleItem = new UrlRuleItem($this, new RuleGroup($this), '_default_route_', $rule, $route);
-
-        return $ruleItem->default([
-            'controller' => $this->config['default_controller'],
-            'action'     => $this->config['default_action'],
-        ])->pattern([
-            'controller' => '[A-Za-z0-9\.\_]+',
-            'action'     => '[A-Za-z0-9\_]+',
-        ]);
+        return $this->group->autoUrl($option);
     }
 
     /**
