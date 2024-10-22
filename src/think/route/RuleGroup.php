@@ -177,8 +177,10 @@ class RuleGroup extends Rule
         }
 
         if ($this->urlDispatch) {
-            // 分组默认URL路由规则
-            $result = $this->urlDispatch->check($request, $url, $completeMatch);
+            // 分组默认URL调度
+            $result = $this->urlDispatch
+                ->option($this->getOption())
+                ->check($request, $url, $completeMatch);
         } elseif ($miss = $this->getMissRule($method)) {
             // 未匹配所有路由的路由规则处理
             $result = $miss->parseRule($request, '', $miss->getRoute(), $url, $miss->getOption());
@@ -363,7 +365,8 @@ class RuleGroup extends Rule
      */
     public function autoUrl(array $option = [])
     {
-        $this->urlDispatch($option);
+        $ruleItem = $this->urlDispatch($option);
+        $this->urlDispatch = $ruleItem;
         return $this;
     }
 
@@ -386,16 +389,13 @@ class RuleGroup extends Rule
 
         $ruleItem = new UrlRuleItem($this->router, new RuleGroup($this->router), '_default_route_', $rule, $route);
 
-        $ruleItem = $ruleItem->default([
+        return $ruleItem->default([
             'controller' => $this->config('default_controller'),
             'action'     => $this->config('default_action'),
         ])->pattern([
             'controller' => '[A-Za-z0-9\.\_]+',
             'action'     => '[A-Za-z0-9\_]+',
-        ])->option($this->getOption());
-
-        $this->urlDispatch = $ruleItem;
-        return $ruleItem;
+        ]);
     }
 
     /**

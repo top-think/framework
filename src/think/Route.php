@@ -747,7 +747,7 @@ class Route
             }
             $dispatch = $this->check($completeMatch);
         } else {
-            $dispatch = $this->autoUrl($this->config['default_route'])
+            $dispatch = $this->urlDispatch($this->config['default_route'])
                 ->check($this->request, $this->path(), $completeMatch);
         }
 
@@ -784,7 +784,7 @@ class Route
         } elseif ($this->config['url_route_must']) {
             throw new RouteNotFoundException();
         }
-        return $this->autoUrl($this->config['default_route'])
+        return $this->urlDispatch($this->config['default_route'])
             ->check($this->request, $url, $completeMatch);
     }
 
@@ -839,7 +839,7 @@ class Route
      * @param  array     $option 解析规则
      * @return RuleItem
      */
-    public function autoUrl(array $option = []): RuleItem
+    protected function urlDispatch(array $option = []): RuleItem
     {
         return $this->group->urlDispatch($option);
     }
