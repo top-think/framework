@@ -363,7 +363,7 @@ class RuleGroup extends Rule
      */
     public function useUrlDispatch(array $option = [])
     {
-        $this->urlDispatch = $this->router->url($this, $option);
+        $this->urlDispatch = $this->router->url($this, $option)->option($this->getOption());
 
         return $this;
     }
