@@ -162,20 +162,20 @@ class RuleGroup extends Rule
         }
 
         if (!empty($option['merge_rule_regex'])) {
-            // 合并路由正则规则进行路由匹配检查
+            // 路由合并检查
             $result = $this->checkMergeRuleRegex($request, $rules, $url, $completeMatch);
 
             if (false !== $result) {
                 return $result;
             }
-        }
+        } else {
+            // 检查分组路由
+            foreach ($rules as $item) {
+                $result = $item->check($request, $url, $completeMatch);
 
-        // 检查分组路由
-        foreach ($rules as $item) {
-            $result = $item->check($request, $url, $completeMatch);
-
-            if (false !== $result) {
-                return $result;
+                if (false !== $result) {
+                    return $result;
+                }
             }
         }
 
@@ -250,7 +250,7 @@ class RuleGroup extends Rule
         if ($rule instanceof Closure) {
             Container::getInstance()->invokeFunction($rule);
         } elseif (is_string($rule) && $rule) {
-            $this->router->bind($rule, $this->domain);
+            $this->bind($rule);
         }
 
         $this->router->setGroup($origin);
@@ -463,9 +463,9 @@ class RuleGroup extends Rule
      */
     public function checkBind(Request $request, string $url, array $option = []): Dispatch
     {
-        $bind = $this->parseBindAppendParam($this->bind);
+        [$bind, $param] = $this->parseBindAppendParam($this->bind);
 
-        [$call, $bind] = match (substr($bind, 0, 1)) {
+        [$call, $bind]  = match (substr($bind, 0, 1)) {
             '\\'    => ['bindToClass', substr($bind, 1)],
             '@'     => ['bindToController', substr($bind, 1)],
             '/'     => ['bindToLayer', substr($bind, 1)],
@@ -473,20 +473,20 @@ class RuleGroup extends Rule
             default => ['bindToClass', $bind],
         };
 
-        $groupName = $this->getFullName();
-        $checkUrl  = trim(substr(str_replace('|', '/', $url), strlen($groupName)), '/');
+        $name = $this->getFullName();
+        $url  = trim(substr(str_replace('|', '/', $url), strlen($name)), '/');
 
-        return $this->$call($request, $checkUrl, $bind, $option);
+        return $this->$call($request, $url, $bind, $param, $option);
     }
 
     protected function parseBindAppendParam(string $bind)
     {
+        $vars = [];
         if (str_contains($bind, '?')) {
             [$bind, $query] = explode('?', $bind);
             parse_str($query, $vars);
-            $this->append($vars);
         }
-        return $bind;
+        return [$bind, $vars];
     }
 
     /**
@@ -495,14 +495,14 @@ class RuleGroup extends Rule
      * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $class 类名（带命名空间）
+     * @param  array     $param  路由变量
      * @param  array     $option 分组参数
      * @return CallbackDispatch
      */
-    protected function bindToClass(Request $request, string $url, string $class, array $option = []): CallbackDispatch
+    protected function bindToClass(Request $request, string $url, string $class, array $param = [], array $option = []): CallbackDispatch
     {
         $array  = explode('/', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
-        $param  = [];
+        $action = $array[0] ?? $this->config('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);
@@ -517,15 +517,15 @@ class RuleGroup extends Rule
      * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $namespace 命名空间
+     * @param  array     $param  路由变量
      * @param  array     $option 分组参数
      * @return CallbackDispatch
      */
-    protected function bindToNamespace(Request $request, string $url, string $namespace, array $option = []): CallbackDispatch
+    protected function bindToNamespace(Request $request, string $url, string $namespace, array $param = [], array $option = []): CallbackDispatch
     {
         $array  = explode('/', $url, 3);
-        $class  = !empty($array[0]) ? $array[0] : $this->config('default_controller');
-        $method = !empty($array[1]) ? $array[1] : $this->config('default_action');
-        $param  = [];
+        $class  = $array[0] ?? $this->config('default_controller');
+        $method = $array[1] ?? $this->config('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2], $param);
@@ -540,14 +540,14 @@ class RuleGroup extends Rule
      * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $controller 控制器名
+     * @param  array     $param  路由变量
      * @param  array     $option 分组参数
      * @return ControllerDispatch
      */
-    protected function bindToController(Request $request, string $url, string $controller, array $option = []): ControllerDispatch
+    protected function bindToController(Request $request, string $url, string $controller, array $param = [], array $option = []): ControllerDispatch
     {
         $array  = explode('/', $url, 2);
-        $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
-        $param  = [];
+        $action = $array[0] ?? $this->config('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);
@@ -562,15 +562,15 @@ class RuleGroup extends Rule
      * @param  Request   $request
      * @param  string    $url URL地址
      * @param  string    $controller 控制器名
+     * @param  array     $param  路由变量
      * @param  array     $option 分组参数
      * @return ControllerDispatch
      */
-    protected function bindToLayer(Request $request, string $url, string $layer, array $option = []): ControllerDispatch
+    protected function bindToLayer(Request $request, string $url, string $layer, array $param = [], array $option = []): ControllerDispatch
     {
         $array      = explode('/', $url, 3);
-        $controller = !empty($array[0]) ? $array[0] : $this->config('default_controller');
-        $action     = !empty($array[1]) ? $array[1] : $this->config('default_action');
-        $param      = [];
+        $controller = $array[0] ?? $this->config('default_controller');
+        $action     = $array[1] ?? $this->config('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2], $param);
