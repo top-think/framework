@@ -81,7 +81,7 @@ class Request implements ArrayAccess
      * 前端代理服务器真实IP头
      * @var array
      */
-    protected $proxyServerIpHeader = ['HTTP_X_REAL_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_CLIENT_IP', 'HTTP_X_CLIENT_IP', 'HTTP_X_CLUSTER_CLIENT_IP'];
+    protected $proxyServerIpHeader = [];
 
     /**
      * 请求类型
@@ -1602,6 +1602,32 @@ class Request implements ArrayAccess
         return $this->param($this->varPjax) ? true : $result;
     }
 
+    /**
+     * 设置代理服务器信息
+     * @param array $proxyServerIpHeader 代理服务器发来的真实IP的协议头。默认['X-REAL-IP','X-FORWARDED-FOR','CLIENT-IP','X-CLIENT-IP','X-CLUSTER-CLIENT-IP']
+     * @param array $proxyServerIp       代理服务器IP数组，兼容CIDR格式。用于校验是否是真实的代理服务器，传入0.0.0.0/0表示不校验代理服务器IP
+     * @return $this
+     * @throws Exception 传入空数组时将抛出异常，因为你啥都不传你还用调用这个方法干嘛
+     */
+    public function setProxyServer(array $proxyServerIpHeader = [
+        'X-REAL-IP',
+        'X-FORWARDED-FOR',
+        'CLIENT-IP',
+        'X-CLIENT-IP',
+        'X-CLUSTER-CLIENT-IP'
+    ], array $proxyServerIp = ['0.0.0.0/0'])
+    {
+        if ($proxyServerIp == [] || $proxyServerIpHeader == []) {
+            throw new Exception('不可传入空数组');
+        }
+        foreach ($proxyServerIp as &$value) {
+            //将$value加上HTTP_前缀，并将-替换为_
+            $value = 'HTTP_' . str_replace('-', '_', $value);
+        }
+        $this->proxyServerIp       = $proxyServerIp;
+        $this->proxyServerIpHeader = $proxyServerIpHeader;
+        return $this;
+    }
     /**
      * 获取客户端IP地址
      * @access public
