@@ -18,6 +18,8 @@ use think\Exception;
 use think\helper\Str;
 use think\Request;
 use think\Route;
+use think\route\dispatch\Callback as CallbackDispatch;
+use think\route\dispatch\Controller as ControllerDispatch;
 
 /**
  * 路由分组类
