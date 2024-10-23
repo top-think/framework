@@ -682,7 +682,8 @@ abstract class Rule
         foreach ($matches as $key => $value) {
             $search[]  = '<' . $key . '>';
             $replace[] = $value;
-
+            $search[]  = '{' . $key . '}';
+            $replace[] = $value;
             $search[]  = ':' . $key;
             $replace[] = $value;
 

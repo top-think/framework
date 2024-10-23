@@ -114,8 +114,8 @@ class RuleItem extends Rule
             $rule = $prefix . ($rule ? '/' . ltrim($rule, '/') : '');
         }
 
-        if (str_contains($rule, ':')) {
-            $this->rule = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/'], ['<\1?>', '<\1>'], $rule);
+        if (str_contains($rule, ':') || str_contains($rule, '{')) {
+            $this->rule = preg_replace(['/\[\:(\w+)\]/', '/\:(\w+)/', '/\{(\w+)\}/', '/\{(\w+)\?\}/'], ['<\1?>', '<\1>', '<\1>', '<\1?>'], $rule);
         } else {
             $this->rule = $rule;
         }
@@ -256,6 +256,7 @@ class RuleItem extends Rule
         }
 
         if (!str_contains($rule, '<')) {
+            // 静态路由
             if ($case && (0 === strcmp($rule, $url) || (!$completeMatch && 0 === strncmp($rule . $depr, $url . $depr, strlen($rule . $depr))))) {
                 return $var;
             } elseif (!$case && (0 === strcasecmp($rule, $url) || (!$completeMatch && 0 === strncasecmp($rule . $depr, $url . $depr, strlen($rule . $depr))))) {
