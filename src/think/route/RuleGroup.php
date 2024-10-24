@@ -502,7 +502,7 @@ class RuleGroup extends Rule
     protected function bindToClass(Request $request, string $url, string $class, array $param = [], array $option = []): CallbackDispatch
     {
         $array  = explode('/', $url, 2);
-        $action = $array[0] ?? $this->config('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);
@@ -524,8 +524,8 @@ class RuleGroup extends Rule
     protected function bindToNamespace(Request $request, string $url, string $namespace, array $param = [], array $option = []): CallbackDispatch
     {
         $array  = explode('/', $url, 3);
-        $class  = $array[0] ?? $this->config('default_controller');
-        $method = $array[1] ?? $this->config('default_action');
+        $class  = !empty($array[0]) ? $array[0] : $this->config('default_controller');
+        $method = !empty($array[1]) ? $array[1] : $this->config('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2], $param);
@@ -547,13 +547,13 @@ class RuleGroup extends Rule
     protected function bindToController(Request $request, string $url, string $controller, array $param = [], array $option = []): ControllerDispatch
     {
         $array  = explode('/', $url, 2);
-        $action = $array[0] ?? $this->config('default_action');
+        $action = !empty($array[0]) ? $array[0] : $this->config('default_action');
 
         if (!empty($array[1])) {
             $this->parseUrlParams($array[1], $param);
         }
 
-        return new ControllerDispatch($request, $this, $controller . '/' . $action, $param, $option);
+        return new ControllerDispatch($request, $this, [$controller, $action], $param, $option);
     }
 
     /**
@@ -569,14 +569,14 @@ class RuleGroup extends Rule
     protected function bindToLayer(Request $request, string $url, string $layer, array $param = [], array $option = []): ControllerDispatch
     {
         $array      = explode('/', $url, 3);
-        $controller = $array[0] ?? $this->config('default_controller');
-        $action     = $array[1] ?? $this->config('default_action');
+        $controller = !empty($array[0]) ? $array[0] : $this->config('default_controller');
+        $action     = !empty($array[1]) ? $array[1] : $this->config('default_action');
 
         if (!empty($array[2])) {
             $this->parseUrlParams($array[2], $param);
         }
 
-        return new ControllerDispatch($request, $this, $layer . '/' . $controller . '/' . $action, $param, $option);
+        return new ControllerDispatch($request, $this, [$layer, $controller, $action], $param, $option);
     }
 
     /**
