@@ -393,15 +393,27 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 分组自动URL调度
+     * @access public
+     * @param  string $bind 绑定资源
+     * @return $this
+     */
+    public function auto(string $bind = '')
+    {
+        $this->bind = $bind ?: '/' . $this->getFullName();
+        return $this;
+    }
+
+    /**
      * 分组绑定 默认绑定到当前分组名所在的控制器分级
      * 绑定规则 class @controller :namespace /layer
      * @access public
      * @param  string $bind 绑定资源
      * @return $this
      */
-    public function bind(string $bind = '')
+    public function bind(string $bind)
     {
-        $this->bind = $bind ?: '/' . $this->getFullName();
+        $this->bind = $bind;
         return $this;
     }
 

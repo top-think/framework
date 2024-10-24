@@ -775,7 +775,7 @@ class Route
      */
     protected function checkUrlDispatch(string $url): Dispatch
     {
-        return $this->group->bind()->checkBind($this->request, $url);
+        return $this->group->auto()->checkBind($this->request, $url);
     }
 
     /**
