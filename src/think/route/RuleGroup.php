@@ -395,12 +395,14 @@ class RuleGroup extends Rule
     /**
      * 分组自动URL调度
      * @access public
-     * @param  string $bind 绑定资源
+     * @param  string       $bind 绑定资源
+     * @param  string|array $middleware 中间件
      * @return $this
      */
-    public function auto(string $bind = '')
+    public function auto(string $bind = '', string|array $middleware = '')
     {
         $this->bind = $bind ?: '/' . $this->getFullName();
+        $this->middleware($middleware ?: $this->name);
         return $this;
     }
 

@@ -418,6 +418,19 @@ abstract class Rule
     }
 
     /**
+     * 设置路由自动注册中间件
+     * @access public
+     * @param  bool $auto 
+     * @return $this
+     */
+    public function autoMiddleware(bool $auto = true)
+    {
+        $this->option['auto_middleware'] = $auto;
+
+        return $this;
+    }
+
+    /**
      * 绑定模型
      * @access public
      * @param  array|string|Closure $var  路由变量名 多个使用 & 分割

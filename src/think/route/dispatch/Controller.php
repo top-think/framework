@@ -51,6 +51,11 @@ class Controller extends Dispatch
         $controller = !empty($path) ? array_pop($path) : $this->rule->config('default_controller');
         $layer      = !empty($path) ? implode('/', $path) : '';
 
+        if ($layer && !empty($this->option['auto_middleware'])) {
+            // 自动为顶层layer注册中间件
+            $this->app->middleware->add($layer, 'route');
+        }
+
         // 获取控制器名和分层（目录）名
         if (str_contains($controller, '.')) {
             $pos        = strrpos($controller, '.');

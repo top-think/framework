@@ -767,9 +767,10 @@ class Route
      * @access public
      * @param  string $rule    路由规则
      * @param  mixed  $route   路由地址
+     * @param  bool   $middleware  自动注册中间件
      * @return RuleItem
      */
-    public function auto(string $rule = '[:module]/[:controller]/[:action]', $route = ':module/:controller/:action'): RuleItem
+    public function auto(string $rule = '[:module]/[:controller]/[:action]', $route = ':module/:controller/:action', bool $middleware = false): RuleItem
     {
         return $this->rule($rule, $route)
             ->pattern([
@@ -780,7 +781,7 @@ class Route
                 'module'     => $this->config['default_module'],
                 'controller' => $this->config['default_controller'],
                 'action'     => $this->config['default_action'],
-            ]);
+            ])->autoMiddleware($middleware);
     }
 
     /**
