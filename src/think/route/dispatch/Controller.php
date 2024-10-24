@@ -60,12 +60,12 @@ class Controller extends Dispatch
             $controller = Str::studly($controller);
         }
 
-        $this->actionName = $action;
-        $this->controller = ($layer ? $layer . '.' : '') . $controller;
+        $this->actionName = strip_tags($action);
+        $this->controller = strip_tags(($layer ? $layer . '.' : '') . $controller);
 
         // 设置当前请求的控制器、操作
         $this->request
-            ->setLayer($layer)
+            ->setLayer(strip_tags($layer))
             ->setController($this->controller)
             ->setAction($this->actionName);
     }

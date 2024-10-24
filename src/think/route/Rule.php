@@ -700,7 +700,7 @@ abstract class Rule
         if ($extraParams) {
             $count = substr_count($rule, '/');
             $url   = array_slice(explode('|', $url), $count + 1);
-            $this->parseUrlParams(implode('|', $url), $matches);
+            $this->parseUrlParams(implode('/', $url), $matches);
         }
 
         foreach ($matches as $key => &$val) {
@@ -861,7 +861,7 @@ abstract class Rule
     protected function parseUrlParams(string $url, array &$var = []): void
     {
         if ($url) {
-            preg_replace_callback('/(\w+)\|([^\|]+)/', function ($match) use (&$var) {
+            preg_replace_callback('/(\w+)\/([^\|]+)/', function ($match) use (&$var) {
                 $var[$match[1]] = strip_tags($match[2]);
             }, $url);
         }
