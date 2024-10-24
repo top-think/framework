@@ -861,7 +861,7 @@ abstract class Rule
     protected function parseUrlParams(string $url, array &$var = []): void
     {
         if ($url) {
-            preg_replace_callback('/(\w+)\/([^\|]+)/', function ($match) use (&$var) {
+            preg_replace_callback('/(\w+)\/([^\/]+)/', function ($match) use (&$var) {
                 $var[$match[1]] = strip_tags($match[2]);
             }, $url);
         }
