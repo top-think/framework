@@ -76,8 +76,6 @@ class Route
         'empty_controller'      => 'Error',
         // 是否使用控制器后缀
         'controller_suffix'     => false,
-        // 默认路由 [路由规则, 路由地址]
-        'default_route'         => [],
         // 默认模块名
         'default_module'        => 'index',
         // 默认控制器名
