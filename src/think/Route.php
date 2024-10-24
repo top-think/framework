@@ -318,6 +318,23 @@ class Route
     }
 
     /**
+     * 获取域名路由的绑定信息
+     * @access public
+     * @param string $domain 子域名
+     * @return string|null
+     */
+    public function getDomainBind(?string $domain = null)
+    {
+        if ($domain && isset($this->domains[$domain])) {
+            $item = $this->domains[$domain];
+            if (is_string($item)) {
+                $item = $this->domains[$item];
+            }
+            return $item->getBind();
+        }
+    }
+
+    /**
      * 获取RuleName对象
      * @access public
      * @return RuleName

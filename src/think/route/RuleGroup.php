@@ -466,6 +466,16 @@ class RuleGroup extends Rule
     }
 
     /**
+     * 获取分组绑定信息
+     * @access public
+     * @return string
+     */
+    public function getBind()
+    {
+        return $this->bind ?? '';
+    }
+
+    /**
      * 检测URL绑定
      * @access private
      * @param  Request   $request
