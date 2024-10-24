@@ -399,10 +399,13 @@ class RuleGroup extends Rule
      * @param  string|array $middleware 中间件
      * @return $this
      */
-    public function auto(string $bind = '', string|array $middleware = '')
+    public function auto(string $bind = '', string | array $middleware = '')
     {
         $this->bind = $bind ?: '/' . $this->getFullName();
-        $this->middleware($middleware ?: $this->name);
+        if ($middleware) {
+            $this->middleware($middleware);
+        }
+
         return $this;
     }
 
@@ -489,11 +492,11 @@ class RuleGroup extends Rule
     {
         [$bind, $param] = $this->parseBindAppendParam($this->bind);
 
-        [$call, $bind]  = match (substr($bind, 0, 1)) {
-            '\\'    => ['bindToClass', substr($bind, 1)],
-            '@'     => ['bindToController', substr($bind, 1)],
-            '/'     => ['bindToLayer', substr($bind, 1)],
-            ':'     => ['bindToNamespace', substr($bind, 1)],
+        [$call, $bind] = match (substr($bind, 0, 1)) {
+            '\\' => ['bindToClass', substr($bind, 1)],
+            '@' => ['bindToController', substr($bind, 1)],
+            '/' => ['bindToLayer', substr($bind, 1)],
+            ':' => ['bindToNamespace', substr($bind, 1)],
             default => ['bindToClass', $bind],
         };
 

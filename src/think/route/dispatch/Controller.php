@@ -53,7 +53,12 @@ class Controller extends Dispatch
 
         if ($layer && !empty($this->option['auto_middleware'])) {
             // 自动为顶层layer注册中间件
-            $this->app->middleware->add($layer, 'route');
+            $alias = $app->config->get('middleware.alias', []);
+
+            if (isset($alias[$layer])) {
+                $middleware = $alias[$layer];
+                $this->app->middleware->add($layer, 'route');
+            }
         }
 
         // 获取控制器名和分层（目录）名
