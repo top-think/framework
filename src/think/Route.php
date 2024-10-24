@@ -15,6 +15,7 @@ namespace think;
 use Closure;
 use think\exception\RouteNotFoundException;
 use think\route\Dispatch;
+use think\route\dispatch\Callback;
 use think\route\Domain;
 use think\route\Resource;
 use think\route\ResourceRegister;

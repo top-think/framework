@@ -404,16 +404,6 @@ class Url
 
             if ($bind && str_starts_with($url, $bind)) {
                 $url = substr($url, strlen($bind) + 1);
-            } else {
-                $binds = $this->route->getBind();
-
-                foreach ($binds as $key => $val) {
-                    if (is_string($val) && str_starts_with($url, $val) && substr_count($val, '/') > 1) {
-                        $url    = substr($url, strlen($val) + 1);
-                        $domain = $key;
-                        break;
-                    }
-                }
             }
 
             // 路由标识不存在 直接解析
