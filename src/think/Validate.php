@@ -3,13 +3,13 @@
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
-// | Copyright (c) 2006~2023 http://thinkphp.cn All rights reserved.
+// | Copyright (c) 2006~2024 http://thinkphp.cn All rights reserved.
 // +----------------------------------------------------------------------
 // | Licensed ( http://www.apache.org/licenses/LICENSE-2.0 )
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think;
 
@@ -643,7 +643,7 @@ class Validate
             $rules = $this->getGroupRules($rules);
             // 分组独立检测
             if ($rules instanceof Closure) {
-                return $rules(new self)
+                return $rules(new self())
                     ->alias($this->alias)
                     ->batch($this->batch)
                     ->failException($this->failException)
@@ -658,7 +658,7 @@ class Validate
         if ($this->currentScene) {
             $this->getScene($this->currentScene);
         }
-        
+
         foreach ($this->append as $key => $rule) {
             if (!isset($rules[$key])) {
                 $rules[$key] = $rule;
@@ -699,8 +699,8 @@ class Validate
     /**
      * 验证字段规则
      * @access protected
-     * @param string $field 字段名
-     * @param mixed  $rule 验证规则
+     * @param string $key   字段名
+     * @param mixed  $rule  验证规则
      * @param array  $data  数据
      * @param string $title 字段描述
      * @return bool
@@ -716,7 +716,7 @@ class Validate
             $items = $rule->getRules();
             if ($items instanceof Closure) {
                 // 获取验证集的规则
-                $items = $items(new self)->getRule();
+                $items = $items(new self())->getRule();
             }
             // 验证集的错误信息
             foreach ($rule->getMessage() as $name => $message) {
@@ -885,7 +885,7 @@ class Validate
                     continue;
                 }
 
-                if ('must' == $type || str_starts_with($type, 'require') || in_array($type, $this->must) || (!is_null($value) && '' !== $value)) {
+                if ('must' == $type || str_starts_with($type, 'require') || in_array($field, $this->must) || (!is_null($value) && '' !== $value)) {
                     $result = call_user_func_array($callback, [$value, $rule, $data, $field, $title]);
                 } else {
                     $result = true;
@@ -1889,7 +1889,7 @@ class Validate
      * 获取内置正则验证规则
      * @access public
      * @param string $rule  验证规则 正则规则或者预定义正则名
-     * @return bool
+     * @return string
      */
     protected function getDefaultRegexRule(string $rule): string
     {
@@ -2109,7 +2109,7 @@ class Validate
     {
         $method = 'rules' . Str::studly($group);
         if (method_exists($this, $method)) {
-            $validate = call_user_func_array([$this, $method], [new self]);
+            $validate = call_user_func_array([$this, $method], [new self()]);
             return $validate->alias($this->alias)
                 ->batch($this->batch)
                 ->failException($this->failException);
