@@ -8,7 +8,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare(strict_types=1);
 
 //------------------------
 // ThinkPHP 助手函数
@@ -173,7 +173,12 @@ if (!function_exists('download')) {
      */
     function download(string $filename, string $name = '', bool $content = false, int $expire = 180): File
     {
-        return Response::create($filename, 'file')->name($name)->isContent($content)->expire($expire);
+        // return Response::create($filename, 'file')->name($name)->isContent($content)->expire($expire);
+        /**
+         * @var \think\response\File $file
+         */
+        $file = Response::create($filename, 'file');
+        return $file->name($name)->isContent($content)->expire($expire);
     }
 }
 
@@ -564,7 +569,12 @@ if (!function_exists('view')) {
      */
     function view(string $template = '', $vars = [], $code = 200, $filter = null): View
     {
-        return Response::create($template, 'view', $code)->assign($vars)->filter($filter);
+        // return Response::create($template, 'view', $code)->assign($vars)->filter($filter);
+        /**
+         * @var \think\response\View $view
+         */
+        $view = Response::create($template, 'view', $code);
+        return $view->assign($vars)->filter($filter);
     }
 }
 
@@ -579,7 +589,12 @@ if (!function_exists('display')) {
      */
     function display(string $content, $vars = [], $code = 200, $filter = null): View
     {
-        return Response::create($content, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
+        // return Response::create($content, 'view', $code)->isContent(true)->assign($vars)->filter($filter);
+        /**
+         * @var \think\response\View $view
+         */
+        $view = Response::create($content, 'view', $code);
+        return $view->isContent(true)->assign($vars)->filter($filter);
     }
 }
 
