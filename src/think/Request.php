@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think;
 
@@ -988,8 +989,8 @@ class Request implements ArrayAccess
     /**
      * 获取中间件传递的参数
      * @access public
-     * @param  string $name 变量名
-     * @param  mixed $default 默认值
+     * @param string|null $name    变量名
+     * @param mixed       $default 默认值
      * @return mixed
      */
     public function middleware(?string $name = null, $default = null)
@@ -1078,9 +1079,9 @@ class Request implements ArrayAccess
     /**
      * 获取request变量
      * @access public
-     * @param  string|array $name 数据名称
-     * @param  mixed        $default 默认值
-     * @param  string|array|null $filter 过滤方法
+     * @param string|array|bool $name    数据名称
+     * @param mixed             $default 默认值
+     * @param string|array|null $filter  过滤方法
      * @return mixed
      */
     public function request(string | array | bool $name = '', $default = null, string | array | null $filter = '')
@@ -1095,8 +1096,8 @@ class Request implements ArrayAccess
     /**
      * 获取环境变量
      * @access public
-     * @param  string $name 数据名称
-     * @param  string $default 默认值
+     * @param string      $name    数据名称
+     * @param string|null $default 默认值
      * @return mixed
      */
     public function env(string $name = '', ?string $default = null)
@@ -1110,8 +1111,8 @@ class Request implements ArrayAccess
     /**
      * 获取session数据
      * @access public
-     * @param  string $name 数据名称
-     * @param  string $default 默认值
+     * @param string      $name    数据名称
+     * @param string|null $default 默认值
      * @return mixed
      */
     public function session(string $name = '', $default = null)
@@ -1125,9 +1126,9 @@ class Request implements ArrayAccess
     /**
      * 获取cookie参数
      * @access public
-     * @param  mixed        $name 数据名称
-     * @param  string       $default 默认值
-     * @param  string|array|null $filter 过滤方法
+     * @param mixed             $name    数据名称
+     * @param string|null       $default 默认值
+     * @param string|array|null $filter  过滤方法
      * @return mixed
      */
     public function cookie(string $name = '', $default = null, string | array | null $filter = '')
@@ -1259,8 +1260,8 @@ class Request implements ArrayAccess
     /**
      * 设置或者获取当前的Header
      * @access public
-     * @param  string $name header名称
-     * @param  string $default 默认值
+     * @param string      $name    header名称
+     * @param string|null $default 默认值
      * @return string|array|null
      */
     public function header(string $name = '', ?string $default = null)
@@ -2208,11 +2209,7 @@ class Request implements ArrayAccess
         return $this->param($name);
     }
 
-    public function offsetSet(mixed $name, mixed $value): void
-    {
-    }
+    public function offsetSet(mixed $name, mixed $value): void {}
 
-    public function offsetUnset(mixed $name): void
-    {
-    }
+    public function offsetUnset(mixed $name): void {}
 }

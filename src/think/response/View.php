@@ -95,7 +95,7 @@ class View extends Response
     /**
      * 获取视图变量
      * @access public
-     * @param  string $name 模板变量
+     * @param string|null $name 模板变量
      * @return mixed
      */
     public function getVars(?string $name = null)
@@ -128,7 +128,7 @@ class View extends Response
     /**
      * 视图内容过滤
      * @access public
-     * @param callable $filter
+     * @param callable|null $filter
      * @return $this
      */
     public function filter(?callable $filter = null)

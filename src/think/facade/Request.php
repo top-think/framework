@@ -58,18 +58,18 @@ use think\route\Rule;
  * @method static \think\Request setRoute(array $route) 设置路由变量
  * @method static mixed route(string|array $name = '', mixed $default = null, string|array|null $filter = '') 获取路由参数
  * @method static mixed get(string|array $name = '', mixed $default = null, string|array|null $filter = '') 获取GET参数
- * @method static mixed middleware(mixed $name, mixed $default = null) 获取中间件传递的参数
+ * @method static mixed middleware(string|null $name, mixed $default = null) 获取中间件传递的参数
  * @method static mixed post(string|array $name = '', mixed $default = null, string|array|null $filter = '') 获取POST参数
  * @method static mixed put(string|array $name = '', mixed $default = null, string|array|null $filter = '') 获取PUT参数
  * @method static mixed delete(mixed $name = '', mixed $default = null, string|array|null $filter = '') 设置获取DELETE参数
  * @method static mixed patch(mixed $name = '', mixed $default = null, string|array|null $filter = '') 设置获取PATCH参数
- * @method static mixed request(string|array $name = '', mixed $default = null, string|array|null $filter = '') 获取request变量
- * @method static mixed env(string $name = '', string $default = null) 获取环境变量
- * @method static mixed session(string $name = '', string $default = null) 获取session数据
- * @method static mixed cookie(mixed $name = '', string $default = null, string|array|null $filter = '') 获取cookie参数
+ * @method static mixed request(string|array|bool $name = '', mixed $default = null, string|array|null $filter = '') 获取request变量
+ * @method static mixed env(string $name = '', string|null $default = null) 获取环境变量
+ * @method static mixed session(string $name = '', string|null $default = null) 获取session数据
+ * @method static mixed cookie(mixed $name = '', string|null $default = null, string|array|null $filter = '') 获取cookie参数
  * @method static mixed server(string $name = '', string $default = '') 获取server参数
  * @method static null|array|UploadedFile file(string $name = '') 获取上传的文件信息
- * @method static string|array header(string $name = '', string $default = null) 设置或者获取当前的Header
+ * @method static string|array header(string $name = '', string|null $default = null) 设置或者获取当前的Header
  * @method static mixed input(array $data = [], string|false $name = '', mixed $default = null, string|array|null $filter = '') 获取变量 支持过滤和默认值
  * @method static mixed filter(mixed $filter = null) 设置或获取当前的过滤规则
  * @method static mixed filterValue(mixed &$value, mixed $key, array $filters) 递归过滤给定的值
@@ -93,9 +93,11 @@ use think\route\Rule;
  * @method static int remotePort() 当前请求 REMOTE_PORT
  * @method static string contentType() 当前请求 HTTP_CONTENT_TYPE
  * @method static string secureKey() 获取当前请求的安全Key
+ * @method static \think\Request setLayer(string $layer) 设置当前的分层名
  * @method static \think\Request setController(string $controller) 设置当前的控制器名
  * @method static \think\Request setAction(string $action) 设置当前的操作名
- * @method static string controller(bool $convert = false) 获取当前的控制器名
+ * @method static string layer(bool $convert = false) 获取当前的模块名
+ * @method static string controller(bool $convert = false, bool $base = false) 获取当前的控制器名
  * @method static string action(bool $convert = false) 获取当前的操作名
  * @method static string getContent() 设置或者获取当前请求的content
  * @method static string getInput() 获取当前请求的php://input
