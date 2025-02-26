@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\route;
 
@@ -17,6 +18,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use think\App;
+use think\attribute\Middleware;
 use think\Container;
 use think\exception\HttpException;
 use think\Request;
@@ -34,9 +36,7 @@ abstract class Dispatch
      */
     protected $app;
 
-    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [], protected array $option = [])
-    {
-    }
+    public function __construct(protected Request $request, protected Rule $rule, protected $dispatch, protected array $param = [], protected array $option = []) {}
 
     public function init(App $app)
     {
@@ -191,40 +191,54 @@ abstract class Dispatch
     {
         $class = new ReflectionClass($controller);
 
+        $action = $this->request->action(true);
+
+        $middlewares = [];
+
+        // 读取控制器 middleware 属性
         if ($class->hasProperty('middleware')) {
             $reflectionProperty = $class->getProperty('middleware');
             $reflectionProperty->setAccessible(true);
 
-            $middlewares = $reflectionProperty->getValue($controller);
-            $action      = $this->request->action(true);
-
-            foreach ($middlewares as $key => $val) {
+            foreach ($reflectionProperty->getValue($controller) as $key => $val) {
                 if (!is_int($key)) {
-                    $middleware = $key;
-                    $options    = $val;
+                    $middlewares[] = ['middleware' => $key, 'options' => $val];
                 } elseif (isset($val['middleware'])) {
-                    $middleware = $val['middleware'];
-                    $options    = $val['options'] ?? [];
+                    $middlewares[] = ['middleware' => $val['middleware'], 'options' => $val['options'] ?? []];
                 } else {
-                    $middleware = $val;
-                    $options    = [];
+                    $middlewares[] = ['middleware' => $val, 'options' => []];
                 }
-
-                if (isset($options['only']) && !in_array($action, $this->parseActions($options['only']))) {
-                    continue;
-                } elseif (isset($options['except']) && in_array($action, $this->parseActions($options['except']))) {
-                    continue;
-                }
-
-                if (is_string($middleware) && str_contains($middleware, ':')) {
-                    $middleware = explode(':', $middleware);
-                    if (count($middleware) > 1) {
-                        $middleware = [$middleware[0], array_slice($middleware, 1)];
-                    }
-                }
-
-                $this->app->middleware->controller($middleware);
             }
+        }
+
+        // 读取注解
+        foreach ($class->getAttributes(Middleware::class) as $val) {
+            /** @var Middleware $middleware */
+            $middleware = $val->newInstance();
+            $middlewares[] = [
+                'middleware' => $middleware->middleware,
+                'options' => ['only' => $middleware->only, 'except' => $middleware->except],
+            ];
+        }
+
+        foreach ($middlewares as $val) {
+            $middleware = $val['middleware'];
+            $options = $val['options'];
+
+            if (!empty($options['only']) && !in_array($action, $this->parseActions($options['only']))) {
+                continue;
+            } elseif (in_array($action, $this->parseActions($options['except'] ?? []))) {
+                continue;
+            }
+
+            if (is_string($middleware) && str_contains($middleware, ':')) {
+                $middleware = explode(':', $middleware);
+                if (count($middleware) > 1) {
+                    $middleware = [$middleware[0], array_slice($middleware, 1)];
+                }
+            }
+
+            $this->app->middleware->controller($middleware);
         }
     }
 
