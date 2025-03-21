@@ -279,7 +279,7 @@ class RuleGroup extends Rule
         $url   = $depr . str_replace('|', $depr, $url);
         $regex = [];
         $items = [];
-
+        $ruleResult = null;
         foreach ($rules as $key => $item) {
             if ($item instanceof RuleItem) {
                 $rule = $depr . str_replace('/', $depr, $item->getRule());
@@ -318,10 +318,17 @@ class RuleGroup extends Rule
                 }
             } elseif ($item instanceof RuleGroup) {
                 $array = $item->getrules();
-                return $this->checkMergeRuleRegex($request, $array, ltrim($url, $depr), $completeMatch);
+                $ruleResult =  $this->checkMergeRuleRegex($request, $array, ltrim($url, $depr), $completeMatch);
+                if (false === $ruleResult) {
+                    continue;
+                } else {
+                    return $ruleResult;
+                }
             }
         }
-
+        if ($ruleResult != null) {
+            return $ruleResult;
+        }
         if (empty($regex)) {
             return false;
         }
