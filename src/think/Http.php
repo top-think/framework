@@ -83,7 +83,7 @@ class Http
      */
     public function path(string $path)
     {
-        if (str_ends_with($path, DIRECTORY_SEPARATOR)) {
+        if (!str_ends_with($path, DIRECTORY_SEPARATOR)) {
             $path .= DIRECTORY_SEPARATOR;
         }
 
