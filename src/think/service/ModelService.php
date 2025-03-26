@@ -38,7 +38,7 @@ class ModelService extends Service
 
             if (is_null($isAutoWriteTimestamp)) {
                 // 自动写入时间戳
-                $model->isAutoWriteTimestamp($config->get('database.auto_timestamp', 'timestamp'));
+                $model->isAutoWriteTimestamp($config->get('database.auto_timestamp', true));
             }
 
             $dateFormat = $model->getDateFormat();
