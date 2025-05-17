@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
@@ -8,9 +9,11 @@
 // +----------------------------------------------------------------------
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
-declare (strict_types = 1);
+declare (strict_types=1);
 
 namespace think\contract;
+
+use think\event\LogRecord;
 
 /**
  * 日志驱动接口
@@ -20,7 +23,7 @@ interface LogHandlerInterface
     /**
      * 日志写入接口
      * @access public
-     * @param  array $log 日志信息
+     * @param  array<LogRecord> $log 日志信息
      * @return bool
      */
     public function save(array $log): bool;

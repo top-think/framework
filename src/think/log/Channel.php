@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,7 +9,7 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace think\log;
 
@@ -26,19 +27,17 @@ class Channel implements LoggerInterface
 
     /**
      * 日志信息
-     * @var array
+     * @var array<LogRecord>
      */
-    protected $log = [];
+    protected array $log = [];
 
     /**
      * 关闭日志
      * @var bool
      */
-    protected $close = false;
+    protected bool $close = false;
 
-    public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow, protected bool $lazy, protected Event $event)
-    {
-    }
+    public function __construct(protected string $name, protected LogHandlerInterface $logger, protected array $allow, protected bool $lazy, protected Event $event) {}
 
     /**
      * 关闭通道
@@ -86,9 +85,11 @@ class Channel implements LoggerInterface
         }
 
         if (!empty($msg) || 0 === $msg) {
-            $this->log[] = [$type, $msg];
+            $logRecord = new LogRecord($type, $msg, new \DateTimeImmutable(), $context);
+
+            $this->log[] = $logRecord;
             if ($this->event) {
-                $this->event->trigger(new LogRecord($type, $msg));
+                $this->event->trigger(clone $logRecord);
             }
         }
 

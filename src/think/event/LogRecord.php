@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -8,22 +9,35 @@
 // +----------------------------------------------------------------------
 // | Author: yunwuxin <448901948@qq.com>
 // +----------------------------------------------------------------------
+
 namespace think\event;
 
 /**
  * LogRecord事件类
+ *
+ * @template-implements \ArrayAccess<'type'|'message'|'datetime'|'context', int|string|\DateTimeImmutable|array>
  */
-class LogRecord
+class LogRecord implements \ArrayAccess
 {
-    /** @var string */
-    public $type;
+    public function __construct(public string $type, public string $message, public \DateTimeImmutable $datetime, public array $context) {}
 
-    /** @var string */
-    public $message;
-
-    public function __construct($type, $message)
+    public function offsetExists(mixed $offset): bool
     {
-        $this->type    = $type;
-        $this->message = $message;
+        return isset($this->{$offset});
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->{$offset};
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        throw new \LogicException('Unsupported operation: setting ' . $offset);
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        throw new \LogicException('Unsupported operation');
     }
 }

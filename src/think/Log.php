@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -16,6 +17,7 @@ use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 use Stringable;
+use think\event\LogRecord;
 use think\event\LogWrite;
 use think\helper\Arr;
 use think\log\Channel;
@@ -29,15 +31,15 @@ use think\log\ChannelSet;
 class Log extends Manager implements LoggerInterface
 {
     use LoggerTrait;
-    const EMERGENCY = 'emergency';
-    const ALERT = 'alert';
-    const CRITICAL = 'critical';
-    const ERROR = 'error';
-    const WARNING = 'warning';
-    const NOTICE = 'notice';
-    const INFO = 'info';
-    const DEBUG = 'debug';
-    const SQL = 'sql';
+    public const EMERGENCY = 'emergency';
+    public const ALERT = 'alert';
+    public const CRITICAL = 'critical';
+    public const ERROR = 'error';
+    public const WARNING = 'warning';
+    public const NOTICE = 'notice';
+    public const INFO = 'info';
+    public const DEBUG = 'debug';
+    public const SQL = 'sql';
 
     protected $namespace = '\\think\\log\\driver\\';
 
@@ -152,9 +154,8 @@ class Log extends Manager implements LoggerInterface
 
     /**
      * 获取日志信息
-     * @access public
-     * @param string $channel 日志通道名
-     * @return array
+     * @param string|null $channel 日志通道名
+     * @return array<LogRecord>
      */
     public function getLog(?string $channel = null): array
     {
