@@ -27,5 +27,6 @@ jobs:
         run: |
           changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} -- '*.php')
           for file in $changed_files; do
+            echo "Checking $file"
             php-cs-fixer fix "$file" --dry-run --diff --rules=@PER-CS2.0 --format=checkstyle | cs2pr
           done
