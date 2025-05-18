@@ -69,7 +69,7 @@ class LogTest extends TestCase
 
         $this->log->info('foo');
 
-        $this->assertEquals([['info', 'foo']], array_map(fn ($log) => [$log['type'], $log['message']], $this->log->getLog()));
+        $this->assertEquals([['info', 'foo']], array_map(fn($log) => [$log['type'], $log['message']], $this->log->getLog()));
 
         $this->log->clear();
 
@@ -95,7 +95,7 @@ class LogTest extends TestCase
             ['debug', 'foo'],
             ['sql', 'foo'],
             ['custom', 'foo'],
-        ], array_map(fn ($log) => [$log->type, $log->message], $this->log->getLog()));
+        ], array_map(fn($log) => [$log->type, $log->message], $this->log->getLog()));
 
         $this->log->write('foo');
         $this->assertTrue($root->hasChildren());
