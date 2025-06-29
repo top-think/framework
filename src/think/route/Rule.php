@@ -310,9 +310,7 @@ abstract class Rule
 
             // 合并分组参数
             foreach ($this->mergeOptions as $item) {
-                if (isset($parentOption[$item]) && isset($option[$item])) {
-                    $option[$item] = array_merge($parentOption[$item], $option[$item]);
-                }
+                $option[$item] = array_merge($parentOption[$item] ?? [], $option[$item] ?? []);
             }
 
             $option = array_merge($parentOption, $option);
