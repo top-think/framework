@@ -56,7 +56,7 @@ use think\route\Url as UrlBuild;
  * @method static RuleItem patch(string $rule, mixed $route) 注册PATCH路由
  * @method static RuleItem head(string $rule, mixed $route) 注册HEAD路由
  * @method static RuleItem options(string $rule, mixed $route) 注册OPTIONS路由
- * @method static Resource resource(string $rule, string $route) 注册资源路由
+ * @method static Resource resource(string $rule, string $route, ?\Closure $extend = null) 注册资源路由
  * @method static RuleItem view(string $rule, string $template = '', array $vars = []) 注册视图路由
  * @method static RuleItem redirect(string $rule, string $route = '', int $status = 301) 注册重定向路由
  * @method static \think\Route rest(string|array $name, array|bool $resource = []) rest方法定义和修改
