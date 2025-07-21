@@ -187,8 +187,9 @@ class Config
             if (is_null($result)) {
                 return $default;
             }
+            return $result;
         }
-        return $result;
+        return $value?:$default;
     }
 
     /**
