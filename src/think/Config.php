@@ -185,7 +185,8 @@ class Config
         if (isset($call)) {
             $result = call_user_func_array($call, [$name, $value]);
         }
-        return $result??($value?:$default);
+
+        return $result ?? ($value ?: $default);
     }
 
     /**
