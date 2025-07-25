@@ -87,7 +87,7 @@ class ConfigTest extends TestCase
         
         // 测试默认hook $key = global
         $config->hook(function ($name, $value) {
-            if ($name == 'test3.key1.key3') {
+            if ($name == 'test3.key2.key3') {
                 return 'hook3';
             } else {
                 return $value;
