@@ -43,4 +43,59 @@ class ConfigTest extends TestCase
         $this->assertFalse($config->has('test.key3'));
         $this->assertEquals('none', $config->get('test.key3', 'none'));
     }
+
+    public function testHook()
+    {
+        $config = new Config();
+
+        $config->set([
+            'key1' => 'value1',
+            'key2' => [
+                'key3' => 'value3',
+            ],
+        ], 'test');
+
+        $config->set([
+            'key1' => 'value1',
+            'key2' => [
+                'key3' => 'value3',
+            ],
+        ], 'test2');
+
+        $config->set([
+            'key1' => 'value1',
+            'key2' => [
+                'key3' => 'value3',
+            ],
+        ], 'test3');
+
+        $config->hook(function ($name, $value) {
+            if ($name == 'test.key1') {
+                return 'hook1';
+            } else {
+                return $value;
+            }
+        }, 'test');
+
+        $config->hook(function ($name, $value) {
+            if ($name == 'test2.key1') {
+                return 'hook2';
+            } else {
+                return $value;
+            }
+        }, 'test2');
+        
+        // 测试默认hook $key = global
+        $config->hook(function ($name, $value) {
+            if ($name == 'test3.key1.key3') {
+                return 'hook3';
+            } else {
+                return $value;
+            }
+        });
+
+        $this->assertEquals('hook1', $config->get('test.key1'));
+        $this->assertEquals('hook2', $config->get('test2.key1'));
+        $this->assertEquals('hook3', $config->get('test3.key2.key3'));
+    }
 }
