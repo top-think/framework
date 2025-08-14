@@ -28,6 +28,7 @@ use think\console\command\make\Service;
 use think\console\command\make\Subscribe;
 use think\console\command\make\Validate;
 use think\console\command\optimize\Config;
+use think\console\command\optimize\Optimize;
 use think\console\command\optimize\Route;
 use think\console\command\optimize\Schema;
 use think\console\command\RouteList;
@@ -70,6 +71,7 @@ class Console
         'make:listener'    => Listener::class,
         'make:service'     => Service::class,
         'make:subscribe'   => Subscribe::class,
+        'optimize'         => Optimize::class,
         'optimize:config'  => Config::class,
         'optimize:route'   => Route::class,
         'optimize:schema'  => Schema::class,
@@ -785,5 +787,4 @@ class Console
 
         return $namespaces;
     }
-
 }
