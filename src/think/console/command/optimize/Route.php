@@ -10,7 +10,6 @@
 // +----------------------------------------------------------------------
 namespace think\console\command\optimize;
 
-use Composer\InstalledVersions;
 use DirectoryIterator;
 use InvalidArgumentException;
 use think\console\Command;
@@ -22,6 +21,8 @@ use Throwable;
 
 class Route extends Command
 {
+    use Discoverable;
+
     protected function configure()
     {
         $this->setName('optimize:route')
@@ -102,27 +103,8 @@ class Route extends Command
         // 判断是否使用多应用模式
         // 如果使用了则扫描 app 目录
         // 否则返回 null，让其扫描根目录的 route 目录
-        return InstalledVersions::isInstalled('topthink/think-multi-app')
-            ? $this->discoveryMultiAppDirs()
+        return $this->isInstalledMultiApp()
+            ? $this->discoveryMultiAppDirs('route')
             : [null];
-    }
-
-    /**
-     * 发现多应用程序目录
-     * @return string[]
-     */
-    private function discoveryMultiAppDirs(): array
-    {
-        $dirs = [];
-        foreach (new DirectoryIterator($this->app->getAppPath()) as $item) {
-            if (! $item->isDir() || $item->isDot()) {
-                continue;
-            }
-            $routePath = $item->getRealPath() . DIRECTORY_SEPARATOR . 'route' . DIRECTORY_SEPARATOR;
-            if (is_dir($routePath)) {
-                $dirs[] = $item->getFilename();
-            }
-        }
-        return $dirs;
     }
 }
