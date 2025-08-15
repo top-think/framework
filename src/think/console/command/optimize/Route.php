@@ -61,7 +61,7 @@ class Route extends Command
             if ($fileinfo->getType() == 'file' && $fileinfo->getExtension() == 'php') {
                 $groupName = str_replace('\\', '/', substr_replace($fileinfo->getPath(), '', 0, strlen($root)));
                 if ($groupName) {
-                    $this->app->route->group($groupName, function ()  use ($fileinfo) {
+                    $this->app->route->group($groupName, function () use ($fileinfo) {
                         include $fileinfo->getRealPath();
                     });
                 } else {

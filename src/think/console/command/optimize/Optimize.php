@@ -35,6 +35,6 @@ class Optimize extends Command
         foreach ($commands as $class) {
             $command = $this->callCommand($class);
             $this->output->info($command->getName() . ' run succeed!');
-        };
+        }
     }
 }
