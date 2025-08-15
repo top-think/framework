@@ -11,15 +11,23 @@
 namespace think\console\command\optimize;
 
 use Exception;
+use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+use SplFileInfo;
 use think\console\Command;
 use think\console\Input;
 use think\console\input\Argument;
 use think\console\input\Option;
 use think\console\Output;
 use think\db\PDOConnection;
+use Throwable;
 
 class Schema extends Command
 {
+    use Discoverable;
+
     protected function configure()
     {
         $this->setName('optimize:schema')
@@ -31,71 +39,38 @@ class Schema extends Command
 
     protected function execute(Input $input, Output $output)
     {
-        $dir = $input->getArgument('dir') ?: '';
-
-        if ($input->hasOption('table')) {
-            $connection = $this->app->db->connect($input->getOption('connection'));
-            if (!$connection instanceof PDOConnection) {
-                $output->error("only PDO connection support schema cache!");
-                return;
-            }
-            $table = $input->getOption('table');
-            if (!str_contains($table, '.')) {
-                $dbName = $connection->getConfig('database');
+        try {
+            if ($table = $input->hasOption('table')) {
+                $this->cacheTable($table, $input->getOption('connection'));
             } else {
-                [$dbName, $table] = explode('.', $table);
-            }
-
-            if ($table == '*') {
-                $table = $connection->getTables($dbName);
-            }
-
-            $this->buildDataBaseSchema($connection, (array) $table, $dbName);
-        } else {
-            if ($dir) {
-                $appPath   = $this->app->getBasePath() . $dir . DIRECTORY_SEPARATOR;
-                $namespace = 'app\\' . $dir;
-            } else {
-                $appPath   = $this->app->getBasePath();
-                $namespace = 'app';
-            }
-
-            $path = $appPath . 'model';
-            $list = is_dir($path) ? scandir($path) : [];
-
-            foreach ($list as $file) {
-                if (str_starts_with($file, '.')) {
-                    continue;
+                $dirs = ((array) $input->getArgument('dir')) ?: $this->getDefaultDirs();
+                foreach ($dirs as $dir) {
+                    $this->cacheModel($dir);
                 }
-                $class = '\\' . $namespace . '\\model\\' . pathinfo($file, PATHINFO_FILENAME);
-                
-                if (!class_exists($class)) {
-                    continue;
-                }
-
-                $this->buildModelSchema($class);
             }
+        } catch (Throwable $e) {
+            return $output->error($e->getMessage());
         }
 
-        $output->writeln('<info>Succeed!</info>');
+        $output->info('Succeed!');
     }
 
     protected function buildModelSchema(string $class): void
     {
-        $reflect = new \ReflectionClass($class);
-        if (!$reflect->isAbstract() && $reflect->isSubclassOf('\think\Model')) {
-            try {
-                /** @var \think\Model $model */
-                $model      = new $class;
-                $connection = $model->db()->getConnection();
-                if ($connection instanceof PDOConnection) {
-                    $table = $model->getTable();
-                    //预读字段信息
-                    $connection->getSchemaInfo($table, true);
-                }
-            } catch (Exception $e) {
-
+        $reflect = new ReflectionClass($class);
+        if ($reflect->isAbstract() || ! $reflect->isSubclassOf('\think\Model')) {
+            return;
+        }
+        try {
+            /** @var \think\Model $model */
+            $model = new $class;
+            $connection = $model->db()->getConnection();
+            if ($connection instanceof PDOConnection) {
+                $table = $model->getTable();
+                //预读字段信息
+                $connection->getSchemaInfo($table, true);
             }
+        } catch (Exception $e) {
         }
     }
 
@@ -105,5 +80,82 @@ class Schema extends Command
             //预读字段信息
             $connection->getSchemaInfo("{$dbName}.{$table}", true);
         }
+    }
+
+    /**
+     * 缓存表
+     */
+    private function cacheTable(string $table, ?string $connectionName = null): void
+    {
+        $connection = $this->app->db->connect($connectionName);
+        if (! $connection instanceof PDOConnection) {
+            throw new InvalidArgumentException('only PDO connection support schema cache!');
+        }
+
+        if (str_contains($table, '.')) {
+            [$dbName, $table] = explode('.', $table);
+        } else {
+            $dbName = $connection->getConfig('database');
+        }
+
+        if ($table == '*') {
+            $table = $connection->getTables($dbName);
+        }
+
+        $this->buildDataBaseSchema($connection, (array) $table, $dbName);
+    }
+
+    /**
+     * 缓存模型
+     */
+    private function cacheModel(string $dir = null): void
+    {
+        if ($dir) {
+            $modelDir = $this->app->getAppPath() . $dir . DIRECTORY_SEPARATOR . 'model' . DIRECTORY_SEPARATOR;
+            $namespace = 'app\\' . $dir;
+        } else {
+            $modelDir = $this->app->getAppPath() . 'model' . DIRECTORY_SEPARATOR;
+            $namespace = 'app';
+        }
+
+        if (! is_dir($modelDir)) {
+            throw new InvalidArgumentException("{$modelDir} directory does not exist");
+        }
+
+        /** @var SplFileInfo[] $iterator */
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($modelDir, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+        foreach ($iterator as $fileInfo) {
+            $relativePath = substr($fileInfo->getRealPath(), strlen($modelDir));
+            if (! str_ends_with($relativePath, '.php')) {
+                continue;
+            }
+            // 去除 .php
+            $relativePath = substr($relativePath, 0, -4);
+
+            $class = '\\' . $namespace . '\\model\\' . str_replace('/', '\\', $relativePath);
+            if (! class_exists($class)) {
+                continue;
+            }
+
+            $this->buildModelSchema($class);
+        }
+    }
+
+    /**
+     * 获取默认目录名
+     * @return array<int, ?string>
+     */
+    private function getDefaultDirs(): array
+    {
+        // 包含默认的模型目录
+        $dirs = [null];
+        if ($this->isInstalledMultiApp()) {
+            $dirs = array_merge($dirs, $this->discoveryMultiAppDirs('model'));
+        }
+        return $dirs;
     }
 }
