@@ -86,7 +86,15 @@ abstract class Dispatch
         // 添加中间件
         if (!empty($option['middleware'])) {
             if (isset($option['without_middleware'])) {
-                $middleware = !empty($option['without_middleware']) ? array_diff($option['middleware'], $option['without_middleware']) : [];
+                $middleware = [];
+                foreach ($option['middleware'] as $m) {
+                    // $m 可能是 [类名, 参数数组] 或 字符串类名/闭包
+                    $classOrClosure = is_array($m) ? $m[0] : $m;
+                    // 如果不在排除列表里，保留原始 $m
+                    if (empty($option['without_middleware']) || !in_array($classOrClosure, $option['without_middleware'], true)) {
+                        $middleware[] = $m;
+                    }
+                }
             } else {
                 $middleware = $option['middleware'];
             }
