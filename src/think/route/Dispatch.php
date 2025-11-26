@@ -185,7 +185,10 @@ abstract class Dispatch
 
         if ($class->hasProperty('middleware')) {
             $reflectionProperty = $class->getProperty('middleware');
-            $reflectionProperty->setAccessible(true);
+
+            if (PHP_VERSION_ID < 80100) {
+                $reflectionProperty->setAccessible(true);
+            }
 
             $middlewares = $reflectionProperty->getValue($controller);
             $action      = $this->request->action(true);

@@ -191,7 +191,12 @@ class Event
 
         if (empty($prefix) && $reflect->hasProperty('eventPrefix')) {
             $reflectProperty = $reflect->getProperty('eventPrefix');
-            $reflectProperty->setAccessible(true);
+
+            if (PHP_VERSION_ID < 80100) {
+                // 8.0 版本时调用
+                $reflectProperty->setAccessible(true);
+            }
+
             $prefix = $reflectProperty->getValue($observer);
         }
 
