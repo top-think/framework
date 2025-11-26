@@ -218,7 +218,7 @@ class Url
             $controller = empty($path) ? $controller : array_pop($path);
             $url        = $controller . '/' . $action;
             $auto       = $this->route->getName('__think_auto_route__');
-            if (!empty($auto) && !strpos($controller,'.')) {
+            if (!empty($auto) && !strpos($controller, '.')) {
                 $module = empty($path) ? $request->layer() : array_pop($path);
                 $url    = $module . '/' . $url;
             }
@@ -368,7 +368,7 @@ class Url
         }
 
         if ($url) {
-            $checkName   = isset($name) ? $name : $url . (isset($info['query']) ? '?' . $info['query'] : '');
+            $checkName   = $name ?? $url . (isset($info['query']) ? '?' . $info['query'] : '');
             $checkDomain = $domain && is_string($domain) ? $domain : null;
 
             $rule = $this->route->getName($checkName, $checkDomain);
