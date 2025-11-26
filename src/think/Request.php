@@ -681,7 +681,7 @@ class Request implements ArrayAccess
      * 获取当前请求的时间
      * @access public
      * @param  bool $float 是否使用浮点类型
-     * @return integer|float
+     * @return int|float
      */
     public function time(bool $float = false)
     {
@@ -1682,7 +1682,7 @@ class Request implements ArrayAccess
      * @param string $ip   IP地址
      * @param string $type IP地址类型 (ipv4, ipv6)
      *
-     * @return boolean
+     * @return bool
      */
     public function isValidIP(string $ip, string $type = ''): bool
     {
@@ -2191,7 +2191,7 @@ class Request implements ArrayAccess
      * 检测中间传递数据的值
      * @access public
      * @param  string $name 名称
-     * @return boolean
+     * @return bool
      */
     public function __isset(string $name): bool
     {

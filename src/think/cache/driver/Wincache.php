@@ -86,9 +86,9 @@ class Wincache extends Driver
     /**
      * 写入缓存
      * @access public
-     * @param string                                 $name   缓存变量名
-     * @param mixed                                  $value  存储数据
-     * @param integer|DateInterval|DateTimeInterface $expire 有效时间（秒）
+     * @param string                             $name   缓存变量名
+     * @param mixed                              $value  存储数据
+     * @param int|DateInterval|DateTimeInterface $expire 有效时间（秒）
      * @return bool
      */
     public function set($name, $value, $expire = null): bool

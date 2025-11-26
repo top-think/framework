@@ -38,7 +38,7 @@ abstract class Response
 
     /**
      * 状态码
-     * @var integer
+     * @var int
      */
     protected $code = 200;
 
@@ -277,7 +277,7 @@ abstract class Response
     /**
      * 发送HTTP状态
      * @access public
-     * @param  integer $code 状态码
+     * @param  int $code 状态码
      * @return $this
      */
     public function code(int $code)
@@ -406,7 +406,7 @@ abstract class Response
     /**
      * 获取状态码
      * @access public
-     * @return integer
+     * @return int
      */
     public function getCode(): int
     {

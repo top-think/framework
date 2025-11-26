@@ -42,9 +42,9 @@ use think\validate\ValidateRuleSet;
 if (!function_exists('abort')) {
     /**
      * 抛出HTTP异常
-     * @param integer|Response $code    状态码 或者 Response对象实例
-     * @param string           $message 错误信息
-     * @param array            $header  参数
+     * @param int|Response $code    状态码 或者 Response对象实例
+     * @param string       $message 错误信息
+     * @param array        $header  参数
      */
     function abort($code, string $message = '', array $header = [])
     {

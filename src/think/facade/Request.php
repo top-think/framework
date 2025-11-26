@@ -1,4 +1,5 @@
 <?php
+
 // +----------------------------------------------------------------------
 // | ThinkPHP [ WE CAN DO IT JUST THINK ]
 // +----------------------------------------------------------------------
@@ -38,7 +39,7 @@ use think\route\Rule;
  * @method static \think\Request setPathinfo(string $pathinfo) 设置当前请求的pathinfo
  * @method static string pathinfo() 获取当前请求URL的pathinfo信息（含URL后缀）
  * @method static string ext() 当前URL的访问后缀
- * @method static integer|float time(bool $float = false) 获取当前请求的时间
+ * @method static int|float time(bool $float = false) 获取当前请求的时间
  * @method static string type() 当前请求的资源类型
  * @method static void mimeType(string|array $type, string $val = '') 设置资源类型
  * @method static \think\Request setMethod(string $method) 设置请求类型
@@ -81,7 +82,7 @@ use think\route\Rule;
  * @method static bool isAjax(bool $ajax = false) 当前是否Ajax请求
  * @method static bool isPjax(bool $pjax = false) 当前是否Pjax请求
  * @method static string ip() 获取客户端IP地址
- * @method static boolean isValidIP(string $ip, string $type = '') 检测是否是合法的IP地址
+ * @method static bool isValidIP(string $ip, string $type = '') 检测是否是合法的IP地址
  * @method static string ip2bin(string $ip) 将IP地址转换为二进制字符串
  * @method static bool isMobile() 检测是否使用手机访问
  * @method static string scheme() 当前URL地址中的scheme参数
@@ -116,7 +117,7 @@ use think\route\Rule;
  * @method static \think\Request withRoute(array $route) 设置ROUTE变量
  * @method static mixed __set(string $name, mixed $value) 设置中间传递数据
  * @method static mixed __get(string $name) 获取中间传递数据的值
- * @method static boolean __isset(string $name) 检测中间传递数据的值
+ * @method static bool __isset(string $name) 检测中间传递数据的值
  * @method static bool offsetExists(mixed $name)
  * @method static mixed offsetGet(mixed $name)
  * @method static mixed offsetSet(mixed $name, $value)

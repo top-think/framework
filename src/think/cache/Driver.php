@@ -36,13 +36,13 @@ abstract class Driver implements CacheHandlerInterface
 
     /**
      * 缓存读取次数
-     * @var integer
+     * @var int
      */
     protected $readTimes = 0;
 
     /**
      * 缓存写入次数
-     * @var integer
+     * @var int
      */
     protected $writeTimes = 0;
 
@@ -61,7 +61,7 @@ abstract class Driver implements CacheHandlerInterface
     /**
      * 获取有效期
      * @access protected
-     * @param integer|DateInterval|DateTimeInterface $expire 有效期
+     * @param int|DateInterval|DateTimeInterface $expire 有效期
      * @return int
      */
     protected function getExpireTime(int | DateInterval | DateTimeInterface $expire): int

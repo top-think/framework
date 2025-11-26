@@ -20,7 +20,7 @@ class Cache implements SessionHandlerInterface
     /** @var CacheInterface */
     protected $handler;
 
-    /** @var integer */
+    /** @var int */
     protected $expire;
 
     /** @var string */

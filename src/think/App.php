@@ -43,7 +43,7 @@ class App extends Container
      * 核心框架版本 
      * @deprecated 已经废弃 请改用version()方法
      */    
-    const VERSION = '8.0.0';
+    public const VERSION = '8.0.0';
 
     /**
      * 应用调试模式
@@ -71,7 +71,7 @@ class App extends Container
 
     /**
      * 应用内存初始占用
-     * @var integer
+     * @var int
      */
     protected $beginMem;
 
@@ -427,7 +427,7 @@ class App extends Container
     /**
      * 获取应用初始内存占用
      * @access public
-     * @return integer
+     * @return int
      */
     public function getBeginMem(): int
     {

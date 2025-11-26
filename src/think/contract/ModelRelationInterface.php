@@ -55,12 +55,12 @@ interface ModelRelationInterface
     /**
      * 关联统计
      * @access public
-     * @param  Model   $result  模型对象
-     * @param  Closure $closure 闭包
-     * @param  string  $aggregate 聚合查询方法
-     * @param  string  $field 字段
-     * @param  string  $name 统计字段别名
-     * @return integer
+     * @param Model       $result    模型对象
+     * @param Closure     $closure   闭包
+     * @param string      $aggregate 聚合查询方法
+     * @param string      $field     字段
+     * @param string|null $name      统计字段别名
+     * @return int
      */
     public function relationCount(Model $result, Closure $closure, string $aggregate = 'count', string $field = '*', ?string &$name = null);
 
@@ -78,10 +78,10 @@ interface ModelRelationInterface
     /**
      * 根据关联条件查询当前模型
      * @access public
-     * @param  string  $operator 比较操作符
-     * @param  integer $count    个数
-     * @param  string  $id       关联表的统计字段
-     * @param  string  $joinType JOIN类型
+     * @param  string $operator 比较操作符
+     * @param  int    $count    个数
+     * @param  string $id       关联表的统计字段
+     * @param  string $joinType JOIN类型
      * @return Query
      */
     public function has(string $operator = '>=', int $count = 1, string $id = '*', string $joinType = 'INNER', ?Query $query = null): Query;

@@ -270,7 +270,7 @@ class Handle
      * ErrorException则使用错误级别作为错误编码
      * @access protected
      * @param Throwable $exception
-     * @return integer                错误编码
+     * @return int                错误编码
      */
     protected function getCode(Throwable $exception)
     {

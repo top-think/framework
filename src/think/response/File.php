@@ -91,7 +91,7 @@ class File extends Response
     /**
      * 设置有效期
      * @access public
-     * @param  integer $expire 有效期
+     * @param  int $expire 有效期
      * @return $this
      */
     public function expire(int $expire)
