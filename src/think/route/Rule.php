@@ -1030,13 +1030,29 @@ abstract class Rule
         return call_user_func_array([$this, 'setOption'], $args);
     }
 
-    public function __sleep()
+    public function __serialize(): array
     {
-        return ['name', 'rule', 'route', 'method', 'vars', 'option', 'pattern'];
+        return [
+            'name'    => $this->name,
+            'rule'    => $this->rule,
+            'route'   => $this->route,
+            'method'  => $this->method,
+            'vars'    => $this->vars,
+            'option'  => $this->option,
+            'pattern' => $this->pattern,
+        ];
     }
 
-    public function __wakeup()
+    public function __unserialize(array $data): void
     {
+        $this->name    = $data['name'];
+        $this->rule    = $data['rule'];
+        $this->route   = $data['route'];
+        $this->method  = $data['method'];
+        $this->vars    = $data['vars'];
+        $this->option  = $data['option'];
+        $this->pattern = $data['pattern'];
+        
         $this->router = Container::pull('route');
     }
 
