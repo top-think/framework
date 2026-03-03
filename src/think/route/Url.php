@@ -224,6 +224,11 @@ class Url
             }
         }
 
+        $ext = pathinfo($url, PATHINFO_EXTENSION);
+        if ('' !== $ext && str_ends_with($url, '.' . $ext)) {
+            $url = substr($url, 0, -strlen($ext) - 1);
+        }
+
         return $url;
     }
 

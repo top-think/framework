@@ -42,6 +42,21 @@ class UrlRouteTest extends TestCase
     }
 
     /**
+     * 测试 Route::buildUrl()
+     */
+    public function testBuild()
+    {
+        $request  = $this->makeRequest('index/index.html');
+
+        $this->app->request = $request;
+
+        $urlBuild = new \think\route\Url($this->route, $this->app, '', []);
+        $result = $urlBuild->build();
+
+        $this->assertEquals('/index/index.html', $result);
+    }
+
+    /**
      * @param        $path
      * @param string $method
      * @param string $host
