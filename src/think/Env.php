@@ -61,7 +61,7 @@ class Env implements ArrayAccess
      * @param mixed  $default 默认值
      * @return mixed
      */
-    public function get(?string $name = null, $default = null)
+    public function get(?string $name = null, mixed $default = null)
     {
         if (is_null($name)) {
             return $this->data;
@@ -81,7 +81,7 @@ class Env implements ArrayAccess
         return $this->getEnv($name, $default);
     }
 
-    protected function getEnv(string $name, $default = null)
+    protected function getEnv(string $name, mixed $default = null)
     {
         $result = getenv('PHP_' . $name);
 
