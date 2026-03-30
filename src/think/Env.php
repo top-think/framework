@@ -57,11 +57,11 @@ class Env implements ArrayAccess
     /**
      * 获取环境变量值
      * @access public
-     * @param string $name    环境变量名
-     * @param mixed  $default 默认值
+     * @param ?string $name    环境变量名
+     * @param mixed   $default 默认值
      * @return mixed
      */
-    public function get(?string $name = null, $default = null)
+    public function get(?string $name = null, mixed $default = null)
     {
         if (is_null($name)) {
             return $this->data;
