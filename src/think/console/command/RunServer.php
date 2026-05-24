@@ -48,8 +48,8 @@ class RunServer extends Command
 
     public function execute(Input $input, Output $output)
     {
-        $host = $input->getOption('host');
-        $port = $input->getOption('port');
+        $host = $input->getOption('host') ?: env('server.host', '0.0.0.0');
+        $port = $input->getOption('port') ?: env('server.port', 8000);
         $root = $input->getOption('root');
         if (empty($root)) {
             $root = $this->app->getRootPath() . 'public';
