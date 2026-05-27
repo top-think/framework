@@ -117,7 +117,7 @@ abstract class Driver implements CacheHandlerInterface
         $item = $this->get($name, []);
 
         if (!is_array($item)) {
-            throw new InvalidArgumentException('only array cache can be push');
+            $item = [];
         }
 
         $item[] = $value;
