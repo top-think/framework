@@ -4,6 +4,7 @@ namespace think\tests;
 
 use Mockery as m;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 use think\App;
 use think\Config;
 use think\Container;
@@ -565,5 +566,115 @@ class RequestTest extends TestCase
         $request3 = new Request();
         $request3->withServer(['PATH_INFO' => '/user/profile']);
         $this->assertEquals('', $request3->ext());
+    }
+
+    /**
+     * 通过反射设置 Request 的 protected 属性（用于注入 proxyServerIp / trustedHosts）.
+     *
+     * @param mixed $value
+     */
+    protected function setProtected(Request $request, string $property, $value): void
+    {
+        $ref = new ReflectionProperty(Request::class, $property);
+        $ref->setAccessible(true);
+        $ref->setValue($request, $value);
+    }
+
+    public function testHostTrustsXForwardedHostByDefault()
+    {
+        // 未配置 proxyServerIp：维持既有行为，信任 X-Forwarded-Host（向后兼容）
+        $request = new Request();
+        $request->withServer([
+            'HTTP_HOST'             => 'real.example.com',
+            'HTTP_X_FORWARDED_HOST' => 'evil.attacker.com',
+        ]);
+        $this->assertEquals('evil.attacker.com', $request->host());
+    }
+
+    public function testHostIgnoresXForwardedHostFromUntrustedProxy()
+    {
+        // 配置 proxyServerIp 后，来自非可信 IP 的 X-Forwarded-Host 必须被忽略
+        $request = new Request();
+        $this->setProtected($request, 'proxyServerIp', ['10.0.0.1']);
+        $request->withServer([
+            'REMOTE_ADDR'           => '8.8.8.8',
+            'HTTP_HOST'             => 'real.example.com',
+            'HTTP_X_FORWARDED_HOST' => 'evil.attacker.com',
+        ]);
+        $this->assertEquals('real.example.com', $request->host());
+    }
+
+    public function testHostTrustsXForwardedHostFromTrustedProxy()
+    {
+        // 来自可信代理的 X-Forwarded-Host 应被采纳
+        $request = new Request();
+        $this->setProtected($request, 'proxyServerIp', ['10.0.0.1']);
+        $request->withServer([
+            'REMOTE_ADDR'           => '10.0.0.1',
+            'HTTP_HOST'             => 'real.example.com',
+            'HTTP_X_FORWARDED_HOST' => 'cdn.example.com',
+        ]);
+        $this->assertEquals('cdn.example.com', $request->host());
+    }
+
+    public function testHostValidatesAgainstTrustedHosts()
+    {
+        // trustedHosts 精确命中（端口保留）
+        $request = new Request();
+        $this->setProtected($request, 'trustedHosts', ['example.com', '*.example.com']);
+        $request->withServer(['HTTP_HOST' => 'example.com:8080']);
+        $this->assertEquals('example.com:8080', $request->host());
+
+        // *.example.com 通配命中
+        $request2 = new Request();
+        $this->setProtected($request2, 'trustedHosts', ['example.com', '*.example.com']);
+        $request2->withServer(['HTTP_HOST' => 'api.example.com']);
+        $this->assertEquals('api.example.com', $request2->host());
+    }
+
+    public function testHostRejectsUntrustedHost()
+    {
+        // 不在 trustedHosts 内的 host 回退到白名单首项，伪造的 X-Forwarded-Host 同样被挡
+        $request = new Request();
+        $this->setProtected($request, 'trustedHosts', ['example.com', '*.example.com']);
+        $request->withServer([
+            'HTTP_HOST'             => 'example.com',
+            'HTTP_X_FORWARDED_HOST' => 'evil.attacker.com',
+        ]);
+        $this->assertEquals('example.com', $request->host());
+    }
+
+    public function testIsSslIgnoresXForwardedProtoFromUntrustedProxy()
+    {
+        $request = new Request();
+        $this->setProtected($request, 'proxyServerIp', ['10.0.0.1']);
+        $request->withServer([
+            'REMOTE_ADDR'            => '8.8.8.8',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+        ]);
+        $this->assertFalse($request->isSsl());
+    }
+
+    public function testIsSslTrustsXForwardedProtoFromTrustedProxy()
+    {
+        $request = new Request();
+        $this->setProtected($request, 'proxyServerIp', ['10.0.0.1']);
+        $request->withServer([
+            'REMOTE_ADDR'            => '10.0.0.1',
+            'HTTP_X_FORWARDED_PROTO' => 'https',
+        ]);
+        $this->assertTrue($request->isSsl());
+    }
+
+    public function testPortIgnoresXForwardedPortFromUntrustedProxy()
+    {
+        $request = new Request();
+        $this->setProtected($request, 'proxyServerIp', ['10.0.0.1']);
+        $request->withServer([
+            'REMOTE_ADDR'           => '8.8.8.8',
+            'SERVER_PORT'           => '80',
+            'HTTP_X_FORWARDED_PORT' => '443',
+        ]);
+        $this->assertEquals(80, $request->port());
     }
 }

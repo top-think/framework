@@ -79,6 +79,13 @@ class Request implements ArrayAccess
     protected $proxyServerIp = [];
 
     /**
+     * 可信任的Host白名单(为空则不校验，支持 *.example.com 通配).
+     *
+     * @var array
+     */
+    protected $trustedHosts = [];
+
+    /**
      * 前端代理服务器真实IP头
      * @var array
      */
@@ -1550,7 +1557,7 @@ class Request implements ArrayAccess
             return true;
         } elseif ('443' == $this->server('SERVER_PORT')) {
             return true;
-        } elseif ('https' == $this->server('HTTP_X_FORWARDED_PROTO')) {
+        } elseif ($this->isFromTrustedProxy() && 'https' == $this->server('HTTP_X_FORWARDED_PROTO')) {
             return true;
         } elseif ($this->httpsAgentName && $this->server($this->httpsAgentName)) {
             return true;
@@ -1785,8 +1792,13 @@ class Request implements ArrayAccess
         if ($this->host) {
             $host = $this->host;
         } else {
-            $host = strval($this->server('HTTP_X_FORWARDED_HOST') ?: $this->server('HTTP_HOST'));
+            // 仅当请求来自可信代理时才信任 X-Forwarded-Host
+            $forwardedHost = $this->isFromTrustedProxy() ? $this->server('HTTP_X_FORWARDED_HOST') : null;
+            $host          = strval($forwardedHost ?: $this->server('HTTP_HOST'));
         }
+
+        // 可信Host白名单校验(trustedHosts 为空时行为不变)
+        $host = $this->validateHost($host);
 
         return true === $strict && str_contains($host, ':') ? strstr($host, ':', true) : $host;
     }
@@ -1798,7 +1810,80 @@ class Request implements ArrayAccess
      */
     public function port(): int
     {
-        return (int) ($this->server('HTTP_X_FORWARDED_PORT') ?: $this->server('SERVER_PORT', ''));
+        // 仅当请求来自可信代理时才信任 X-Forwarded-Port
+        $forwardedPort = $this->isFromTrustedProxy() ? $this->server('HTTP_X_FORWARDED_PORT') : null;
+
+        return (int) ($forwardedPort ?: $this->server('SERVER_PORT', ''));
+    }
+
+    /**
+     * 判断当前请求是否来自可信代理
+     * 未配置 proxyServerIp 时返回 true(保持向后兼容);
+     * 配置后,仅当 REMOTE_ADDR 属于可信代理网段时才返回 true。
+     */
+    protected function isFromTrustedProxy(): bool
+    {
+        $proxyIp = $this->proxyServerIp;
+
+        // 未配置可信代理:维持既有行为,信任转发头
+        if (empty($proxyIp)) {
+            return true;
+        }
+
+        $remoteAddr = $this->server('REMOTE_ADDR', '');
+
+        if (!$this->isValidIP($remoteAddr)) {
+            return false;
+        }
+
+        $remoteBin = $this->ip2bin($remoteAddr);
+
+        foreach ($proxyIp as $ip) {
+            $elements  = explode('/', $ip);
+            $serverIP  = $elements[0];
+            $prefix    = $elements[1] ?? 128;
+            $serverBin = $this->ip2bin($serverIP);
+
+            if (strlen($remoteBin) !== strlen($serverBin)) {
+                continue;
+            }
+
+            if (0 === strncmp($remoteBin, $serverBin, (int) $prefix)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * 根据 trustedHosts 白名单校验主机名
+     * trustedHosts 为空时直接返回(向后兼容);
+     * 配置后,不在白名单内的主机将回退到白名单首项,避免 Host 污染。
+     *
+     * @param string $host 待校验的 host(可能含端口)
+     */
+    protected function validateHost(string $host): string
+    {
+        if (empty($this->trustedHosts)) {
+            return $host;
+        }
+
+        $hostName = str_contains($host, ':') ? strstr($host, ':', true) : $host;
+
+        foreach ($this->trustedHosts as $pattern) {
+            if ($pattern === $hostName) {
+                return $host;
+            }
+
+            // 支持 *.example.com 通配
+            if (str_starts_with($pattern, '*.') && str_ends_with($hostName, substr($pattern, 1))) {
+                return $host;
+            }
+        }
+
+        // 不可信主机:回退到白名单首项
+        return $this->trustedHosts[0];
     }
 
     /**
