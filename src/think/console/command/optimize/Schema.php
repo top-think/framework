@@ -40,8 +40,8 @@ class Schema extends Command
     protected function execute(Input $input, Output $output)
     {
         try {
-            if ($table = $input->hasOption('table')) {
-                $this->cacheTable($table, $input->getOption('connection'));
+            if ($input->hasOption('table')) {
+                $this->cacheTable($input->getOption('table'), $input->getOption('connection'));
             } else {
                 $dirs = ((array) $input->getArgument('dir')) ?: $this->getDefaultDirs();
                 foreach ($dirs as $dir) {
